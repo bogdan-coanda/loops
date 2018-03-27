@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>#5 loops</title>
+<meta charset="UTF-8">
+<script src="GoJS/release/go.js"></script>
+<script src="superperms.js?v=3"></script>
+<style media="all">
+html, body{height:100%;} 
+#myDiagramDiv{
+min-height:96%;
+}
+
+.arrow_count {
+	height: 80px important!;
+	display: inline-block;
+}
+
+.arrow_count input {
+	width: 40px;
+}
+
+* html #myDiagramDiv{height:96%;} /* for IE 6, if you care */
+
+</style>
+<script src="js/loops.utils.js"></script>
+<script src="js/loops.init.js"></script>
+<script src="js/loops.touch.js"></script>
+<script src="js/loops.path.js"></script>
+<script src="js/loops.buttons.js"></script>
+<script src="js/loops.fast.js"></script>
+<script id="code">
+	
+	function generateGraph() {
+		myDiagram.spClass = 5
+		myDiagram.perms = permutator([0,1,2,3,4])
+		myDiagram.pids = {}
+		for (var i = 0; i < myDiagram.perms.length; ++i) {
+			myDiagram.perms[i] = myDiagram.perms[i].join("")
+			myDiagram.pids[myDiagram.perms[i]] = i
+		}
+		
+    var nodeDataArray = [];
+    for (var i = 0; i < myDiagram.perms.length; i++) {
+      nodeDataArray.push({ 
+      	key: i, 
+      	text: myDiagram.perms[i], 
+      	color: "white",
+      	loc: new go.Point(40*i, 40*i),
+      	isCenter: false 
+      });
+    }
+
+		perm = '01234'
+		next = perm
+		cc = 0
+		x = 288; y = 288;
+		for (var q2 = 0; q2 < 2; q2++) {
+			for (var q3 = 0; q3 < 3; q3++) {
+				for (var q4 = 0; q4 < 4; q4++) {
+					
+					nodeDataArray.push({ 
+						key: "CC"+cc, 
+						text: cc, 
+						color: "white",
+						loc: new go.Point(x, y),
+						cc: cc,
+						isCenter: true 
+					});
+					
+					for (var q5 = 0; q5 < 5; q5++) {
+						dx = Math.floor(144*Math.cos((q5 - 2) * 2 * Math.PI / 5))
+						dy = Math.floor(144*Math.sin((q5 - 2) * 2 * Math.PI / 5))
+						perm = next
+						nodeDataArray[myDiagram.pids[perm]].loc = new go.Point(x+dx,y+dy)
+						nodeDataArray[myDiagram.pids[perm]].cc = cc
+						nodeDataArray[myDiagram.pids[perm]].address = ''+q2+''+q3+''+q4+''+q5
+						next = D1(perm)
+					}
+					
+					cc += 1
+					
+					y += 576
+					next = D2(perm)
+				}
+				x += 576
+				y = 288
+				next = D3(perm)
+			}
+			x += 576
+			y = 288
+			next = D4(perm)
+		}
+				
+    var linkDataArray = [];
+    for (var i = 0; i < myDiagram.perms.length; i++) {
+      linkDataArray.push({ from: i, to: myDiagram.pids[D1(myDiagram.perms[i])], color: "red", width: 2 });
+      linkDataArray.push({ from: i, to: myDiagram.pids[D2(myDiagram.perms[i])], color: "blue", width: 4 });
+      linkDataArray.push({ from: i, to: myDiagram.pids[D3(myDiagram.perms[i])], color: "green", width: 6 });
+/*      linkDataArray.push({ from: i, to: myDiagram.pids[D4(myDiagram.perms[i])], color: "orange", width: 8 });
+      linkDataArray.push({ from: i, to: myDiagram.pids[D5(myDiagram.perms[i])], color: "yellow", width: 10 });
+      linkDataArray.push({ from: i, to: myDiagram.pids[D6(myDiagram.perms[i])], color: "purple", width: 12 });*/
+    }
+
+    myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
+    return '01234'
+  }
+  
+  function postGenerate() {		
+		for(var q = 0; q < 7; ++q) {
+			for(var i = 0; i < 360; i += 20) {
+				document.getElementById("buttonstuffs").innerHTML += '<span style="background: hsl(' + (i + 60) % 360 + ', 100%, ' + (20 + q * 60/6) + '%);">&nbsp;&nbsp;&nbsp;\n<input type="radio" name="color_radio" onclick="setCurrentColor()" value="' + (i + 60) % 360 + '">\n&nbsp;&nbsp;&nbsp;</span>\n'
+			}
+			document.getElementById("buttonstuffs").innerHTML += "<br />"
+		}		
+		
+		/*
+		nodeClicked(null, myDiagram.findNodeForKey(myDiagram.pids[myDiagram.startPerm]))		
+		
+		set_as_looper()
+		
+		drawNodes(myDiagram)		
+		*/
+		set_as_looper()
+	}		  
+</script>
+
+</head>
+<body onload="init()">
+	<div id="buttonstuffs" style="display:inline-block">
+		<button type="button" style="background:black; height:80;" onclick="CLEAR()">CLR</button>
+		<div class="arrow_count" style="background: red;"><input id="D1_count" type="text" value="0"></div>
+		<div class="arrow_count" style="background: blue;"><input id="D2_count" type="text" value="0"></div>
+		<div class="arrow_count" style="background: green;"><input id="D3_count" type="text" value="0"></div>
+		<div class="arrow_count" style="background: orange;"><input id="D4_count" type="text" value="0"></div>
+		<div class="arrow_count" style="background: yellow;"><input id="D5_count" type="text" value="0"></div>
+		<div class="arrow_count" style="background: purple;"><input id="D6_count" type="text" value="0"></div>
+		<div class="arrow_count" style="background: darkgreen;"><input id="D7_count" type="text" value="0"></div>
+		<div class="arrow_count" style="background: lightblue;"><input id="secondary_count" type="text" value="0"></div>
+		<div class="arrow_count" style="background: black;"><input id="available_count" type="text" value="0"></div>
+		<div class="arrow_count" style="background: gray;"><input id="potential_count" type="text" value="0"></div>
+		<div class="arrow_count" style="background: lightgray;"><input id="ap_ratio" type="text" value="0"></div>
+		<button type="button" style="background:black; height:80;" onclick="EA()">max available</button>
+		<button type="button" style="background:gray; height:80;" onclick="EP()">max potential</button>
+		<button type="button" style="background:lightgray; height:80;" onclick="EAPR()">min a/p ratio</button>
+		<button type="button" style="background:pink; height:80;" onclick="QQ()">QQ</button>
+		<button id="auto-button" type="button" style="background:red; height:80;" onclick="AutoSwitch()">Auto</button>
+		<br />
+		<span id="walked">walked</span>
+		<br />
+		<span id="status">status</span>
+		<br />
+		<button id="reset_button" type="button" style="background:white; height:80;" onclick="reset_diagram()">RESET</button>
+		<button id="loop_button" type="button" style="background:plum; height:80;" onclick="set_as_looper()">LOOPER</button>
+		<button id="path_button" type="button" style="background:plum; height:80;" onclick="set_as_pather()">PATHER</button>
+		<button id="mark_button" type="button" style="background:plum; height:80;" onclick="set_as_marker()">MARKER</button>
+		<button id="back_button" type="button" style="background:plum; height:80;" onclick="set_as_backer()">BACKER</button>
+		<br />
+	</div>
+<div style="height:100%">	
+	<div id="myDiagramDiv" style="background: white;"></div>
+	<div id="log" style="display: inline-block;">ana are mere</div>
+</div>
+</body>
+</html>

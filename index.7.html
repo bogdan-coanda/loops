@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>localhosted #7</title>
+<meta name="description" content="Interactive diagram showing all distances from a node, and highlighting all paths between two nodes." />
+<!-- Copyright 1998-2018 by Northwoods Software Corporation. -->
+<meta charset="UTF-8">
+<script src="GoJS/release/go-debug.js"></script>
+<script src="fromsample.js?v=3"></script>
+<script src="superperms.js?v=3"></script>
+<style media="all">
+html, body{height:100%;} 
+#myDiagramDiv{
+min-height:90%;
+}
+
+.arrow_count {
+	height: 80px important!;
+	display: inline-block;
+}
+
+.arrow_count input {
+	width: 40px;
+}
+
+* html #myDiagramDiv{height:90%;} /* for IE 6, if you care */
+</style>
+<script src="diagram.js?v=3"></script>
+<script id="code">
+
+	
+	function generateGraph() {
+		myDiagram.spClass = 7
+		myDiagram.perms = permutator([0,1,2,3,4,5,6])
+		myDiagram.pids = {}
+		for (var i = 0; i < myDiagram.perms.length; ++i) {
+			myDiagram.perms[i] = myDiagram.perms[i].join("")
+			myDiagram.pids[myDiagram.perms[i]] = i
+		}
+		
+    var nodeDataArray = [];
+    for (var i = 0; i < myDiagram.perms.length; i++) {
+      nodeDataArray.push({ 
+      	key: i, 
+      	text: myDiagram.perms[i], 
+      	color: "white",
+      	loc: new go.Point(40*i, 40*i) 
+      });
+    }
+
+		perm = '0123456'
+		next = perm
+		cc = 0
+		x = 288; y = 288; hx = 0; hy = 0;
+		for (var q2 = 0; q2 < 2; q2++) {
+			for (var q3 = 0; q3 < 3; q3++) {
+				for (var q4 = 0; q4 < 4; q4++) {
+					for (var q5 = 0; q5 < 5; q5++) {
+						for (var q6 = 0; q6 < 6; q6++) {
+							
+							nodeDataArray.push({ 
+	      				key: "CC"+cc, 
+	      				text: cc, 
+	      				color: "white",
+	      				loc: new go.Point(x, y) 
+	      			});
+						
+							for (var q7 = 0; q7 < 7; q7++) {
+								dx = Math.floor(144*Math.cos((q7 - 3) * 2 * Math.PI / 7))
+								dy = Math.floor(144*Math.sin((q7 - 3) * 2 * Math.PI / 7))
+								perm = next
+								nodeDataArray[myDiagram.pids[perm]].loc = new go.Point(x+dx,y+dy)
+								next = D1(perm)
+							}
+							y += 576
+							next = D2(perm)
+						}
+						x += 576
+						y = hy + 288
+						next = D3(perm)
+					}
+					x += 576
+					y = hy + 288
+					next = D4(perm)
+				}
+				x = hx + 288
+				hy += 3888
+				y = hy + 288
+				next = D5(perm)
+			}
+			hx += 14400
+			x = hx + 288
+			hy = 0
+			y = hy + 288
+			next = D6(perm)
+		}
+		
+    var linkDataArray = [];
+    for (var i = 0; i < myDiagram.perms.length; i++) {
+      linkDataArray.push({ from: i, to: myDiagram.pids[D1(myDiagram.perms[i])], color: "red", width: 2 });
+      linkDataArray.push({ from: i, to: myDiagram.pids[D2(myDiagram.perms[i])], color: "blue", width: 4 });
+      linkDataArray.push({ from: i, to: myDiagram.pids[D3(myDiagram.perms[i])], color: "green", width: 6 });
+/*      linkDataArray.push({ from: i, to: myDiagram.pids[D4(myDiagram.perms[i])], color: "orange", width: 8 });
+      linkDataArray.push({ from: i, to: myDiagram.pids[D5(myDiagram.perms[i])], color: "yellow", width: 10 });
+      linkDataArray.push({ from: i, to: myDiagram.pids[D6(myDiagram.perms[i])], color: "purple", width: 12 });*/
+    }
+
+    myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
+  }
+  
+  function setCurrentColor() {
+  	var radios = document.getElementsByName("color_radio")
+  	for (var i = 0; i < radios.length; i++)
+  		if (radios[i].checked) {
+  			myDiagram.currentColor = radios[i].parentNode.style["background-color"]
+  			return
+  		}
+  }
+  
+	function changeMirror(selectObj) {
+		myDiagram.mirror_function = selectObj.value == "--" ? null :
+			(selectObj.value == "R3" ? R3 : (selectObj.value == "R4" ? R4 : (selectObj.value == "R5" ? R5 : R6)))
+
+		myDiagram.mirror = null
+		myDiagram.current = null
+		myDiagram.nodes.each(function(node) { 
+			node.highlighted = false 
+			node.mirror_highlighted = false
+			node.circled = false
+			node.findObject("LABEL").stroke = "black"
+			var shape = node.findObject("SHAPE")
+			shape.fill = 'white'
+			shape.stroke = 'black'
+			shape.strokeWidth = 1
+			shape.strokeDashArray = null
+		})
+		myDiagram.links.each(function(link) {
+			link.highlighted = false
+			link.commited = false
+			link.part.opacity = 0
+			link.part.zOrder = 0
+		})
+  }
+  
+</script>
+
+</head>
+<body onload="init()">
+	<div style="display:inline-block">
+		<select onchange="changeMirror(this)">
+			<option value="--">--</option>
+			<option value="R3">R3</option>
+			<option value="R4">R4</option>
+			<option value="R5">R5</option>
+			<option value="R6">R6</option>
+		</select>
+		<div class="arrow_count" style="background: red;"><input id="D1_count" type="text" value="0"></div>
+		<div class="arrow_count" style="background: blue;"><input id="D2_count" type="text" value="0"></div>
+		<div class="arrow_count" style="background: green;"><input id="D3_count" type="text" value="0"></div>
+		<div class="arrow_count" style="background: orange;"><input id="D4_count" type="text" value="0"></div>
+		<div class="arrow_count" style="background: yellow;"><input id="D5_count" type="text" value="0"></div>
+		<div class="arrow_count" style="background: purple;"><input id="D6_count" type="text" value="0"></div>
+		<span style="background: yellow;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="0">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: moccasin;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="1">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: lightgoldenrodyellow;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="2">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: peachpuff;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="3">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: papayawhip;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="4">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: darkkhaki;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="5">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: greenyellow;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="6">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: yellowgreen;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="7">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: tomato;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="8">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: coral;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="9">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: orangered;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="10">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: gold;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="11">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: orange;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="12">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: darkorange;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="13">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: lightskyblue;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="14">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: deepskyblue;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="15">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: steelblue;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="16">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: mediumslateblue;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="17">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: mediumblue;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="18">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: blueviolet;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="19">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: indigo;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="20">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: cyan;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="21">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: aquamarine;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="22">
+		&nbsp;&nbsp;&nbsp;</span>
+		<span style="background: lightseagreen;">&nbsp;&nbsp;&nbsp;
+			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="23">
+		&nbsp;&nbsp;&nbsp;</span>
+	</div>
+<div id="myDiagramDiv" style="background: white;"></div>
+</body>
+</html>
