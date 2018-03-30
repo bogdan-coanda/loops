@@ -244,14 +244,18 @@ function appendFast(diagram, curr, next) {
 	next.prevNode = curr
 	
 	next.looped = true
+//	if(diagram.cursive) {
 	next.shape.fill = diagram.currentColor
-	
+//	}
+
 	next.findLinksInto().each(link => { 
 		if (link.fromNode == curr) {
 			curr.nextLink = next.prevLink = link
 			link.commited = true
-			link.part.opacity = 1
-			link.part.zOrder = 100					
+			if(diagram.cursive) {
+				link.part.opacity = 1
+				link.part.zOrder = 100
+			}					
 		}
 	})
 }
@@ -262,16 +266,22 @@ function deleteFast(diagram, curr, next) {
 	
 	next.looped = false
 	next.extended = false
+//	if(diagram.cursive) {
 	next.shape.fill = "white"
+//	}
+
+	var link = curr.nextLink
 		
-	next.findLinksInto().each(link => { 
-		if (link.fromNode == curr) {
+//	next.findLinksInto().each(link => { 
+//		if (link.fromNode == curr) {
 			curr.nextLink = next.prevLink = null
 			link.commited = false
-			link.part.opacity = 0
-			link.part.zOrder = 0
-		}
-	})
+			if(diagram.cursive) {
+				link.part.opacity = 0
+				link.part.zOrder = 0
+			}
+//		}
+//	})
 }
 
 function tryMakeAvailableFast(diagram, nodes) {

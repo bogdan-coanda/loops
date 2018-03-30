@@ -409,6 +409,19 @@ function drawNodes(diagram) {
 		})
 	})
 	
+	if(diagram.cursive == false) {	
+		log("drawing links")
+		diagram.links.each(link => {
+			if(link.commited) {
+				link.part.opacity = 1
+				link.part.zOrder = 100
+			} else {
+				link.part.opacity = 0
+				link.part.zOrder = 0
+			}
+	})
+	}
+	
 	log("draw done.")
 	
 	updateStatus(diagram)
