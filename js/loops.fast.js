@@ -1,9 +1,16 @@
 var mxlvl = 0
+var jkcc = 0
+var RR = 0.005
 
 function jk(diagram) {
+	jkcc += 1	
 	var ss = diagram.ss
+	if (ss.state != "new" && ss.state != "done.")	
+	ss.state = "jk:" + jkcc
+	
 	log("[jk] lvl: " + ss.lvl + " | node: " + nstr(ss.lvls_node[ss.lvl]) + " | av: " + ss.lvls_availables[ss.lvl].length + " | avIndex: " + ss.lvls_avIndex[ss.lvl] + " | seen: " + ss.seen.count)
 	log("[jk] lvls | " + ss.lvls_node.length + "|" + ss.lvls_seen.length + "|" + ss.lvls_availables.length + "|" + ss.lvls_avIndex.length)
+	
 	if(ss.lvl >= mxlvl) {
 		mxlvl = ss.lvl
 		console.log(mxlvl)
@@ -46,93 +53,80 @@ function jk(diagram) {
 		
 			// and clean up previous lvl trial
 			collapseFast(diagram, ss.lvls_node[ss.lvl])
-			log("[bk] collapsing: " + nstr(ss.lvls_node[ss.lvl]))
+			log("[jk] collapsing: " + nstr(ss.lvls_node[ss.lvl]))
 			ss.seen.add(ss.lvls_node[ss.lvl])
 			ss.lvls_seen[ss.lvl].add(ss.lvls_node[ss.lvl])
-			
+						
 			// and continue
 			ss.next_available()
 			
-			drawNodes(diagram)
-
-			if (diagram.auto) {
-				setTimeout(function() {
+			measureNodes(diagram)
+			
+			if(Math.random() < RR) {
+				//drawNodes(diagram)
+				updateStatus(diagram)
+	
+				if (diagram.auto) {
+					setTimeout(function() {
+						jk(diagram)
+					}, 0)
+				}
+			} else {
+				if(diagram.auto) {						
 					jk(diagram)
-				}, 0)
+				}
 			}
+			
 			
 			return			
 		}
 	} 
 	
 	// else, carry on
-	ss.lvls_node[ss.lvl].marked = true
-	ss.lvls_node[ss.lvl].markedColor = 'black'
+//	ss.lvls_node[ss.lvl].marked = true
+//	ss.lvls_node[ss.lvl].markedColor = 'black'
 	
 	var didExtend = false
 	
 	if (ss.seen.has(ss.lvls_node[ss.lvl]) == false && extendFast(diagram, ss.lvls_node[ss.lvl])) {
-		log("[bk] extending: " + nstr(ss.lvls_node[ss.lvl]))
+		log("[jk] extending: " + nstr(ss.lvls_node[ss.lvl]))
 		
 		ss.push_lvl()
 
-		drawNodes(diagram)
-
-		if(diagram.auto) {						
-			setTimeout(function() {
-				jk(diagram)
-			}, 20)
-		}
+		if(Math.random() < RR) {
+			//drawNodes(diagram)
+			updateStatus(diagram)
 			
+			if(diagram.auto) {						
+				setTimeout(function() {
+					jk(diagram)
+				}, 0)
+			}
+		} else {
+			if(diagram.auto) {						
+				jk(diagram)
+			}
+		}
+		
 	} else {
 		// or continue
 		ss.next_available()
 					
-		drawNodes(diagram)
+		if(Math.random() < RR) {
+			//drawNodes(diagram)
+			updateStatus(diagram)
 		
-		if(diagram.auto) {
-			setTimeout(function() {
+			if(diagram.auto) {
+				setTimeout(function() {
+					jk(diagram)
+				}, 0)
+			}
+		} else {
+			if(diagram.auto) {
 				jk(diagram)
-			}, 0)
+			}
 		}
 	}
-}
-
-function bk(diagram, lvl, seen) {
-	log("[bk] lvl: " + lvl + " | seen: " + seen.count)
-	if(lvl >= mxlvl) {
-		mxlvl = lvl
-		console.log(mxlvl)
-	}
-	var node = diagram.startNode
-	var cc = 0
-	var av = 0
-	var lvlseen = new go.Set()
-	
-	while (node != null) {
-		cc += 1
-		if (seen.has(node) == false && extendFast(diagram, node)) {
-			log("[bk] extending: " + nstr(node))
-			av += 1
-			if(bk(diagram, lvl+1, seen))
-				return true
-			collapseFast(diagram, node)
-			log("[bk] collapsing: " + nstr(node))
-			seen.add(node)
-			lvlseen.add(node)
-		}
-		node = node.nextNode
-	}
-	if(av == 0 && cc == diagram.perms.length) {
-		log("FOUND!!!")
-		drawNodes(diagram)
-		return true
-	}
-	
-	// [~] need to remove the current lvl seens
-	seen.removeAll(lvlseen)
-	
-	return false	
 }
 
 function extendFast(diagram, node) {

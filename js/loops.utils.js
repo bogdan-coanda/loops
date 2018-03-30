@@ -9,6 +9,10 @@ function nstr(node) {
 	return "[" + node.key + "|" + node.perm + "|" + node.address + "]"
 }
 
+function tstr(ms) {
+	return "" + Math.floor(ms / 1000 / 60) + "m" + Math.floor((ms % (1000*60)) / 1000) + "s." + (ms % 1000)
+}
+
 /*function hsl(hue) {
 	return 'hsl(' + hue + ', 100%, 50%)'
 }*/

@@ -2,17 +2,14 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>localhosted #7</title>
-<meta name="description" content="Interactive diagram showing all distances from a node, and highlighting all paths between two nodes." />
-<!-- Copyright 1998-2018 by Northwoods Software Corporation. -->
+<title>#7 loops @ git</title>
 <meta charset="UTF-8">
-<script src="GoJS/release/go-debug.js"></script>
-<script src="fromsample.js?v=3"></script>
+<script src="GoJS/release/go.js"></script>
 <script src="superperms.js?v=3"></script>
 <style media="all">
 html, body{height:100%;} 
 #myDiagramDiv{
-min-height:90%;
+min-height:80%;
 }
 
 .arrow_count {
@@ -24,11 +21,16 @@ min-height:90%;
 	width: 40px;
 }
 
-* html #myDiagramDiv{height:90%;} /* for IE 6, if you care */
-</style>
-<script src="diagram.js?v=3"></script>
-<script id="code">
+* html #myDiagramDiv{height:80%;} /* for IE 6, if you care */
 
+</style>
+<script src="js/loops.utils.js"></script>
+<script src="js/loops.init.js"></script>
+<script src="js/loops.touch.js"></script>
+<script src="js/loops.path.js"></script>
+<script src="js/loops.buttons.js"></script>
+<script src="js/loops.fast.js"></script>
+<script id="code">
 	
 	function generateGraph() {
 		myDiagram.spClass = 7
@@ -63,7 +65,9 @@ min-height:90%;
 	      				key: "CC"+cc, 
 	      				text: cc, 
 	      				color: "white",
-	      				loc: new go.Point(x, y) 
+	      				loc: new go.Point(x, y),
+	      				cc: cc,
+      					isCenter: true
 	      			});
 						
 							for (var q7 = 0; q7 < 7; q7++) {
@@ -71,6 +75,8 @@ min-height:90%;
 								dy = Math.floor(144*Math.sin((q7 - 3) * 2 * Math.PI / 7))
 								perm = next
 								nodeDataArray[myDiagram.pids[perm]].loc = new go.Point(x+dx,y+dy)
+								nodeDataArray[myDiagram.pids[perm]].cc = cc
+								nodeDataArray[myDiagram.pids[perm]].address = ''+q2+''+q3+''+q4+''+q5+''+q6+''+q7
 								next = D1(perm)
 							}
 							y += 576
@@ -107,133 +113,59 @@ min-height:90%;
     }
 
     myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
+    return "0123456"
   }
   
-  function setCurrentColor() {
-  	var radios = document.getElementsByName("color_radio")
-  	for (var i = 0; i < radios.length; i++)
-  		if (radios[i].checked) {
-  			myDiagram.currentColor = radios[i].parentNode.style["background-color"]
-  			return
-  		}
-  }
-  
-	function changeMirror(selectObj) {
-		myDiagram.mirror_function = selectObj.value == "--" ? null :
-			(selectObj.value == "R3" ? R3 : (selectObj.value == "R4" ? R4 : (selectObj.value == "R5" ? R5 : R6)))
-
-		myDiagram.mirror = null
-		myDiagram.current = null
-		myDiagram.nodes.each(function(node) { 
-			node.highlighted = false 
-			node.mirror_highlighted = false
-			node.circled = false
-			node.findObject("LABEL").stroke = "black"
-			var shape = node.findObject("SHAPE")
-			shape.fill = 'white'
-			shape.stroke = 'black'
-			shape.strokeWidth = 1
-			shape.strokeDashArray = null
-		})
-		myDiagram.links.each(function(link) {
-			link.highlighted = false
-			link.commited = false
-			link.part.opacity = 0
-			link.part.zOrder = 0
-		})
-  }
-  
+  function postGenerate() {		
+		for(var q = 0; q < 4; ++q) {
+			for(var i = 0; i < 360; i += 20) {
+				document.getElementById("buttonstuffs").innerHTML += '<span style="background: hsl(' + (i + 60) % 360 + ', 100%, ' + (12.5 + q * 12.5) + '%);">&nbsp;&nbsp;&nbsp;\n<input type="radio" name="color_radio" onclick="setCurrentColor()" value="0">\n&nbsp;&nbsp;&nbsp;</span>\n'
+			}
+			document.getElementById("buttonstuffs").innerHTML += "<br />"
+		}		
+		
+		set_as_looper()
+		
+		drawNodes(myDiagram)		
+	}
+	  
 </script>
 
 </head>
 <body onload="init()">
-	<div style="display:inline-block">
-		<select onchange="changeMirror(this)">
-			<option value="--">--</option>
-			<option value="R3">R3</option>
-			<option value="R4">R4</option>
-			<option value="R5">R5</option>
-			<option value="R6">R6</option>
-		</select>
+	<div id="buttonstuffs" style="display:inline-block">
+		<button type="button" style="background:black; height:80;" onclick="CLEAR()">CLR</button>
 		<div class="arrow_count" style="background: red;"><input id="D1_count" type="text" value="0"></div>
 		<div class="arrow_count" style="background: blue;"><input id="D2_count" type="text" value="0"></div>
 		<div class="arrow_count" style="background: green;"><input id="D3_count" type="text" value="0"></div>
 		<div class="arrow_count" style="background: orange;"><input id="D4_count" type="text" value="0"></div>
 		<div class="arrow_count" style="background: yellow;"><input id="D5_count" type="text" value="0"></div>
 		<div class="arrow_count" style="background: purple;"><input id="D6_count" type="text" value="0"></div>
-		<span style="background: yellow;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="0">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: moccasin;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="1">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: lightgoldenrodyellow;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="2">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: peachpuff;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="3">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: papayawhip;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="4">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: darkkhaki;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="5">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: greenyellow;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="6">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: yellowgreen;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="7">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: tomato;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="8">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: coral;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="9">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: orangered;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="10">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: gold;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="11">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: orange;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="12">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: darkorange;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="13">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: lightskyblue;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="14">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: deepskyblue;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="15">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: steelblue;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="16">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: mediumslateblue;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="17">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: mediumblue;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="18">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: blueviolet;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="19">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: indigo;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="20">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: cyan;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="21">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: aquamarine;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="22">
-		&nbsp;&nbsp;&nbsp;</span>
-		<span style="background: lightseagreen;">&nbsp;&nbsp;&nbsp;
-			<input type="radio" name="color_radio" onclick="setCurrentColor()" value="23">
-		&nbsp;&nbsp;&nbsp;</span>
+		<div class="arrow_count" style="background: darkgreen;"><input id="D7_count" type="text" value="0"></div>
+		<div class="arrow_count" style="background: lightblue;"><input id="secondary_count" type="text" value="0"></div>
+		<div class="arrow_count" style="background: black;"><input id="available_count" type="text" value="0"></div>
+		<div class="arrow_count" style="background: gray;"><input id="potential_count" type="text" value="0"></div>
+		<div class="arrow_count" style="background: lightgray;"><input id="ap_ratio" type="text" value="0"></div>
+		<button type="button" style="background:black; height:80;" onclick="EA()">max available</button>
+		<button type="button" style="background:gray; height:80;" onclick="EP()">max potential</button>
+		<button type="button" style="background:lightgray; height:80;" onclick="EAPR()">min a/p ratio</button>
+		<button type="button" style="background:pink; height:80;" onclick="QQ()">QQ</button>
+		<button id="auto-button" type="button" style="background:red; height:80;" onclick="AutoSwitch()">Auto</button>
+		<br />
+		<span id="walked">walked</span>
+		<br />
+		<span id="status">status</span>
+		<br />
+		<button id="reset_button" type="button" style="background:white; height:80;" onclick="reset_diagram()">RESET</button>
+		<button id="loop_button" type="button" style="background:plum; height:80;" onclick="set_as_looper()">LOOPER</button>
+		<button id="path_button" type="button" style="background:plum; height:80;" onclick="set_as_pather()">PATHER</button>
+		<button id="mark_button" type="button" style="background:plum; height:80;" onclick="set_as_marker()">MARKER</button>
+		<button id="back_button" type="button" style="background:plum; height:80;" onclick="set_as_backer()">BACKER</button>
+		<br />
 	</div>
-<div id="myDiagramDiv" style="background: white;"></div>
+<div style="height:100%">	
+	<div id="myDiagramDiv" style="background: white;"></div>
+	<div id="log" style="display: inline-block;">ana are mere</div>
+</div>
 </body>
 </html>

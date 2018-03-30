@@ -29,11 +29,7 @@ function reset_diagram() {
 }
 
 function QQ() {
-//	bk(myDiagram, 0, new go.Set())
-	
-//	setTimeout(function() {
-		jk(myDiagram)
-//	}, 2000)
+	jk(myDiagram)
 }
 
 function AutoSwitch() {

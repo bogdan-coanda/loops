@@ -159,16 +159,10 @@ min-height:80%;
 		
 		set_as_looper()
 		
+		nodeClicked(null, myDiagram.findNodeForKey(myDiagram.pids[myDiagram.startPerm]))
+				
 		drawNodes(myDiagram)		
-	}
-  
-  qq = 60
-  function just() {
-  	qq += 20
-  	myDiagram.currentColor = "hsl(" + (qq % 360) + ", 100%, 50%)"
-  	bk(myDiagram)
-  }
- 
+	} 
 </script>
 
 </head>

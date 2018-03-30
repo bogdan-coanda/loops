@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>#7 loops</title>
+<title>#7 loops @ git</title>
 <meta charset="UTF-8">
 <script src="GoJS/release/go.js"></script>
 <script src="superperms.js?v=3"></script>
@@ -122,21 +122,17 @@ min-height:80%;
   }
   
   function postGenerate() {		
-		for(var q = 0; q < 7; ++q) {
+		for(var q = 0; q < 4; ++q) {
 			for(var i = 0; i < 360; i += 20) {
-				document.getElementById("buttonstuffs").innerHTML += '<span style="background: hsl(' + (i + 60) % 360 + ', 100%, ' + (20 + q * 60/6) + '%);">&nbsp;&nbsp;&nbsp;\n<input type="radio" name="color_radio" onclick="setCurrentColor()" value="' + (i + 60) % 360 + '">\n&nbsp;&nbsp;&nbsp;</span>\n'
+				document.getElementById("buttonstuffs").innerHTML += '<span style="background: hsl(' + (i + 60) % 360 + ', 100%, ' + (12.5 + q * 12.5) + '%);">&nbsp;&nbsp;&nbsp;\n<input type="radio" name="color_radio" onclick="setCurrentColor()" value="0">\n&nbsp;&nbsp;&nbsp;</span>\n'
 			}
 			document.getElementById("buttonstuffs").innerHTML += "<br />"
 		}		
 		
-		/*
-		nodeClicked(null, myDiagram.findNodeForKey(myDiagram.pids[myDiagram.startPerm]))		
-		
 		set_as_looper()
-		
-		drawNodes(myDiagram)		
-		*/
-		set_as_looper()
+
+		nodeClicked(null, myDiagram.findNodeForKey(myDiagram.pids[myDiagram.startPerm]))
+				
 		drawNodes(myDiagram)		
 	}		  
 </script>
@@ -160,6 +156,11 @@ min-height:80%;
 		<button type="button" style="background:gray; height:80;" onclick="EP()">max potential</button>
 		<button type="button" style="background:lightgray; height:80;" onclick="EAPR()">min a/p ratio</button>
 		<button type="button" style="background:pink; height:80;" onclick="QQ()">QQ</button>
+		<button id="auto-button" type="button" style="background:red; height:80;" onclick="AutoSwitch()">Auto</button>
+		<br />
+		<span id="walked">walked</span>
+		<br />
+		<span id="status">status</span>
 		<br />
 		<button id="reset_button" type="button" style="background:white; height:80;" onclick="reset_diagram()">RESET</button>
 		<button id="loop_button" type="button" style="background:plum; height:80;" onclick="set_as_looper()">LOOPER</button>
@@ -174,3 +175,4 @@ min-height:80%;
 </div>
 </body>
 </html>
+

@@ -74,13 +74,15 @@ function init() {
 	myDiagram.startNode = null;
 	myDiagram.mode = "LOOP"
 	myDiagram.currentColor = "yellow"
-	myDiagram.currentColor = 60
+	myDiagram.currentColorHue = 60
 	myDiagram.arrowCount = [0, 0, 0]
 	myDiagram.available_count
 	
 	myDiagram.auto = true
+	myDiagram.cursive = false // [~]
 	myDiagram.ss = {
 		state: "new",
+		initTime: 0,
 		lvl: 0, 
 		seen: new go.Set(), 
 		lvls_node: [null], 
@@ -91,9 +93,14 @@ function init() {
 		
 		init: function() {
 			this.state = "running"
-	
-			drawNodes(myDiagram)
-				
+			this.initTime = new Date() 
+			measureNodes(myDiagram)
+		
+			myDiagram.drawn.availables.sort(function (a, b) {
+				var p = myDiagram.drawn.singles.has(a) ? 1 : 0
+				var q = myDiagram.drawn.singles.has(b) ? 1 : 0
+				return q - p
+			})				
 			this.lvls_node = [myDiagram.drawn.availables[0]]
 			this.lvls_node[0].marked = true
 			this.lvls_node[0].markedColor = 'black'
@@ -124,8 +131,13 @@ function init() {
 			this.lvls_availables.push([])
 			this.lvls_hasSingles.push(false)
 			
-			drawNodes(myDiagram)
-	
+			measureNodes(myDiagram)
+
+			myDiagram.drawn.availables.sort(function (a, b) {
+				var p = myDiagram.drawn.singles.has(a) ? 1 : 0
+				var q = myDiagram.drawn.singles.has(b) ? 1 : 0
+				return q - p
+			})	
 			this.lvls_availables[this.lvl] = myDiagram.drawn.availables
 			this.lvls_hasSingles[this.lvl] = myDiagram.drawn.singles.size > 0
 
@@ -138,7 +150,10 @@ function init() {
 			}
 		},
 		pop_lvl: function() {
-			// [~] need to remove the current lvl seens			
+			if (this.lvls_node[this.lvl] != null) {
+				this.lvls_node[this.lvl].marked = false
+			}				
+			// [~] need to remove the current lvl seens
 			this.seen.removeAll(this.lvls_seen.pop())
 			// and everything else on this lvl
 			this.lvls_node.pop()
@@ -291,177 +306,10 @@ function init() {
 	postGenerate()
 }
 
-function checkAvailability(diagram, curr) {
-	if(curr.looped && (
-		curr.prevLink == null
-		|| curr.prevLink.ctype != 1 
-		|| curr.nextNode == null 
-		|| curr.nextLink.ctype != 1 
-		|| curr.nextNode.nextNode == null 
-		|| curr.nextNode.nextLink.ctype != 1))
-		return false
+max_looped_count = 0
 
-	return curr.loopBrethren.filter(bro => bro.looped).count + (curr.looped ? 1 : 0) <= 1
-
-	var next = curr
-	for (var j = 0; j < diagram.spClass - 2; j++) {
-		next = diagram.findNodeForKey(diagram.pids[D2(diagram.perms[next.key])])
-		if (next.looped == true)
-			return false
-		
-		for (var i = 0; i < diagram.spClass - 1; i++) {
-			next = diagram.findNodeForKey(diagram.pids[D1(diagram.perms[next.key])])					 
-			if (next.looped == true)
-				return false
-		}
-	}
-			
-	return true
-}
-
-function makeUnavailable(diagram, bases) {
-	bases.each(base => { if(base.availabled) {
-		base.availabled = false
-		diagram.available_count -= 1
-		updatePotentials(diagram, base, false)
-	}})
-}
-
-function tryMakeAvailable(diagram, nodes) {
-
-	nodes.each(node => {
-		wasAvailabled = node.availabled
-		if (node.availabled = checkAvailability(diagram, node)) {
-			if (wasAvailabled == false)
-				diagram.available_count += 1
-			node.loopBrethren.each(bro => bro.availabled = true)
-		} else {
-			if (wasAvailabled == true)
-				diagram.available_count -= 1
-			node.loopBrethren.each(bro => bro.availabled = false)
-		}
-	})
+function measureNodes(diagram) {
 	
-	return
-
-	bases.each(base => { if (base.availabled == false) {
-		if(base.availabled = checkAvailability(diagram, base)) {
-			diagram.available_count += 1
-			updatePotentials(diagram, base, true)
-		}
-	}})
-}
-
-function addAvailables(diagram, fromNode, toNode) {
-	//log("[addAvailables] from " + nstr(fromNode) + " to " + nstr(toNode))
-	var curr = fromNode
-	var next = null
-		
-	while (curr != toNode && curr != null) {
-		if (curr.availabled == false) {
-			if (curr.availabled = checkAvailability(diagram, curr)) {
-				diagram.available_count += 1
-	
-				// update potentials
-				updatePotentials(diagram, curr, true)			
-			}
-		}
-		curr = curr.nextNode
-	}	
-}
-
-function removeAvailables(diagram, fromNode, toNode) {
-	//log("[removeAvailables] from " + nstr(fromNode) + " to " + nstr(toNode))
-	var curr = fromNode
-	var next = null
-				
-	while (curr != toNode && curr != null) {
-		if(curr.availabled) {
-			curr.availabled = false
-			diagram.available_count -= 1
-							
-			// update potentials
-			updatePotentials(diagram, curr, false)
-		}
-
-		curr = curr.nextNode
-	}
-}
-
-function updatePotentials(diagram, node, potentialed) {
-	// console.log("[updatePotentials] node: " + node.key)
-	// updates the next [P:[S]x(𝒮-1)]x(𝒮-2) nodes to potentialedBy 'node'
-	var ppc = 0
-	var npc = 0
-	var pby = 0
-	var nby = 0
-	
-	next = node
-	for (var j = 0; j < diagram.spClass - 2; j++) {
-		next = diagram.findNodeForKey(diagram.pids[D2(diagram.perms[next.key])])
-				
-		if (potentialed) {
-		
-			if (next.potentialedBy.has(node.key) == false) {
-				if (next.potentialedBy.size == 0) {
-					diagram.potential_count += 1
-					ppc += 1
-					//log("[updatePotentials] ++ for " + nstr(next))
-				}
-				next.potentialedBy.add(node.key)
-				pby += 1
-				//log("[updatePotentials] " + nstr(next) + " (+) potentialed by " + nstr(node))				
-			}
-			
-			for (var i = 0; i < diagram.spClass - 1; i++) {
-				next = diagram.findNodeForKey(diagram.pids[D1(diagram.perms[next.key])])		
-				if (next.potentialedBy.has(node.key) == false) {
-					if (next.potentialedBy.size == 0) {
-						diagram.potential_count += 1
-						ppc += 1
-						//log("[updatePotentials] ++ for " + nstr(next))
-					}
-					next.potentialedBy.add(node.key)
-					pby += 1
-					//log("[updatePotentials] " + nstr(next) + " (+) potentialed by " + nstr(node))				
-				}
-			}
-			
-		} else {
-
-			if (next.potentialedBy.has(node.key) == true) {
-				next.potentialedBy.delete(node.key)
-				nby += 1
-				//log("[updatePotentials] " + nstr(next) + " (-) potentialed by " + nstr(node))				
-				if (next.potentialedBy.size == 0) {
-					diagram.potential_count -= 1
-					npc += 1
-					//log("[updatePotentials] -- for " + nstr(next))
-				}
-			}
-								
-			for (var i = 0; i < diagram.spClass - 1; i++) {
-				next = diagram.findNodeForKey(diagram.pids[D1(diagram.perms[next.key])])
-				if (next.potentialedBy.has(node.key) == true) {
-					next.potentialedBy.delete(node.key)
-					nby += 1
-					//log("[updatePotentials] " + nstr(next) + " (+) potentialed by " + nstr(node))				
-					if (next.potentialedBy.size == 0) {
-						diagram.potential_count -= 1
-						npc += 1
-						//log("[updatePotentials] -- for " + nstr(next))
-					}
-				}
-			}			
-		}
-	}
-	//log("[updatePotentials] called for: " + potentialed + " on " + nstr(node) + " | added " + ppc + " by " + pby + " | removed " + npc + " by " + nby)
-}
-
-function drawNodes(diagram) {
-
-	log("draw start")
-									
 	diagram.drawn.looped_count = 0	
 	diagram.drawn.availables = []
 	diagram.drawn.unreachable_cycle_count = 0
@@ -498,6 +346,21 @@ function drawNodes(diagram) {
 					diagram.drawn.singles.add(lf.loopBrethren.filter(bro => bro.looped).first())
 				}
 			}
+		}
+	})
+	
+	if (diagram.drawn.looped_count > max_looped_count)
+		max_looped_count = diagram.drawn.looped_count
+}
+
+function drawNodes(diagram) {
+
+	log("draw start")
+																																
+	diagram.nodes.each(node => {
+			
+		if (node.isCenter) {
+			// bla bla
 		} else if (node.marked) {
 			node.shape.stroke = node.markedColor
 			node.shape.strokeWidth = 144
@@ -525,14 +388,14 @@ function drawNodes(diagram) {
 		}		
 	})	
 
-	log("draw before singles")
+	log("drawing singles")
 			
 	diagram.drawn.singles.each(single => {
 		var bro = single
 		bro.shape.stroke = bro.loopColor || hsl(bro.loopColorHue)
 		bro.shape.strokeWidth = 72
 		bro.shape.strokeDashArray = [1, 1]
-		bro.cycleCenterNode.shape.stroke = 'purple'
+		bro.cycleCenterNode.shape.stroke = bro.loopColor || hsl(bro.loopColorHue)
 		bro.cycleCenterNode.shape.strokeWidth = 48
 		bro.cycleCenterNode.shape.strokeDashArray = null
 	
@@ -540,34 +403,27 @@ function drawNodes(diagram) {
 			bro.shape.stroke = bro.loopColor || hsl(bro.loopColorHue)
 			bro.shape.strokeWidth = 72
 			bro.shape.strokeDashArray = [1, 1]
-			bro.cycleCenterNode.shape.stroke = 'purple'
+			bro.cycleCenterNode.shape.stroke = bro.loopColor || hsl(bro.loopColorHue)
 			bro.cycleCenterNode.shape.strokeWidth = 48
 			bro.cycleCenterNode.shape.strokeDashArray = null
 		})
 	})
 	
-	log("draw before sort")
-	diagram.drawn.availables.sort(function (a, b) {
-		var p = diagram.drawn.singles.has(a) ? 1 : 0
-		var q = diagram.drawn.singles.has(b) ? 1 : 0
-		return q - p
-	})
+	log("draw done.")
 	
-	log("draw after sort")
-		
+	updateStatus(diagram)
+}
+
+function updateStatus(diagram) {
 	var ss = diagram.ss
-	var w = "{"+ss.state+"} ["+ss.lvl+"]"
+	var w = "{ "+ss.state+" @ " + tstr(new Date() - ss.initTime) + " } ["+ss.lvl+"]"
 		log("draw before walked loop")
 	for(var i = 0; i <= ss.lvl; ++i)
 		w += "&nbsp;" + (ss.lvls_avIndex[i]+1) + '/<b style="color:' + (ss.lvls_hasSingles[i] ? "red" : "black") + '">' + ss.lvls_availables[i].length + "</b>"
-	document.getElementById("walked").innerHTML = w
-	
-	log("draw before status")
+	document.getElementById("walked").innerHTML = w	
 		
-	var status = "looped: " + diagram.drawn.looped_count + " | availables: " + diagram.drawn.availables.length + " | unreachable: " + diagram.drawn.unreachable_cycle_count + " | singles: " + diagram.drawn.singles.size + " | is current single: " + diagram.drawn.singles.has(diagram.drawn.availables[0])
+	var status = "max: " + max_looped_count + " | looped: " + diagram.drawn.looped_count + " | availables: " + diagram.drawn.availables.length + " | unreachable: " + diagram.drawn.unreachable_cycle_count + " | singles: " + diagram.drawn.singles.size + " | is current single: " + diagram.drawn.singles.has(diagram.drawn.availables[0])
 	document.getElementById("status").innerHTML = status	
-	
-	log("draw done.")
 }
 
 function resetDiagram(diagram) {
