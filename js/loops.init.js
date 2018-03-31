@@ -105,7 +105,7 @@ function init() {
 			myDiagram.drawn.availables.sort(function (a, b) {
 				var p = myDiagram.drawn.singles.has(a) ? 1 : 0
 				var q = myDiagram.drawn.singles.has(b) ? 1 : 0		
-				return p != q ? q - p : a.pid - b.pid
+				return p != q ? q - p : b.pid - a.pid
 			})				
 			this.lvls_node = [myDiagram.drawn.availables[0]]
 			this.lvls_node[0].marked = true
@@ -142,7 +142,7 @@ function init() {
 			myDiagram.drawn.availables.sort(function (a, b) {
 				var p = myDiagram.drawn.singles.has(a) ? 1 : 0
 				var q = myDiagram.drawn.singles.has(b) ? 1 : 0
-				return p != q ? q - p : a.pid - b.pid			
+				return p != q ? q - p : b.pid - a.pid			
 			})	
 						
 			this.lvls_availables[this.lvl] = myDiagram.drawn.availables
