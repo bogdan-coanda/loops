@@ -34,6 +34,9 @@ min-height:80%;
 	
 	function generateGraph() {
 		myDiagram.spClass = 6
+		myDiagram.k3cc = /*1 /*/myDiagram.spClass - 2
+		myDiagram.k2cc = myDiagram.spClass /*- 2 /*/- 1
+		myDiagram.k1cc = myDiagram.spClass - 1
 		myDiagram.perms = permutator([0,1,2,3,4,5])
 		myDiagram.pids = {}
 		for (var i = 0; i < myDiagram.perms.length; ++i) {
@@ -55,6 +58,7 @@ min-height:80%;
 		perm = '012345'
 		next = perm
 		cc = 0
+		qq = 0
 		x = 288; y = 288; hy = 0
 		for (var q2 = 0; q2 < 2; q2++) {
 			for (var q3 = 0; q3 < 3; q3++) {
@@ -77,6 +81,8 @@ min-height:80%;
 							nodeDataArray[myDiagram.pids[perm]].loc = new go.Point(x+dx,y+dy)
 							nodeDataArray[myDiagram.pids[perm]].cc = cc
 							nodeDataArray[myDiagram.pids[perm]].address = ''+q2+''+q3+''+q4+''+q5+''+q6
+							nodeDataArray[myDiagram.pids[perm]].pid = qq
+							qq += 1
 							next = D1(perm)
 						}
 						cc += 1
@@ -189,6 +195,8 @@ min-height:80%;
 		<span id="walked">walked</span>
 		<br />
 		<span id="status">status</span>
+		<br />
+		<span id="solution">solution</span>
 		<br />
 		<button id="reset_button" type="button" style="background:white; height:80;" onclick="reset_diagram()">RESET</button>
 		<button id="loop_button" type="button" style="background:plum; height:80;" onclick="set_as_looper()">LOOPER</button>

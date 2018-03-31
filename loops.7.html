@@ -34,6 +34,9 @@ min-height:80%;
 	
 	function generateGraph() {
 		myDiagram.spClass = 7
+		myDiagram.k3cc = /*1 /*/myDiagram.spClass - 2
+		myDiagram.k2cc = myDiagram.spClass /*- 2 /*/- 1
+		myDiagram.k1cc = myDiagram.spClass - 1
 		myDiagram.perms = permutator([0,1,2,3,4,5,6])
 		myDiagram.pids = {}
 		for (var i = 0; i < myDiagram.perms.length; ++i) {
@@ -161,6 +164,8 @@ min-height:80%;
 		<span id="walked">walked</span>
 		<br />
 		<span id="status">status</span>
+		<br />
+		<span id="solution">solution</span>
 		<br />
 		<button id="reset_button" type="button" style="background:white; height:80;" onclick="reset_diagram()">RESET</button>
 		<button id="loop_button" type="button" style="background:plum; height:80;" onclick="set_as_looper()">LOOPER</button>
