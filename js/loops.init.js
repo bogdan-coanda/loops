@@ -69,17 +69,23 @@ function init() {
 			)
 		);
 	log("xk")
+	myDiagram.k3cc = -2
+	myDiagram.k2cc = -1
+	myDiagram.k1cc = -1
+	
 	myDiagram.startPerm = generateGraph();
 	log("xk")
 	myDiagram.startNode = null;
+	myDiagram.solution = ""
 	myDiagram.mode = "LOOP"
 	myDiagram.currentColor = "yellow"
 	myDiagram.currentColorHue = 60
 	myDiagram.arrowCount = [0, 0, 0]
-	myDiagram.available_count
+	myDiagram.available_count	
 	
+	myDiagram.jkcc = 0	
 	myDiagram.auto = true
-	myDiagram.cursive = false // [~]
+	myDiagram.cursive = true // [~]
 	myDiagram.ss = {
 		state: "new",
 		initTime: 0,
@@ -188,6 +194,7 @@ function init() {
 		node.shape.fill = "white"
 		node.perm = myDiagram.perms[node.key]
 		node.address = node.part.data.address			
+		node.pid = node.part.data.pid
 		node.suivant = false
 		node.dessus = false
 		node.backed = false
@@ -424,12 +431,13 @@ function drawNodes(diagram) {
 	
 	log("draw done.")
 	
+	solution(diagram)
 	updateStatus(diagram)
 }
 
 function updateStatus(diagram) {
 	var ss = diagram.ss
-	var w = "{ "+ss.state+" @ " + tstr(new Date() - ss.initTime) + " } ["+ss.lvl+"]"
+	var w = "{ "+ss.state+" » jk:"+diagram.jkcc+" @ " + tstr(new Date() - ss.initTime) + " } ["+ss.lvl+"]"
 		log("draw before walked loop")
 	for(var i = 0; i <= ss.lvl; ++i)
 		w += "&nbsp;" + (ss.lvls_avIndex[i]+1) + '/<b style="color:' + (ss.lvls_hasSingles[i] ? "red" : "black") + '">' + ss.lvls_availables[i].length + "</b>"
@@ -437,6 +445,9 @@ function updateStatus(diagram) {
 		
 	var status = "max: " + max_looped_count + " | looped: " + diagram.drawn.looped_count + " | availables: " + diagram.drawn.availables.length + " | unreachable: " + diagram.drawn.unreachable_cycle_count + " | singles: " + diagram.drawn.singles.size + " | is current single: " + diagram.drawn.singles.has(diagram.drawn.availables[0])
 	document.getElementById("status").innerHTML = status	
+	
+	if(diagram.cursive)
+		solution(diagram)
 }
 
 function resetDiagram(diagram) {
@@ -468,5 +479,22 @@ function resetDiagram(diagram) {
 	// [~] and reset links
 	
 	drawNodes(diagram)
+}
+
+function solution(diagram) {
+	var node = diagram.startNode
+	if (node == null)
+		return
+		
+	var next = node.nextNode
+	var sol = node.perm
+	while (next != null) {
+		sol += next.perm.substr(-node.nextLink.ctype)
+		node = next
+		next = node.nextNode
+	}
+	
+	diagram.solution = sol
+	document.getElementById("solution").innerHTML = sol
 }
 

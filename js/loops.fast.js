@@ -1,12 +1,11 @@
 var mxlvl = 0
-var jkcc = 0
-var RR = 0.005
+var RR = 1
 
 function jk(diagram) {
-	jkcc += 1	
+	diagram.jkcc += 1	
 	var ss = diagram.ss
-	if (ss.state != "new" && ss.state != "done.")	
-	ss.state = "jk:" + jkcc
+//	if (ss.state != "new" && ss.state != "done.")	
+//	ss.state = "jk:" + jkcc
 	
 	log("[jk] lvl: " + ss.lvl + " | node: " + nstr(ss.lvls_node[ss.lvl]) + " | av: " + ss.lvls_availables[ss.lvl].length + " | avIndex: " + ss.lvls_avIndex[ss.lvl] + " | seen: " + ss.seen.count)
 	log("[jk] lvls | " + ss.lvls_node.length + "|" + ss.lvls_seen.length + "|" + ss.lvls_availables.length + "|" + ss.lvls_avIndex.length)

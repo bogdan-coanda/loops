@@ -22,8 +22,8 @@ function nodeClickedAsLooper(diagram, node) {
 			baseNodes.addAll(leaf.bases)
 		})
 		
-		for (var i = 0; i < diagram.spClass - 2; i++) {
-			for(var j = 0; j < diagram.spClass - 1; j++) {
+		for (var i = 0; i < diagram.k3cc; i++) {
+			for(var j = 0; j < diagram.k2cc; j++) {
 			
 				if (next != null) {
 					appendPath(diagram, curr, next, true)
@@ -31,7 +31,7 @@ function nodeClickedAsLooper(diagram, node) {
 					workedNodes.add(curr)
 				}
 				
-				for (var k = 0; k < diagram.spClass - 1; k++) {
+				for (var k = 0; k < diagram.k1cc; k++) {
 					next = diagram.findNodeForKey(diagram.pids[D1(diagram.perms[curr.key])])
 					appendPath(diagram, curr, next, true)
 					curr = next
