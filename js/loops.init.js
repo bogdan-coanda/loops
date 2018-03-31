@@ -85,7 +85,7 @@ function init() {
 	
 	myDiagram.jkcc = 0	
 	myDiagram.auto = true
-	myDiagram.cursive = true // [~]
+	myDiagram.cursive = false // [~]
 	myDiagram.ss = {
 		state: "new",
 		initTime: 0,
@@ -104,8 +104,8 @@ function init() {
 		
 			myDiagram.drawn.availables.sort(function (a, b) {
 				var p = myDiagram.drawn.singles.has(a) ? 1 : 0
-				var q = myDiagram.drawn.singles.has(b) ? 1 : 0
-				return q - p
+				var q = myDiagram.drawn.singles.has(b) ? 1 : 0		
+				return p != q ? q - p : a.pid - b.pid
 			})				
 			this.lvls_node = [myDiagram.drawn.availables[0]]
 			this.lvls_node[0].marked = true
@@ -142,8 +142,9 @@ function init() {
 			myDiagram.drawn.availables.sort(function (a, b) {
 				var p = myDiagram.drawn.singles.has(a) ? 1 : 0
 				var q = myDiagram.drawn.singles.has(b) ? 1 : 0
-				return q - p
+				return p != q ? q - p : a.pid - b.pid			
 			})	
+						
 			this.lvls_availables[this.lvl] = myDiagram.drawn.availables
 			this.lvls_hasSingles[this.lvl] = myDiagram.drawn.singles.size > 0
 

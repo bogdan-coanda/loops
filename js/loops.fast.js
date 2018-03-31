@@ -1,5 +1,5 @@
 var mxlvl = 0
-var RR = 1
+var RR = 0.005
 
 function jk(diagram) {
 	diagram.jkcc += 1	
