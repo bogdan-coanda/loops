@@ -2,7 +2,7 @@ import http.server
 import socketserver
 import os
 
-PORT = 8002
+PORT = 8003
 
 #web_dir = os.path.join(os.path.dirname(__file__), 'web')
 #os.chdir(web_dir)

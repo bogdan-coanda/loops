@@ -58,6 +58,7 @@ min-height:80%;
 		perm = '0123456'
 		next = perm
 		cc = 0
+		qq = 0
 		x = 288; y = 288; hx = 0; hy = 0;
 		for (var q2 = 0; q2 < 2; q2++) {
 			for (var q3 = 0; q3 < 3; q3++) {
@@ -81,6 +82,8 @@ min-height:80%;
 								nodeDataArray[myDiagram.pids[perm]].loc = new go.Point(x+dx,y+dy)
 								nodeDataArray[myDiagram.pids[perm]].cc = cc
 								nodeDataArray[myDiagram.pids[perm]].address = ''+q2+''+q3+''+q4+''+q5+''+q6+''+q7
+								nodeDataArray[myDiagram.pids[perm]].pid = qq
+								qq += 1								
 								next = D1(perm)
 							}
 							

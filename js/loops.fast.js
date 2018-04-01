@@ -1,18 +1,20 @@
-var mxlvl = 0
-var RR = 0.005
-
 function jk(diagram) {
+
+	if(diagram.jkcc % diagram.RR == 0) {
+		//drawNodes(diagram)
+		updateStatus(diagram)
+	}
+				
 	diagram.jkcc += 1	
+	
 	var ss = diagram.ss
-//	if (ss.state != "new" && ss.state != "done.")	
-//	ss.state = "jk:" + jkcc
 	
 	log("[jk] lvl: " + ss.lvl + " | node: " + nstr(ss.lvls_node[ss.lvl]) + " | av: " + ss.lvls_availables[ss.lvl].length + " | avIndex: " + ss.lvls_avIndex[ss.lvl] + " | seen: " + ss.seen.count)
 	log("[jk] lvls | " + ss.lvls_node.length + "|" + ss.lvls_seen.length + "|" + ss.lvls_availables.length + "|" + ss.lvls_avIndex.length)
 	
-	if(ss.lvl >= mxlvl) {
-		mxlvl = ss.lvl
-		console.log(mxlvl)
+	if(ss.lvl >= diagram.mxlvl) {
+		diagram.mxlvl = ss.lvl
+		console.log(diagram.mxlvl)
 	}
 	
 	if (ss.state == "done.")
@@ -61,7 +63,7 @@ function jk(diagram) {
 			
 			measureNodes(diagram)
 			
-			if(Math.random() < RR) {
+			if(diagram.jkcc % diagram.RR == 0) {
 				//drawNodes(diagram)
 				updateStatus(diagram)
 	
@@ -92,7 +94,7 @@ function jk(diagram) {
 		
 		ss.push_lvl()
 
-		if(Math.random() < RR) {
+		if(diagram.jkcc % diagram.RR == 0) {
 			//drawNodes(diagram)
 			updateStatus(diagram)
 			
@@ -111,7 +113,7 @@ function jk(diagram) {
 		// or continue
 		ss.next_available()
 					
-		if(Math.random() < RR) {
+		if(diagram.jkcc % diagram.RR == 0) {
 			//drawNodes(diagram)
 			updateStatus(diagram)
 		
@@ -129,7 +131,6 @@ function jk(diagram) {
 }
 
 function extendFast(diagram, node) {
-	//log("[extendAt] " + nstr(node) + " (" + visual + ")") 
 	// extend S2 if S1:S2:S3 to S1:[P:[S]x(ss-1)]x(ss-2):P:S3
 	if (node.prevLink == null
 		|| node.prevLink.ctype != 1
@@ -145,14 +146,12 @@ function extendFast(diagram, node) {
 	
 	// mark as extended
 	node.extended = true
-	node.extendedColor = diagram.currentColor
-
+	if(diagram.cursive) {
+		node.extendedColor = diagram.currentColor
+	}
+	
 	// add the last node to bases
 	var last = diagram.findNodeForKey(diagram.pids[D1(diagram.perms[node.key])])
-//	baseNodes.add(last)	
-							
-	// for all availabled bases, remove availability and potentials
-//	makeUnavailable(diagram, baseNodes)
 	
 	workedNodes = new go.Set()
 	
@@ -175,9 +174,9 @@ function extendFast(diagram, node) {
 			workedNodes.add(curr)
 		}
 	
-//		if (visual) {		
+		if(diagram.cursive) {
 			curr.cycleCenterNode.shape.fill = diagram.currentColor
-//		}
+		}
 	}
 	
 	// append the last P path
@@ -185,9 +184,9 @@ function extendFast(diagram, node) {
 	appendFast(diagram, curr, next)
 	workedNodes.add(last)
 	
-//	if (visual) {
+	if(diagram.cursive) {
 		next.shape.fill = next.cycleCenterNode.shape.fill
-//	}
+	}
 	
 	// add availables to the new extension
 //	addAvailables(diagram, node.nextNode, last.prevNode)
@@ -198,7 +197,6 @@ function extendFast(diagram, node) {
 }
 
 function collapseFast(diagram, node) {
-		//log("[collapseAt] " + nstr(node) + " (" + visual + ")")
 	// collapse only if extended
 	if (!node.extended)
 		return
@@ -208,9 +206,6 @@ function collapseFast(diagram, node) {
 	
 	// remove available nodes for the soon to be collapsed extension  
 	var last = diagram.findNodeForKey(diagram.pids[D1(diagram.perms[node.key])])
-/*	var baseNodes = new go.Set()
-	baseNodes.add(last)	
-	removeAvailables(diagram, node.nextNode, last.prevNode)*/
 
 	var workedNodes = new go.Set()
 
@@ -218,9 +213,6 @@ function collapseFast(diagram, node) {
 	var curr = node
 	var next = null
 	while(curr != last) {
-/*		curr.cycleCenterNode.cycleChildNodes.each(leaf => {
-			baseNodes.addAll(leaf.bases)		
-		})*/
 		next = curr.nextNode
 		deleteFast(diagram, curr, next)
 		workedNodes.add(curr)
@@ -230,9 +222,9 @@ function collapseFast(diagram, node) {
 	// add the replacement S path
 	appendFast(diagram, node, last)
 	workedNodes.add(last)
-//	if (visual) {
+	if(diagram.cursive) {
 		last.shape.fill = last.cycleCenterNode.shape.fill	
-//	}
+	}
 	
 	// for all base nodes, if they can be availabled, do it
 	tryMakeAvailableFast(diagram, workedNodes)
@@ -243,9 +235,9 @@ function appendFast(diagram, curr, next) {
 	next.prevNode = curr
 	
 	next.looped = true
-//	if(diagram.cursive) {
-	next.shape.fill = diagram.currentColor
-//	}
+	if(diagram.cursive) {
+		next.shape.fill = diagram.currentColor
+	}
 
 	next.findLinksInto().each(link => { 
 		if (link.fromNode == curr) {
@@ -265,22 +257,18 @@ function deleteFast(diagram, curr, next) {
 	
 	next.looped = false
 	next.extended = false
-//	if(diagram.cursive) {
-	next.shape.fill = "white"
-//	}
+	if(diagram.cursive) {
+		next.shape.fill = "white"
+	}
 
 	var link = curr.nextLink
 		
-//	next.findLinksInto().each(link => { 
-//		if (link.fromNode == curr) {
-			curr.nextLink = next.prevLink = null
-			link.commited = false
-			if(diagram.cursive) {
-				link.part.opacity = 0
-				link.part.zOrder = 0
-			}
-//		}
-//	})
+	curr.nextLink = next.prevLink = null
+	link.commited = false
+	if(diagram.cursive) {
+		link.part.opacity = 0
+		link.part.zOrder = 0
+	}
 }
 
 function tryMakeAvailableFast(diagram, nodes) {
