@@ -87,7 +87,7 @@ function init() {
 	myDiagram.RR = 1200
 	myDiagram.mxlvl = 0
 	myDiagram.auto = true
-	myDiagram.cursive = false // [~]
+	myDiagram.cursive = true // [~]
 	myDiagram.ss = {
 		state: "new",
 		initTime: 0,
