@@ -84,6 +84,7 @@ function init() {
 	myDiagram.available_count	
 		
 	myDiagram.jkcc = 0	
+	myDiagram.eecc = 0
 	myDiagram.RR = 1200
 	myDiagram.mxlvl = 0
 	myDiagram.auto = true
@@ -180,6 +181,118 @@ function init() {
 		unreachable_cycle_count: 0,
 		singles: new go.Set()
 	}
+	
+	myDiagram.forest = {
+		state: "ground",
+		initTime: 0,
+		lvl: 0, 
+		seen: new go.Set(), 
+		lvls_node: [], 
+		lvls_seen: [], 
+		lvls_availables: [], 
+		lvls_avIndex: [],
+		lvls_hasSingles: [],
+		lvls_hasUnreachables: [],
+		trees: [],
+		lvls_treeIndex: [],
+
+		init: function() {
+			this.state = "growing"
+			this.initTime = new Date() 
+
+			measureNodes(myDiagram)
+			
+			this.collectSeeds()
+			
+			this.lvl = -1
+			this.push_lvl()
+		},
+		
+		push_availables: function() {
+			this.lvls_hasUnreachables.push(myDiagram.drawn.unreachable_cycle_count != 0)
+			this.lvls_hasSingles.push(myDiagram.drawn.singles.size > 0)
+			
+			if(myDiagram.drawn.unreachable_cycle_count != 0) {
+				this.lvls_availables.push([])
+			} else if(myDiagram.drawn.singles.size > 0) {			
+				this.lvls_availables.push([myDiagram.drawn.singles.first()])
+			} else {
+				this.lvls_availables.push(myDiagram.drawn.availables.filter(node => node.seedType == this.lvls_treeIndex[this.lvl]))
+			}
+						
+			this.lvls_avIndex.push(-1)
+			this.lvls_node.push(null)
+		},
+		
+		next_available: function() {
+			this.lvls_avIndex[this.lvl] = this.lvls_avIndex[this.lvl] + 1
+			
+			if (this.lvls_avIndex[this.lvl] < this.lvls_availables[this.lvl].length) {
+				this.lvls_node[this.lvl] = this.lvls_availables[this.lvl][this.lvls_avIndex[this.lvl]]
+			} else {
+				this.lvls_node[this.lvl] = null
+			}
+		},
+
+		push_lvl: function() {
+		
+			measureNodes(myDiagram)		
+									
+			this.lvl += 1
+			this.lvls_seen.push(new go.Set())
+			this.lvls_treeIndex.push(this.measureTrees())
+			this.push_availables()		
+			this.next_available()				
+		},
+		
+		pop_lvl: function() {
+			// [~] need to remove the current lvl seens
+			this.seen.removeAll(this.lvls_seen.pop())
+			// and everything else on this lvl
+			this.lvls_treeIndex.pop()			
+			this.lvls_hasSingles.pop()
+			this.lvls_availables.pop()
+			this.lvls_avIndex.pop()			
+			this.lvls_node.pop()
+			this.lvl -= 1			
+		},
+						
+		collectSeeds: function() {			
+			this.trees = []
+			
+			var colorDiff = 360 / myDiagram.spClass
+			for(var i = 0; i < myDiagram.spClass - 1; i++) {
+				var color = hsl((60 + (i+1)*colorDiff) % 360)
+				
+				var embryos = new go.List()
+				embryos.addAll(myDiagram.nodes.filter(node => myDiagram.drawn.availables.includes(node) && node.seedType == i))
+/*				embryos.each(node => {
+					node.marked = true
+					node.markedColor = color
+				})*/
+				
+				this.trees.push({
+					color: color,
+					year: 0,
+					years_embryos: [ embryos ],
+				})
+			}
+		},
+		
+		measureTrees: function() {
+			
+			var mint = 0
+			var lent = this.trees[0].years_embryos.length
+			for(var t = 1; t < this.trees.length; t++) {
+				if(this.trees[t].years_embryos.length < lent) {
+					mint = t
+					lent = this.trees[t].years_embryos.length
+				}
+			}
+			
+			return mint
+		}			
+	}
 			
 	log("xk")
 		
@@ -243,6 +356,7 @@ function init() {
 		
 		node.markedColor = 'black'
 		
+		node.isSeed = false
 	})
 
 	log("xk")
@@ -434,28 +548,53 @@ function drawNodes(diagram) {
 				link.part.opacity = 0
 				link.part.zOrder = 0
 			}
-	})
+		})
 	}
 	
 	log("draw done.")
+	
+	if (diagram.forest.state != "ground") {
+		
+		diagram.forest.lvls_availables[diagram.forest.lvl].forEach(node => {
+			node.shape.stroke = (node == diagram.forest.lvls_node[diagram.forest.lvl] ? 'black' : 'gray')
+			node.shape.strokeWidth = 72
+			node.shape.strokeDashArray = [12, 6]			
+		})
+	}
 	
 	solution(diagram)
 	updateStatus(diagram)
 }
 
 function updateStatus(diagram) {
-	var ss = diagram.ss
-	var w = "{ "+ss.state+" » jk:"+diagram.jkcc+" @ " + tstr(new Date() - ss.initTime) + " } ["+ss.lvl+"]"
-		log("draw before walked loop")
-	for(var i = 0; i <= ss.lvl; ++i)
-		w += "&nbsp;" + (ss.lvls_avIndex[i]+1) + '/<b style="color:' + (ss.lvls_hasSingles[i] ? "red" : "black") + '">' + ss.lvls_availables[i].length + "</b>"
-	document.getElementById("walked").innerHTML = w	
+
+	if (diagram.forest.state != "ground") {
+			
+		var w = "{ "+diagram.forest.state+" » ee:"+diagram.eecc+" @ " + tstr(new Date() - diagram.forest.initTime) + " } ["+diagram.forest.lvl+"]"
+		for(var i = 0; i <= diagram.forest.lvl; ++i)
+			w += "&nbsp;" + (diagram.forest.lvls_avIndex[i]+1) + '/<b style="color:' + (diagram.forest.lvls_hasUnreachables[i] ? "red" : (diagram.forest.lvls_hasSingles[i] ? "orange" : "black")) + '">' + diagram.forest.lvls_availables[i].length + "</b>"
+		document.getElementById("walked").innerHTML = w	
+			
+		var status = "max: " + max_looped_count + " | looped: " + diagram.drawn.looped_count + " | availables: " + diagram.drawn.availables.length + " | unreachable: " + diagram.drawn.unreachable_cycle_count + " | singles: " + diagram.drawn.singles.size + " | is current single: " + diagram.drawn.singles.has(diagram.drawn.availables[0])
+		document.getElementById("status").innerHTML = status	
 		
-	var status = "max: " + max_looped_count + " | looped: " + diagram.drawn.looped_count + " | availables: " + diagram.drawn.availables.length + " | unreachable: " + diagram.drawn.unreachable_cycle_count + " | singles: " + diagram.drawn.singles.size + " | is current single: " + diagram.drawn.singles.has(diagram.drawn.availables[0])
-	document.getElementById("status").innerHTML = status	
-	
-	if(diagram.cursive)
-		solution(diagram)
+		if(diagram.cursive)
+			solution(diagram)
+			
+	} else {
+
+		var ss = diagram.ss
+		var w = "{ "+ss.state+" » jk:"+diagram.jkcc+" @ " + tstr(new Date() - ss.initTime) + " } ["+ss.lvl+"]"
+		for(var i = 0; i <= ss.lvl; ++i)
+			w += "&nbsp;" + (ss.lvls_avIndex[i]+1) + '/<b style="color:' + (ss.lvls_hasSingles[i] ? "red" : "black") + '">' + ss.lvls_availables[i].length + "</b>"
+		document.getElementById("walked").innerHTML = w	
+			
+		var status = "max: " + max_looped_count + " | looped: " + diagram.drawn.looped_count + " | availables: " + diagram.drawn.availables.length + " | unreachable: " + diagram.drawn.unreachable_cycle_count + " | singles: " + diagram.drawn.singles.size + " | is current single: " + diagram.drawn.singles.has(diagram.drawn.availables[0])
+		document.getElementById("status").innerHTML = status	
+		
+		if(diagram.cursive)
+			solution(diagram)
+	}
 }
 
 function resetDiagram(diagram) {

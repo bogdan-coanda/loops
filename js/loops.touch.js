@@ -47,6 +47,15 @@ function nodeClickedAsLooper(diagram, node) {
 			next = diagram.findNodeForKey(diagram.pids[D3(diagram.perms[curr.key])])
 		}
 		
+		workedNodes.each(node => { 
+			node.isSeed = true
+			column = divide(node.cycleIndex, diagram.spClass - 1) // 0-3
+			row = node.cycleIndex % (diagram.spClass - 1) // 0-4
+			if(column + row == diagram.spClass - 2) // (0,4);(1,3);(2,2);(3,1) == 4
+				node.seedType = 0 // 0
+			else
+				node.seedType = column + 1 // 1-4
+		})
 		//workedNodes.each(base => { base.availabled = false; diagram.available_count -= 1 })
 		log("initial click pre try")
 		tryMakeAvailable(diagram, workedNodes)
@@ -54,11 +63,12 @@ function nodeClickedAsLooper(diagram, node) {
 //		addAvailables(diagram, node, curr)
 		
 	} else if (node.availabled && !node.extended) {
-		extendAt(diagram, node, true)
+		extendFast(diagram, node)
 	} else if (node.extended) {
-		collapseAt(diagram, node, true)
+		collapseFast(diagram, node)
 	}
 			
+	measureNodes(diagram)
 	drawNodes(diagram)
 		
 	return
@@ -68,9 +78,13 @@ function nodeClickedAsMarker(diagram, node) {
 	log("marker begin")
 	if (node.isCenter)
 		return
-		
-	node.loopColor = diagram.currentColor
-	node.loopBrethren.each(bro => bro.loopColor = diagram.currentColor) 
+				
+	node.marked = !node.marked
+	node.markedColor = diagram.currentColor
+	node.loopBrethren.each(bro => { 
+		bro.marked = node.marked
+		bro.markedColor = node.markedColor
+	}) 
 	
 	drawNodes(diagram)
 }

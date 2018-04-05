@@ -1,6 +1,6 @@
 function log(txt) {
-//	console.log(txt)
-//	document.getElementById("log").innerHTML += "<br />" + txt
+	console.log(txt)
+	document.getElementById("log").innerHTML += "<br />" + txt
 }
 
 function nstr(node) {
@@ -21,3 +21,6 @@ function hsl(hue, light = 50) {
 	return 'hsl(' + hue + ', 100%, ' + light + '%)'
 }
 
+function divide(x, y) {
+	return (x - (x % y)) / y
+}

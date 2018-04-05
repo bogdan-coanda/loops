@@ -32,6 +32,10 @@ function QQ() {
 	jk(myDiagram)
 }
 
+function EE() {
+	ee(myDiagram)
+}
+
 function AutoSwitch() {
 	myDiagram.auto = !myDiagram.auto
 	if(myDiagram.auto) {
