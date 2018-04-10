@@ -1,11 +1,13 @@
 function ee(diagram) {
 
-	log(diagram.forest.state)
-
 	if (diagram.forest.state == "done.")
 		return
 
 	diagram.eecc += 1	
+	if(diagram.eecc % diagram.RR == 0) {
+		log(diagram.forest.state)
+		updateStatus(diagram)
+	}
 	
 	if (diagram.forest.state == "ground") {
 		
@@ -31,6 +33,7 @@ function ee(diagram) {
 			}	else {
 		
 				// and clean up previous lvl trial
+				diagram.forest.trim(diagram.forest.lvls_node[diagram.forest.lvl])
 				collapseFast(diagram, diagram.forest.lvls_node[diagram.forest.lvl])
 				diagram.forest.seen.add(diagram.forest.lvls_node[diagram.forest.lvl])
 				diagram.forest.lvls_seen[diagram.forest.lvl].add(diagram.forest.lvls_node[diagram.forest.lvl])
@@ -41,10 +44,12 @@ function ee(diagram) {
 			
 		} else { // normal, extendable node
 		
+			diagram.currentColor = diagram.forest.trees[diagram.forest.lvls_node[diagram.forest.lvl].seedType].color
 			if (diagram.forest.seen.has(diagram.forest.lvls_node[diagram.forest.lvl]) == false && extendFast(diagram, diagram.forest.lvls_node[diagram.forest.lvl])) {		
 			
+				diagram.forest.grow(diagram.forest.lvls_node[diagram.forest.lvl])
 				diagram.forest.push_lvl()
-				
+								
 			} else {
 
 				// or continue
@@ -53,8 +58,14 @@ function ee(diagram) {
 			}			
 		}
 	}
-	
+			
 	measureNodes(diagram)
 	drawNodes(diagram)
+	
+	if(diagram.auto) {
+		setTimeout(function() {
+			ee(diagram)
+		}, 10)
+	}
 }
 

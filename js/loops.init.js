@@ -1,8 +1,6 @@
 function init() {
 	var $ = go.GraphObject.make; // for conciseness in defining templates
 
-	log("init()!!!")
-
 	myDiagram = $(go.Diagram, "myDiagramDiv", {
 		initialAutoScale: go.Diagram.Uniform,
 		padding: 10,
@@ -68,13 +66,13 @@ function init() {
 				new go.Binding("strokeWidth", "width")
 			)
 		);
-	log("xk")
+
 	myDiagram.k3cc = -2
 	myDiagram.k2cc = -1
 	myDiagram.k1cc = -1
 	
 	myDiagram.startPerm = generateGraph();
-	log("xk")
+
 	myDiagram.startNode = null;
 	myDiagram.solution = ""
 	myDiagram.mode = "LOOP"
@@ -250,6 +248,7 @@ function init() {
 			this.seen.removeAll(this.lvls_seen.pop())
 			// and everything else on this lvl
 			this.lvls_treeIndex.pop()			
+			this.lvls_hasUnreachables.pop()
 			this.lvls_hasSingles.pop()
 			this.lvls_availables.pop()
 			this.lvls_avIndex.pop()			
@@ -262,7 +261,7 @@ function init() {
 			
 			var colorDiff = 360 / myDiagram.spClass
 			for(var i = 0; i < myDiagram.spClass - 1; i++) {
-				var color = hsl((60 + (i+1)*colorDiff) % 360)
+				var color = hsl((60 + (i+1)*colorDiff) % 360, 33)
 				
 				var embryos = new go.List()
 				embryos.addAll(myDiagram.nodes.filter(node => myDiagram.drawn.availables.includes(node) && node.seedType == i))
@@ -283,18 +282,37 @@ function init() {
 			
 			var mint = 0
 			var lent = this.trees[0].years_embryos.length
+			var year = this.trees[0].year
 			for(var t = 1; t < this.trees.length; t++) {
-				if(this.trees[t].years_embryos.length < lent) {
+				if(this.trees[t].year < year) {
+					mint = t
+					year = this.trees[t].year
+					lent = this.trees[t].years_embryos.length				
+				} else if(this.trees[t].year == year && this.trees[t].years_embryos.length < lent) {
 					mint = t
 					lent = this.trees[t].years_embryos.length
 				}
 			}
 			
 			return mint
-		}			
-	}
+		},
+		
+		grow: function(node) {
+			var tree = this.trees[node.seedType]
+			tree.year += 1
 			
-	log("xk")
+			node.potentials.each(n => n.seedType = node.seedType)
+			var embryos = new go.List()
+			embryos.addAll(node.potentials.filter(n => myDiagram.drawn.availables.includes(n)))
+			tree.years_embryos.push(embryos)
+		},
+		
+		trim: function(node) {
+			this.trees[node.seedType].year -= 1
+			this.trees[node.seedType].years_embryos.pop()
+		}
+						
+	}
 		
 	myDiagram.nodes.each(node => {
 	
@@ -359,8 +377,6 @@ function init() {
 		node.isSeed = false
 	})
 
-	log("xk")
-			
 	myDiagram.links.each(link => {
 		link.ctype = link.part.data.width / 2
 		link.commited = false
@@ -368,13 +384,11 @@ function init() {
 		link.part.opacity = 0
 		link.part.zOrder = 0
 	})
-
-	log("xk")
 						
 	var lix = 0 // current loop index
 	var lch = 60 // current loop color hue
 	var hueDelta = Math.max(1, Math.round(360 / (1 + myDiagram.nodes.filter(node=>!node.isCenter).count / (myDiagram.spClass - 1))))
-	log("hueDelta" + hueDelta)
+
 	myDiagram.nodes.each(node => {
 	
 		// for each normal node
@@ -466,8 +480,8 @@ function measureNodes(diagram) {
 		if (diagram.cursive) {
 			node.label.text = node.cycleIndex + "\n[" + av + "]"
 			node.shape.stroke = node.backed ? 'yellow' : (av == 0 && !lp ? 'red' : 'black')
-			node.shape.strokeWidth = lp ? 1 : 24
-			node.shape.strokeDashArray = (av == 0 ? null : [2, (300-2*(av-1))/(av)])
+			node.shape.strokeWidth = lp ? 1 : (av == 0 ? 240 : 24)
+			node.shape.strokeDashArray = (av == 0 ? [2, 2] : [2, (300-2*(av-1))/(av)])
 		}
 		if (!lp) {
 			if (av == 0) {
@@ -484,8 +498,6 @@ function measureNodes(diagram) {
 
 function drawNodes(diagram) {
 
-	log("draw start")
-																																
 	diagram.nodes.each(node => {
 			
 		if (node.isCenter) {
@@ -515,9 +527,7 @@ function drawNodes(diagram) {
 			node.shape.strokeWidth = 1
 			node.shape.strokeDashArray = null
 		}		
-	})	
-
-	log("drawing singles")
+	})
 			
 	diagram.drawn.singles.each(single => {
 		var bro = single
@@ -539,7 +549,6 @@ function drawNodes(diagram) {
 	})
 	
 	if(diagram.cursive == false) {	
-		log("drawing links")
 		diagram.links.each(link => {
 			if(link.commited) {
 				link.part.opacity = 1
@@ -551,12 +560,9 @@ function drawNodes(diagram) {
 		})
 	}
 	
-	log("draw done.")
-	
 	if (diagram.forest.state != "ground") {
-		
 		diagram.forest.lvls_availables[diagram.forest.lvl].forEach(node => {
-			node.shape.stroke = (node == diagram.forest.lvls_node[diagram.forest.lvl] ? 'black' : 'gray')
+			node.shape.stroke = (node == diagram.forest.lvls_node[diagram.forest.lvl] ? 'black' : diagram.forest.trees[node.seedType].color)
 			node.shape.strokeWidth = 72
 			node.shape.strokeDashArray = [12, 6]			
 		})
@@ -571,8 +577,12 @@ function updateStatus(diagram) {
 	if (diagram.forest.state != "ground") {
 			
 		var w = "{ "+diagram.forest.state+" » ee:"+diagram.eecc+" @ " + tstr(new Date() - diagram.forest.initTime) + " } ["+diagram.forest.lvl+"]"
-		for(var i = 0; i <= diagram.forest.lvl; ++i)
-			w += "&nbsp;" + (diagram.forest.lvls_avIndex[i]+1) + '/<b style="color:' + (diagram.forest.lvls_hasUnreachables[i] ? "red" : (diagram.forest.lvls_hasSingles[i] ? "orange" : "black")) + '">' + diagram.forest.lvls_availables[i].length + "</b>"
+		for(var i = 0; i <= diagram.forest.lvl; ++i) {
+			var color = diagram.forest.lvls_node[i] == null ? 'gray' : diagram.forest.trees[diagram.forest.lvls_node[i].seedType].color
+			w += '&nbsp;<b style="color:' + color + '">'
+			w += (diagram.forest.lvls_avIndex[i]+1) 
+			w += '/<b style="color:' + (diagram.forest.lvls_hasUnreachables[i] ? "gray" : (diagram.forest.lvls_hasSingles[i] ? "black" : color)) + '">' + diagram.forest.lvls_availables[i].length + "</b></b>"
+		}
 		document.getElementById("walked").innerHTML = w	
 			
 		var status = "max: " + max_looped_count + " | looped: " + diagram.drawn.looped_count + " | availables: " + diagram.drawn.availables.length + " | unreachable: " + diagram.drawn.unreachable_cycle_count + " | singles: " + diagram.drawn.singles.size + " | is current single: " + diagram.drawn.singles.has(diagram.drawn.availables[0])
