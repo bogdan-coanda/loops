@@ -61,8 +61,11 @@ if __name__ == "__main__":
 	perm = "01234"
 	print(perm)
 	print(D1(perm))
-	print(R1(perm))
 	print(D2(perm))	
-	print(R2(perm))
 	print(D3(perm))
+	print(D4(perm))
+	print(R1(perm))
+	print(R2(perm))
 	print(R3(perm))	
+	print(R4(perm))
+

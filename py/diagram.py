@@ -1,7 +1,7 @@
 from state import State
 from drawn import Drawn
 from forest import Forest
-from superperms import permutator
+from superperms import Permutator
 
 class Diagram (object):
 	
@@ -38,10 +38,9 @@ class Diagram (object):
 		self.k3cc = self.spClass - 2
 		self.k2cc = self.spClass - 1
 		self.k1cc = self.spClass - 1
-		self.perms = Permutator([0,1,2,3,4,5,6]).results
+		self.perms = ["".join([str(p) for p in perm]) for perm in Permutator([0,1,2,3,4,5,6]).results]
 		self.pids = {}
 		for i in range(len(self.perms)):
-			self.perms[i] = self.perms[i].join("")
 			self.pids[self.perms[i]] = i
 		
 		
@@ -49,6 +48,6 @@ if __name__ == "__main__":
 	
 	diagram = Diagram(6)
 	
-	print(diagram.drawn.looped_count)
+	print("pid: " + diagram.pids["03124"] + " | perm: " + diagram.perms[diagram.pids["03124"]])
 	
 	print("---")
