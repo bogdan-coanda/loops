@@ -1,16 +1,116 @@
+	function generateGraph() {
+		myDiagram.spClass = 7
+		myDiagram.k3cc = /*1 /*/myDiagram.spClass - 2
+		myDiagram.k2cc = myDiagram.spClass /*- 2 /*/- 1
+		myDiagram.k1cc = myDiagram.spClass - 1
+		myDiagram.perms = permutator([0,1,2,3,4,5,6])
+		myDiagram.pids = {}
+		for (var i = 0; i < myDiagram.perms.length; ++i) {
+			myDiagram.perms[i] = myDiagram.perms[i].join("")
+			myDiagram.pids[myDiagram.perms[i]] = i
+		}
+		
+    var nodeDataArray = [];
+    for (var i = 0; i < myDiagram.perms.length; i++) {
+      nodeDataArray.push({ 
+      	key: i, 
+      	text: myDiagram.perms[i], 
+      	color: "white",
+      	loc: new go.Point(40*i, 40*i),
+      	isCenter: false 
+      });
+    }
+
+		perm = '0123456'
+		next = perm
+		cc = 0
+		qq = 0
+		x = 288; y = 288; hx = 0; hy = 0;
+		for (var q2 = 0; q2 < 2; q2++) {
+			for (var q3 = 0; q3 < 3; q3++) {
+				for (var q4 = 0; q4 < 4; q4++) {
+					for (var q5 = 0; q5 < 5; q5++) {
+						for (var q6 = 0; q6 < 6; q6++) {
+							
+							nodeDataArray.push({ 
+	      				key: "CC"+cc, 
+	      				text: cc, 
+	      				color: "white",
+	      				loc: new go.Point(x, y), 
+								cc: cc,
+								isCenter: true 
+	      			});
+	      									
+							for (var q7 = 0; q7 < 7; q7++) {
+								dx = Math.floor(144*Math.cos((q7 - 3) * 2 * Math.PI / 7))
+								dy = Math.floor(144*Math.sin((q7 - 3) * 2 * Math.PI / 7))
+								perm = next
+								nodeDataArray[myDiagram.pids[perm]].loc = new go.Point(x+dx,y+dy)
+								nodeDataArray[myDiagram.pids[perm]].cc = cc
+								nodeDataArray[myDiagram.pids[perm]].address = ''+q2+''+q3+''+q4+''+q5+''+q6+''+q7
+								nodeDataArray[myDiagram.pids[perm]].pid = qq
+								qq += 1								
+								next = D1(perm)
+							}
+							
+							cc += 1
+							
+							y += 576
+							next = D2(perm)
+						}
+						x += 576
+						y = hy + 288
+						next = D3(perm)
+					}
+					x += 576
+					y = hy + 288
+					next = D4(perm)
+				}
+				x = hx + 288
+				hy += 3888
+				y = hy + 288
+				next = D5(perm)
+			}
+			hx += 14400
+			x = hx + 288
+			hy = 0
+			y = hy + 288
+			next = D6(perm)
+		}
+		
+    var linkDataArray = [];
+    for (var i = 0; i < myDiagram.perms.length; i++) {
+      linkDataArray.push({ from: i, to: myDiagram.pids[D1(myDiagram.perms[i])], color: "red", width: 2 });
+      linkDataArray.push({ from: i, to: myDiagram.pids[D2(myDiagram.perms[i])], color: "blue", width: 4 });
+      linkDataArray.push({ from: i, to: myDiagram.pids[D3(myDiagram.perms[i])], color: "green", width: 6 });
+/*      linkDataArray.push({ from: i, to: myDiagram.pids[D4(myDiagram.perms[i])], color: "orange", width: 8 });
+      linkDataArray.push({ from: i, to: myDiagram.pids[D5(myDiagram.perms[i])], color: "yellow", width: 10 });
+      linkDataArray.push({ from: i, to: myDiagram.pids[D6(myDiagram.perms[i])], color: "purple", width: 12 });*/
+    }
+
+    myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
+    return '0123456'
+  }
+  
+  function postGenerate() {		
+		for(var q = 0; q < 4; ++q) {
+			for(var i = 0; i < 360; i += 20) {
+				document.getElementById("buttonstuffs").innerHTML += '<span style="background: hsl(' + (i + 60) % 360 + ', 100%, ' + (12.5 + q * 12.5) + '%);">&nbsp;&nbsp;&nbsp;\n<input type="radio" name="color_radio" onclick="setCurrentColor()" value="0">\n&nbsp;&nbsp;&nbsp;</span>\n'
+			}
+			document.getElementById("buttonstuffs").innerHTML += "<br />"
+		}		
+		
+		set_as_looper()
+
+		nodeClicked(null, myDiagram.findNodeForKey(myDiagram.pids[myDiagram.startPerm]))
+				
+		drawNodes(myDiagram)		
+	}		  
+
 function init() {
 	var $ = go.GraphObject.make; // for conciseness in defining templates
 
 	myDiagram = $(go.Diagram, "myDiagramDiv", {
-		initialAutoScale: go.Diagram.Uniform,
-		padding: 10,
-		contentAlignment: go.Spot.Center,
-		layout: $(go.Layout, { 
-			isInitial: false, 
-			isOngoing: false 
-		}),
-		maxSelectionCount: 1
-	});
 	
 	// define the Node template
 	myDiagram.nodeTemplate =
@@ -67,26 +167,6 @@ function init() {
 			)
 		);
 
-	myDiagram.k3cc = -2
-	myDiagram.k2cc = -1
-	myDiagram.k1cc = -1
-	
-	myDiagram.startPerm = generateGraph();
-
-	myDiagram.startNode = null;
-	myDiagram.solution = ""
-	myDiagram.mode = "LOOP"
-	myDiagram.currentColor = "yellow"
-	myDiagram.currentColorHue = 60
-	myDiagram.arrowCount = [0, 0, 0]
-	myDiagram.available_count	= 0
-		
-	myDiagram.jkcc = 0	
-	myDiagram.eecc = 0
-	myDiagram.RR = 1200
-	myDiagram.mxlvl = 0
-	myDiagram.auto = true
-	myDiagram.cursive = true // [~]
 	myDiagram.ss = {
 		state: "new",
 		initTime: 0,
@@ -172,14 +252,7 @@ function init() {
 			myDiagram.currentColor = hsl((15*this.lvl) % 360)			
 		}
 	}
-			
-	myDiagram.drawn = {
-		looped_count: 0,
-		availables: [],
-		unreachable_cycle_count: 0,
-		singles: new go.Set()
-	}
-	
+				
 	myDiagram.forest = {
 		state: "ground",
 		initTime: 0,
@@ -654,4 +727,3 @@ function solution(diagram) {
 	diagram.solution = sol
 	document.getElementById("solution").innerHTML = diagram.ss.state == "done." ? '<b style="color:' + (sol == "01234501324501342501345201354201352401352041352014352013450213405214305214035214053214503214530214532014532104523104521304521034521043521045321405231402531402351402315402314502314052134025134021534021354021345012340512340152340125340123540123045123041523041253041235041230541230145230142530142350142305142301542301245301243502143502413502431502435102453102451302451032451023415023410524310524130524103524105324150324153024153204153240153241052341025341023541023451024350124305124301524301254302154320154321054231054213054210354210534201534205132405132045132054132051432051342053142035142031542031452031425031420534120354120345120341520341250341205342105432150423150421350421530421503421504325104235104253104251304251034251043250143250413250431205431204531204351204315204312504321540325140325410325401325403124503124053124035124031524031254032154302514302541302543102543012" ? (diagram.jkcc == 543163 ? "blue" : 'orange') : "red") + '">'+sol+'</b>' : sol
 }
-

@@ -4,10 +4,6 @@ function ee(diagram) {
 		return
 
 	diagram.eecc += 1	
-	if(diagram.eecc % diagram.RR == 0) {
-		log(diagram.forest.state)
-		updateStatus(diagram)
-	}
 	
 	if (diagram.forest.state == "ground") {
 		
@@ -19,6 +15,10 @@ function ee(diagram) {
 		
 			diagram.forest.state = "done."
 			log("FOUND!!!")
+			updateStatus(diagram)
+			measureNodes(diagram)
+			drawNodes(diagram)
+			return
 			
 		} else if (diagram.forest.lvls_node[diagram.forest.lvl] == null) {
 			
@@ -29,6 +29,10 @@ function ee(diagram) {
 
 				diagram.forest.state = "done."				
 				log("NOT FOUND?!?")
+				updateStatus(diagram)
+				measureNodes(diagram)
+				drawNodes(diagram)
+				return
 
 			}	else {
 		
@@ -59,13 +63,21 @@ function ee(diagram) {
 		}
 	}
 			
-	measureNodes(diagram)
-	drawNodes(diagram)
+	//measureNodes(diagram)
+	//drawNodes(diagram)
 	
-	if(diagram.auto) {
-		setTimeout(function() {
+	if(diagram.eecc % diagram.RR == 0) {
+		updateStatus(diagram)
+		if(diagram.auto) {
+			setTimeout(function() {
+				ee(diagram)
+			}, 0)
+		}
+	} else {
+		if(diagram.auto) {
 			ee(diagram)
-		}, 10)
+		}
 	}
+	
 }
 

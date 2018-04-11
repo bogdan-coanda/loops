@@ -1,18 +1,23 @@
 function permutator(inputArr) {
   var results = [];
-
+//	log("[permutator] input: " + inputArr)
+	
   function permute(arr, memo) {
     var cur, memo = memo || [];
-
+//		log("[permute] start | arr: " + arr + " | memo: " + memo)
     for (var i = 0; i < arr.length; i++) {
       cur = arr.splice(i, 1);
+//      log("[permute] i: " + i + " | cur: " + cur + " | arr: " + arr + " | memo: " + memo)
       if (arr.length === 0) {
         results.push(memo.concat(cur));
+//        log("[permute] pushed result: " + results[results.length-1])
       }
       permute(arr.slice(), memo.concat(cur));
       arr.splice(i, 0, cur[0]);
+//      log("[permute] after splice i: " + i + " | cur[0]: " + cur[0] + " | arr: " + arr)
     }
 
+//		log("[permute] on return " + results)
     return results;
   }
 

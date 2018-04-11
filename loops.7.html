@@ -30,6 +30,7 @@ min-height:80%;
 <script src="js/loops.path.js"></script>
 <script src="js/loops.buttons.js"></script>
 <script src="js/loops.fast.js"></script>
+<script src="js/loops.ee.js"></script>
 <script id="code">
 	
 	function generateGraph() {
@@ -123,7 +124,6 @@ min-height:80%;
     }
 
     myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
-    log("0...6")
     return '0123456'
   }
   
@@ -161,8 +161,11 @@ min-height:80%;
 		<button type="button" style="background:black; height:80;" onclick="EA()">max available</button>
 		<button type="button" style="background:gray; height:80;" onclick="EP()">max potential</button>
 		<button type="button" style="background:lightgray; height:80;" onclick="EAPR()">min a/p ratio</button>
+		<br />
 		<button type="button" style="background:pink; height:80;" onclick="QQ()">QQ</button>
 		<button id="auto-button" type="button" style="background:red; height:80;" onclick="AutoSwitch()">Auto</button>
+		<br />
+		<button type="button" style="background:yellowgreen; height:80;" onclick="EE()">EE</button>
 		<br />
 		<span id="walked">walked</span>
 		<br />
@@ -183,4 +186,3 @@ min-height:80%;
 </div>
 </body>
 </html>
-

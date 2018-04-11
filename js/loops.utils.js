@@ -1,6 +1,11 @@
+lq = 0
+
 function log(txt) {
-	console.log(txt)
-	document.getElementById("log").innerHTML += "<br />" + txt
+	if(lq < 100) {
+		console.log(txt)
+		document.getElementById("log").innerHTML += "<br />" + txt
+		lq += 1
+	}
 }
 
 function nstr(node) {
