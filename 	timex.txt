@@ -1,0 +1,7 @@
+-- iPhone --
+loops.6.jk : 543163 @ 1m48s.342
+loops.6.ee :  34208 @    8s.832
+
+loops.6.jk.seen : 383044 @ 1m56s.484
+loops.6.ee.seen :  32817 @    8s.196
+

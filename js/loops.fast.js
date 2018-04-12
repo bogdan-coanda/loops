@@ -55,8 +55,10 @@ function jk(diagram) {
 			// and clean up previous lvl trial
 			collapseFast(diagram, ss.lvls_node[ss.lvl])
 			log("[jk] collapsing: " + nstr(ss.lvls_node[ss.lvl]))
-			ss.seen.add(ss.lvls_node[ss.lvl])
-			ss.lvls_seen[ss.lvl].add(ss.lvls_node[ss.lvl])
+			
+			//ss.seen.add(ss.lvls_node[ss.lvl])
+			ss.lvls_node[ss.lvl].seen = true
+			ss.lvls_seen[ss.lvl].push(ss.lvls_node[ss.lvl])
 						
 			// and continue
 			ss.next_available()
@@ -89,7 +91,7 @@ function jk(diagram) {
 	
 	var didExtend = false
 	
-	if (ss.seen.has(ss.lvls_node[ss.lvl]) == false && extendFast(diagram, ss.lvls_node[ss.lvl])) {
+	if (/*ss.seen.has(*/ss.lvls_node[ss.lvl].seen == false && extendFast(diagram, ss.lvls_node[ss.lvl])) {
 		log("[jk] extending: " + nstr(ss.lvls_node[ss.lvl]))
 		
 		ss.push_lvl()
@@ -132,7 +134,8 @@ function jk(diagram) {
 
 function extendFast(diagram, node) {
 	// extend S2 if S1:S2:S3 to S1:[P:[S]x(ss-1)]x(ss-2):P:S3
-	if (node.prevLink == null
+	if (node.seen
+		|| node.prevLink == null
 		|| node.prevLink.ctype != 1
 		|| node.nextNode == null
 		|| node.nextLink.ctype != 1
@@ -288,7 +291,8 @@ function tryMakeAvailableFast(diagram, nodes) {
 
 function checkAvailabilityFast(diagram, curr) {
 	if(curr.looped && (
-		curr.prevLink == null
+		curr.seen
+		|| curr.prevLink == null
 		|| curr.prevLink.ctype != 1 
 		|| curr.nextNode == null 
 		|| curr.nextLink.ctype != 1 

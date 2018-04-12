@@ -83,7 +83,7 @@ function init() {
 		
 	myDiagram.jkcc = 0	
 	myDiagram.eecc = 0
-	myDiagram.RR = 1200
+	myDiagram.RR = 36000
 	myDiagram.mxlvl = 0
 	myDiagram.auto = true
 	myDiagram.cursive = true // [~]
@@ -132,7 +132,7 @@ function init() {
 		
 			this.lvl += 1
 			myDiagram.currentColor = hsl((15*this.lvl) % 360)			
-			this.lvls_seen.push(new go.Set())
+			this.lvls_seen.push([])
 
 			this.lvls_avIndex.push(0)				
 			this.lvls_availables.push([])
@@ -162,7 +162,11 @@ function init() {
 				this.lvls_node[this.lvl].marked = false
 			}				
 			// [~] need to remove the current lvl seens
-			this.seen.removeAll(this.lvls_seen.pop())
+			curr_seens = this.lvls_seen.pop()
+			//this.seen.removeAll(curr_seens)
+			for(var i = 0; i < curr_seens.length; ++i)
+				curr_seens[i].seen = false
+			//curr_seens.each(node => { node.seen = false })
 			// and everything else on this lvl
 			this.lvls_node.pop()
 			this.lvls_hasSingles.pop()
@@ -237,7 +241,7 @@ function init() {
 			measureNodes(myDiagram)		
 									
 			this.lvl += 1
-			this.lvls_seen.push(new go.Set())
+			this.lvls_seen.push([])
 			this.lvls_treeIndex.push(this.measureTrees())
 			this.push_availables()		
 			this.next_available()				
@@ -245,7 +249,11 @@ function init() {
 		
 		pop_lvl: function() {
 			// [~] need to remove the current lvl seens
-			this.seen.removeAll(this.lvls_seen.pop())
+			curr_seens = this.lvls_seen.pop()
+			//this.seen.removeAll(curr_seens)
+			for(var i = 0; i < curr_seens.length; ++i)
+				curr_seens[i].seen = false
+			//curr_seens.each(node => { node.seen = false })
 			// and everything else on this lvl
 			this.lvls_treeIndex.pop()			
 			this.lvls_hasUnreachables.pop()
@@ -375,6 +383,8 @@ function init() {
 		node.markedColor = 'black'
 		
 		node.isSeed = false
+		
+		node.seen = false
 	})
 
 	myDiagram.links.each(link => {
@@ -459,7 +469,7 @@ function measureNodes(diagram) {
 	while (node != null) {
 		if(node.looped) {
 			diagram.drawn.looped_count += 1	
-			if(node.availabled && !node.extended) {
+			if(node.availabled && !node.extended && !node.seen) {
 				diagram.drawn.availables.push(node)
 			}
 		}		
@@ -486,8 +496,11 @@ function measureNodes(diagram) {
 		if (!lp) {
 			if (av == 0) {
 				diagram.drawn.unreachable_cycle_count += 1
-			} else if (av == 1 && lf.loopBrethren.filter(bro => bro.looped).count == 1) {
-				diagram.drawn.singles.add(lf.loopBrethren.filter(bro => bro.looped).first())
+			} else if (av == 1) {
+				var bros = lf.loopBrethren.filter(bro => bro.looped)// && !bro.seen)
+				if (bros.count == 1) {
+					diagram.drawn.singles.add(bros.first())
+				}
 			}
 		}
 	})

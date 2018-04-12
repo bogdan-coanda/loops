@@ -39,8 +39,10 @@ function ee(diagram) {
 				// and clean up previous lvl trial
 				diagram.forest.trim(diagram.forest.lvls_node[diagram.forest.lvl])
 				collapseFast(diagram, diagram.forest.lvls_node[diagram.forest.lvl])
-				diagram.forest.seen.add(diagram.forest.lvls_node[diagram.forest.lvl])
-				diagram.forest.lvls_seen[diagram.forest.lvl].add(diagram.forest.lvls_node[diagram.forest.lvl])
+				
+				//diagram.forest.seen.add(diagram.forest.lvls_node[diagram.forest.lvl])
+				diagram.forest.lvls_node[diagram.forest.lvl].seen = true
+				diagram.forest.lvls_seen[diagram.forest.lvl].push(diagram.forest.lvls_node[diagram.forest.lvl])
 						
 				// and continue
 				diagram.forest.next_available()
@@ -49,7 +51,7 @@ function ee(diagram) {
 		} else { // normal, extendable node
 		
 			diagram.currentColor = diagram.forest.trees[diagram.forest.lvls_node[diagram.forest.lvl].seedType].color
-			if (diagram.forest.seen.has(diagram.forest.lvls_node[diagram.forest.lvl]) == false && extendFast(diagram, diagram.forest.lvls_node[diagram.forest.lvl])) {		
+			if (/*diagram.forest.seen.has(*/diagram.forest.lvls_node[diagram.forest.lvl].seen == false && extendFast(diagram, diagram.forest.lvls_node[diagram.forest.lvl])) {		
 			
 				diagram.forest.grow(diagram.forest.lvls_node[diagram.forest.lvl])
 				diagram.forest.push_lvl()
