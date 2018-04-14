@@ -1,10 +1,4 @@
   function postGenerate() {		
-		for(var q = 0; q < 4; ++q) {
-			for(var i = 0; i < 360; i += 20) {
-				document.getElementById("buttonstuffs").innerHTML += '<span style="background: hsl(' + (i + 60) % 360 + ', 100%, ' + (12.5 + q * 12.5) + '%);">&nbsp;&nbsp;&nbsp;\n<input type="radio" name="color_radio" onclick="setCurrentColor()" value="0">\n&nbsp;&nbsp;&nbsp;</span>\n'
-			}
-			document.getElementById("buttonstuffs").innerHTML += "<br />"
-		}		
 		
 		set_as_looper()
 
@@ -14,65 +8,9 @@
 	}		  
 
 function init() {
-	var $ = go.GraphObject.make; // for conciseness in defining templates
 
 	myDiagram = $(go.Diagram, "myDiagramDiv", {
 	
-	// define the Node template
-	myDiagram.nodeTemplate =
-		$(go.Node, "Spot", {
-				locationSpot: go.Spot.Center,	// Node.location is the center of the Shape
-				locationObjectName: "SHAPE",
-				selectionAdorned: false,
-				//selectionChanged: nodeSelectionChanged,
-				click: nodeClicked
-			},
-			new go.Binding("location", "loc"),
-			$(go.Panel, "Auto",
-				$(go.Shape, "Ellipse", { 
-						name: "SHAPE",
-						fill: "lightgray",	// default value, but also data-bound
-						stroke: "black",	// modified by highlighting
-						strokeWidth: 1,
-						desiredSize: new go.Size(96, 96),
-						portId: ""	// so links will go to the shape, not the whole node
-					}
-				)
-			),
-			$(go.TextBlock, {
-					name: "LABEL",
-					font: "italic 700 16px sans-serif", 
-					textAlign: "center",
-					stroke: "black" 
-				},
-				new go.Binding("text")
-			)
-		);
-
-	// define the Link template
-	myDiagram.linkTemplate =
-		$(go.Link, {
-				selectable: false,			// links cannot be selected by the user
-				curve: go.Link.Bezier,
-				layerName: "Background"	// don't cross in front of any nodes
-			},
-			$(go.Shape, {
-					name: "LINE", 
-					stroke: "white"
-				},
-				new go.Binding("stroke", "color"),
-				new go.Binding("strokeWidth", "width")
-			),
-			$(go.Shape, { 
-					name: "ARROW", 
-					toArrow: "Standard",
-					stroke: "white"
-				},
-				new go.Binding("stroke", "color"),
-				new go.Binding("strokeWidth", "width")
-			)
-		);
-
 	myDiagram.ss = {
 		state: "new",
 		initTime: 0,
@@ -292,77 +230,7 @@ function init() {
 		}
 						
 	}
-		
-	myDiagram.nodes.each(node => {
-	
-	})
-
-	myDiagram.links.each(link => {
-		link.ctype = link.part.data.width / 2
-		link.commited = false
-		link.highlighted = false
-		link.part.opacity = 0
-		link.part.zOrder = 0
-	})
-						
-	var lix = 0 // current loop index
-	var lch = 60 // current loop color hue
-	var hueDelta = Math.max(1, Math.round(360 / (1 + myDiagram.nodes.filter(node=>!node.isCenter).count / (myDiagram.spClass - 1))))
-
-	myDiagram.nodes.each(node => {
-	
-		// for each normal node
-		if (node.isCenter == false) {
-			
-			// [1] link this into its center node's child list
-			// each node belongs to a single center
-			node.cycleCenterNode.cycleChildNodes.add(node)
-
-			// if this node has yet to be included in a loop
-			if (node.loopIndex == 0) {
-				// adapt current loop details to a new loop
-				lix += 1
-				lch = (lch + hueDelta) % 360
 				
-				// [5,6] this is the first node in the new loop
-				node.loopIndex = lix
-				node.loopColorHue = lch				
-			}
-						
-			var next = node
-			
-			// for each cycle in the loop extension
-			for (var j = 0; j < myDiagram.spClass - 2; j++) {
-				// make the jump into the cycle
-				next = myDiagram.findNodeForKey(myDiagram.pids[D2(myDiagram.perms[next.key])])
-				
-				// [2] potentials will be looped in if this node becomes availabled and then extended
-				node.potentials.add(next)				
-				
-				// [3] bases will be unavailabled when this next node becomes looped in
-				next.bases.add(node)
-				
-				// [4] all bases are available at start
-				next.potentialedBy.add(node)
-						
-				for (var i = 0; i < myDiagram.spClass - 1; i++) {
-					next = myDiagram.findNodeForKey(myDiagram.pids[D1(myDiagram.perms[next.key])])					 
-					// [2] potential as well
-					node.potentials.add(next)
-				}
-				
-				// [7] the last node in the cycle is the one to make the jump, so we store it as a brethren of the current node
-				node.loopBrethren.add(next)
-				
-				// [5,6] copy details from the first node in the current loop
-				next.loopIndex = node.loopIndex
-				next.loopColorHue = node.loopColorHue				
-			}	
-		}
-	})
-	
-	myDiagram.centers = myDiagram.nodes.filter(node => node.isCenter)
-		
 	postGenerate()
 }
 
