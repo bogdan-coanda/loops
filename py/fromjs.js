@@ -295,65 +295,6 @@ function init() {
 		
 	myDiagram.nodes.each(node => {
 	
-		node.looped = false
-		node.extended = false
-		node.extendedColor = "red"
-		node.nextNode = null
-		node.prevNode = null
-		node.nextLink = null
-		node.prevLink = null
-		node.shape = node.findObject("SHAPE")
-		node.label = node.findObject("LABEL")
-		node.shape.fill = "white"
-		node.perm = myDiagram.perms[node.key]
-		node.address = node.part.data.address			
-		node.pid = node.part.data.pid
-		node.suivant = false
-		node.dessus = false
-		node.backed = false
-		node.backedColorHue = 60
-		node.marked = false
-
-		// all normal nodes are available at start for extending as they're unblemished
-		node.availabled = true
-						
-		// everyone is either a center or a normal node
-		node.isCenter = node.part.data.isCenter
-		
-		// everyone knows its cycle index
-		node.cycleIndex = node.part.data.cc
-		
-		// everyone holds a link to its cycle center
-		node.cycleCenterNode = myDiagram.findNodeForKey("CC"+node.cycleIndex)
-		
-		// [1] each center node holds links to its N child nodes
-		node.cycleChildNodes = new go.Set()
-		
-		
-		// [2] each normal node holds links to its (N-2)*N potential nodes (nodes looped in when extended from this node)
-		node.potentials = new go.Set()
-		
-		// [3] each normal node holds links to its (N-2) base nodes (nodes that when extended, loop in this node as well among others)
-		node.bases = new go.Set();
-
-	 	// [4] each normal node is CURRENTLY potentialed by up to (N-2) base nodes
-		node.potentialedBy = new go.Set()	
-		
-		// [5] each node has a loop index (1-based as 0 means unparsed) for the loop it extends into
-		node.loopIndex = 0
-		
-		// [6] each node has a loop color hue for the loop it extends into
-		node.loopColorHue = 0
-		
-		// [8] this is user set and takes precedence over loopColorHue when drawing
-		node.loopColor = null
-		
-		// [7] each node holds links to its N-2 brethren (nodes that extend into the same loop)
-		node.loopBrethren = new go.Set()
-		
-		node.markedColor = 'black'
-		
-		node.isSeed = false
 	})
 
 	myDiagram.links.each(link => {
