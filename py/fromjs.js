@@ -1,10 +1,6 @@
   function postGenerate() {		
 		
-		set_as_looper()
-
-		nodeClicked(null, myDiagram.findNodeForKey(myDiagram.pids[myDiagram.startPerm]))
-				
-		drawNodes(myDiagram)		
+		nodeClicked(null, myDiagram.findNodeForKey(myDiagram.pids[myDiagram.startPerm]))		
 	}		  
 
 function init() {
