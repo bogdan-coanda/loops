@@ -34,3 +34,5 @@ class Node (object):
 			
 		# [7] each node holds links to its N-2 brethren (nodes that extend into the same loop)
 		self.loopBrethren = set()
+		
+		self.seen = False

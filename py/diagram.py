@@ -194,18 +194,11 @@ class Diagram (object):
 			next = curr.links[3].next
 			linkType = 3
 		
-		for node in workedNodes:			
-			column = int(node.cycleIndex / (self.spClass - 1)) # 0-3
-			row = node.cycleIndex % (self.spClass - 1) # 0-4
-			if column + row == self.spClass - 2: # (0,4);(1,3);(2,2);(3,1) == 4
-				node.seedType = 0 # 0
-			else:
-				node.seedType = column + 1 # 1-4
-
 		self.tryMakeAvailable(workedNodes)
 		
 		
 	def appendPath(self, type, curr, next):
+		assert next.looped == False
 		next.looped = True
 
 		curr.nextNode = next
@@ -214,6 +207,17 @@ class Diagram (object):
 		curr.nextLink = next.prevLink = curr.links[type]
 
 
+	def deletePath(self, curr, next):
+		assert next.looped == True
+		next.looped = False
+		next.extended = False
+		
+		curr.nextNode = None
+		next.prevNode = None
+						
+		curr.nextLink = next.prevLink = None
+	
+	
 	def tryMakeAvailable(self, nodes):
 		for node in nodes:
 			wasAvailabled = node.availabled
@@ -228,23 +232,123 @@ class Diagram (object):
 					self.available_count -= 1
 				for bro in node.loopBrethren:
 					bro.availabled = False	
-		
-		
+
+				
 	def checkAvailability(self, curr):
-		if curr.looped and (curr.prevLink == None or curr.prevLink.type != 1 or curr.nextNode == None or curr.nextLink.type != 1 or curr.nextNode.nextNode == None or curr.nextNode.nextLink.type != 1):
+		if curr.looped and (curr.prevLink == None 
+				or curr.prevLink.type != 1 
+				or curr.nextNode == None 
+				or curr.nextLink.type != 1 
+				or curr.nextNode.nextNode == None 
+				or curr.nextNode.nextLink.type != 1):
 			return False
-		'''			
-		curr.prevLink == null
-		|| curr.prevLink.ctype != 1 
-		|| curr.nextNode == null 
-		|| curr.nextLink.ctype != 1 
-		|| curr.nextNode.nextNode == null 
-		|| curr.nextNode.nextLink.ctype != 1))			
-			'''
 		return (len([bro for bro in curr.loopBrethren if bro.looped]) + (1 if curr.looped else 0)) <= 1
 
 
+	def measureNodes(self):
 
+		self.drawn.reset()		
+												
+		node = self.startNode
+		while node != None:
+			if node.looped:
+				self.drawn.looped_count += 1	
+				if node.availabled and not node.extended:
+					self.drawn.availables.append(node)
+			node = node.nextNode
+									
+		for cycle in self.cycles:						
+			av = 0
+			lp = False
+			lf = None
+			for leaf in cycle.nodes:
+				if leaf.looped: # if any node is looped, then the whole cycle is considered looped
+						lp = True
+				if leaf.availabled:
+						av += 1
+						lf = leaf # retain a leaf in case it's single
+			if not lp:
+				if av == 0:
+					self.drawn.unreachable_cycle_count += 1
+				elif av == 1:
+					bros = list(filter(lambda bro: bro.looped, lf.loopBrethren))
+					if len(bros) == 1:
+						self.drawn.singles.add(bros[0])
+		
+		if self.drawn.looped_count > self.drawn.max_looped_count:
+			self.drawn.max_looped_count = self.drawn.looped_count
+
+
+	def extendLoop(self, node):
+		# extend S2 if S1:S2:S3 to S1:[P:[S]x(ss-1)]x(ss-2):P:S3
+		
+		# extend only if available and not already extended	
+		if not node.availabled or node.extended or node.seen:
+			return False
+		
+		# mark as extended
+		node.extended = True
+		
+		# add the last node to bases
+		last = node.links[1].next
+		
+		workedNodes = set()
+		
+		# delete S2
+		self.deletePath(node, last)
+		workedNodes.add(node)
+				
+		# append extended path
+		curr = node
+		for j in range(self.spClass - 2):
+			next = curr.links[2].next
+			self.appendPath(2, curr, next)
+			curr = next
+			workedNodes.add(curr)
+				
+			for i in range(self.spClass - 1):
+				next = curr.links[1].next
+				self.appendPath(1, curr, next)
+				curr = next
+				workedNodes.add(curr)
+				
+		# append the last P path
+		next = curr.links[2].next
+		self.appendPath(2, curr, next)
+		workedNodes.add(last)
+
+		self.tryMakeAvailable(workedNodes)		
+		return True
+
+
+	def collapseLoop(self, node):
+		# collapse only if extended
+		if not node.extended:
+			return
+	
+		# mark as not extended
+		node.extended = False
+		
+		# remove available nodes for the soon to be collapsed extension  
+		last = node.links[1].next
+	
+		workedNodes = set()
+	
+		# remove extended path
+		curr = node
+		next = None
+		while curr != last:
+			next = curr.nextNode
+			self.deletePath(curr, next)
+			workedNodes.add(curr)
+			curr = next
+				
+		# add the replacement S path
+		self.appendPath(1, node, last)
+		workedNodes.add(last)
+		
+		# for all base nodes, if they can be availabled, do it
+		self.tryMakeAvailable(workedNodes)
 
 
 				
@@ -259,3 +363,10 @@ if __name__ == "__main__":
 	print("links:\n" + "\n".join([str(y) + " » " + node.links[y].next.perm for y in range(1, diagram.spClass)]))
 	print("cycle: " + str(node.cycleIndex) + "\n" + "\n".join([n.perm for n in node.cycle.nodes]))
 	print("---")
+	diagram.measureNodes()
+	diagram.extendLoop(diagram.drawn.availables[0])
+	diagram.measureNodes()
+	diagram.extendLoop(diagram.drawn.availables[0])
+	diagram.measureNodes()
+	print("===")
+	
