@@ -8,8 +8,6 @@ class Node (object):
 		
 		self.looped = False
 		self.extended = False
-		self.nextNode = None
-		self.prevNode = None
 		self.nextLink = None
 		self.prevLink = None
 		self.suivant = False
