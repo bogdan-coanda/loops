@@ -177,14 +177,14 @@ class Diagram (object):
 			for j in range(self.k2cc):
 			
 				if next != None:
-					self.appendPath(linkType, curr, next)
+					next = self.appendPath(curr, linkType)
 					curr = next
 					workedNodes.add(curr)
 
 				for k in range(self.k1cc):				
-					next = curr.links[1].next
 					linkType = 1
-					self.appendPath(linkType, curr, next)
+					next = self.appendPath(curr, linkType)
+					
 					curr = next
 					workedNodes.add(curr)
 
@@ -197,26 +197,21 @@ class Diagram (object):
 		self.tryMakeAvailable(workedNodes)
 		
 		
-	def appendPath(self, type, curr, next):
-		assert next.looped == False
-		next.looped = True
-
-		curr.nextNode = next
-		next.prevNode = curr	
-	
+	def appendPath(self, curr, type):
+		assert curr.nextLink == None and curr.links[type].next.looped == False	
+		next = curr.links[type].next
+		next.looped = True		
 		curr.nextLink = next.prevLink = curr.links[type]
+		return curr.nextLink.next
 
 
-	def deletePath(self, curr, next):
-		assert next.looped == True
+	def deletePath(self, curr):
+		assert curr.nextLink != None and curr.nextLink.next.looped == True
+		next = curr.nextLink.next			
 		next.looped = False
 		next.extended = False
-		
-		curr.nextNode = None
-		next.prevNode = None
-						
-		curr.nextLink = next.prevLink = None
-	
+		curr.nextLink = next.prevLink = None		
+		return next
 	
 	def tryMakeAvailable(self, nodes):
 		for node in nodes:
@@ -237,10 +232,10 @@ class Diagram (object):
 	def checkAvailability(self, curr):
 		if curr.looped and (curr.prevLink == None 
 				or curr.prevLink.type != 1 
-				or curr.nextNode == None 
+				or curr.nextLink == None 
 				or curr.nextLink.type != 1 
-				or curr.nextNode.nextNode == None 
-				or curr.nextNode.nextLink.type != 1):
+				or curr.nextLink.next.nextLink == None 
+				or curr.nextLink.next.nextLink.type != 1):
 			return False
 		return (len([bro for bro in curr.loopBrethren if bro.looped]) + (1 if curr.looped else 0)) <= 1
 
@@ -255,7 +250,7 @@ class Diagram (object):
 				self.drawn.looped_count += 1	
 				if node.availabled and not node.extended:
 					self.drawn.availables.append(node)
-			node = node.nextNode
+			node = node.nextLink.next if node.nextLink != None else None
 									
 		for cycle in self.cycles:						
 			av = 0
@@ -290,31 +285,27 @@ class Diagram (object):
 		node.extended = True
 		
 		# add the last node to bases
-		last = node.links[1].next
-		
-		workedNodes = set()
-		
 		# delete S2
-		self.deletePath(node, last)
+		assert node.links[1] == node.nextLink
+		last = self.deletePath(node)
+		
+		workedNodes = set()		
 		workedNodes.add(node)
 				
 		# append extended path
 		curr = node
 		for j in range(self.spClass - 2):
-			next = curr.links[2].next
-			self.appendPath(2, curr, next)
+			next = self.appendPath(curr, 2)
 			curr = next
 			workedNodes.add(curr)
 				
 			for i in range(self.spClass - 1):
-				next = curr.links[1].next
-				self.appendPath(1, curr, next)
+				next = self.appendPath(curr, 1)
 				curr = next
 				workedNodes.add(curr)
 				
 		# append the last P path
-		next = curr.links[2].next
-		self.appendPath(2, curr, next)
+		next = self.appendPath(curr, 2)
 		workedNodes.add(last)
 
 		self.tryMakeAvailable(workedNodes)		
@@ -338,13 +329,12 @@ class Diagram (object):
 		curr = node
 		next = None
 		while curr != last:
-			next = curr.nextNode
-			self.deletePath(curr, next)
+			next = self.deletePath(curr)
 			workedNodes.add(curr)
 			curr = next
 				
 		# add the replacement S path
-		self.appendPath(1, node, last)
+		assert last == self.appendPath(node, 1)
 		workedNodes.add(last)
 		
 		# for all base nodes, if they can be availabled, do it

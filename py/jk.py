@@ -29,7 +29,7 @@ def jk(diagram, lvl = 0, state = []):
 			known = diagram.knowns[len(diagram.sols) - 1]
 			sol = diagram.sols[-1]
 			if known[1] == sol[1] and known[3] == sol[3]:
-				print("[SAME] " + (("faster by " + tstr(known[0] - sol[0])) if sol[0] < known[0] else ("slower by " + tstr(sol[0] - known[0]))))
+				print("[SAME] " + (("faster by " + tstr(known[0] - sol[0]) + " (" + str(int(100*sol[0]/known[0])) + "%)") if sol[0] < known[0] else ("slower by " + tstr(sol[0] - known[0]) + " (" + str(int(100*sol[0]/known[0])) + "%)")))
 			else:
 				print(">>> [DIVERGENT] <<<\nold jkcc: " + str(known[1]) + " » " + known[3] + "\nnew jkcc: " + str(sol[1]) + " » " + sol[3])
 		
