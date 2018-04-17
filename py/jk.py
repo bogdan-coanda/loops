@@ -4,6 +4,7 @@ from math import floor
 import pickle
 from functools import cmp_to_key
 
+
 def tstr(s):
 	return "" + str(int(floor(s / 60))) + "m" + str(int(floor(s)) % 60) + "s." + str(int(s * 1000) % 1000)
 
@@ -40,13 +41,17 @@ def jk(diagram, lvl = 0, state = []):
 		
 	singlesCount = len(diagram.drawn.singles)
 	availables = [sorted(diagram.drawn.singles, key = cmp_to_key(lambda x, y: 0 if x.perm == y.perm else (1 if x.perm > y.perm else -1)))[0]] if singlesCount > 0 else diagram.drawn.availables
+	availables = [node for node in availables if not node.seen]
 	lvl_seen = []
+	
+	print("[lvl:"+str(lvl)+"] " + " ".join([node.perm for node in availables]))
 	
 	cc = 0
 	for node in availables:
 		if not node.seen:
 			
 			if diagram.extendLoop(node):
+				print("[lvl:"+str(lvl)+"] pushing by " + node.perm)
 				jk(diagram, lvl + 1, state + [(cc, len(availables), singlesCount, node.perm)])
 				diagram.collapseLoop(node)
 
@@ -63,12 +68,12 @@ def jk(diagram, lvl = 0, state = []):
 
 if __name__ == "__main__":
 	
-	diagram = Diagram(6)
+	diagram = Diagram(5)
 	diagram.startTime = time()
 	diagram.sols = []
 	
-#	with open('sols.'+str(diagram.spClass)+".pkl", 'wb') as outfile:
-#		pickle.dump(diagram.sols, outfile, 0)
+	# with open('sols.'+str(diagram.spClass)+".pkl", 'wb') as outfile:
+	# 	pickle.dump(diagram.sols, outfile, 0)
 
 	with open('sols.'+str(diagram.spClass)+".pkl", 'rb') as infile:
 		diagram.knowns = pickle.load(infile)

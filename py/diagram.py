@@ -198,7 +198,7 @@ class Diagram (object):
 		
 		
 	def appendPath(self, curr, type):
-		assert curr.nextLink == None and curr.links[type].next.looped == False	
+#		assert curr.nextLink == None and curr.links[type].next.looped == False	
 		next = curr.links[type].next
 		next.looped = True		
 		curr.nextLink = next.prevLink = curr.links[type]
@@ -206,7 +206,7 @@ class Diagram (object):
 
 
 	def deletePath(self, curr):
-		assert curr.nextLink != None and curr.nextLink.next.looped == True
+#		assert curr.nextLink != None and curr.nextLink.next.looped == True
 		next = curr.nextLink.next			
 		next.looped = False
 		next.extended = False
@@ -278,7 +278,7 @@ class Diagram (object):
 		# extend S2 if S1:S2:S3 to S1:[P:[S]x(ss-1)]x(ss-2):P:S3
 		
 		# extend only if available and not already extended	
-		if not node.availabled or node.extended or node.seen:
+		if not node.looped or not node.availabled or node.extended or node.seen:
 			return False
 		
 		# mark as extended
@@ -286,7 +286,7 @@ class Diagram (object):
 		
 		# add the last node to bases
 		# delete S2
-		assert node.links[1] == node.nextLink
+#		assert node.links[1] == node.nextLink
 		last = self.deletePath(node)
 		
 		workedNodes = set()		
