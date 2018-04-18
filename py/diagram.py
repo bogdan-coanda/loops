@@ -259,7 +259,7 @@ class Diagram (object):
 			for leaf in cycle.nodes:
 				if leaf.looped: # if any node is looped, then the whole cycle is considered looped
 						lp = True
-				if leaf.availabled:
+				if leaf.availabled and not leaf.seen:
 						av += 1
 						lf = leaf # retain a leaf in case it's single
 			if not lp:
