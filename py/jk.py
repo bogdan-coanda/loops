@@ -11,12 +11,18 @@ def tstr(s):
 def dtstr(new, old):
 	if new == old:		
 		return "@time: " + tstr(new) + " same as before"
-	return "@time: " + tstr(new) + " faster by " + tstr(old - new if new < old else new - old) + " (" + str(int(100*new/old)) + "%) than " + tstr(old)
-
+	if new < old:
+		return "@time: " + tstr(new) + " faster by " + tstr(old - new) + " (" + str(int(100*new/old)) + "%) than " + tstr(old)
+	else:
+		return "@time: " + tstr(new) + " slower by " + tstr(new - old) + " (" + str(int(100*old/new)) + "%) than " + tstr(old)
+		
 def jkstr(new, old):
 	if new == old:		
 		return "@jkcc: " + str(new) + " same as before"
-	return "@jkcc: " + str(new) + " faster by " + str(old - new if new < old else new - old) + " (" + str(int(100*new/old)) + "%) than " + str(old)
+	if new < old:
+		return "@jkcc: " + str(new) + " faster by " + str(old - new) + " (" + str(int(100*new/old)) + "%) than " + str(old)
+	else:
+		return "@jkcc: " + str(new) + " slower by " + str(new - old) + " (" + str(int(100*old/new)) + "%) than " + str(old)
 
 def jk(diagram, lvl = 0, state = []):
 					
