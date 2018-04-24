@@ -34,3 +34,10 @@ class Node (object):
 		self.loopBrethren = set()
 		
 		self.seen = False
+		
+		self.chainStarter = False
+		
+		self.chainID = 0
+		
+	def __repr__(self):
+		return "[node:"+self.perm+"@"+self.address+"§"+str(self.chainID)+"]"

@@ -4,3 +4,6 @@ class Link (object):
 		self.type = type
 		self.node = node
 		self.next = next
+		
+	def __repr__(self):
+		return "[link:"+str(self.type)+"|"+self.node.perm+"»"+self.next.perm+"]"
