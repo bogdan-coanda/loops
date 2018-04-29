@@ -6,22 +6,21 @@ from functools import cmp_to_key
 
 class Step (object):
 	
-	def __init__(self, cc, availablesCount, singlesCount, sparksCount, node):
+	def __init__(self, cc, availablesCount, singlesCount, sparksCount, perm):
 		self.cc = cc
 		self.availablesCount = availablesCount
 		self.singlesCount = singlesCount
 		self.sparksCount = sparksCount
-		self.node = node
+		self.perm = perm
 
 
 class Sol (object):
 	
-	def __init__(self, tdiff, jkcc, state, text, extended):
+	def __init__(self, tdiff, jkcc, state, text):
 		self.tdiff = tdiff
 		self.jkcc = jkcc
 		self.state = state
 		self.text = text
-		self.extended = extended
 		
 
 def tstr(s):
@@ -44,7 +43,7 @@ def jkstr(new, old):
 		return "@jkcc: " + str(new) + " slower by " + str(new - old) + " (" + str(int(100*old/new)) + "%) than " + str(old)
 
 def sstr(state):
-	return " ".join([str(step.cc) + "/" + str(step.availablesCount) + (("(" + str(step.singlesCount) + ")") if step.singlesCount > 0 else (("{" + str(step.sparksCount) + "}") if step.sparksCount > 0 else "")) + ":" + str(step.node) for step in state])
+	return " ".join([str(step.cc) + "/" + str(step.availablesCount) + (("(" + str(step.singlesCount) + ")") if step.singlesCount > 0 else (("{" + str(step.sparksCount) + "}") if step.sparksCount > 0 else "")) + ":" + str(step.perm) for step in state])
 
 def jk(diagram, lvl = 0, state = []):
 	
@@ -146,8 +145,7 @@ new » [5] lvl: 25 |
 		if len(diagram.drawn.chains) != 1:
 			#print("\n# [Trojan] # @jkcc: " + str(diagram.jkcc) + " | @time: " + tstr(tdiff) + " » " + text)
 			return
-		extended = [step.node for step in state]
-		diagram.sols.append(Sol(tdiff, diagram.jkcc, state, text, extended))		
+		diagram.sols.append(Sol(tdiff, diagram.jkcc, state, text))		
 
 		print()
 		print("[state] jk: " + str(diagram.jkcc) + " | lvl: " + str(lvl) + " | » " + sstr(state))
@@ -168,8 +166,8 @@ new » [5] lvl: 25 |
 			if known.jkcc == sol.jkcc and known.text == sol.text: # jkcc & text
 				print("[SAME] " + dtstr(sol.tdiff, known.tdiff))
 			else:
-				knownchain = [step.node for step in known.state]
-				solchain = [step.node for step in sol.state]
+				knownchain = [step.perm for step in known.state]
+				solchain = [step.perm for step in sol.state]
 				if set(knownchain) == set(solchain):
 					if knownchain == solchain:
 						print(">>> [ABSOLUTED] <<<\n" + dtstr(sol.tdiff, known.tdiff) + "\n" + jkstr(sol.jkcc, known.jkcc) + "\nold » " + " ".join([str(node) for node in knownchain]) + "\nnew » " + " ".join([str(node) for node in knownchain]))
@@ -179,7 +177,7 @@ new » [5] lvl: 25 |
 					𝒟 = Diagram(diagram.spClass)
 					for step in known.state:
 						𝒟.measureNodes()
-						node = 𝒟.nodeByPerm[step.node.perm]
+						node = 𝒟.nodeByPerm[step.perm]
 						#print("𝒟:" + str(𝒟.drawn.looped_count) + " | extending: " + str(node))
 						𝒟.extendLoop(node)
 						
@@ -237,7 +235,7 @@ new » [5] lvl: 25 |
 			
 			if diagram.extendLoop(node):
 #				diagram.log("lvl:"+str(lvl), "pushing by " + str(node))
-				jk(diagram, lvl + 1, state + [Step(cc, len(availables), singlesCount, sparksCount, node)])
+				jk(diagram, lvl + 1, state + [Step(cc, len(availables), singlesCount, sparksCount, node.perm)])
 #				diagram.log("lvl:"+str(lvl), "collapsing back " + str(node))
 				diagram.collapseLoop(node)
 				
@@ -274,7 +272,7 @@ if __name__ == "__main__":
 
 	for i in range(len(diagram.knowns)):
 		if type(diagram.knowns[i]) is tuple:
-			diagram.knowns[i] = Sol(diagram.knowns[i][0], diagram.knowns[i][1], [Step(step[0], step[1], step[2], 0, diagram.nodeByPerm[step[3]]) for step in diagram.knowns[i][2]], diagram.knowns[i][3], diagram.knowns[i][4])
+			diagram.knowns[i] = Sol(diagram.knowns[i][0], diagram.knowns[i][1], [Step(step[0], step[1], step[2], 0, step[3]) for step in diagram.knowns[i][2]], diagram.knowns[i][3])
 
 	print("knowns: " + str(len(diagram.knowns)))
 			
