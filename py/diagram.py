@@ -85,7 +85,7 @@ class Diagram (object):
 				return
 				
 			if lvl == self.spClass:
-				self.cycles.append(Cycle(gn_cc))
+				self.cycles.append(Cycle(gn_cc, "".join([str(a) for a in gn_address[:-1]])))
 				
 			for q in range(0, lvl):
 				gn_address[lvl - 2] = q
@@ -210,25 +210,23 @@ class Diagram (object):
 		
 		
 	def appendPath(self, curr, type):
-#		assert curr.nextLink == None and curr.links[type].next.looped == False	
-		#print("[appending] path type: " + str(type) + " from: " + str(curr.perm) + " | to: " + str(curr.links[type].next.perm))
+		assert curr.nextLink == None # and curr.links[type].next.looped == False	
+		if self.jkcc <= 80 or "000000" in [curr.perm]: #, curr.links[type].next.perm]:
+			self.log("appending", "path type: " + str(type) + " from: " + str(curr) + " | to: " + str(curr.links[type].next))
 		next = curr.links[type].next
 		next.looped = True		
 		curr.nextLink = next.prevLink = curr.links[type]
-		if curr.perm == "041532":
-			print("«»")
 		return curr.nextLink.next
 
 
 	def deletePath(self, curr):
-#		assert curr.nextLink != None and curr.nextLink.next.looped == True
-		#print("[deleting] path type: " + str(curr.nextLink.type) + " from: " + str(curr.perm) + " | to: " + str(curr.nextLink.next.perm))
+		assert curr.nextLink != None # and curr.nextLink.next.looped == True
+		if self.jkcc <= 80 or "000000" in [curr.perm]: #, curr.nextLink.next.perm]:
+			self.log("deleting", "path type: " + str(curr.nextLink.type) + " from: " + str(curr) + " | to: " + str(curr.nextLink.next))
 		next = curr.nextLink.next			
 		next.looped = False
 		next.extended = False
 		curr.nextLink = next.prevLink = None		
-		if curr.perm == "041532":
-			print("»«")
 		return next
 	
 	
@@ -249,8 +247,6 @@ class Diagram (object):
 
 				
 	def checkAvailability(self, curr):
-		if curr.perm == "423510":
-			print("here")
 		if curr.looped and (curr.prevLink == None 
 				or curr.prevLink.type != 1 
 				or curr.nextLink == None 
@@ -259,31 +255,41 @@ class Diagram (object):
 				or curr.nextLink.next.nextLink.type != 1):
 			return False
 						
-		#print("[checkAv] curr: " + curr.perm + " | loop nodes: " + " ".join([node.perm for node in curr.loop.nodes if node.looped]))
+		self.log("checkAv", "» curr: " + str(curr) + " | loop nodes: " + " ".join([str(node) for node in curr.loop.nodes if node.looped]))
 		
 		chains = set()
 		# for every looped current loop node
 		for node in [node for node in curr.loop.nodes if node.looped]:				
 			if node.chainID in chains:
-				#print("[checkAv] failed for same chain check: " + str(node.chainID))
+				self.log("checkAv", "failed for same chain check: " + str(node.chainID))
 				return False # check if we see the same chainID twice
 			else:
+				self.log("checkAv", "adding " + str(node) + " to chains")
 				chains.add(node.chainID)
 		
+		while len(chains) > 1:
+			ch = chains.pop()
+			if len(chains.intersection(self.allConnectedChains(ch))) > 0:
+				self.log("checkAv", "failed for connected chains check: " + str(node))
+				return False
+								
+		'''
 		if len(chains) > 2:
-			print("[checkAv] failed for too many chains check")
-			#assert False, "jk: " + str(self.jkcc) + " | conns: " + " ".join([str(chain) for chain in chains])
+			if self.jkcc == 2674:
+				# [~] this is just plain wrong
+				print("[checkAv] failed for too many chains check | chains: " + " ".join([str(ch) for ch in chains]))
 			return False
 
 		if len(chains) == 2:
 			a = chains.pop()
 			b = chains.pop()
 			if self.areConnected(a, b):
-				#print("[checkAv] failed for connected chains check: " + str(node.chainID) + " @ node: " + node.perm + "@" + node.address)
-				#assert False, "jk: " + str(self.jkcc) + " | conns: " + " ".join([str(chain) for chain in chains])
+				if self.jkcc == 2674:
+					print("[checkAv] failed for connected chains check: " + str(node.chainID) + " @ node: " + node.perm + "@" + node.address)
 				return False
-				
-		#print("[checkAv] passed for chains: " + " ".join([str(chainID) for chainID in chains]))
+		'''		
+		
+		self.log("checkAv", "passed for chains: " + " ".join([str(chainID) for chainID in chains]))
 		return True
 		
 
@@ -313,15 +319,15 @@ class Diagram (object):
 
 		#print("[measuring] chain starters: " + " ".join([node.perm for node in self.chainStarters]))
 
-		seen = set()
+		self.drawn.chains = set()
 		for startNode in sorted(self.chainStarters, key = cmp_to_key(
 			lambda x, y: (0 if x.perm == y.perm else (1 if x.perm > y.perm else -1)) 
-				if x.chainID == y.chainID else y.chainID - x.chainID)): # [~] reversed chain id order
-			#print("[measuring] seen: " + " ".join([str(chain) for chain in seen]) + " | conns: " + " ".join([str(chain) for chain in self.allConnectedChains(startNode.chainID)]))
-			if len(seen.intersection(self.allConnectedChains(startNode.chainID))) > 0:
+				if x.chainID == y.chainID else x.chainID - y.chainID)): # [!~] reversed chain id order
+			#print("[measuring] conns: " + " ".join([str(chain) for chain in self.allConnectedChains(startNode.chainID)]))
+			if len(self.drawn.chains.intersection(self.allConnectedChains(startNode.chainID))) > 0:
 				#assert False, "Found connected start node, should happen at jk:10"
 				continue
-			seen.add(startNode.chainID)
+			self.drawn.chains.add(startNode.chainID)
 			#print("[measuring] startNode: " + startNode.perm + "§" + str(startNode.chainID))
 			node = startNode			
 			while True:
@@ -332,8 +338,6 @@ class Diagram (object):
 						self.drawn.availables.append(node)
 						#print("[measuring] av: " + " ".join([node.perm + "§" + str(node.chainID) for node in self.drawn.availables]))
 				node = node.nextLink.next if node.nextLink != None else None
-				if node.perm == "041532":
-					print("measured »« " + str(node.nextLink))
 				if node == startNode:
 					break
 										
@@ -349,7 +353,7 @@ class Diagram (object):
 							lf = leaf # retain a leaf in case it's single
 				if not lp: # if the cycle isn't looped in
 					if av == 0: # if no node is reachable
-						self.drawn.unreachable_cycle_count += 1
+						self.drawn.unreachable_cycles.add(cycle)
 					elif av == 1: # if a single node is reachable
 						bros = list(filter(lambda bro: bro.looped, lf.loopBrethren))
 						if len(bros) == 1: # if a single bro is already looped
@@ -372,65 +376,89 @@ class Diagram (object):
 		if not node.availabled or node.extended or node.seen:
 			return False
 					
-		print("[extending] node: " + str(node))
-		
-		if node.perm == "423510":
-			print("here")
+		self.log("extending", "» node: " + str(node))					
 					
-					
-		# mark as extended
+		# mark as extended		
 		node.extended = True
-		
+		node.ext_reset()
+		node.ext_looped_count = self.drawn.looped_count
+				
 		# delete S2
 #		assert node.links[1] == node.nextLink
+		node.ext_deletedLinks.append(node.nextLink)
 		last = self.deletePath(node)
 		
 		# add the last node to bases
 		workedNodes = set()		
 		workedNodes.add(node)
-				
+		node.ext_workedNodes.append(node)
+						
 		# append extended path
 		curr = node
 		for j in range(self.spClass - 2):
 			next = curr.links[2].next
-			#print("[extending] next@d2: " + next.perm + " | looped: " + str(next.looped) + " | in chain: " + str(next.chainID))
+			#self.log("extending", "next@d2: " + str(next) + " | looped: " + str(next.looped) + " | in chain: " + str(next.chainID))
 			
 			assert not next.looped or next.chainID != curr.chainID, "Trying to extend into the same chain - [~] should? check if the chains are connected instead of same"
 			if next.looped:
 				assert next.prevLink.type == 1 and next.nextLink.type == 1 and next.prevLink.node.prevLink.type == 1, "Invalid extension entrypoint into different chain"
 				prev = next.prevLink.node
+				node.ext_deletedLinks.append(next.prevLink)
 				assert next == self.deletePath(next.prevLink.node), "functional"
 				assert next == self.appendPath(curr, 2), "functional"				
+				node.ext_appendedLinks.append(curr.nextLink)
 				# connect these chains together
-				print("[extending] connecting chains " + curr.perm + "§" + str(curr.chainID) + " » " + next.perm + "§" + str(next.chainID))
+				self.log("extending", "connecting chains " + str(curr) + " » " + str(next))
 				self.connectedChainPairs.update([(curr.chainID, next.chainID),(next.chainID, curr.chainID)])
+				node.ext_connectedChains.append((curr.chainID, next.chainID))
+				
 				# [old] jump straight to the end of this cycle, as it's looped by the other chain
 				# curr = prev
 				# walk all the way along the path to 'work' all the nodes in the other cycle, up to the end of this cycle
 				while curr != prev:
 					workedNodes.add(curr)
+					node.ext_workedNodes.append(curr)
+					#self.log("extending", "worked: " + str(curr))
 					curr = curr.nextLink.next
 				
 				#assert False, "jk: " + str(self.jkcc)
 				
 			else: # normal, empty chain				
 				next = self.appendPath(curr, 2)
+				node.ext_appendedLinks.append(curr.nextLink)
+				#self.log("extending", "normal jump " + str(curr) + " » " + str(next))
 				next.chainID = node.chainID
+				node.ext_chained.append(next)
 				curr = next
 				workedNodes.add(curr)
+				node.ext_workedNodes.append(curr)
+				#self.log("extending", "worked: " + str(curr))
 					
 				for i in range(self.spClass - 1):
-					#print("[extending] next@d1: " + curr.links[1].next.perm + " | looped: " + str(curr.links[1].next.looped) + " | in chain: " + str(curr.links[1].next.chainID))
+					#self.log("extending", "next@d1: " + str(curr.links[1].next) + " | looped: " + str(curr.links[1].next.looped) + " | in chain: " + str(curr.links[1].next.chainID))
 					next = self.appendPath(curr, 1)
+					node.ext_appendedLinks.append(curr.nextLink)
 					next.chainID = node.chainID
+					node.ext_chained.append(next)
 					curr = next
 					workedNodes.add(curr)
+					node.ext_workedNodes.append(curr)
+					#self.log("extending", "worked: " + str(curr))
 				
 		# append the last P path
 		assert last == self.appendPath(curr, 2)
+		node.ext_appendedLinks.append(curr.nextLink)
 		workedNodes.add(last)
+		node.ext_workedNodes.append(last)
+		#self.log("extending", "worked last: " + str(last))
 
-		if self.jkcc >= 9999:
+		self.log("extending", "« deleted: " + str(len(node.ext_deletedLinks)))
+		self.log("extending", "« appended: " + str(len(node.ext_appendedLinks)))
+		self.log("extending", "« connected: " + str(len(node.ext_connectedChains)))
+		self.log("extending", "« worked: " + str(len(node.ext_workedNodes)))		
+		self.log("extending", "« chained: " + str(len(node.ext_chained)))
+				
+		if self.jkcc >= 999999:
 			assert False, "jk: " + str(self.jkcc)		
 			
 		self.tryMakeAvailable(workedNodes)		
@@ -444,59 +472,103 @@ class Diagram (object):
 		# collapse only if extended
 		if not node.extended:
 			return
+		
+		self.log("collapsing", "» node: " + str(node))
 	
 		# mark as not extended
-		node.extended = False
-		
-		last = node.links[1].next
-	
-		# remove available nodes for the soon to be collapsed extension  
-		workedNodes = set()
-	
-		# remove extended path
-		curr = node
-		next = None
-		while curr != last:
-			workedNodes.add(curr)
-			next = self.deletePath(curr)
-			#print("[collapsing] next: " + next.perm)						
+		node.extended = False		
+		node.coll_reset()
+								
+		for link in node.ext_appendedLinks:
+			self.deletePath(link.node)
 			
-			if node.chainID != next.chainID:
-				print("[collapsing] unchained: " + str(node.chainID) + " | " + str(next.chainID))
-				self.connectedChainPairs.difference_update([(node.chainID, next.chainID), (next.chainID, node.chainID)])
-				prev = next.prevs[1].node # !!!§§§
-				#print("[collapsing] prev: " + prev.perm)
-				curr = next
-				while curr != prev:
-					workedNodes.add(curr)
-					#print("[collapsing] curr: " + curr.perm)
-					curr = curr.nextLink.next				
-				next = self.deletePath(prev)
-				print("[collapsing] deleted link from " + prev.perm + " to " + next.perm)
-				self.appendPath(prev, 1)
-				print("[collapsing] appended link from " + prev.perm + " to " + prev.nextLink.next.perm)
-				
+		for link in node.ext_deletedLinks:
+			self.appendPath(link.node, link.type)
+			
+		for n in node.ext_chained:
+			n.chainID = 0
+			
+		for pair in node.ext_connectedChains:
+			self.connectedChainPairs.difference_update([pair, pair[::-1]])
+						
+		self.tryMakeAvailable(node.ext_workedNodes)						
+												
+		# last = node.links[1].next
+		# 
+		# remove available nodes for the soon to be collapsed extension  
+		# workedNodes = set()
+		# 
+		# remove extended path
+		# curr = node
+		# next = None
+		# while curr != last:
+		# 	next = curr.nextLink.next
+		# 
+		# 	if node.chainID != next.chainID:
+		# 		self.log("collapsing", "disconnecting chains " + str(node) + " » " + str(next))
+		# 		self.connectedChainPairs.difference_update([(node.chainID, next.chainID), (next.chainID, node.chainID)])
+		# 		node.coll_disconnectedChains.append((node.chainID, next.chainID))
+		# 		prev = next.prevs[1].node # !!!§§§
+				#self.log("collapsing", "prev: " + str(prev))
+		# 		curr = next
+		# 		while curr != prev:
+		# 			workedNodes.add(curr)
+		# 			node.coll_workedNodes.append(curr)					
+					#self.log("collapsing", "worked curr: " + str(curr))
+		# 			curr = curr.nextLink.next				
+		# 		node.coll_deletedLinks.append(prev.nextLink)
+		# 		next = self.deletePath(prev)
+				#self.log("collapsing", "deleted link from " + str(prev) + " to " + str(next))
+		# 		self.appendPath(prev, 1)
+		# 		node.coll_appendedLinks.append(prev.nextLink)
+				#self.log("collapsing", "appended link from " + str(prev) + " to " + str(prev.nextLink.next))
+		# 
+		# 	else:
+		# 		workedNodes.add(curr)
+		# 		node.coll_workedNodes.append(curr)
+				#self.log("collapsing", "deleting link: " + str(curr.nextLink))
+		# 		node.coll_deletedLinks.append(curr.nextLink)
+		# 		next = self.deletePath(curr)				
+		# 
 			#assert node.chainID == next.chainID, "BD between " + curr.perm + " and " + next.perm
 			# need to undo what extendLoop into another chain did, including plugging back in the S1 link in the other chain, and including disconnecting the two chains
-			workedNodes.add(curr)
-			if next != last: # the last node is the extended one from its own chain
-				next.chainID = 0
-			curr = next
-			#print("[collapsing] curr: " + curr.perm)			
-				
+		# 	if next != last: # the last node is the extended one from its own chain # [~]
+		# 		next.chainID = 0
+		# 		node.coll_unchained.append(next)
+		# 	curr = next
+		# 
 		# add the replacement S path
-		assert last == self.appendPath(node, 1)
-		workedNodes.add(last)
-		
+		# assert last == self.appendPath(node, 1)
+		# node.coll_appendedLinks.append(node.nextLink)
+		# workedNodes.add(last)
+		# node.coll_workedNodes.append(last)
+		# 
+		# self.log("collapsing", "« deleted: " + str(len(node.coll_deletedLinks)))
+		# self.log("collapsing", "« appended: " + str(len(node.coll_appendedLinks)))
+		# self.log("collapsing", "« disconnected: " + str(len(node.coll_disconnectedChains)))
+		# self.log("collapsing", "« worked: " + str(len(node.coll_workedNodes)))
+		# self.log("collapsing", "« unchained: " + str(len(node.coll_unchained)))
+		# 
+		# assert set(node.ext_deletedLinks) == set(node.coll_appendedLinks)
+		# assert set(node.ext_appendedLinks) == set(node.coll_deletedLinks)
+		# assert set(node.ext_connectedChains) == set(node.coll_disconnectedChains)
+		# assert set(node.ext_workedNodes) == set(node.coll_workedNodes)
+		# assert set(node.ext_chained) == set(node.coll_unchained)
+		# 
 		# for all base nodes, if they can be availabled, do it
-		self.tryMakeAvailable(workedNodes)
+		# self.tryMakeAvailable(workedNodes)
+		
+		#// [~] need to assert availables……… 
 
 
 	def addChain(self, node):
 		
 		# extend only if available and not already extended	or seen
 		if not node.availabled or node.extended or node.seen:
+			assert False, "[addChain] refusing to add chain for node: " + str(node)
 			return False
+						
+		self.log("adding chain", "» node: " + str(node))
 						
 		# mark as extended
 		node.looped = True
@@ -529,6 +601,7 @@ class Diagram (object):
 
 
 	def removeChain(self, node):
+		self.log("removing chain", "» node: " + str(node))
 		self.chainStarters.remove(node)
 		node.chainID = 0
 		node.chainStarter = False
@@ -539,19 +612,22 @@ class Diagram (object):
 		workedNodes.add(node)
 		
 		curr = node
-		next = node.nextLink.next
-		while next != node:
-			next.chainID = 0
-			self.deletePath(curr)
-			curr = next
+		while True:
+			curr.chainID = 0
+			curr = self.deletePath(curr)
 			workedNodes.add(curr)
-			next = next.nextLink.next
+			if curr == node:
+				break		
 
 		self.tryMakeAvailable(workedNodes)
 
 
+	def log(self, mark, text, forced = False):
+		if forced or "lvl:" in mark: # False: #mark == "appending" or mark == "deleting" or mark == "extending" or mark == "collapsing" or mark == "adding chain" or mark == "removing chain" or self.jkcc == -19: # or (("connecting" in text or mark == "extending") and self.jkcc <= 45)  and "014253" in text) or self.jkcc in [169, 169] or:
+			print("["+str(self.jkcc)+"]["+mark+"] " + text)
+
 if __name__ == "__main__":
-	
+	'''
 	diagram = Diagram(5)
 	print()
 	perm = diagram.perms[int(len(diagram.perms) / 2)]
@@ -567,7 +643,7 @@ if __name__ == "__main__":
 	diagram.extendLoop(diagram.drawn.availables[0])
 	diagram.measureNodes()
 	print("===")
-	
+	'''
 	diagram = Diagram(6)
 	diagram.startTime = time()
 	diagram.sols = []
@@ -580,8 +656,8 @@ if __name__ == "__main__":
 		
 	for i in range(len(diagram.knowns)):
 		if type(diagram.knowns[i]) is tuple:
-			diagram.knowns[i] = Sol(diagram.knowns[i][0], diagram.knowns[i][1], [Step(step[0], step[1], step[2], 0, step[3]) for step in diagram.knowns[i][2]], diagram.knowns[i][3], diagram.knowns[i][4])
-
+			diagram.knowns[i] = Sol(diagram.knowns[i][0], diagram.knowns[i][1], [Step(step[0], step[1], step[2], 0, diagram.nodeByPerm[step[3]]) for step in diagram.knowns[i][2]], diagram.knowns[i][3], diagram.knowns[i][4])
+			
 	print("knowns: " + str(len(diagram.knowns)))
 			
 	jk(diagram)
