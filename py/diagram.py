@@ -97,7 +97,7 @@ class Diagram (object):
 				gn_cc += 1
 													
 		genNode()
-		assert len(gn_all) == len(self.perms)
+		#assert len(gn_all) == len(self.perms)
 				
 				
 	def generateLinks(self):
@@ -165,9 +165,9 @@ class Diagram (object):
 				node.loop = self.loops[node.loopIndex]
 				self.loops[node.loopIndex].nodes.add(node)
 
-		assert len(self.nodes) == len(self.perms)
-		assert len(self.nodes) / self.spClass == len(self.cycles)
-		assert len(self.nodes) / (self.spClass-1) == len(self.loops)		
+		#assert len(self.nodes) == len(self.perms)
+		#assert len(self.nodes) / self.spClass == len(self.cycles)
+		#assert len(self.nodes) / (self.spClass-1) == len(self.loops)		
 		
 		
 	def generateKernel(self):
@@ -206,7 +206,8 @@ class Diagram (object):
 			next = curr.links[3].next
 			linkType = 3
 		
-		assert self.startNode == self.appendPath(curr, linkType)
+		#assert self.startNode == 
+		self.appendPath(curr, linkType)#, "functional"
 		self.tryMakeAvailable(workedNodes)
 		
 		
@@ -409,8 +410,10 @@ class Diagram (object):
 				#assert next.prevLink.type == 1 and next.nextLink.type == 1 and next.prevLink.node.prevLink.type == 1, "Invalid extension entrypoint into different chain"
 				prev = next.prevLink.node
 				node.ext_deletedLinks.append(next.prevLink)
-				assert next == self.deletePath(next.prevLink.node), "functional"
-				assert next == self.appendPath(curr, 2), "functional"				
+				#assert next == 
+				self.deletePath(next.prevLink.node)#, "functional"
+				#assert next == 
+				self.appendPath(curr, 2)#, "functional"				
 				node.ext_appendedLinks.append(curr.nextLink)
 				# connect these chains together
 				#self.log("extending", "connecting chains " + str(curr) + " » " + str(next))
@@ -448,7 +451,8 @@ class Diagram (object):
 					#self.log("extending", "worked: " + str(curr))
 				
 		# append the last P path
-		assert last == self.appendPath(curr, 2), "functional"
+		#assert last == 
+		self.appendPath(curr, 2)#, "functional"
 		node.ext_appendedLinks.append(curr.nextLink)
 		node.ext_workedNodes.append(last)
 		#self.log("extending", "worked last: " + str(last))
@@ -590,7 +594,7 @@ if __name__ == "__main__":
 		
 	for i in range(len(diagram.knowns)):
 		if type(diagram.knowns[i]) is tuple:
-			diagram.knowns[i] = Sol(diagram.knowns[i][0], diagram.knowns[i][1], [Step(step[0], step[1], step[2], 0, diagram.nodeByPerm[step[3]]) for step in diagram.knowns[i][2]], diagram.knowns[i][3], diagram.knowns[i][4])
+			diagram.knowns[i] = Sol(diagram.knowns[i][0], diagram.knowns[i][1], [Step(step[0], step[1], step[2], 0, step[3]) for step in diagram.knowns[i][2]], diagram.knowns[i][3])
 			
 	print("knowns: " + str(len(diagram.knowns)))
 			
