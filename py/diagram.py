@@ -331,7 +331,7 @@ class Diagram (object):
 			#print("[measuring] startNode: " + startNode.perm + "§" + str(startNode.chainID))
 			node = startNode			
 			while True:
-				assert node is not None
+				#assert node is not None
 				if node.looped:
 					self.drawn.looped_count += 1	
 					if node.availabled and not node.extended:
@@ -341,25 +341,26 @@ class Diagram (object):
 				if node == startNode:
 					break
 										
-			for cycle in self.cycles:						
-				av = 0
-				lp = False
-				lf = None
-				for leaf in cycle.nodes:
-					if leaf.looped: # if any node is looped, then the whole cycle is considered looped
-							lp = True
-					if leaf.availabled and not leaf.seen:
-							av += 1
-							lf = leaf # retain a leaf in case it's single
-				if not lp: # if the cycle isn't looped in
-					if av == 0: # if no node is reachable
-						self.drawn.unreachable_cycles.add(cycle)
-					elif av == 1: # if a single node is reachable
-						bros = list(filter(lambda bro: bro.looped, lf.loopBrethren))
-						if len(bros) == 1: # if a single bro is already looped
-							self.drawn.singles.add(bros[0])
-						elif len(bros) == 0: # if no bro is looped
-							self.drawn.sparks.add(lf)						
+		for cycle in self.cycles:						
+			av = 0
+			lp = False
+			lf = None
+			for leaf in cycle.nodes:
+				if leaf.looped: # if any node is looped, then the whole cycle is considered looped
+						lp = True
+						break
+				if leaf.availabled and not leaf.seen:
+						av += 1
+						lf = leaf # retain a leaf in case it's single
+			if not lp: # if the cycle isn't looped in
+				if av == 0: # if no node is reachable
+					self.drawn.unreachable_cycles.add(cycle)
+				elif av == 1: # if a single node is reachable
+					bros = list(filter(lambda bro: bro.looped, lf.loopBrethren))
+					if len(bros) == 1: # if a single bro is already looped
+						self.drawn.singles.add(bros[0])
+					elif len(bros) == 0: # if no bro is looped
+						self.drawn.sparks.add(lf)						
 															
 		if self.drawn.looped_count > self.drawn.max_looped_count:
 			self.drawn.max_looped_count = self.drawn.looped_count
@@ -492,74 +493,7 @@ class Diagram (object):
 			self.connectedChainPairs.difference_update([pair, pair[::-1]])
 						
 		self.tryMakeAvailable(node.ext_workedNodes)						
-												
-		# last = node.links[1].next
-		# 
-		# remove available nodes for the soon to be collapsed extension  
-		# workedNodes = set()
-		# 
-		# remove extended path
-		# curr = node
-		# next = None
-		# while curr != last:
-		# 	next = curr.nextLink.next
-		# 
-		# 	if node.chainID != next.chainID:
-		# 		self.log("collapsing", "disconnecting chains " + str(node) + " » " + str(next))
-		# 		self.connectedChainPairs.difference_update([(node.chainID, next.chainID), (next.chainID, node.chainID)])
-		# 		node.coll_disconnectedChains.append((node.chainID, next.chainID))
-		# 		prev = next.prevs[1].node # !!!§§§
-				#self.log("collapsing", "prev: " + str(prev))
-		# 		curr = next
-		# 		while curr != prev:
-		# 			workedNodes.add(curr)
-		# 			node.coll_workedNodes.append(curr)					
-					#self.log("collapsing", "worked curr: " + str(curr))
-		# 			curr = curr.nextLink.next				
-		# 		node.coll_deletedLinks.append(prev.nextLink)
-		# 		next = self.deletePath(prev)
-				#self.log("collapsing", "deleted link from " + str(prev) + " to " + str(next))
-		# 		self.appendPath(prev, 1)
-		# 		node.coll_appendedLinks.append(prev.nextLink)
-				#self.log("collapsing", "appended link from " + str(prev) + " to " + str(prev.nextLink.next))
-		# 
-		# 	else:
-		# 		workedNodes.add(curr)
-		# 		node.coll_workedNodes.append(curr)
-				#self.log("collapsing", "deleting link: " + str(curr.nextLink))
-		# 		node.coll_deletedLinks.append(curr.nextLink)
-		# 		next = self.deletePath(curr)				
-		# 
-			#assert node.chainID == next.chainID, "BD between " + curr.perm + " and " + next.perm
-			# need to undo what extendLoop into another chain did, including plugging back in the S1 link in the other chain, and including disconnecting the two chains
-		# 	if next != last: # the last node is the extended one from its own chain # [~]
-		# 		next.chainID = 0
-		# 		node.coll_unchained.append(next)
-		# 	curr = next
-		# 
-		# add the replacement S path
-		# assert last == self.appendPath(node, 1)
-		# node.coll_appendedLinks.append(node.nextLink)
-		# workedNodes.add(last)
-		# node.coll_workedNodes.append(last)
-		# 
-		# self.log("collapsing", "« deleted: " + str(len(node.coll_deletedLinks)))
-		# self.log("collapsing", "« appended: " + str(len(node.coll_appendedLinks)))
-		# self.log("collapsing", "« disconnected: " + str(len(node.coll_disconnectedChains)))
-		# self.log("collapsing", "« worked: " + str(len(node.coll_workedNodes)))
-		# self.log("collapsing", "« unchained: " + str(len(node.coll_unchained)))
-		# 
-		# assert set(node.ext_deletedLinks) == set(node.coll_appendedLinks)
-		# assert set(node.ext_appendedLinks) == set(node.coll_deletedLinks)
-		# assert set(node.ext_connectedChains) == set(node.coll_disconnectedChains)
-		# assert set(node.ext_workedNodes) == set(node.coll_workedNodes)
-		# assert set(node.ext_chained) == set(node.coll_unchained)
-		# 
-		# for all base nodes, if they can be availabled, do it
-		# self.tryMakeAvailable(workedNodes)
 		
-		#// [~] need to assert availables……… 
-
 
 	def addChain(self, node):
 		
