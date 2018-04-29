@@ -138,7 +138,7 @@ new » [5] lvl: 25 |
 			
 		print("assert False")
 	'' ' '''				
-	if diagram.drawn.looped_count == len(diagram.perms) and len(diagram.drawn.availables) == 0:
+	if diagram.rx_looped_count == len(diagram.perms) and len(diagram.drawn.availables) == 0:
 			
 		tdiff = time() - diagram.startTime
 		text = "[" + str(len(diagram.sols)) + "] lvl: " + str(lvl) + " | " +  sstr(state)
@@ -151,7 +151,7 @@ new » [5] lvl: 25 |
 
 		print()
 		print("[state] jk: " + str(diagram.jkcc) + " | lvl: " + str(lvl) + " | » " + sstr(state))
-		print("[drawn] looped: " + str(diagram.drawn.looped_count) + " | availables: " + str(len(diagram.drawn.availables)) + " | singles: " + str(len(diagram.drawn.singles)) + " | sparks: " + str(len(diagram.drawn.sparks)) + " | unreachable: " + str(len(diagram.drawn.unreachable_cycles)) + " | chains: " + " ".join([str(ch) for ch in diagram.drawn.chains]) + " | connected chains: " + " ".join([str(a) + "+" + str(b) for a, b in diagram.connectedChainPairs if a < b]) + " | chain starters: " + " ".join([str(node) for node in diagram.chainStarters]))					
+		print("[drawn] looped: " + str(diagram.rx_looped_count) + " | availables: " + str(len(diagram.drawn.availables)) + " | singles: " + str(len(diagram.drawn.singles)) + " | sparks: " + str(len(diagram.drawn.sparks)) + " | unreachable: " + str(len(diagram.drawn.unreachable_cycles)) + " | chains: " + " ".join([str(ch) for ch in diagram.drawn.chains]) + " | connected chains: " + " ".join([str(a) + "+" + str(b) for a, b in diagram.connectedChainPairs if a < b]) + " | chain starters: " + " ".join([str(node) for node in diagram.chainStarters]))					
 															
 		print()																												
 		print("\n# Found # @jkcc: " + str(diagram.jkcc) + " | @time: " + tstr(tdiff) + " » " + text)
@@ -180,7 +180,7 @@ new » [5] lvl: 25 |
 					for step in known.state:
 						𝒟.measureNodes()
 						node = 𝒟.nodeByPerm[step.node.perm]
-						print("𝒟:" + str(𝒟.drawn.looped_count) + " | extending: " + str(node))
+						#print("𝒟:" + str(𝒟.drawn.looped_count) + " | extending: " + str(node))
 						𝒟.extendLoop(node)
 						
 					np = diagram.startNode

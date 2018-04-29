@@ -25,6 +25,7 @@ class Diagram (object):
 		self.arrowCount = [0, 0, 0]
 		self.available_count = len(self.nodes)
 		self.jkcc = 0	
+		self.rx_looped_count = 0
 				
 		self.ss = State(self)
 		self.drawn = Drawn(self)
@@ -41,7 +42,7 @@ class Diagram (object):
 		self.chainAutoInc = 0
 		self.chainStarters = set([self.startNode])
 		self.connectedChainPairs = set()
-		self.skipped = 0
+		self.skipped = 0		
 		
 	def generateGraph(self):
 		self.k3cc = self.spClass - 2
@@ -215,6 +216,7 @@ class Diagram (object):
 #			self.log("appending", "path type: " + str(type) + " from: " + str(curr) + " | to: " + str(curr.links[type].next))
 		next = curr.links[type].next
 		next.looped = True		
+		self.rx_looped_count += 1
 		curr.nextLink = next.prevLink = curr.links[type]
 		return curr.nextLink.next
 
@@ -225,6 +227,7 @@ class Diagram (object):
 #			##self.log("deleting", "path type: " + str(curr.nextLink.type) + " from: " + str(curr) + " | to: " + str(curr.nextLink.next))
 		next = curr.nextLink.next			
 		next.looped = False
+		self.rx_looped_count -= 1
 		next.extended = False
 		curr.nextLink = next.prevLink = None		
 		return next
@@ -333,7 +336,6 @@ class Diagram (object):
 			while True:
 				#assert node is not None
 				if node.looped:
-					self.drawn.looped_count += 1	
 					if node.availabled and not node.extended:
 						self.drawn.availables.append(node)
 						#print("[measuring] av: " + " ".join([node.perm + "§" + str(node.chainID) for node in self.drawn.availables]))
@@ -341,17 +343,21 @@ class Diagram (object):
 				if node == startNode:
 					break
 										
+#		assert self.rx_looped_count == self.drawn.looped_count	
+									
 		for cycle in self.cycles:						
 			av = 0
 			lp = False
 			lf = None
 			for leaf in cycle.nodes:
 				if leaf.looped: # if any node is looped, then the whole cycle is considered looped
-						lp = True
-						break
+					lp = True
+					break
 				if leaf.availabled and not leaf.seen:
-						av += 1
-						lf = leaf # retain a leaf in case it's single
+					av += 1
+					if av > 1:
+						break
+					lf = leaf # retain a leaf in case it's single
 			if not lp: # if the cycle isn't looped in
 				if av == 0: # if no node is reachable
 					self.drawn.unreachable_cycles.add(cycle)
@@ -362,8 +368,8 @@ class Diagram (object):
 					elif len(bros) == 0: # if no bro is looped
 						self.drawn.sparks.add(lf)						
 															
-		if self.drawn.looped_count > self.drawn.max_looped_count:
-			self.drawn.max_looped_count = self.drawn.looped_count
+##		if self.rx_looped_count > self.drawn.max_looped_count:
+##			self.drawn.max_looped_count = self.rx_looped_count
 
 
 	def extendLoop(self, node):
@@ -390,8 +396,6 @@ class Diagram (object):
 		last = self.deletePath(node)
 		
 		# add the last node to bases
-		workedNodes = set()		
-		workedNodes.add(node)
 		node.ext_workedNodes.append(node)
 						
 		# append extended path
@@ -417,7 +421,6 @@ class Diagram (object):
 				# curr = prev
 				# walk all the way along the path to 'work' all the nodes in the other cycle, up to the end of this cycle
 				while curr != prev:
-					workedNodes.add(curr)
 					node.ext_workedNodes.append(curr)
 					#self.log("extending", "worked: " + str(curr))
 					curr = curr.nextLink.next
@@ -431,7 +434,6 @@ class Diagram (object):
 				next.chainID = node.chainID
 				node.ext_chained.append(next)
 				curr = next
-				workedNodes.add(curr)
 				node.ext_workedNodes.append(curr)
 				#self.log("extending", "worked: " + str(curr))
 					
@@ -442,14 +444,12 @@ class Diagram (object):
 					next.chainID = node.chainID
 					node.ext_chained.append(next)
 					curr = next
-					workedNodes.add(curr)
 					node.ext_workedNodes.append(curr)
 					#self.log("extending", "worked: " + str(curr))
 				
 		# append the last P path
 		assert last == self.appendPath(curr, 2), "functional"
 		node.ext_appendedLinks.append(curr.nextLink)
-		workedNodes.add(last)
 		node.ext_workedNodes.append(last)
 		#self.log("extending", "worked last: " + str(last))
 
@@ -462,7 +462,7 @@ class Diagram (object):
 #		if self.jkcc >= 999999:
 #			assert False, "jk: " + str(self.jkcc)		
 			
-		self.tryMakeAvailable(workedNodes)		
+		self.tryMakeAvailable(node.ext_workedNodes)		
 		return True
 
 
