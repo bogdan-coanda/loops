@@ -51,7 +51,7 @@ def jk(diagram, lvl = 0, state = []):
 	diagram.jkcc += 1	
 
 	diagram.measureNodes()
-	
+	'''
 	pq = [
 		'123450',
 		'450213',
@@ -84,7 +84,7 @@ def jk(diagram, lvl = 0, state = []):
 # [10328][lvl:24] [drawn] looped: 720 | availables: 5 | singles: 0 | sparks: 0 | unreachables: 0
 # | chains: 0 1062 1064 1066 1049 | connected chains: 1061+1065 1061+1063 0+1065 |
 # [10328][lvl:24] availables: [node:021453@11301§0] [node:032145@12200§1049] [node:053214@12214§1062] [node:045321@12303§1064] [node:014532@02302§1066]
-		'''
+		'' '
 old » [5] lvl: 25 | 
 0/24:123450 
 0/31:450213 
@@ -122,7 +122,7 @@ new » [5] lvl: 25 |
 0/29:[node:534201@02035§0] 
 
 14/27:[node:234510@10002§0]
-5/18:[node:452103@12004§0] 0/1{4}:[node:032145@12200§1396] 0/1{3}:[node:032415@12110§1397] 0/1(1):[node:532401@02125§1397] 3/29:[node:521043@12315§0] 0/1{3}:[node:405213@11013§1405] 0/1{1}:[node:410523@10022§1406] 0/1(2):[node:215043@12333§0] 0/1(4):[node:451023@10004§0] 0/1(3):[node:451203@01004§0] 0/1(4):[node:431250@01331§0] 0/1(3):[node:431520@01322§0] 0/1(2):[node:532014@02305§1396] 0/1(2):[node:351402@10134§0] 0/1(1):[node:532041@02215§1397] 0/1(1):[node:354102@10044§0] 0/1{4}:[node:405312@01213§1407] 0/6:[node:210453@12301§1396] 0/3:[node:230451@00101§0]'''
+5/18:[node:452103@12004§0] 0/1{4}:[node:032145@12200§1396] 0/1{3}:[node:032415@12110§1397] 0/1(1):[node:532401@02125§1397] 3/29:[node:521043@12315§0] 0/1{3}:[node:405213@11013§1405] 0/1{1}:[node:410523@10022§1406] 0/1(2):[node:215043@12333§0] 0/1(4):[node:451023@10004§0] 0/1(3):[node:451203@01004§0] 0/1(4):[node:431250@01331§0] 0/1(3):[node:431520@01322§0] 0/1(2):[node:532014@02305§1396] 0/1(2):[node:351402@10134§0] 0/1(1):[node:532041@02215§1397] 0/1(1):[node:354102@10044§0] 0/1{4}:[node:405312@01213§1407] 0/6:[node:210453@12301§1396] 0/3:[node:230451@00101§0]'' '
 		print()
 		diagram.log("lvl:"+str(lvl), "[state] jk: " + str(diagram.jkcc) + " | lvl: " + str(lvl) + " | » " + sstr(state), True)
 		diagram.log("lvl:"+str(lvl), "[drawn] looped: " + str(diagram.drawn.looped_count) + " | availables: " + str(len(diagram.drawn.availables)) + " | singles: " + str(len(diagram.drawn.singles)) + " | sparks: " + str(len(diagram.drawn.sparks)) + " | unreachables: " + str(len(diagram.drawn.unreachable_cycles)) + "\n| chains: " + " ".join([str(ch) for ch in diagram.drawn.chains]) + " | connected chains: " + " ".join([str(a) + "+" + str(b) for a, b in diagram.connectedChainPairs if a < b]) + " |", True)# chain starters: " + " ".join([str(node) for node in diagram.chainStarters]))
@@ -137,7 +137,7 @@ new » [5] lvl: 25 |
 			#sleep(1)
 			
 		print("assert False")
-	''''''				
+	'' ' '''				
 	if diagram.drawn.looped_count == len(diagram.perms) and len(diagram.drawn.availables) == 0:
 			
 		tdiff = time() - diagram.startTime
@@ -232,8 +232,8 @@ new » [5] lvl: 25 |
 	for node in availables:
 		if not node.seen:				
 			
-			diagram.measureNodes()
-			lastDrawn = diagram.drawn.clone()
+##			diagram.measureNodes()
+##			lastDrawn = diagram.drawn.clone()
 			
 			if diagram.extendLoop(node):
 #				diagram.log("lvl:"+str(lvl), "pushing by " + str(node))
@@ -241,8 +241,8 @@ new » [5] lvl: 25 |
 #				diagram.log("lvl:"+str(lvl), "collapsing back " + str(node))
 				diagram.collapseLoop(node)
 				
-				diagram.measureNodes()
-				assert lastDrawn == diagram.drawn, str(lastDrawn.looped_count) + " » " + str(diagram.drawn.looped_count)
+##				diagram.measureNodes()
+##				assert lastDrawn == diagram.drawn, str(lastDrawn.looped_count) + " » " + str(diagram.drawn.looped_count)
 		
 			node.seen = True
 			for bro in node.loopBrethren:

@@ -210,9 +210,9 @@ class Diagram (object):
 		
 		
 	def appendPath(self, curr, type):
-		assert curr.nextLink == None # and curr.links[type].next.looped == False	
-		if self.jkcc <= 80 or "000000" in [curr.perm]: #, curr.links[type].next.perm]:
-			self.log("appending", "path type: " + str(type) + " from: " + str(curr) + " | to: " + str(curr.links[type].next))
+#		assert curr.nextLink == None # and curr.links[type].next.looped == False	
+#		if self.jkcc <= 80 or "000000" in [curr.perm]: #, curr.links[type].next.perm]:
+#			self.log("appending", "path type: " + str(type) + " from: " + str(curr) + " | to: " + str(curr.links[type].next))
 		next = curr.links[type].next
 		next.looped = True		
 		curr.nextLink = next.prevLink = curr.links[type]
@@ -220,9 +220,9 @@ class Diagram (object):
 
 
 	def deletePath(self, curr):
-		assert curr.nextLink != None # and curr.nextLink.next.looped == True
-		if self.jkcc <= 80 or "000000" in [curr.perm]: #, curr.nextLink.next.perm]:
-			self.log("deleting", "path type: " + str(curr.nextLink.type) + " from: " + str(curr) + " | to: " + str(curr.nextLink.next))
+#		assert curr.nextLink != None # and curr.nextLink.next.looped == True
+#		if self.jkcc <= 80 or "000000" in [curr.perm]: #, curr.nextLink.next.perm]:
+#			##self.log("deleting", "path type: " + str(curr.nextLink.type) + " from: " + str(curr) + " | to: " + str(curr.nextLink.next))
 		next = curr.nextLink.next			
 		next.looped = False
 		next.extended = False
@@ -255,22 +255,22 @@ class Diagram (object):
 				or curr.nextLink.next.nextLink.type != 1):
 			return False
 						
-		self.log("checkAv", "» curr: " + str(curr) + " | loop nodes: " + " ".join([str(node) for node in curr.loop.nodes if node.looped]))
+		##self.log("checkAv", "» curr: " + str(curr) + " | loop nodes: " + " ".join([str(node) for node in curr.loop.nodes if node.looped]))
 		
 		chains = set()
 		# for every looped current loop node
 		for node in [node for node in curr.loop.nodes if node.looped]:				
 			if node.chainID in chains:
-				self.log("checkAv", "failed for same chain check: " + str(node.chainID))
+				##self.log("checkAv", "failed for same chain check: " + str(node.chainID))
 				return False # check if we see the same chainID twice
 			else:
-				self.log("checkAv", "adding " + str(node) + " to chains")
+				##self.log("checkAv", "adding " + str(node) + " to chains")
 				chains.add(node.chainID)
 		
 		while len(chains) > 1:
 			ch = chains.pop()
 			if len(chains.intersection(self.allConnectedChains(ch))) > 0:
-				self.log("checkAv", "failed for connected chains check: " + str(node))
+				##self.log("checkAv", "failed for connected chains check: " + str(node))
 				return False
 								
 		'''
@@ -289,7 +289,7 @@ class Diagram (object):
 				return False
 		'''		
 		
-		self.log("checkAv", "passed for chains: " + " ".join([str(chainID) for chainID in chains]))
+		##self.log("checkAv", "passed for chains: " + " ".join([str(chainID) for chainID in chains]))
 		return True
 		
 
@@ -376,12 +376,12 @@ class Diagram (object):
 		if not node.availabled or node.extended or node.seen:
 			return False
 					
-		self.log("extending", "» node: " + str(node))					
+		##self.log("extending", "» node: " + str(node))					
 					
 		# mark as extended		
 		node.extended = True
 		node.ext_reset()
-		node.ext_looped_count = self.drawn.looped_count
+#		node.ext_looped_count = self.drawn.looped_count
 				
 		# delete S2
 #		assert node.links[1] == node.nextLink
@@ -397,18 +397,18 @@ class Diagram (object):
 		curr = node
 		for j in range(self.spClass - 2):
 			next = curr.links[2].next
-			#self.log("extending", "next@d2: " + str(next) + " | looped: " + str(next.looped) + " | in chain: " + str(next.chainID))
+			###self.log("extending", "next@d2: " + str(next) + " | looped: " + str(next.looped) + " | in chain: " + str(next.chainID))
 			
-			assert not next.looped or next.chainID != curr.chainID, "Trying to extend into the same chain - [~] should? check if the chains are connected instead of same"
+			#assert not next.looped or next.chainID != curr.chainID, "Trying to extend into the same chain - [~] should? check if the chains are connected instead of same"
 			if next.looped:
-				assert next.prevLink.type == 1 and next.nextLink.type == 1 and next.prevLink.node.prevLink.type == 1, "Invalid extension entrypoint into different chain"
+				#assert next.prevLink.type == 1 and next.nextLink.type == 1 and next.prevLink.node.prevLink.type == 1, "Invalid extension entrypoint into different chain"
 				prev = next.prevLink.node
 				node.ext_deletedLinks.append(next.prevLink)
 				assert next == self.deletePath(next.prevLink.node), "functional"
 				assert next == self.appendPath(curr, 2), "functional"				
 				node.ext_appendedLinks.append(curr.nextLink)
 				# connect these chains together
-				self.log("extending", "connecting chains " + str(curr) + " » " + str(next))
+				#self.log("extending", "connecting chains " + str(curr) + " » " + str(next))
 				self.connectedChainPairs.update([(curr.chainID, next.chainID),(next.chainID, curr.chainID)])
 				node.ext_connectedChains.append((curr.chainID, next.chainID))
 				
@@ -446,20 +446,20 @@ class Diagram (object):
 					#self.log("extending", "worked: " + str(curr))
 				
 		# append the last P path
-		assert last == self.appendPath(curr, 2)
+		assert last == self.appendPath(curr, 2), "functional"
 		node.ext_appendedLinks.append(curr.nextLink)
 		workedNodes.add(last)
 		node.ext_workedNodes.append(last)
 		#self.log("extending", "worked last: " + str(last))
 
-		self.log("extending", "« deleted: " + str(len(node.ext_deletedLinks)))
-		self.log("extending", "« appended: " + str(len(node.ext_appendedLinks)))
-		self.log("extending", "« connected: " + str(len(node.ext_connectedChains)))
-		self.log("extending", "« worked: " + str(len(node.ext_workedNodes)))		
-		self.log("extending", "« chained: " + str(len(node.ext_chained)))
+#		self.log("extending", "« deleted: " + str(len(node.ext_deletedLinks)))
+#		self.log("extending", "« appended: " + str(len(node.ext_appendedLinks)))
+#		self.log("extending", "« connected: " + str(len(node.ext_connectedChains)))
+#		self.log("extending", "« worked: " + str(len(node.ext_workedNodes)))		
+#		self.log("extending", "« chained: " + str(len(node.ext_chained)))
 				
-		if self.jkcc >= 999999:
-			assert False, "jk: " + str(self.jkcc)		
+#		if self.jkcc >= 999999:
+#			assert False, "jk: " + str(self.jkcc)		
 			
 		self.tryMakeAvailable(workedNodes)		
 		return True
@@ -473,11 +473,11 @@ class Diagram (object):
 		if not node.extended:
 			return
 		
-		self.log("collapsing", "» node: " + str(node))
+#		self.log("collapsing", "» node: " + str(node))
 	
 		# mark as not extended
 		node.extended = False		
-		node.coll_reset()
+#		node.coll_reset()
 								
 		for link in node.ext_appendedLinks:
 			self.deletePath(link.node)
@@ -565,10 +565,10 @@ class Diagram (object):
 		
 		# extend only if available and not already extended	or seen
 		if not node.availabled or node.extended or node.seen:
-			assert False, "[addChain] refusing to add chain for node: " + str(node)
+#			assert False, "[addChain] refusing to add chain for node: " + str(node)
 			return False
 						
-		self.log("adding chain", "» node: " + str(node))
+#		self.log("adding chain", "» node: " + str(node))
 						
 		# mark as extended
 		node.looped = True
@@ -601,7 +601,7 @@ class Diagram (object):
 
 
 	def removeChain(self, node):
-		self.log("removing chain", "» node: " + str(node))
+#		self.log("removing chain", "» node: " + str(node))
 		self.chainStarters.remove(node)
 		node.chainID = 0
 		node.chainStarter = False
@@ -623,7 +623,7 @@ class Diagram (object):
 
 
 	def log(self, mark, text, forced = False):
-		if forced or "lvl:" in mark: # False: #mark == "appending" or mark == "deleting" or mark == "extending" or mark == "collapsing" or mark == "adding chain" or mark == "removing chain" or self.jkcc == -19: # or (("connecting" in text or mark == "extending") and self.jkcc <= 45)  and "014253" in text) or self.jkcc in [169, 169] or:
+		if False: # forced or "lvl:" in mark: # False: #mark == "appending" or mark == "deleting" or mark == "extending" or mark == "collapsing" or mark == "adding chain" or mark == "removing chain" or self.jkcc == -19: # or (("connecting" in text or mark == "extending") and self.jkcc <= 45)  and "014253" in text) or self.jkcc in [169, 169] or:
 			print("["+str(self.jkcc)+"]["+mark+"] " + text)
 
 if __name__ == "__main__":
