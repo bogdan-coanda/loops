@@ -337,15 +337,9 @@ class Diagram (object):
 		#print("[measuring] chain starters: " + " ".join([node.perm for node in self.chainStarters]))
 
 		self.drawn.chains = set()
-		for startNode in sorted(self.chainStarters, key = cmp_to_key(
-			lambda x, y: (0 if x.perm == y.perm else (1 if x.perm > y.perm else -1)) 
-				if x.chainID == y.chainID else x.chainID - y.chainID)): # [!~] reversed chain id order
-			#print("[measuring] conns: " + " ".join([str(chain) for chain in self.allConnectedChains(startNode.chainID)]))
-			if len(self.drawn.chains.intersection(self.allConnectedChains(startNode.chainID))) > 0:
-				#assert False, "Found connected start node, should happen at jk:10"
-				continue
-			self.drawn.chains.add(startNode.chainID)
-			#print("[measuring] startNode: " + startNode.perm + "§" + str(startNode.chainID))
+		if len(self.chainStarters) == 1:
+			startNode = list(self.chainStarters)[0]
+			self.drawn.chains.add(startNode.chainID)			
 			node = startNode			
 			while True:
 				#assert node is not None
@@ -356,6 +350,26 @@ class Diagram (object):
 				node = node.nextLink.next if node.nextLink != None else None
 				if node == startNode:
 					break
+		else:						
+			for startNode in sorted(self.chainStarters, key = cmp_to_key(
+				lambda x, y: (0 if x.perm == y.perm else (1 if x.perm > y.perm else -1)) 
+					if x.chainID == y.chainID else x.chainID - y.chainID)): # [!~] reversed chain id order
+				#print("[measuring] conns: " + " ".join([str(chain) for chain in self.allConnectedChains(startNode.chainID)]))
+				if len(self.drawn.chains.intersection(self.allConnectedChains(startNode.chainID))) > 0:
+					#assert False, "Found connected start node, should happen at jk:10"
+					continue
+				self.drawn.chains.add(startNode.chainID)
+				#print("[measuring] startNode: " + startNode.perm + "§" + str(startNode.chainID))
+				node = startNode			
+				while True:
+					#assert node is not None
+					if node.looped:
+						if node.loop.availabled and not node.extended:
+							self.drawn.availables.append(node)
+							#print("[measuring] av: " + " ".join([node.perm + "§" + str(node.chainID) for node in self.drawn.availables]))
+					node = node.nextLink.next if node.nextLink != None else None
+					if node == startNode:
+						break
 										
 #		assert self.rx_looped_count == self.drawn.looped_count	
 									
