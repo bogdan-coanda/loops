@@ -236,22 +236,26 @@ class Diagram (object):
 	
 	def tryMakeAvailable(self, nodes):
 #		print("[makeAv] » » »\nnodes: " + " ".join([str(node) for node in nodes]))
+		avs = set()
+		uns = set()
 		for node in nodes:
 			wasAvailabled = node.loop.availabled
 			node.loop.availabled = self.checkAvailability(node)
 #			self.available_count += node.loop.availabled - wasAvailabled // [~] fitze
 #			print("[makeAv] node: " + str(node) + " | " + str(wasAvailabled) + " ⇒ " + str(node.loop.availabled))
 			if node.loop.availabled:
-				if wasAvailabled == False:
+				if wasAvailabled == False:					
 					self.available_count += 1
+					avs.add(node.loop)
 ##				for bro in node.loopBrethren:
 ##					bro.availabled = True
 			else:
 				if wasAvailabled == True:
 					self.available_count -= 1
+					uns.add(node.loop)
 ##				for bro in node.loopBrethren:
 ##					bro.availabled = False	
-
+		return (avs, uns)
 				
 	def checkAvailability(self, curr):
 		if curr.looped and (curr.prevLink == None 
@@ -469,7 +473,8 @@ class Diagram (object):
 #		if self.jkcc >= 999999:
 #			assert False, "jk: " + str(self.jkcc)		
 			
-		self.tryMakeAvailable(node.ext_workedNodes)		
+		node.ext_avs, node.ext_uns = self.tryMakeAvailable(node.ext_workedNodes)
+#		print("[extending] avs: " + str(len(node.ext_avs)) + " | uns: " + str(len(node.ext_uns)))
 		return True
 
 
@@ -485,7 +490,6 @@ class Diagram (object):
 	
 		# mark as not extended
 		node.extended = False		
-#		node.coll_reset()
 								
 		for link in node.ext_appendedLinks:
 			self.deletePath(link.node)
@@ -499,7 +503,15 @@ class Diagram (object):
 		for pair in node.ext_connectedChains:
 			self.connectedChainPairs.difference_update([pair, pair[::-1]])
 						
-		self.tryMakeAvailable(node.ext_workedNodes)						
+		for loop in node.ext_avs:
+			loop.availabled = False
+			self.available_count -= 1
+				
+		for loop in node.ext_uns:
+			loop.availabled = True
+			self.available_count += 1
+						
+#		assert (node.ext_uns, node.ext_avs) == self.tryMakeAvailable(node.ext_workedNodes)						
 		
 
 	def addChain(self, node):

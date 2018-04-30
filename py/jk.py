@@ -160,7 +160,7 @@ new » [5] lvl: 25 |
 			with open("sols."+str(diagram.spClass)+".pkl.tmp", 'wb') as outfile:
 				try:
 					pickle.dump(diagram.sols, outfile, 0)
-					shutil.copy("sols."+str(diagram.spClass)+".pkl.tmp", "sols."+str(diagram.spClass)+".pkl")
+					shutil.move("sols."+str(diagram.spClass)+".pkl.tmp", "sols."+str(diagram.spClass)+".pkl")
 				except Exception as e:
 					print(e.strerror)
 					raise 

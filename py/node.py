@@ -45,13 +45,8 @@ class Node (object):
 		self.ext_workedNodes = []
 		self.ext_connectedChains = []
 		self.ext_chained = []
-		
-	def coll_reset(self):
-		self.coll_deletedLinks = []
-		self.coll_appendedLinks = []
-		self.coll_workedNodes = []
-		self.coll_disconnectedChains = []
-		self.coll_unchained = []
-				
+		self.ext_avs = []
+		self.ext_uns = []
+						
 	def __repr__(self):
 		return "[node:"+self.perm+"@"+self.address+"§"+str(self.chainID)+"]"
