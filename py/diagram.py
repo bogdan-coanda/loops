@@ -530,26 +530,31 @@ class Diagram (object):
 		self.chainAutoInc += 1
 		node.chainID = self.chainAutoInc
 		self.chainStarters.add(node)
+		
+		node.ext_reset()
 	
 		# add the last node to bases
-		workedNodes = set()		
-		workedNodes.add(node)
+		node.ext_workedNodes.append(node)
 		
 		# append extended path
 		curr = node
 		for j in range(self.spClass - 1):
 			next = self.appendPath(curr, 2)
+			node.ext_appendedLinks.append(curr.nextLink)
 			next.chainID = self.chainAutoInc
+			node.ext_chained.append(next)
 			curr = next
-			workedNodes.add(curr)
-				
+			node.ext_workedNodes.append(curr)				
+			
 			for i in range(self.spClass - 1):
 				next = self.appendPath(curr, 1)
+				node.ext_appendedLinks.append(curr.nextLink)
 				next.chainID = self.chainAutoInc
+				node.ext_chained.append(next)
 				curr = next
-				workedNodes.add(curr)
-		
-		self.tryMakeAvailable(workedNodes)				
+				node.ext_workedNodes.append(curr)						
+				
+		node.ext_avs, node.ext_uns = self.tryMakeAvailable(node.ext_workedNodes)
 		return True
 
 
@@ -560,19 +565,37 @@ class Diagram (object):
 		node.chainStarter = False
 		node.extended = False
 		node.looped = False
-
-		workedNodes = set()
-		workedNodes.add(node)
 		
-		curr = node
-		while True:
-			curr.chainID = 0
-			curr = self.deletePath(curr)
-			workedNodes.add(curr)
-			if curr == node:
-				break		
-
-		self.tryMakeAvailable(workedNodes)
+		for link in node.ext_appendedLinks:
+			self.deletePath(link.node)
+			
+		for link in node.ext_deletedLinks:
+			self.appendPath(link.node, link.type)
+			
+		for n in node.ext_chained:
+			n.chainID = 0
+			
+		for loop in node.ext_avs:
+			loop.availabled = False
+			self.available_count -= 1
+				
+		for loop in node.ext_uns:
+			loop.availabled = True
+			self.available_count += 1
+			
+		# 
+		# workedNodes = set()
+		# workedNodes.add(node)
+		# 
+		# curr = node
+		# while True:
+		# 	curr.chainID = 0
+		# 	curr = self.deletePath(curr)
+		# 	workedNodes.add(curr)
+		# 	if curr == node:
+		# 		break		
+		# 
+		# self.tryMakeAvailable(workedNodes)
 
 
 	def log(self, mark, text, forced = False):
