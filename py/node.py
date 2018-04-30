@@ -45,8 +45,9 @@ class Node (object):
 		self.ext_workedNodes = []
 		self.ext_connectedChains = []
 		self.ext_chained = []
-		self.ext_avs = []
-		self.ext_uns = []
+#		self.ext_avs = []
+#		self.ext_uns = []
+		self.ext_flp = []
 						
 	def __repr__(self):
 		return "[node:"+self.perm+"@"+self.address+"§"+str(self.chainID)+"]"

@@ -236,26 +236,32 @@ class Diagram (object):
 	
 	def tryMakeAvailable(self, nodes):
 #		print("[makeAv] » » »\nnodes: " + " ".join([str(node) for node in nodes]))
-		avs = set()
-		uns = set()
+#		avs = set()
+#		uns = set()
+		flp = set()
 		for node in nodes:
-			wasAvailabled = node.loop.availabled
-			node.loop.availabled = self.checkAvailability(node)
+			if self.checkAvailability(node) ^ node.loop.availabled:
+				node.loop.availabled = not node.loop.availabled
+				self.available_count += node.loop.availabled or -1
+				flp.add(node.loop)		
+							
+#			wasAvailabled = node.loop.availabled
+#			node.loop.availabled = self.checkAvailability(node)
 #			self.available_count += node.loop.availabled - wasAvailabled // [~] fitze
 #			print("[makeAv] node: " + str(node) + " | " + str(wasAvailabled) + " ⇒ " + str(node.loop.availabled))
-			if node.loop.availabled:
-				if wasAvailabled == False:					
-					self.available_count += 1
-					avs.add(node.loop)
+#			if node.loop.availabled:
+#				if wasAvailabled == False:					
+#					self.available_count += 1
+#					avs.add(node.loop)
 ##				for bro in node.loopBrethren:
 ##					bro.availabled = True
-			else:
-				if wasAvailabled == True:
-					self.available_count -= 1
-					uns.add(node.loop)
+#			else:
+#				if wasAvailabled == True:
+#					self.available_count -= 1
+#					uns.add(node.loop)
 ##				for bro in node.loopBrethren:
 ##					bro.availabled = False	
-		return (avs, uns)
+		return flp
 				
 	def checkAvailability(self, curr):
 		if curr.looped and (curr.prevLink == None 
@@ -473,7 +479,7 @@ class Diagram (object):
 #		if self.jkcc >= 999999:
 #			assert False, "jk: " + str(self.jkcc)		
 			
-		node.ext_avs, node.ext_uns = self.tryMakeAvailable(node.ext_workedNodes)
+		node.ext_flp = self.tryMakeAvailable(node.ext_workedNodes)
 #		print("[extending] avs: " + str(len(node.ext_avs)) + " | uns: " + str(len(node.ext_uns)))
 		return True
 
@@ -503,13 +509,17 @@ class Diagram (object):
 		for pair in node.ext_connectedChains:
 			self.connectedChainPairs.difference_update([pair, pair[::-1]])
 						
-		for loop in node.ext_avs:
-			loop.availabled = False
-		self.available_count -= len(node.ext_avs)
-				
-		for loop in node.ext_uns:
-			loop.availabled = True
-		self.available_count += len(node.ext_uns)
+		for loop in node.ext_flp:
+			loop.availabled = not loop.availabled
+			self.available_count += loop.availabled or False
+						
+		# for loop in node.ext_avs:
+		# 	loop.availabled = False
+		# self.available_count -= len(node.ext_avs)
+		# 
+		# for loop in node.ext_uns:
+		# 	loop.availabled = True
+		# self.available_count += len(node.ext_uns)
 						
 #		assert (node.ext_uns, node.ext_avs) == self.tryMakeAvailable(node.ext_workedNodes)						
 		
@@ -554,7 +564,7 @@ class Diagram (object):
 				curr = next
 				node.ext_workedNodes.append(curr)						
 				
-		node.ext_avs, node.ext_uns = self.tryMakeAvailable(node.ext_workedNodes)
+		node.ext_flp = self.tryMakeAvailable(node.ext_workedNodes)
 		return True
 
 
@@ -574,14 +584,18 @@ class Diagram (object):
 			
 		for n in node.ext_chained:
 			n.chainID = 0
+	
+		for loop in node.ext_flp:
+			loop.availabled = not loop.availabled
+			self.available_count += loop.availabled or False		
 			
-		for loop in node.ext_avs:
-			loop.availabled = False
-		self.available_count -= len(node.ext_avs)
-				
-		for loop in node.ext_uns:
-			loop.availabled = True
-		self.available_count += len(node.ext_uns)
+		# for loop in node.ext_avs:
+		# 	loop.availabled = False
+		# self.available_count -= len(node.ext_avs)
+		# 
+		# for loop in node.ext_uns:
+		# 	loop.availabled = True
+		# self.available_count += len(node.ext_uns)
 			
 		# 
 		# workedNodes = set()
