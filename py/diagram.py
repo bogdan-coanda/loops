@@ -235,19 +235,22 @@ class Diagram (object):
 	
 	
 	def tryMakeAvailable(self, nodes):
+#		print("[makeAv] » » »\nnodes: " + " ".join([str(node) for node in nodes]))
 		for node in nodes:
-			wasAvailabled = node.availabled
-			node.availabled = self.checkAvailability(node)
-			if node.availabled:
+			wasAvailabled = node.loop.availabled
+			node.loop.availabled = self.checkAvailability(node)
+#			self.available_count += node.loop.availabled - wasAvailabled // [~] fitze
+#			print("[makeAv] node: " + str(node) + " | " + str(wasAvailabled) + " ⇒ " + str(node.loop.availabled))
+			if node.loop.availabled:
 				if wasAvailabled == False:
 					self.available_count += 1
-				for bro in node.loopBrethren:
-					bro.availabled = True
+##				for bro in node.loopBrethren:
+##					bro.availabled = True
 			else:
 				if wasAvailabled == True:
 					self.available_count -= 1
-				for bro in node.loopBrethren:
-					bro.availabled = False	
+##				for bro in node.loopBrethren:
+##					bro.availabled = False	
 
 				
 	def checkAvailability(self, curr):
@@ -337,7 +340,7 @@ class Diagram (object):
 			while True:
 				#assert node is not None
 				if node.looped:
-					if node.availabled and not node.extended:
+					if node.loop.availabled and not node.extended:
 						self.drawn.availables.append(node)
 						#print("[measuring] av: " + " ".join([node.perm + "§" + str(node.chainID) for node in self.drawn.availables]))
 				node = node.nextLink.next if node.nextLink != None else None
@@ -354,7 +357,7 @@ class Diagram (object):
 				if leaf.looped: # if any node is looped, then the whole cycle is considered looped
 					lp = True
 					break
-				if leaf.availabled and not leaf.seen:
+				if leaf.loop.availabled and not leaf.seen:
 					av += 1
 					if av > 1:
 						break
@@ -381,7 +384,7 @@ class Diagram (object):
 		# extend S2 if S1:S2:S3 to S1:[P:[S]x(ss-1)]x(ss-2):P:S3
 			
 		# extend only if available and not already extended	or seen
-		if not node.availabled or node.extended or node.seen:
+		if not node.loop.availabled or node.extended or node.seen:
 			return False
 					
 		##self.log("extending", "» node: " + str(node))					
@@ -502,7 +505,7 @@ class Diagram (object):
 	def addChain(self, node):
 		
 		# extend only if available and not already extended	or seen
-		if not node.availabled or node.extended or node.seen:
+		if not node.loop.availabled or node.extended or node.seen:
 #			assert False, "[addChain] refusing to add chain for node: " + str(node)
 			return False
 						
@@ -565,23 +568,6 @@ class Diagram (object):
 			print("["+str(self.jkcc)+"]["+mark+"] " + text)
 
 if __name__ == "__main__":
-	'''
-	diagram = Diagram(5)
-	print()
-	perm = diagram.perms[int(len(diagram.perms) / 2)]
-	print("target: " + perm)
-	print("pid: " + str(diagram.pids[perm]) + " | perm: " + diagram.perms[diagram.pids[perm]])
-	node = diagram.nodeByPerm[perm]	
-	print("links:\n" + "\n".join([str(y) + " » " + node.links[y].next.perm for y in range(1, diagram.spClass)]))
-	print("cycle: " + str(node.cycleIndex) + "\n" + "\n".join([n.perm for n in node.cycle.nodes]))
-	print("---")
-	diagram.measureNodes()
-	diagram.extendLoop(diagram.drawn.availables[0])
-	diagram.measureNodes()
-	diagram.extendLoop(diagram.drawn.availables[0])
-	diagram.measureNodes()
-	print("===")
-	'''
 	diagram = Diagram(6)
 	diagram.startTime = time()
 	diagram.sols = []
@@ -600,5 +586,5 @@ if __name__ == "__main__":
 	print("knowns: " + str(len(diagram.knowns)))
 			
 	jk(diagram)
-	print("---")
+	print("=== §§§ ===")
 	

@@ -16,7 +16,7 @@ class Node (object):
 		self.marked = False
 
 		# all normal nodes are available at start for extending as they're unblemished
-		self.availabled = True
+		#self.availabled = True # is now a loop-level property
 													
 		# [2] each normal node holds links to its (N-2)*N potential nodes (nodes looped in when extended from this node)
 		self.potentials = set()

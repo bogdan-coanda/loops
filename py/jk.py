@@ -263,6 +263,7 @@ if __name__ == "__main__":
 	diagram = Diagram(6)
 	diagram.startTime = time()
 	diagram.sols = []
+	diagram.knowns = []
 	
 	# with open('sols.'+str(diagram.spClass)+".pkl", 'wb') as outfile:
 	# 	pickle.dump(diagram.sols, outfile, 0)
