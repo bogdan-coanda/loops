@@ -2,6 +2,7 @@ from diagram import *
 from time import time, sleep
 from math import floor
 import pickle
+import shutil
 from functools import cmp_to_key
 
 class Step (object):
@@ -156,8 +157,13 @@ new » [5] lvl: 25 |
 		print()
 				
 		if len(diagram.sols) > len(diagram.knowns):
-			with open("sols."+str(diagram.spClass)+".pkl", 'wb') as outfile:
-				pickle.dump(diagram.sols, outfile, 0)
+			with open("sols."+str(diagram.spClass)+".pkl.tmp", 'wb') as outfile:
+				try:
+					pickle.dump(diagram.sols, outfile, 0)
+					shutil.copy("sols."+str(diagram.spClass)+".pkl.tmp", "sols."+str(diagram.spClass)+".pkl")
+				except Exception as e:
+					print(e.strerror)
+					raise 
 			print("[NEW]")
 					
 		else: # len(diagram.sols) <= len(diagram.knowns):
