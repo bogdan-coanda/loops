@@ -505,11 +505,11 @@ class Diagram (object):
 						
 		for loop in node.ext_avs:
 			loop.availabled = False
-			self.available_count -= 1
+		self.available_count -= len(node.ext_avs)
 				
 		for loop in node.ext_uns:
 			loop.availabled = True
-			self.available_count += 1
+		self.available_count += len(node.ext_uns)
 						
 #		assert (node.ext_uns, node.ext_avs) == self.tryMakeAvailable(node.ext_workedNodes)						
 		
@@ -577,11 +577,11 @@ class Diagram (object):
 			
 		for loop in node.ext_avs:
 			loop.availabled = False
-			self.available_count -= 1
+		self.available_count -= len(node.ext_avs)
 				
 		for loop in node.ext_uns:
 			loop.availabled = True
-			self.available_count += 1
+		self.available_count += len(node.ext_uns)
 			
 		# 
 		# workedNodes = set()
