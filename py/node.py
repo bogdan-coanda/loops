@@ -33,7 +33,7 @@ class Node (object):
 		# [7] each node holds links to its N-2 brethren (nodes that extend into the same loop)
 		self.loopBrethren = set()
 		
-		self.seen = False
+		#self.seen = False
 		
 		self.chainStarter = False
 		
@@ -48,6 +48,7 @@ class Node (object):
 #		self.ext_avs = []
 #		self.ext_uns = []
 		self.ext_flp = []
+		self.ext_loopedCycles = []		
 						
 	def __repr__(self):
 		return "[node:"+self.perm+"@"+self.address+"§"+str(self.chainID)+"]"

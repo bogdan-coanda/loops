@@ -43,7 +43,9 @@ class Diagram (object):
 		self.chainStarters = set([self.startNode])
 		self.connectedChainPairs = set()
 		self.skipped = 0		
-		
+		self.unlooped_cycles = set([cycle for cycle in self.cycles if cycle.looped == False])
+
+				
 	def generateGraph(self):
 		self.k3cc = self.spClass - 2
 		self.k2cc = self.spClass - 1
@@ -95,7 +97,7 @@ class Diagram (object):
 
 			if lvl == self.spClass:
 				gn_cc += 1
-													
+																	
 		genNode()
 		#assert len(gn_all) == len(self.perms)
 				
@@ -176,6 +178,7 @@ class Diagram (object):
 
 		node = self.startNode				
 		node.looped = True
+		node.cycle.looped = True
 
 		next = None
 		curr = node
@@ -192,6 +195,7 @@ class Diagram (object):
 					next = self.appendPath(curr, linkType)
 					curr = next
 					workedNodes.add(curr)
+					curr.cycle.looped = True
 
 				for k in range(self.k1cc):				
 					linkType = 1
@@ -234,7 +238,7 @@ class Diagram (object):
 		return next
 	
 	
-	def tryMakeAvailable(self, nodes):
+	def tryMakeAvailable(self, nodes): # [~] test if we're not making 0 avs actually
 #		print("[makeAv] » » »\nnodes: " + " ".join([str(node) for node in nodes]))
 #		avs = set()
 #		uns = set()
@@ -245,22 +249,6 @@ class Diagram (object):
 				self.available_count += node.loop.availabled or -1
 				flp.add(node.loop)		
 							
-#			wasAvailabled = node.loop.availabled
-#			node.loop.availabled = self.checkAvailability(node)
-#			self.available_count += node.loop.availabled - wasAvailabled // [~] fitze
-#			print("[makeAv] node: " + str(node) + " | " + str(wasAvailabled) + " ⇒ " + str(node.loop.availabled))
-#			if node.loop.availabled:
-#				if wasAvailabled == False:					
-#					self.available_count += 1
-#					avs.add(node.loop)
-##				for bro in node.loopBrethren:
-##					bro.availabled = True
-#			else:
-#				if wasAvailabled == True:
-#					self.available_count -= 1
-#					uns.add(node.loop)
-##				for bro in node.loopBrethren:
-##					bro.availabled = False	
 		return flp
 				
 	def checkAvailability(self, curr):
@@ -289,23 +277,7 @@ class Diagram (object):
 			if len(chains.intersection(self.allConnectedChains(ch))) > 0:
 				##self.log("checkAv", "failed for connected chains check: " + str(node))
 				return False
-								
-		'''
-		if len(chains) > 2:
-			if self.jkcc == 2674:
-				# [~] this is just plain wrong
-				print("[checkAv] failed for too many chains check | chains: " + " ".join([str(ch) for ch in chains]))
-			return False
-
-		if len(chains) == 2:
-			a = chains.pop()
-			b = chains.pop()
-			if self.areConnected(a, b):
-				if self.jkcc == 2674:
-					print("[checkAv] failed for connected chains check: " + str(node.chainID) + " @ node: " + node.perm + "@" + node.address)
-				return False
-		'''		
-		
+										
 		##self.log("checkAv", "passed for chains: " + " ".join([str(chainID) for chainID in chains]))
 		return True
 		
@@ -344,7 +316,7 @@ class Diagram (object):
 			while True:
 				#assert node is not None
 				if node.looped:
-					if node.loop.availabled and not node.extended:
+					if node.loop.availabled and not node.loop.seen and not node.extended:
 						self.drawn.availables.append(node)
 						#print("[measuring] av: " + " ".join([node.perm + "§" + str(node.chainID) for node in self.drawn.availables]))
 				node = node.nextLink.next if node.nextLink != None else None
@@ -372,29 +344,24 @@ class Diagram (object):
 						break
 										
 #		assert self.rx_looped_count == self.drawn.looped_count	
-									
-		for cycle in self.cycles:						
+																		
+		for cycle in self.unlooped_cycles: # [~]
 			av = 0
-			lp = False
 			lf = None
 			for leaf in cycle.nodes:
-				if leaf.looped: # if any node is looped, then the whole cycle is considered looped
-					lp = True
-					break
-				if leaf.loop.availabled and not leaf.seen:
+				if leaf.loop.availabled and not leaf.loop.seen:
 					av += 1
 					if av > 1:
 						break
 					lf = leaf # retain a leaf in case it's single
-			if not lp: # if the cycle isn't looped in
-				if av == 0: # if no node is reachable
-					self.drawn.unreachable_cycles.add(cycle)
-				elif av == 1: # if a single node is reachable
-					bros = list(filter(lambda bro: bro.looped, lf.loopBrethren))
-					if len(bros) == 1: # if a single bro is already looped
-						self.drawn.singles.add(bros[0])
-					elif len(bros) == 0: # if no bro is looped
-						self.drawn.sparks.add(lf)						
+			if av == 0: # if no node is reachable
+				self.drawn.unreachable_cycles.add(cycle)
+			elif av == 1: # if a single node is reachable
+				bros = list(filter(lambda bro: bro.looped, lf.loopBrethren))
+				if len(bros) == 1: # if a single bro is already looped
+					self.drawn.singles.add(bros[0])
+				elif len(bros) == 0: # if no bro is looped
+					self.drawn.sparks.add(lf)						
 															
 ##		if self.rx_looped_count > self.drawn.max_looped_count:
 ##			self.drawn.max_looped_count = self.rx_looped_count
@@ -408,7 +375,7 @@ class Diagram (object):
 		# extend S2 if S1:S2:S3 to S1:[P:[S]x(ss-1)]x(ss-2):P:S3
 			
 		# extend only if available and not already extended	or seen
-		if not node.loop.availabled or node.extended or node.seen:
+		if not node.loop.availabled or node.loop.seen or node.extended:
 			return False
 					
 		##self.log("extending", "» node: " + str(node))					
@@ -460,6 +427,9 @@ class Diagram (object):
 			else: # normal, empty chain				
 				next = self.appendPath(curr, 2)
 				node.ext_appendedLinks.append(curr.nextLink)
+				next.cycle.looped = True
+				self.unlooped_cycles.remove(next.cycle)
+				node.ext_loopedCycles.append(next.cycle)
 				#self.log("extending", "normal jump " + str(curr) + " » " + str(next))
 				next.chainID = node.chainID
 				node.ext_chained.append(next)
@@ -516,7 +486,11 @@ class Diagram (object):
 			
 		for link in node.ext_deletedLinks:
 			self.appendPath(link.node, link.type)
-			
+		
+		for cycle in node.ext_loopedCycles:
+			cycle.looped = False
+			self.unlooped_cycles.add(cycle)
+					
 		for n in node.ext_chained:
 			n.chainID = 0
 			
@@ -541,7 +515,7 @@ class Diagram (object):
 	def addChain(self, node):
 		
 		# extend only if available and not already extended	or seen
-		if not node.loop.availabled or node.extended or node.seen:
+		if not node.loop.availabled or node.loop.seen or node.extended:
 #			assert False, "[addChain] refusing to add chain for node: " + str(node)
 			return False
 						
@@ -565,6 +539,9 @@ class Diagram (object):
 		for j in range(self.spClass - 1):
 			next = self.appendPath(curr, 2)
 			node.ext_appendedLinks.append(curr.nextLink)
+			next.cycle.looped = True
+			self.unlooped_cycles.remove(next.cycle)
+			node.ext_loopedCycles.append(next.cycle)
 			next.chainID = self.chainAutoInc
 			node.ext_chained.append(next)
 			curr = next
@@ -596,6 +573,10 @@ class Diagram (object):
 		for link in node.ext_deletedLinks:
 			self.appendPath(link.node, link.type)
 			
+		for cycle in node.ext_loopedCycles:
+			cycle.looped = False
+			self.unlooped_cycles.add(cycle)
+						
 		for n in node.ext_chained:
 			n.chainID = 0
 	
@@ -603,51 +584,10 @@ class Diagram (object):
 			loop.availabled = not loop.availabled
 			self.available_count += loop.availabled or False		
 			
-		# for loop in node.ext_avs:
-		# 	loop.availabled = False
-		# self.available_count -= len(node.ext_avs)
-		# 
-		# for loop in node.ext_uns:
-		# 	loop.availabled = True
-		# self.available_count += len(node.ext_uns)
-			
-		# 
-		# workedNodes = set()
-		# workedNodes.add(node)
-		# 
-		# curr = node
-		# while True:
-		# 	curr.chainID = 0
-		# 	curr = self.deletePath(curr)
-		# 	workedNodes.add(curr)
-		# 	if curr == node:
-		# 		break		
-		# 
-		# self.tryMakeAvailable(workedNodes)
-
 
 	def log(self, mark, text, forced = False):
 		if False: # forced or "lvl:" in mark: # False: #mark == "appending" or mark == "deleting" or mark == "extending" or mark == "collapsing" or mark == "adding chain" or mark == "removing chain" or self.jkcc == -19: # or (("connecting" in text or mark == "extending") and self.jkcc <= 45)  and "014253" in text) or self.jkcc in [169, 169] or:
 			print("["+str(self.jkcc)+"]["+mark+"] " + text)
 
 if __name__ == "__main__":
-	diagram = Diagram(6)
-	diagram.startTime = time()
-	diagram.sols = []
-	diagram.knowns = []
-	
-	# with open('sols.'+str(diagram.spClass)+".pkl", 'wb') as outfile:
-	# 	pickle.dump(diagram.sols, outfile, 0)
-
-	with open('sols.'+str(diagram.spClass)+".pkl", 'rb') as infile:
-		diagram.knowns = pickle.load(infile)
-		
-	for i in range(len(diagram.knowns)):
-		if type(diagram.knowns[i]) is tuple:
-			diagram.knowns[i] = Sol(diagram.knowns[i][0], diagram.knowns[i][1], [Step(step[0], step[1], step[2], 0, step[3]) for step in diagram.knowns[i][2]], diagram.knowns[i][3])
-			
-	print("knowns: " + str(len(diagram.knowns)))
-			
-	jk(diagram)
-	print("=== §§§ ===")
-	
+	run()	
