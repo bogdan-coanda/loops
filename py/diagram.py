@@ -270,9 +270,11 @@ class Diagram (object):
 			
 			# 'sort' to the first alphanumeric channel
 			parts = road.strip('-').split('-')
-			top = sorted(parts)[0]
-			while parts[0] is not top:
+			top = sorted(parts + [part[::-1] for part in parts])[0]
+			while parts[0] != top and parts[-1][::-1] != top:
 				parts = parts[1:] + [parts[0]]
+			if parts[0] != top:
+				parts = [part[::-1] for part in parts][::-1]
 			road = '-'+'-'.join(parts)
 							
 			self.cached_road = road
