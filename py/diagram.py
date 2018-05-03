@@ -267,6 +267,13 @@ class Diagram (object):
 			road = road.replace("2", "|")	
 			for i in range(5, 1, -1):
 				road = road.replace("1"*i, str(i))
+			
+			# 'sort' to the first alphanumeric channel
+			parts = road.strip('-').split('-')
+			top = sorted(parts)[0]
+			while parts[0] is not top:
+				parts = parts[1:] + [parts[0]]
+			road = '-'+'-'.join(parts)
 							
 			self.cached_road = road
 			if self.knownID is not None and self.knownID % 1000 == 0:			
