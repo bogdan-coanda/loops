@@ -7,18 +7,21 @@ from cycle import Cycle
 from loop import Loop
 from link import Link
 from functools import cmp_to_key
+from common import Step, Sol
 from jk import *
+from time import time
 
 
 class Diagram (object):
 	
-	def __init__(self, N):
+	def __init__(self, N, knownID = None):
 		# defaults to remember
 		#self.k3cc = -2
 		#self.k2cc = -1
 		#self.k1cc = -1
 
 		self.spClass = N
+		self.knownID = knownID
 		
 		self.generateGraph()
 			
@@ -44,6 +47,8 @@ class Diagram (object):
 		self.connectedChainPairs = set()
 		self.skipped = 0		
 		self.unlooped_cycles = set([cycle for cycle in self.cycles if cycle.looped == False])
+		self.cached_road = None
+		self.startTime = time()
 
 				
 	def generateGraph(self):
@@ -59,6 +64,7 @@ class Diagram (object):
 		self.generateNodes()
 		self.generateLinks()
 		self.generateLoops()
+				
 				
 	def generateNodes(self):
 		
@@ -215,6 +221,36 @@ class Diagram (object):
 		self.tryMakeAvailable(workedNodes)
 		
 		
+	def loadKnowns(self):
+		with open('sols.'+str(self.spClass)+".pkl", 'rb') as infile:
+			self.knowns = pickle.load(infile)
+			print("[diagram@"+tstr(time()-self.startTime)+"] loaded " + str(len(self.knowns)) + " known solutions found in " + str(self.knowns[-1].jkcc) + " steps | runtime: " + tstr(self.knowns[-1].tdiff))
+		
+		
+	def generateDiagramForKnownID(self, knownID):
+		known = self.knowns[knownID]
+		𝒟 = Diagram(self.spClass, knownID)
+		𝒟.startTime = self.startTime
+		for step in known.state:
+			𝒟.measureNodes()
+			node = 𝒟.nodeByPerm[step.perm]
+			𝒟.extendLoop(node)
+		return 𝒟
+
+		
+	def road(self):
+		if self.cached_road == None:			
+			node = self.startNode
+			road = node.perm
+			while node.nextLink.next != self.startNode:						
+				node = node.nextLink.next
+				road += node.perm[-(node.prevLink.type):]
+			self.cached_road = road
+			if self.knownID is not None and self.knownID % 1000 == 0:			
+				print("[diagram:"+str(self.knownID)+"] generated road @ " + tstr(time() - self.startTime))
+		return self.cached_road
+						
+						
 	def appendPath(self, curr, type):
 #		assert curr.nextLink == None # and curr.links[type].next.looped == False	
 #		if self.jkcc <= 80 or "000000" in [curr.perm]: #, curr.links[type].next.perm]:
