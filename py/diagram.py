@@ -262,21 +262,21 @@ class Diagram (object):
 				road += str(node.prevLink.type)
 			
 			# reduce format	
-			road = road.replace(self.C5, "»«")
+			road = road.replace(self.C5, "§")
 			road = road.replace("3", "-")
 			road = road.replace("2", "|")	
 			for i in range(5, 1, -1):
 				road = road.replace("1"*i, str(i))
 			
-			# 'sort' to the first alphanumeric channel
+			# 'sort' to the first alphanumeric …
 			parts = road.strip('-').split('-')
-			top = sorted(parts + [part[::-1] for part in parts])[0]
-			while parts[0] != top and parts[-1][::-1] != top:
+			halls = []
+			for _ in range(len(parts)):
 				parts = parts[1:] + [parts[0]]
-			if parts[0] != top:
-				parts = [part[::-1] for part in parts][::-1]
-			road = '-'+'-'.join(parts)
-							
+				halls.append("-".join(parts))
+				halls.append(halls[-1][::-1])
+			road = '-'+sorted(halls)[0]			
+										
 			self.cached_road = road
 			if self.knownID is not None and self.knownID % 1000 == 0:			
 				print("[diagram:"+str(self.knownID)+"@"+tstr(time()-self.startTime)+"] generated road: " + road)		
