@@ -47,8 +47,10 @@ class Diagram (object):
 		self.connectedChainPairs = set()
 		self.skipped = 0		
 		self.unlooped_cycles = set([cycle for cycle in self.cycles if cycle.looped == False])
+		self.cached_superperm = None
 		self.cached_road = None
 		self.startTime = time()
+		self.C5 = "2".join(["1"*(self.spClass-1)]*(self.spClass-1))	
 
 				
 	def generateGraph(self):
@@ -238,19 +240,40 @@ class Diagram (object):
 		return 𝒟
 
 		
-	def road(self):
-		if self.cached_road == None:			
+	def superperm(self):
+		if self.cached_superperm == None:			
 			node = self.startNode
-			road = node.perm
+			superperm = node.perm
 			while node.nextLink.next != self.startNode:						
 				node = node.nextLink.next
-				road += node.perm[-(node.prevLink.type):]
+				superperm += node.perm[-(node.prevLink.type):]
+			self.cached_superperm = superperm
+			if self.knownID is not None and self.knownID % 1000 == 0:			
+				print("[diagram:"+str(self.knownID)+" @ "+tstr(time()-self.startTime)+"] generated superperm")
+		return superperm
+		
+		
+	def road(self):
+		if self.cached_road == None:
+			node = self.startNode
+			road = str(self.startNode.prevLink.type)
+			while node.nextLink.next != self.startNode:						
+				node = node.nextLink.next
+				road += str(node.prevLink.type)
+			
+			# reduce format	
+			road = road.replace(self.C5, "»«")
+			road = road.replace("3", "-")
+			road = road.replace("2", "|")	
+			for i in range(5, 1, -1):
+				road = road.replace("1"*i, str(i))
+							
 			self.cached_road = road
 			if self.knownID is not None and self.knownID % 1000 == 0:			
-				print("[diagram:"+str(self.knownID)+"] generated road @ " + tstr(time() - self.startTime))
-		return self.cached_road
-						
-						
+				print("[diagram:"+str(self.knownID)+"@"+tstr(time()-self.startTime)+"] generated road: " + road)		
+		return road
+		
+		
 	def appendPath(self, curr, type):
 #		assert curr.nextLink == None # and curr.links[type].next.looped == False	
 #		if self.jkcc <= 80 or "000000" in [curr.perm]: #, curr.links[type].next.perm]:
