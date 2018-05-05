@@ -459,7 +459,7 @@ class Diagram (object):
 		# extend S2 if S1:S2:S3 to S1:[P:[S]x(ss-1)]x(ss-2):P:S3
 			
 		# extend only if available and not already extended	or seen
-		#assert node.loop.availabled and not node.extended
+		# loops can be unavailabled from the jk inner loop
 		if not node.loop.availabled or node.extended:
 			return False
 					
@@ -557,7 +557,6 @@ class Diagram (object):
 			self.removeChain(node)
 						
 		# collapse only if extended
-		#assert node.extended
 		if not node.extended:
 			return
 		
@@ -588,7 +587,6 @@ class Diagram (object):
 	def addChain(self, node):
 		
 		# extend only if available and not already extended	or seen
-		assert node.loop.availabled and not node.extended
 		if not node.loop.availabled or node.extended:
 #			assert False, "[addChain] refusing to add chain for node: " + str(node)
 			return False
