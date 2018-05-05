@@ -27,7 +27,6 @@ class Diagram (object):
 		self.generateGraph()
 			
 		self.arrowCount = [0, 0, 0]
-		self.available_count = len(self.nodes)
 		self.jkcc = 0	
 		self.rx_looped_count = 0
 
@@ -323,7 +322,6 @@ class Diagram (object):
 					for node in node.loop.nodes:
 						node.cycle.available_loops_count -= 1						
 					flp.add(node.loop)
-		self.available_count -= len(flp)
 		
 		self.measureCycles()
 
@@ -336,7 +334,6 @@ class Diagram (object):
 			loop.availabled = True
 			for nn in loop.nodes:
 				nn.cycle.available_loops_count += 1				
-		self.available_count += len(node.ext_flp)
 
 		self.measureCycles()		
 				
@@ -462,6 +459,7 @@ class Diagram (object):
 		# extend S2 if S1:S2:S3 to S1:[P:[S]x(ss-1)]x(ss-2):P:S3
 			
 		# extend only if available and not already extended	or seen
+		#assert node.loop.availabled and not node.extended
 		if not node.loop.availabled or node.extended:
 			return False
 					
@@ -559,6 +557,7 @@ class Diagram (object):
 			self.removeChain(node)
 						
 		# collapse only if extended
+		#assert node.extended
 		if not node.extended:
 			return
 		
@@ -589,6 +588,7 @@ class Diagram (object):
 	def addChain(self, node):
 		
 		# extend only if available and not already extended	or seen
+		assert node.loop.availabled and not node.extended
 		if not node.loop.availabled or node.extended:
 #			assert False, "[addChain] refusing to add chain for node: " + str(node)
 			return False

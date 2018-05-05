@@ -24,12 +24,13 @@ def jk(diagram, lvl = 0, state = []):
 		#jkprintstate(diagram, lvl, state)
 				
 		if diagram.rx_looped_count == len(diagram.perms) and len(diagram.drawn.availables) == 0:			
-			tdiff = time() - diagram.startTime
-			text = "[" + str(len(diagram.sols)) + "] lvl: " + str(lvl) + " | " +  sstr(state)
 			if len(diagram.drawn.chains) != 1:
 				#print("\n# [Trojan] # @jkcc: " + str(diagram.jkcc) + " | @time: " + tstr(tdiff) + " » " + text)
 				return
 				
+			tdiff = time() - diagram.startTime
+			text = "[" + str(len(diagram.sols)) + "] lvl: " + str(lvl) + " | " +  sstr(state)
+			
 			diagram.sols.append(Sol(tdiff, diagram.jkcc, state, text))				
 			jkprintstate(diagram, lvl, state)
 			jkprintsol(diagram)								
