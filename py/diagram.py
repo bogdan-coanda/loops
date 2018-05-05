@@ -7,9 +7,10 @@ from cycle import Cycle
 from loop import Loop
 from link import Link
 from functools import cmp_to_key
-from common import Step, Sol
+from common import *
 from jk import *
 from time import time
+import pickle
 
 
 class Diagram (object):
@@ -661,4 +662,5 @@ class Diagram (object):
 			print("["+str(self.jkcc)+"]["+mark+"] " + text)
 
 if __name__ == "__main__":
+	from common import Step, Sol
 	run()	

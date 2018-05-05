@@ -7,6 +7,7 @@ from functools import cmp_to_key
 import traceback
 from common import *
 
+
 def jk(diagram, lvl = 0, state = []):
 	
 	diagram.jkcc += 1	
@@ -147,6 +148,7 @@ def run():
 
 	
 if __name__ == "__main__":
+	from common import Step, Sol
 	run()
 
 
