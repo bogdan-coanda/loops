@@ -11,24 +11,69 @@ def jk(diagram, lvl = 0, state = []):
 	
 	diagram.jkcc += 1	
 
-	diagram.measureNodes()
+	if len(diagram.mx_singles) > 0:
+		availables = [sorted(diagram.mx_singles, key = cmp_to_key(lambda x, y: 0 if x.perm == y.perm else (1 if x.perm > y.perm else -1)))[0]]
 
-	if diagram.rx_looped_count == len(diagram.perms) and len(diagram.drawn.availables) == 0:
-			
-		tdiff = time() - diagram.startTime
-		text = "[" + str(len(diagram.sols)) + "] lvl: " + str(lvl) + " | " +  sstr(state)
+	elif len(diagram.mx_sparks) > 0:
+		availables = [sorted(diagram.mx_sparks, key = cmp_to_key(lambda x, y: 0 if x.perm == y.perm else (1 if x.perm > y.perm else -1)))[0]]
 
-		if len(diagram.drawn.chains) != 1:
-			#print("\n# [Trojan] # @jkcc: " + str(diagram.jkcc) + " | @time: " + tstr(tdiff) + " » " + text)
+	else:
+		
+		diagram.measureNodes()
+		#jkprintstate(diagram, lvl, state)
+				
+		if diagram.rx_looped_count == len(diagram.perms) and len(diagram.drawn.availables) == 0:			
+			tdiff = time() - diagram.startTime
+			text = "[" + str(len(diagram.sols)) + "] lvl: " + str(lvl) + " | " +  sstr(state)
+			if len(diagram.drawn.chains) != 1:
+				#print("\n# [Trojan] # @jkcc: " + str(diagram.jkcc) + " | @time: " + tstr(tdiff) + " » " + text)
+				return
+				
+			diagram.sols.append(Sol(tdiff, diagram.jkcc, state, text))				
+			jkprintstate(diagram, lvl, state)
+			jkprintsol(diagram)								
 			return
-		diagram.sols.append(Sol(tdiff, diagram.jkcc, state, text))		
+							
+		availables = diagram.drawn.availables
+		#diagram.log("lvl:"+str(lvl)+"|availables", " ".join([str(node) for node in diagram.drawn.availables]))
+		
+	lvl_seen = []		
+	cc = 0
 
-		print()
-		print("[state] jk: " + str(diagram.jkcc) + " | lvl: " + str(lvl) + " | » " + sstr(state))
-		print("[drawn] looped: " + str(diagram.rx_looped_count) + " | availables: " + str(len(diagram.drawn.availables)) + " | singles: " + str(len(diagram.drawn.singles)) + " | sparks: " + str(len(diagram.drawn.sparks)) + " | unreachable: " + str(len(diagram.drawn.unreachable_cycles)) + " | chains: " + " ".join([str(ch) for ch in diagram.drawn.chains]) + " | connected chains: " + " ".join([str(a) + "+" + str(b) for a, b in diagram.connectedChainPairs if a < b]) + " | chain starters: " + " ".join([str(node) for node in diagram.chainStarters]))					
-															
+	for node in availables:
+									
+		if diagram.extendLoop(node):
+			#diagram.log("lvl:"+str(lvl), "pushing by " + str(node))
+			if len(diagram.mx_unreachable_cycles) == 0: # we don't bother pushing just to come back
+				jk(diagram, lvl + 1, state + [Step(cc, len(availables), len(diagram.mx_singles), len(diagram.mx_sparks), node.perm)])
+			#diagram.log("lvl:"+str(lvl), "collapsing back " + str(node))
+			diagram.collapseLoop(node)
+				
+			#assert node.loop.availabled
+			node.loop.availabled = False
+			for nn in node.loop.nodes:
+				nn.cycle.available_loops_count -= 1
+			lvl_seen.append(node)				
+		cc += 1
+		
+	for node in lvl_seen:
+		node.loop.availabled = True
+		for nn in node.loop.nodes:
+			nn.cycle.available_loops_count += 1					
+										
+	#diagram.log("lvl:"+str(lvl), "popping normally")
+	#return			
+
+
+def jkprintstate(diagram, lvl, state):
+	print()
+	print("[state] jk: " + str(diagram.jkcc) + " | lvl: " + str(lvl) + " | » " + sstr(state))
+	print("[drawn] looped: " + str(diagram.rx_looped_count) + " | availables: " + str(len(diagram.drawn.availables)) + " | singles: " + str(len(diagram.mx_singles)) + " | sparks: " + str(len(diagram.mx_sparks)) + " | unreachables: " + str(len(diagram.mx_unreachable_cycles)) + " | chains: " + " ".join([str(ch) for ch in diagram.drawn.chains]) + " | connected chains: " + " ".join([str(a) + "+" + str(b) for a, b in diagram.connectedChainPairs if a < b]) + " | chain starters: " + " ".join([str(node) for node in diagram.chainStarters]))					
+
+
+def jkprintsol(diagram):
 		print()																												
-		print("\n# Found # @jkcc: " + str(diagram.jkcc) + " | @time: " + tstr(tdiff) + " » " + text)
+		print("\n# Found # @jkcc: " + str(diagram.jkcc) + " | @time: " + tstr(diagram.sols[-1].tdiff) + " » " + diagram.sols[-1].text)
 		print()
 				
 		if len(diagram.sols) > len(diagram.knowns):
@@ -51,7 +96,7 @@ def jk(diagram, lvl = 0, state = []):
 				solchain = [step.perm for step in sol.state]
 				if set(knownchain) == set(solchain):
 					if knownchain == solchain:
-						print(">>> [ABSOLUTED] <<<\n" + dtstr(sol.tdiff, known.tdiff) + "\n" + jkstr(sol.jkcc, known.jkcc) + "\nold » " + " ".join([str(node) for node in knownchain]) + "\nnew » " + " ".join([str(node) for node in knownchain]))
+						print(">>> [ABSOLUTED] <<<\n | " + dtstr(sol.tdiff, known.tdiff) + "\n | " + jkstr(sol.jkcc, known.jkcc))
 					else:
 						print(">>> [REORDERED] <<<\n" + dtstr(sol.tdiff, known.tdiff) + "\n" + jkstr(sol.jkcc, known.jkcc) + "\nold » " + " ".join([str(node) for node in knownchain]) + "\nnew » " + " ".join([str(node) for node in solchain]))
 				else:
@@ -59,7 +104,7 @@ def jk(diagram, lvl = 0, state = []):
 					for step in known.state:
 						𝒟.measureNodes()
 						node = 𝒟.nodeByPerm[step.perm]
-						#print("𝒟:" + str(𝒟.drawn.looped_count) + " | extending: " + str(node))
+						#print("𝒟:" + str(𝒟.rx_looped_count) + " | extending: " + str(node))
 						𝒟.extendLoop(node)
 						
 					np = diagram.startNode
@@ -78,51 +123,9 @@ def jk(diagram, lvl = 0, state = []):
 								print(">>> [CONVERGENT] <<<\n" + dtstr(sol.tdiff, known.tdiff) + "\n" + jkstr(sol.jkcc, known.jkcc) + "\nold » " + known.text + "\nnew » " + sol.text)				
 								return
 						pc += 1
-								
-		return
-					
-	if len(diagram.drawn.unreachable_cycles) > 0:
-#		diagram.log("lvl:"+str(lvl), "popping for unreachables: " + str(len(diagram.drawn.unreachable_cycles)))
-		return
-		
-	singlesCount = len(diagram.drawn.singles)
-	sparksCount = len(diagram.drawn.sparks)
-	# [~] if sparks then start new chain
-	# take linkedChains(a,b) into account when measuring bros
-	if singlesCount > 0:
-		availables = [sorted(diagram.drawn.singles, key = cmp_to_key(lambda x, y: 0 if x.perm == y.perm else (1 if x.perm > y.perm else -1)))[0]]
-#		diagram.log("lvl:"+str(lvl)+"|singles", " ".join([str(node) for node in diagram.drawn.singles]))
-	elif sparksCount > 0:		
-		availables = [sorted(diagram.drawn.sparks, key = cmp_to_key(lambda x, y: 0 if x.perm == y.perm else (1 if x.perm > y.perm else -1)))[0]]
-#		diagram.log("lvl:"+str(lvl)+"|sparks", " ".join([str(node) for node in diagram.drawn.sparks]))
-	else:
-		availables = diagram.drawn.availables
-#		diagram.log("lvl:"+str(lvl)+"|availables", " ".join([str(node) for node in diagram.drawn.availables]))
-		
-	availables = [node for node in availables if not node.loop.seen]
-	lvl_seen = []		
-	cc = 0
-
-	for node in availables:
-						
-		if diagram.extendLoop(node):
-#				diagram.log("lvl:"+str(lvl), "pushing by " + str(node))
-			jk(diagram, lvl + 1, state + [Step(cc, len(availables), singlesCount, sparksCount, node.perm)])
-#				diagram.log("lvl:"+str(lvl), "collapsing back " + str(node))
-			diagram.collapseLoop(node)
-				
-			node.loop.seen = True
-			lvl_seen.append(node)				
-		cc += 1
-		
-	for node in lvl_seen:
-		node.loop.seen = False
-#	diagram.log("lvl:"+str(lvl), "popping normally")
-	return			
-
+							
 
 def jkinit(diagram):
-	diagram.startTime = time()
 	diagram.sols = []
 	diagram.knowns = []
 	
@@ -137,6 +140,8 @@ def jkinit(diagram):
 			diagram.knowns[i] = Sol(diagram.knowns[i][0], diagram.knowns[i][1], [Step(step[0], step[1], step[2], 0, step[3]) for step in diagram.knowns[i][2]], diagram.knowns[i][3])
 			
 	print("[jk:init] knowns: " + str(len(diagram.knowns)))
+	diagram.startTime = time()
+			
 	
 def run():
 	diagram = Diagram(6)

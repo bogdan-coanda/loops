@@ -4,4 +4,4 @@ class Loop (object):
 		self.index = index
 		self.nodes = set()
 		self.availabled = True
-		self.seen = False
+#		self.seen = False

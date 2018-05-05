@@ -39,6 +39,7 @@ class Node (object):
 		
 		self.chainID = 0
 
+
 	def ext_reset(self):		
 		self.ext_deletedLinks = []
 		self.ext_appendedLinks = []
@@ -49,6 +50,9 @@ class Node (object):
 #		self.ext_uns = []
 		self.ext_flp = []
 		self.ext_loopedCycles = []		
+		
 						
 	def __repr__(self):
-		return "[node:"+self.perm+"@"+self.address+"§"+str(self.chainID)+"]"
+		return "[node:"+self.perm+"@"+self.address+"§"+str(self.chainID)+"|"+("λ" if self.looped else "")+("ε" if self.extended else "")+("ψ" if self.chainStarter else "")+("A" if self.loop.availabled else "")+"]"
+		
+		
