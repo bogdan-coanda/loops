@@ -34,6 +34,8 @@ class Diagram (object):
 		self.mx_singles = set()
 		self.mx_sparks = set()
 														
+		self.rx_availables = set() # should only contain nodes that are looped, loop.availabled and not loop.extended
+														
 		self.ss = State(self)
 		self.drawn = Drawn(self)
 		self.forest = Forest(self)
@@ -311,7 +313,7 @@ class Diagram (object):
 		return next
 	
 	
-	def tryMakeUnavailable(self, nodes): # [~] test if we're not making 0 avs actually
+	def tryMakeUnavailable(self, nodes):
 #		print("[makeAv] » » »\nnodes: " + " ".join([str(node) for node in nodes]))
 		flp = set()
 		
@@ -410,26 +412,25 @@ class Diagram (object):
 		
 
 	def measureNodes(self):
-
+		#print("[measuring] » » » chain starters: " + " ".join([node.perm for node in self.chainStarters]))
+		
 		self.drawn.reset()		
 
-		#print("[measuring] chain starters: " + " ".join([node.perm for node in self.chainStarters]))
-
-		self.drawn.chains = set()
 		if len(self.chainStarters) == 1:
+			
 			startNode = list(self.chainStarters)[0]
 			self.drawn.chains.add(startNode.chainID)			
 			node = startNode			
 			while True:
-				#assert node is not None
-				if node.looped:
-					if node.loop.availabled and not node.extended:
-						self.drawn.availables.append(node)
+				if node.loop.availabled and not node.extended:
+					self.drawn.availables.append(node)
 						#print("[measuring] av: " + " ".join([node.perm + "§" + str(node.chainID) for node in self.drawn.availables]))
-				node = node.nextLink.next if node.nextLink != None else None
+				node = node.nextLink.next# if node.nextLink != None else None
 				if node == startNode:
 					break
-		else:						
+					
+		else:	
+								
 			for startNode in sorted(self.chainStarters, key = cmp_to_key(
 				lambda x, y: (0 if x.perm == y.perm else (1 if x.perm > y.perm else -1)) 
 					if x.chainID == y.chainID else x.chainID - y.chainID)): # [!~] reversed chain id order
@@ -441,12 +442,10 @@ class Diagram (object):
 				#print("[measuring] startNode: " + startNode.perm + "§" + str(startNode.chainID))
 				node = startNode			
 				while True:
-					#assert node is not None
-					if node.looped:
-						if node.loop.availabled and not node.extended:
-							self.drawn.availables.append(node)
-							#print("[measuring] av: " + " ".join([node.perm + "§" + str(node.chainID) for node in self.drawn.availables]))
-					node = node.nextLink.next if node.nextLink != None else None
+					if node.loop.availabled and not node.extended:
+						self.drawn.availables.append(node)
+						#print("[measuring] av: " + " ".join([node.perm + "§" + str(node.chainID) for node in self.drawn.availables]))
+					node = node.nextLink.next# if node.nextLink != None else None
 					if node == startNode:
 						break
 																												
@@ -459,7 +458,7 @@ class Diagram (object):
 		# extend S2 if S1:S2:S3 to S1:[P:[S]x(ss-1)]x(ss-2):P:S3
 			
 		# extend only if available and not already extended	or seen
-		# loops can be unavailabled from the jk inner loop
+		# [~] loops can be unavailabled from the jk inner loop
 		if not node.loop.availabled or node.extended:
 			return False
 					
