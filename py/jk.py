@@ -126,20 +126,14 @@ def jkprintsol(diagram):
 							
 
 def jkinit(diagram):
+	diagram.startTime = time()
 	diagram.sols = []
 	diagram.knowns = []
 	
 	# with open('sols.'+str(diagram.spClass)+".pkl", 'wb') as outfile:
 	# 	pickle.dump(diagram.sols, outfile, 0)
 
-	with open('sols.'+str(diagram.spClass)+".pkl", 'rb') as infile:
-		diagram.knowns = pickle.load(infile)
-		
-	for i in range(len(diagram.knowns)):
-		if type(diagram.knowns[i]) is tuple:
-			diagram.knowns[i] = Sol(diagram.knowns[i][0], diagram.knowns[i][1], [Step(step[0], step[1], step[2], 0, step[3]) for step in diagram.knowns[i][2]], diagram.knowns[i][3])
-			
-	print("[jk:init] knowns: " + str(len(diagram.knowns)))
+	diagram.loadKnowns()
 	diagram.startTime = time()
 			
 	
