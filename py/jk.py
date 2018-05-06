@@ -10,7 +10,10 @@ from common import *
 
 def jk(diagram, lvl = 0, state = []):
 	
-	diagram.jkcc += 1	
+	###if diagram.jkcc % 1000 == 0:
+		###jkprintstate(diagram, lvl, state)
+	
+	diagram.jkcc += 1
 
 	if len(diagram.mx_singles) > 0:
 		availables = [sorted(diagram.mx_singles, key = cmp_to_key(lambda x, y: 0 if x.perm == y.perm else (1 if x.perm > y.perm else -1)))[0]]
@@ -21,7 +24,6 @@ def jk(diagram, lvl = 0, state = []):
 	else:
 		
 		diagram.measureNodes()
-		#jkprintstate(diagram, lvl, state)
 				
 		if diagram.rx_looped_count == len(diagram.perms) and len(diagram.drawn.availables) == 0:			
 			if len(diagram.drawn.chains) != 1:
@@ -87,6 +89,7 @@ def jkprintsol(diagram):
 					traceback.print_exc()
 					raise 
 			print("[NEW]")
+			###assert False, 'found smth'
 					
 		else: # len(diagram.sols) <= len(diagram.knowns):
 			known = diagram.knowns[len(diagram.sols) - 1]
