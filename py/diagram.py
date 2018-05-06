@@ -49,7 +49,7 @@ class Diagram (object):
 		self.auto = True
 		self.cursive = True
 		self.chainAutoInc = 0
-		self.chainStarters = set([self.startNode])
+		self.chainStarters = [self.startNode]
 		self.connectedChainPairs = set()
 		self.skipped = 0		
 		self.cached_superperm = None
@@ -418,7 +418,7 @@ class Diagram (object):
 
 		if len(self.chainStarters) == 1:
 			
-			startNode = list(self.chainStarters)[0]
+			startNode = self.chainStarters[0]
 			self.drawn.chains.add(startNode.chainID)			
 			node = last_extended_node if startNode.chainID == 0 else startNode 			
 			#if node != startNode:
@@ -426,22 +426,16 @@ class Diagram (object):
 			while True:
 				if node.loop.availabled and not node.extended:
 					self.drawn.availables.append(node)
-						#print("[measuring] av: " + " ".join([node.perm + "§" + str(node.chainID) for node in self.drawn.availables]))
-				node = node.nextLink.next# if node.nextLink != None else None
+				node = node.nextLink.next
 				if node == startNode:
 					break
 					
 		else:	
 								
-			for startNode in sorted(self.chainStarters, key = cmp_to_key(
-				lambda x, y: (0 if x.perm == y.perm else (1 if x.perm > y.perm else -1)) 
-					if x.chainID == y.chainID else x.chainID - y.chainID)): # [!~] reversed chain id order
-				#print("[measuring] conns: " + " ".join([str(chain) for chain in self.allConnectedChains(startNode.chainID)]))
+			for startNode in self.chainStarters:
 				if len(self.drawn.chains.intersection(self.allConnectedChains(startNode.chainID))) > 0:
-					#assert False, "Found connected start node, should happen at jk:10"
 					continue
 				self.drawn.chains.add(startNode.chainID)
-				#print("[measuring] startNode: " + startNode.perm + "§" + str(startNode.chainID))
 				node = last_extended_node if startNode.chainID == 0 else startNode			
 				#if node != startNode:
 					#print("[measuring] rewrote start node to: " + str(node) + " with index: " + str(startNode.index))
@@ -449,7 +443,7 @@ class Diagram (object):
 					if node.loop.availabled and not node.extended:
 						self.drawn.availables.append(node)
 						#print("[measuring] av: " + " ".join([node.perm + "§" + str(node.chainID) for node in self.drawn.availables]))
-					node = node.nextLink.next# if node.nextLink != None else None
+					node = node.nextLink.next
 					if node == startNode:
 						break
 																												
@@ -602,7 +596,7 @@ class Diagram (object):
 		node.chainStarter = True
 		self.chainAutoInc += 1
 		node.chainID = self.chainAutoInc
-		self.chainStarters.add(node)
+		self.chainStarters.append(node)
 		
 		node.ext_reset()
 	
@@ -636,7 +630,7 @@ class Diagram (object):
 
 	def removeChain(self, node):
 #		self.log("removing chain", "» node: " + str(node))
-		self.chainStarters.remove(node)
+		self.chainStarters.pop() # [~] equals pop ?
 		node.chainID = 0
 		node.chainStarter = False
 		node.extended = False
