@@ -28,23 +28,24 @@ if __name__ == "__main__":
 	
 	# --- extenders --- #
 	
+	'''
 	extenders = []
-	ec = 0
+	#ec = 0
 	for ik in range(len(diagram.knowns)):
 		𝒟 = diagram.generateDiagramForKnownID(ik)
 #		𝒟.road()
 #		if 𝒟.road_is_walked:
 		extenders.append(𝒟.extender())
-		ec += 1
-		print(str(ec) + " / " + str(ik+1))
+		#ec += 1
+		#print(str(ec) + " / " + str(ik+1))
 	
 	print("Found " + str(len(extenders)) + " distinct extenders")	
 	
 	with open("extenders."+str(diagram.spClass)+".pkl", 'wb') as outfile:
-		pickle.dump(set(extenders), outfile, 0)	
-		
-	#with open('roads.'+str(diagram.spClass)+".pkl", 'rb') as infile:	
-		#roads = list(pickle.load(infile))
-	#print("Loaded "+str(len(roads))+" unique roads")
+		pickle.dump(extenders, outfile, 0)	
+	'''
+	with open('extenders.'+str(diagram.spClass)+".pkl", 'rb') as infile:	
+		extenders = list(pickle.load(infile))
+	print("Loaded "+str(len(extenders))+" extenders")
 	
 	
