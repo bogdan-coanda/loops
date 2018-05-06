@@ -54,6 +54,7 @@ class Diagram (object):
 		self.skipped = 0		
 		self.cached_superperm = None
 		self.cached_road = None
+		self.road_is_walked = False
 		self.cached_extender = None		
 		self.startTime = time()
 		self.C5 = "2".join(["1"*(self.spClass-1)]*(self.spClass-1))	
@@ -256,7 +257,7 @@ class Diagram (object):
 				node = node.nextLink.next
 				superperm += node.perm[-(node.prevLink.type):]
 			self.cached_superperm = superperm
-			if self.knownID is not None and self.knownID % 1000 == 0:			
+			if self.knownID is not None and self.knownID % 1 == 0:			
 				print("[diagram:"+str(self.knownID)+" @ "+tstr(time()-self.startTime)+"] generated superperm")
 		return superperm
 		
@@ -276,6 +277,7 @@ class Diagram (object):
 			for i in range(5, 1, -1):
 				road = road.replace("1"*i, str(i))
 			
+			walked = road
 			# 'sort' to the first alphanumeric …
 			parts = road.strip('-').split('-')
 			halls = []
@@ -286,6 +288,7 @@ class Diagram (object):
 			road = '-'+sorted(halls)[0]			
 										
 			self.cached_road = road
+			self.road_is_walked = road == walked
 			if self.knownID is not None and self.knownID % 1000 == 0:			
 				print("[diagram:"+str(self.knownID)+"@"+tstr(time()-self.startTime)+"] generated road: " + road)		
 		return road
@@ -301,7 +304,7 @@ class Diagram (object):
 				return node.nextLink.next
 			else:
 				assert node.nextLink.type == 2	
-				extender.append(node)
+				extender.append(node.perm)
 				next = pushex(node.nextLink.next)
 				assert node.links[1].next == next
 				return next
