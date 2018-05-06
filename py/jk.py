@@ -8,19 +8,21 @@ import traceback
 from common import *
 
 
-def jk(diagram, lvl = 0, state = []):
+def jk(diagram, lvl = 0, state = [], last_extended_node = None):
 	
 	diagram.jkcc += 1	
 
 	if len(diagram.mx_singles) > 0:
 		availables = [sorted(diagram.mx_singles, key = cmp_to_key(lambda x, y: 0 if x.perm == y.perm else (1 if x.perm > y.perm else -1)))[0]]
+		is_normal = False
 
 	elif len(diagram.mx_sparks) > 0:
 		availables = [sorted(diagram.mx_sparks, key = cmp_to_key(lambda x, y: 0 if x.perm == y.perm else (1 if x.perm > y.perm else -1)))[0]]
+		is_normal = False
 
 	else:
 		
-		diagram.measureNodes()
+		diagram.measureNodes(last_extended_node or diagram.startNode)
 		#jkprintstate(diagram, lvl, state)
 				
 		if diagram.rx_looped_count == len(diagram.perms) and len(diagram.drawn.availables) == 0:			
@@ -37,6 +39,7 @@ def jk(diagram, lvl = 0, state = []):
 			return
 							
 		availables = diagram.drawn.availables
+		is_normal = True
 		#diagram.log("lvl:"+str(lvl)+"|availables", " ".join([str(node) for node in diagram.drawn.availables]))
 		
 	lvl_seen = []		
@@ -47,7 +50,11 @@ def jk(diagram, lvl = 0, state = []):
 		if diagram.extendLoop(node):
 			#diagram.log("lvl:"+str(lvl), "pushing by " + str(node))
 			if len(diagram.mx_unreachable_cycles) == 0: # we don't bother pushing just to come back
-				jk(diagram, lvl + 1, state + [Step(cc, len(availables), len(diagram.mx_singles), len(diagram.mx_sparks), node.perm)])
+				jk(diagram, 
+						lvl + 1, 
+						state + [Step(cc, len(availables), len(diagram.mx_singles), len(diagram.mx_sparks), node.perm)],
+						node if is_normal and node.chainID == 0 else last_extended_node
+					)
 			#diagram.log("lvl:"+str(lvl), "collapsing back " + str(node))
 			diagram.collapseLoop(node)
 				

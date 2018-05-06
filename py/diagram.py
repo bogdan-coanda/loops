@@ -411,7 +411,7 @@ class Diagram (object):
 		return chain2 in self.allConnectedChains(chain1)
 		
 
-	def measureNodes(self):
+	def measureNodes(self, last_extended_node):
 		#print("[measuring] » » » chain starters: " + " ".join([node.perm for node in self.chainStarters]))
 		
 		self.drawn.reset()		
@@ -420,7 +420,9 @@ class Diagram (object):
 			
 			startNode = list(self.chainStarters)[0]
 			self.drawn.chains.add(startNode.chainID)			
-			node = startNode			
+			node = last_extended_node if startNode.chainID == 0 else startNode 			
+			#if node != startNode:
+				#print("[measuring] rewrote start node to: " + str(node) + " with index: " + str(startNode.index))
 			while True:
 				if node.loop.availabled and not node.extended:
 					self.drawn.availables.append(node)
@@ -440,7 +442,9 @@ class Diagram (object):
 					continue
 				self.drawn.chains.add(startNode.chainID)
 				#print("[measuring] startNode: " + startNode.perm + "§" + str(startNode.chainID))
-				node = startNode			
+				node = last_extended_node if startNode.chainID == 0 else startNode			
+				#if node != startNode:
+					#print("[measuring] rewrote start node to: " + str(node) + " with index: " + str(startNode.index))
 				while True:
 					if node.loop.availabled and not node.extended:
 						self.drawn.availables.append(node)
@@ -462,7 +466,7 @@ class Diagram (object):
 		if not node.loop.availabled or node.extended:
 			return False
 					
-		##self.log("extending", "» node: " + str(node))					
+		#print("[extending] » » » node: " + str(node) + " with index: " + str(node.index))					
 					
 		# mark as extended		
 		node.extended = True
