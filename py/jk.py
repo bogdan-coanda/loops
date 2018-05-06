@@ -15,6 +15,9 @@ def jk(diagram, lvl = 0, state = [], last_extended_node = None):
 	
 	diagram.jkcc += 1
 
+#	if diagram.jkcc > 10000:
+#		return
+
 	if len(diagram.mx_singles) > 0:
 		availables = [sorted(diagram.mx_singles, key = cmp_to_key(lambda x, y: 0 if x.perm == y.perm else (1 if x.perm > y.perm else -1)))[0]]
 		is_normal = False
@@ -64,6 +67,9 @@ def jk(diagram, lvl = 0, state = [], last_extended_node = None):
 			node.loop.availabled = False
 			for nn in node.loop.nodes:
 				nn.cycle.available_loops_count -= 1
+			#sg, sp, un = len(diagram.mx_singles), len(diagram.mx_sparks), len(diagram.mx_unreachable_cycles)
+			diagram.tryMakeUnavailable([node])
+			#assert (sg, sp, un) == (len(diagram.mx_singles), len(diagram.mx_sparks), len(diagram.mx_unreachable_cycles))
 			lvl_seen.append(node)				
 		cc += 1
 		
@@ -111,6 +117,7 @@ def jkprintsol(diagram):
 						print(">>> [ABSOLUTED] <<<\n | " + dtstr(sol.tdiff, known.tdiff) + "\n | " + jkstr(sol.jkcc, known.jkcc))
 					else:
 						print(">>> [REORDERED] <<<\n" + dtstr(sol.tdiff, known.tdiff) + "\n" + jkstr(sol.jkcc, known.jkcc) + "\nold » " + " ".join([str(node) for node in knownchain]) + "\nnew » " + " ".join([str(node) for node in solchain]))
+						assert False, ">>> [REORDERED] <<<"
 				else:
 					𝒟 = Diagram(diagram.spClass)
 					for step in known.state:
@@ -133,6 +140,7 @@ def jkprintsol(diagram):
 							if np == diagram.startNode:
 								print("converges...")
 								print(">>> [CONVERGENT] <<<\n" + dtstr(sol.tdiff, known.tdiff) + "\n" + jkstr(sol.jkcc, known.jkcc) + "\nold » " + known.text + "\nnew » " + sol.text)				
+								assert False, ">>> [CONVERGENT] <<<"
 								return
 						pc += 1
 							
@@ -153,7 +161,21 @@ def run():
 	diagram = Diagram(6)
 			
 	jkinit(diagram)
+	
+	#import cProfile, pstats, io
+	#pr = cProfile.Profile()
+	#pr.enable()
+	# ... do something ...
+	
 	jk(diagram)
+	
+	#pr.disable()
+	#s = io.StringIO()
+	#ps = pstats.Stats(pr, stream=s)
+	#ps.strip_dirs()
+	#ps.sort_stats('time', 'cumulative')
+	#ps.print_stats()
+	#print(s.getvalue())
 	
 	print("=== §§§ ===")
 

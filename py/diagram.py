@@ -54,6 +54,7 @@ class Diagram (object):
 		self.skipped = 0		
 		self.cached_superperm = None
 		self.cached_road = None
+		self.cached_extender = None		
 		self.startTime = time()
 		self.C5 = "2".join(["1"*(self.spClass-1)]*(self.spClass-1))	
 
@@ -241,7 +242,7 @@ class Diagram (object):
 		𝒟 = Diagram(self.spClass, knownID)
 		𝒟.startTime = self.startTime
 		for step in known.state:
-			𝒟.measureNodes()
+			𝒟.measureNodes(𝒟.startNode)
 			node = 𝒟.nodeByPerm[step.perm]
 			𝒟.extendLoop(node)
 		return 𝒟
@@ -288,6 +289,46 @@ class Diagram (object):
 			if self.knownID is not None and self.knownID % 1000 == 0:			
 				print("[diagram:"+str(self.knownID)+"@"+tstr(time()-self.startTime)+"] generated road: " + road)		
 		return road
+		
+		
+	def extender(self):
+		if self.cached_extender == None:
+			node = self.startNode
+			extender = []
+		
+		def tryex(node):
+			if node.nextLink.type == 1:
+				return node.nextLink.next
+			else:
+				assert node.nextLink.type == 2	
+				extender.append(node)
+				next = pushex(node.nextLink.next)
+				assert node.links[1].next == next
+				return next
+			
+		def pushex(node):
+			for i in range(self.spClass - 2):
+				for j in range(self.spClass - 1):
+					
+					node = tryex(node)
+							
+				assert node.nextLink.type == 2
+				node = node.nextLink.next							
+			return node
+																
+		for i in range(self.k3cc):
+			for j in range(self.k2cc):
+				for k in range(self.k1cc):				
+								
+					node = tryex(node)		
+					
+				assert (j == self.k2cc - 1 and node.nextLink.type == 3) or node.nextLink.type == 2
+				node = node.nextLink.next
+									
+		self.cached_extender = extender
+		if self.knownID is not None and self.knownID % 1000 == 0:			
+			print("\n[diagram:"+str(self.knownID)+"@"+tstr(time()-self.startTime)+"] generated extender: " + " ".join([str(node) for node in extender]))		
+		return extender
 		
 		
 	def appendPath(self, curr, type):
