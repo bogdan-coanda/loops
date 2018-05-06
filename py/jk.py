@@ -26,7 +26,6 @@ def jk(diagram, lvl = 0, state = [], last_extended_node = None):
 	else:
 		
 		diagram.measureNodes(last_extended_node or diagram.startNode)
-		#jkprintstate(diagram, lvl, state)
 				
 		if diagram.rx_looped_count == len(diagram.perms) and len(diagram.drawn.availables) == 0:			
 			if len(diagram.drawn.chains) != 1:
