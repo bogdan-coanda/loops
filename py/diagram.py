@@ -80,6 +80,7 @@ class Diagram (object):
 		self.nodes = []
 		self.cycles = []
 		self.nodeByPerm = {}
+		self.nodeByAddress = {}
 		
 		gn_address = [0] * (self.spClass-1)
 		gn_perm = self.perms[0]
@@ -87,16 +88,21 @@ class Diagram (object):
 		gn_cc = 0
 		gn_qq = 0
 		gn_all = set()
+		gn_px = 256
+		gn_py = 256
+		
+		xydelta = [()]
 		
 		def genNode(lvl = 2):
-			nonlocal gn_address, gn_perm, gn_next, gn_cc, gn_qq, gn_all
+			nonlocal gn_address, gn_perm, gn_next, gn_cc, gn_qq, gn_all, gn_px, gn_py
 			
 			if lvl == self.spClass + 1:
 				gn_perm = gn_next
-				node = Node(gn_perm, gn_qq, gn_cc, "".join([str(a) for a in gn_address]))
+				node = Node(gn_perm, gn_qq, gn_cc, "".join([str(a) for a in gn_address]), gn_px, gn_py)
 				self.nodes.append(node)
 				self.cycles[-1].nodes.add(node)
 				self.nodeByPerm[gn_perm] = node
+				self.nodeByAddress[node.address] = node
 				gn_all.add(gn_perm)
 				gn_qq += 1
 				gn_next = D1(gn_perm)
@@ -115,6 +121,8 @@ class Diagram (object):
 				gn_cc += 1
 																	
 		genNode()
+		self.W = 512
+		self.H = 512
 		#assert len(gn_all) == len(self.perms)
 				
 				
@@ -455,9 +463,13 @@ class Diagram (object):
 		return chain2 in self.allConnectedChains(chain1)
 		
 
-	def measureNodes(self, last_extended_node):
+	def measureNodes(self, last_extended_node = None):
 		#print("[measuring] » » » chain starters: " + " ".join([node.perm for node in self.chainStarters]))
-		
+	
+		if last_extended_node is None:
+			last_extended_node = self.startNode
+		last_extended_node = self.startNode # [~] ignoring input
+	
 		self.drawn.reset()		
 
 		if len(self.chainStarters) == 1:

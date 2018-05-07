@@ -6,12 +6,13 @@ import shutil
 from functools import cmp_to_key
 import traceback
 from common import *
+import random
 
 
 def jk(diagram, lvl = 0, state = [], last_extended_node = None):
 	
-	###if diagram.jkcc % 1000 == 0:
-		###jkprintstate(diagram, lvl, state)
+	if diagram.jkcc % 1000 == 0:
+		jkprintstate(diagram, lvl, state)
 	
 	diagram.jkcc += 1
 
@@ -47,6 +48,7 @@ def jk(diagram, lvl = 0, state = [], last_extended_node = None):
 		is_normal = True
 		#diagram.log("lvl:"+str(lvl)+"|availables", " ".join([str(node) for node in diagram.drawn.availables]))
 		
+	random.shuffle(availables)
 	lvl_seen = []		
 	cc = 0
 
@@ -102,7 +104,7 @@ def jkprintsol(diagram):
 					traceback.print_exc()
 					raise 
 			print("[NEW]")
-			###assert False, 'found smth'
+			assert False, 'found smth'
 					
 		else: # len(diagram.sols) <= len(diagram.knowns):
 			known = diagram.knowns[len(diagram.sols) - 1]
@@ -121,7 +123,7 @@ def jkprintsol(diagram):
 				else:
 					𝒟 = Diagram(diagram.spClass)
 					for step in known.state:
-						𝒟.measureNodes()
+						𝒟.measureNodes(𝒟.startNode)
 						node = 𝒟.nodeByPerm[step.perm]
 						#print("𝒟:" + str(𝒟.rx_looped_count) + " | extending: " + str(node))
 						𝒟.extendLoop(node)
@@ -153,12 +155,12 @@ def jkinit(diagram):
 	# with open('sols.'+str(diagram.spClass)+".pkl", 'wb') as outfile:
 	# 	pickle.dump(diagram.sols, outfile, 0)
 
-	diagram.loadKnowns()
+	#diagram.loadKnowns()
 	diagram.startTime = time()
 			
 	
 def run():
-	diagram = Diagram(6)
+	diagram = Diagram(7)
 			
 	jkinit(diagram)
 	
