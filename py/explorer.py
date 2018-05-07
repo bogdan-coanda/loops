@@ -48,4 +48,25 @@ if __name__ == "__main__":
 		extenders = list(pickle.load(infile))
 	print("Loaded "+str(len(extenders))+" extenders")
 	
+	diagram.measureNodes(diagram.startNode)
+	av0 = diagram.drawn.availables
+	tree = {}
+	for n0 in av0:
+		e0 = [e for e in extenders if n0.perm in e]
+		diagram.extendLoop(n0)
+		diagram.measureNodes(diagram.startNode)
+		av1 = diagram.drawn.availables		
+		tree[n0.perm] = {}
+		for n1 in av1:
+			e1 = [e for e in e0 if n1.perm in e]
+			diagram.extendLoop(n1)
+			diagram.measureNodes(diagram.startNode)
+			av2 = diagram.drawn.availables
+			tree[n0.perm][n1.perm] = {}
+			for n2 in av2:			
+				tree[n0.perm][n1.perm][n2.perm] = [e for e in e1 if n2.perm in e]
+				if len(tree[n0.perm][n1.perm][n2.perm]) == 0:
+					print("No sols found for path: " + n0.perm + " " + n1.perm + " " + n2.perm)
+		diagram.collapseLoop(n0)
+	
 	
