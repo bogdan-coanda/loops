@@ -1,6 +1,6 @@
 class Node (object):
 	
-	def __init__(self, perm, index, cycleIndex, address):
+	def __init__(self, perm, index, cycleIndex, address, px, py):
 		self.perm = perm
 		self.index = index
 		self.cycleIndex = cycleIndex
@@ -38,6 +38,9 @@ class Node (object):
 		self.chainStarter = False
 		
 		self.chainID = 0
+		
+		self.px = px
+		self.py = py
 
 
 	def ext_reset(self):		
