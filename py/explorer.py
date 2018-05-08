@@ -48,4 +48,6 @@ if __name__ == "__main__":
 		extenders = list(pickle.load(infile))
 	print("Loaded "+str(len(extenders))+" extenders")
 	
+	extenders = [[diagram.nodeByPerm[perm] for perm in extender] for extender in extenders]
+	
 	
