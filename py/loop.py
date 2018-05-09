@@ -5,3 +5,4 @@ class Loop (object):
 		self.nodes = set()
 		self.availabled = True
 #		self.seen = False
+		self.color = None

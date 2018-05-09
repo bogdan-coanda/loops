@@ -11,6 +11,7 @@ from common import *
 from jk import *
 from time import time
 import pickle
+import math
 
 
 class Diagram (object):
@@ -50,6 +51,7 @@ class Diagram (object):
 		self.cursive = True
 		self.chainAutoInc = 0
 		self.chainStarters = [self.startNode]
+		self.chainColors = { 0: "#ffee11" }
 		self.connectedChainPairs = set()
 		self.skipped = 0		
 		self.cached_superperm = None
@@ -88,17 +90,21 @@ class Diagram (object):
 		gn_cc = 0
 		gn_qq = 0
 		gn_all = set()
-		gn_px = 256
-		gn_py = 256
 		
-		xydelta = [()]
+		DM = 64
+		RH = 16
 		
-		def genNode(lvl = 2):
-			nonlocal gn_address, gn_perm, gn_next, gn_cc, gn_qq, gn_all, gn_px, gn_py
+		xydelta = [(DM*((self.spClass-3)*(self.spClass-2)-1), 0), (DM*(self.spClass-1), 0), (0, DM*self.spClass), (DM, 0), (0, DM), (0, 0)]
+		
+		def genNode(lvl = 2, qx = DM, qy = DM):
+			nonlocal gn_address, gn_perm, gn_next, gn_cc, gn_qq, gn_all
 			
 			if lvl == self.spClass + 1:
 				gn_perm = gn_next
-				node = Node(gn_perm, gn_qq, gn_cc, "".join([str(a) for a in gn_address]), gn_px, gn_py)
+				q7 = gn_address[-1]
+				dx = math.floor(RH*math.cos((q7 - 3) * 2 * math.pi / 7))
+				dy = math.floor(RH*math.sin((q7 - 3) * 2 * math.pi / 7))
+				node = Node(gn_perm, gn_qq, gn_cc, "".join([str(a) for a in gn_address]), qx+dx, qy+dy)
 				self.nodes.append(node)
 				self.cycles[-1].nodes.add(node)
 				self.nodeByPerm[gn_perm] = node
@@ -109,20 +115,21 @@ class Diagram (object):
 				return
 				
 			if lvl == self.spClass:
-				self.cycles.append(Cycle(gn_cc, "".join([str(a) for a in gn_address[:-1]])))
+				self.cycles.append(Cycle(gn_cc, "".join([str(a) for a in gn_address[:-1]]), qx, qy))
 				self.cycles[-1].available_loops_count = self.spClass
 				
 			for q in range(0, lvl):
 				gn_address[lvl - 2] = q
-				genNode(lvl + 1)
+				genNode(lvl + 1, qx + q * xydelta[lvl-2][0], qy + q * xydelta[lvl-2][1])
 				gn_next = DX(self.spClass - lvl + 1, gn_perm)
 
 			if lvl == self.spClass:
 				gn_cc += 1
 																	
 		genNode()
-		self.W = 512
-		self.H = 512
+		max([node.px for node in self.nodes])
+		self.W = max([cycle.px for cycle in self.cycles]) + DM
+		self.H = max([cycle.py for cycle in self.cycles]) + DM
 		#assert len(gn_all) == len(self.perms)
 				
 				
