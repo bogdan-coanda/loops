@@ -14,7 +14,7 @@ def jk(diagram, lvl = 0, state = [], last_extended_node = None):
 	
 	if diagram.jkcc % 1000 == 0:
 		jkprintstate(diagram, lvl, state)
-		#show(diagram)
+		show(diagram)
 	
 	diagram.jkcc += 1
 
@@ -57,7 +57,16 @@ def jk(diagram, lvl = 0, state = [], last_extended_node = None):
 	
 	if lvl is 0:
 		availables = [diagram.nodeByAddress['123005']]
-	
+	elif lvl is 1:
+		availables = [diagram.nodeByAddress['123025']]
+	elif lvl is 2:
+		availables = [diagram.nodeByAddress['123045']]
+	elif lvl is 3:
+		availables = [diagram.nodeByAddress['100014']]
+	elif lvl is 4:
+		availables = [diagram.nodeByAddress['100125']]
+	#elif lvl is 5:
+		#availables = [diagram.nodeByAddress['100045']]
 	lvl_seen = []		
 	cc = 0
 

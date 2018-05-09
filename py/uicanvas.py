@@ -17,7 +17,12 @@ def show(diagram):
 			oval = ui.Path.oval(node.px - RR/2, node.py - RR/2, RR, RR)
 
 			if node.looped:				
-				ui.set_color(diagram.chainColors.get(node.chainID) or 'pink')
+				if node.chainID is 0 or diagram.areConnected(0, node.chainID):
+					ui.set_color('#ffdd22')
+				elif node.chainID is 1 or diagram.areConnected(1, node.chainID):
+					ui.set_color('red')
+				else:
+					ui.set_color(diagram.chainColors.get(node.chainID) or ('#00dd00' if node.chainID % 2 == 1 else '#0077ff'))
 			else:
 				ui.set_color('white')
 			oval.fill()

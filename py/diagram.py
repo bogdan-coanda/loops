@@ -51,7 +51,7 @@ class Diagram (object):
 		self.cursive = True
 		self.chainAutoInc = 0
 		self.chainStarters = [self.startNode]
-		self.chainColors = { 0: "#ffee11" }
+		self.chainColors = { 0: "#ffdd22" }
 		self.connectedChainPairs = set()
 		self.skipped = 0		
 		self.cached_superperm = None
