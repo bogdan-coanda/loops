@@ -37,9 +37,8 @@ if __name__ == "__main__":
 		#roads = list(pickle.load(infile))
 	#print("Loaded "+str(len(roads))+" unique roads")
 	
-	# --- extenders --- #
+	'''# --- extenders --- #
 	
-	'''
 	extenders = []
 	#ec = 0
 	for ik in range(len(diagram.knowns)):
@@ -55,10 +54,12 @@ if __name__ == "__main__":
 	with open("extenders."+str(diagram.spClass)+".pkl", 'wb') as outfile:
 		pickle.dump(extenders, outfile, 0)	
 	'''
+	
 	with open('extenders.'+str(diagram.spClass)+".pkl", 'rb') as infile:	
 		extenders = list(pickle.load(infile))
 	print("Loaded "+str(len(extenders))+" extenders")
 	
+	'''	
 	extenders = [[diagram.nodeByPerm[perm] for perm in extender] for extender in extenders]
 	diagram.measureNodes(diagram.startNode)
 	av0 = diagram.drawn.availables
@@ -80,5 +81,5 @@ if __name__ == "__main__":
 				if len(tree[n0.perm][n1.perm][n2.perm]) == 0:
 					print("No sols found for path: " + n0.perm + " " + n1.perm + " " + n2.perm)
 		diagram.collapseLoop(n0)
-	
+	'''
 	
