@@ -7,12 +7,14 @@ from functools import cmp_to_key
 import traceback
 from common import *
 import random
+from uicanvas import *
 
 
 def jk(diagram, lvl = 0, state = [], last_extended_node = None):
 	
 	if diagram.jkcc % 1000 == 0:
 		jkprintstate(diagram, lvl, state)
+		#show(diagram)
 	
 	diagram.jkcc += 1
 
@@ -48,7 +50,14 @@ def jk(diagram, lvl = 0, state = [], last_extended_node = None):
 		is_normal = True
 		#diagram.log("lvl:"+str(lvl)+"|availables", " ".join([str(node) for node in diagram.drawn.availables]))
 		
-	random.shuffle(availables)
+	#availables = [node for node in availables if node.address[-1] != '0' and node.address[-1] != '5']
+	#random.shuffle(availables)
+	#availables = availables[:4]
+	availables.sort(key = lambda node: node.address[-1] != str(diagram.spClass-1))
+	
+	if lvl is 0:
+		availables = [diagram.nodeByAddress['123005']]
+	
 	lvl_seen = []		
 	cc = 0
 
@@ -86,8 +95,8 @@ def jk(diagram, lvl = 0, state = [], last_extended_node = None):
 
 def jkprintstate(diagram, lvl, state):
 	print()
-	print("[state] jk: " + str(diagram.jkcc) + " | lvl: " + str(lvl) + " | » " + sstr(state))
-	print("[drawn] looped: " + str(diagram.rx_looped_count) + " | availables: " + str(len(diagram.drawn.availables)) + " | singles: " + str(len(diagram.mx_singles)) + " | sparks: " + str(len(diagram.mx_sparks)) + " | unreachables: " + str(len(diagram.mx_unreachable_cycles)) + " | chains: " + " ".join([str(ch) for ch in diagram.drawn.chains]) + " | connected chains: " + " ".join([str(a) + "+" + str(b) for a, b in diagram.connectedChainPairs if a < b]) + " | chain starters: " + " ".join([str(node) for node in diagram.chainStarters]))					
+	print("[state] jk: " + str(diagram.jkcc) + " | lvl: " + str(lvl) + " | » " + sstr(state, diagram))
+	print("[drawn] looped: " + str(diagram.rx_looped_count) + " | availables: " + str(len(diagram.drawn.availables)) + " | singles: " + str(len(diagram.mx_singles)) + " | sparks: " + str(len(diagram.mx_sparks)) + " | unreachables: " + str(len(diagram.mx_unreachable_cycles)) + " | chains: " + " ".join([str(ch) for ch in diagram.drawn.chains]) + " | connected chains: " + " ".join([str(a) + "+" + str(b) for a, b in diagram.connectedChainPairs if a < b]))# + " | chain starters: " + " ".join([str(node) for node in diagram.chainStarters]))					
 
 
 def jkprintsol(diagram):

@@ -2,6 +2,17 @@ from diagram import Diagram
 from time import time
 import pickle
 
+
+def groupby(L, K):
+	r = {}
+	for e in L:
+		k = K(e)
+		if k not in r.keys():
+			r[k] = []
+		r[k].append(e)
+	return r
+
+
 if __name__ == "__main__":
 	from common import Step, Sol
 	
