@@ -94,16 +94,37 @@ class Diagram (object):
 		DM = 64
 		RH = 16
 		
-		xydelta = [(DM*((self.spClass-3)*(self.spClass-2)-1), 0), (DM*(self.spClass-1), 0), (0, DM*self.spClass), (DM, 0), (0, DM), (0, 0)]
+		if self.spClass is 7:
+			xydelta = [
+				(DM*((self.spClass-3)*(self.spClass-2)-1), 0), 
+				(DM*(self.spClass-1), 0), 
+				(0, DM*self.spClass), 
+				(DM, 0), 
+				(0, DM), 
+				(0, 0)]
+		elif self.spClass is 6:
+			xydelta = [
+				(0, DM*self.spClass), 
+				(DM*(self.spClass-1), 0), 
+				(DM, 0), 
+				(0, DM), 
+				(0, 0)]
 		
 		def genNode(lvl = 2, qx = DM, qy = DM):
 			nonlocal gn_address, gn_perm, gn_next, gn_cc, gn_qq, gn_all
 			
 			if lvl == self.spClass + 1:
 				gn_perm = gn_next
-				q7 = gn_address[-1]
-				dx = math.floor(RH*math.cos((q7 - 3) * 2 * math.pi / 7))
-				dy = math.floor(RH*math.sin((q7 - 3) * 2 * math.pi / 7))
+				if self.spClass is 7:
+					q7 = gn_address[-1]
+					dx = math.floor(RH*math.cos((q7 - 3) * 2 * math.pi / 7))
+					dy = math.floor(RH*math.sin((q7 - 3) * 2 * math.pi / 7))
+				elif self.spClass is 6:
+					q6 = gn_address[-1]
+					dx = math.floor(RH*math.cos((q6 - 2.5) * 2 * math.pi / 6))
+					dy = math.floor(RH*math.sin((q6 - 2.5) * 2 * math.pi / 6))
+				
+				
 				node = Node(gn_perm, gn_qq, gn_cc, "".join([str(a) for a in gn_address]), qx+dx, qy+dy)
 				self.nodes.append(node)
 				self.cycles[-1].nodes.add(node)
