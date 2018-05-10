@@ -58,9 +58,17 @@ if __name__ == "__main__":
 	with open('extenders.'+str(diagram.spClass)+".pkl", 'rb') as infile:	
 		extenders = list(pickle.load(infile))
 	print("Loaded "+str(len(extenders))+" extenders")
-	
-	'''	
+		
 	extenders = [[diagram.nodeByPerm[perm] for perm in extender] for extender in extenders]
+	
+	g5 = groupby(extenders, lambda e: len([n for n in e if n.address[-1] == '5']))
+	
+	h14 = [e for e in g5[14] if diagram.nodeByPerm['123450'] in e]
+	
+	V = [[n for n in e if n.perm != '123450' and n.address[-1] != '5'] for e in h14]
+
+	
+	'''
 	diagram.measureNodes(diagram.startNode)
 	av0 = diagram.drawn.availables
 	tree = {}
