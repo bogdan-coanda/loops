@@ -6,3 +6,6 @@ class Loop (object):
 		self.availabled = True
 #		self.seen = False
 		self.color = None
+		
+#	def __eq__(self, other):
+#		return self.nodes == other.nodes
