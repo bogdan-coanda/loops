@@ -3,11 +3,11 @@ from diagram import *
 
 
 chainColors = ['#ffdd22',
-	'#ff0000', '#ff6600', '#ff8888', '#ffcccc',
-	'#00cc00', '#66ff00', '#88ff88', '#ccffcc',
-	'#0000ff', '#0066ff', '#8888ff', '#ccccff',
-	'#00ffff', '#44ffff', '#88ffff', '#ccffff',
-	'#ff00ff', '#ff44ff', '#ff88ff', '#ffccff',	
+	'#880000', '#ff0000', '#ff8888', '#ffcccc',
+	'#008800', '#00dd00', '#88ff88', '#ccffcc',
+	'#000088', '#4444ff', '#8888ff', '#ccccff',
+	'#008888', '#00dddd', '#88ffff', '#ccffff',
+	'#880088', '#ff00ff', '#ff88ff', '#ffccff',	
 ]
 
 
@@ -60,34 +60,90 @@ def run():
 			
 	jkinit(diagram)
 	
+	def extendAddress(address):
+		node = diagram.nodeByAddress[address]
+		assert diagram.extendLoop(
+			sorted(node.loop.nodes, key = lambda n: n.looped).pop()
+			if not node.looped and len([n for n in node.loop.nodes if n.looped]) is not 0
+			else node)
+		return node.loop
+
+											
+	# Columns
+	# extendAddress('12005')
+	extendAddress('12245')
+	# extendAddress('12145')
+	# extendAddress('12045')
+	# 
+	extendAddress('11325')
+	extendAddress('11235')
+	extendAddress('11105')
+	extendAddress('11015')
+	# 
+	extendAddress('10335')
+	# extendAddress('10205')
+	# extendAddress('10115')
+	# extendAddress('10025')
+	# 
+	extendAddress('02335')
+	extendAddress('02245')
+	extendAddress('02115')
+	extendAddress('02025')
+	# 
+	extendAddress('01335')
+	extendAddress('01205')
+	extendAddress('01115')
+	extendAddress('01025')
 	
-	assert diagram.extendLoop(diagram.nodeByAddress['12345'])
-	assert diagram.extendLoop(diagram.nodeByAddress['12245'])
-	assert diagram.extendLoop(diagram.nodeByAddress['12145'])
-	#assert diagram.extendLoop(diagram.nodeByAddress['12045'])
-
-#	assert diagram.extendLoop(diagram.nodeByAddress['11345'])
-#	assert diagram.extendLoop(diagram.nodeByAddress['11245'])
-	assert diagram.extendLoop(diagram.nodeByAddress['11145'])
-	assert diagram.extendLoop(diagram.nodeByAddress['11045'])
-		
-	assert diagram.extendLoop(diagram.nodeByAddress['10345'])
-	#assert diagram.extendLoop(diagram.nodeByAddress['10245'])
-	#assert diagram.extendLoop(diagram.nodeByAddress['10145'])
-	#assert diagram.extendLoop(diagram.nodeByAddress['10045'])
-
-#	assert diagram.extendLoop(diagram.nodeByAddress['02345'])
-#	assert diagram.extendLoop(diagram.nodeByAddress['02245'])
-#	assert diagram.extendLoop(diagram.nodeByAddress['02145'])
-	##assert diagram.extendLoop(diagram.nodeByAddress['02045'])
-
-	assert diagram.extendLoop(diagram.nodeByAddress['01345'])
-	assert diagram.extendLoop(diagram.nodeByAddress['01245'])
-	assert diagram.extendLoop(diagram.nodeByAddress['01145'])
-	assert diagram.extendLoop(diagram.nodeByAddress['01045'])
-
+	
+	# V0
+	# extendAddress('00001').color = 'yellow'
+	# extendAddress('00243').color = 'yellow'
+	# extendAddress('01112').color = 'red'
+	# extendAddress('10240').color = 'orange'
+	# extendAddress('10341').color = 'lightgreen'
+	# extendAddress('11021').color = 'green'
+	# extendAddress('12012').color = 'darkgreen'
+	# extendAddress('12203').color = 'blue'
+	# extendAddress('12213').color = 'orange'
+	# extendAddress('12222').color = 'darkorange'
+	# extendAddress('12320').color = 'red'
+			
+	# V1
+	extendAddress('00001').color = 'yellow'
+	extendAddress('00243').color = 'yellow'
+	extendAddress('01123').color = 'green'
+	extendAddress('10004').color = 'orange'
+	extendAddress('10303').color = 'darkgreen'
+	extendAddress('11032').color = 'lightblue'
+	extendAddress('12032').color = 'lightgreen'
+	extendAddress('12124').color = 'blue'
+	extendAddress('12222').color = 'red'
+	extendAddress('12231').color = 'orange'
+	extendAddress('12241').color = 'darkblue'
+	
+	# V2
+	# extendAddress('00001')	
+	# extendAddress('00142')	
+	# extendAddress('01023')	
+	# extendAddress('10003')	
+	# extendAddress('10012')	
+	# extendAddress('10034')	
+	# extendAddress('10344')	
+	# extendAddress('11242')	
+	# extendAddress('12141')	
+	# extendAddress('12303')	
+	# extendAddress('12313')	
+	
+	'''
+	# Diagonals
+	# extendAddress('12304')
+	# extendAddress('12244')
+	# extendAddress('12104')
+	# extendAddress('12004')
+	
 	#diagram.nodeByAddress['00001'].loop.color = 'red'								
-	assert diagram.extendLoop(diagram.nodeByAddress['00001'])					
+	extendAddress('00001'])					
 	
 	#diagram.nodeByAddress['10020'].loop.color = 'red'
 	#diagram.nodeByAddress['10044'].loop.color = 'purple'
@@ -118,7 +174,7 @@ def run():
 	
 	diagram.nodeByAddress['11331'].loop.color = 'lightblue'
 	assert diagram.extendLoop(diagram.nodeByAddress['11113'])	
-	
+	'''
 #	diagram.nodeByAddress['10041'].loop.color = 'red'
 ##	diagram.nodeByAddress['10042'].loop.color = 'red'
 #	diagram.nodeByAddress['10043'].loop.color = 'red'
@@ -196,10 +252,10 @@ def run():
 	# assert diagram.extendLoop(diagram.nodeByAddress['110004'])
 			
 	show(diagram)
-	
+	return diagram
 	#print("=== §§§ ===")
 
 	
 if __name__ == "__main__":
 	from common import Step, Sol
-	run()
+	diagram = run()
