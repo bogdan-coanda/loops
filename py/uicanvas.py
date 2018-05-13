@@ -33,7 +33,12 @@ def show(diagram):
 				ui.set_color('white')
 			oval.fill()
 
-			if node.loop.color is not None:	
+			if node.color is not None:
+				# getting personal				
+				ui.set_color(node.color)
+				oval.line_width = 6*DH
+				oval.set_line_dash([1,1.05])				
+			elif node.loop.color is not None:	
 				# marked
 				ui.set_color(node.loop.color)
 				oval.line_width = 6*DH
@@ -68,35 +73,51 @@ def run():
 			else node)
 		return node.loop
 
-											
+
+	for node in [n for n in diagram.nodes if n.address.startswith("12")]:
+		if len([n for n in node.loop.nodes if not n.address.startswith("12")]) == 0:
+			if not node.address.endswith("5"):
+				node.loop.color = 'red'
+				print(str(node))
+			
+
+	# extendAddress('11013').color = chainColors[1]
+	# extendAddress('11022').color = chainColors[2]
+	
+	# extendAddress('11120').color = chainColors[3]	
+	# extendAddress('11210').color = chainColors[4]		
+	# extendAddress('11030').color = chainColors[5]	
+	# extendAddress('11300').color = chainColors[6]
+			
 	# Columns
 	# extendAddress('12005')
-	extendAddress('12245')
+	# extendAddress('12245')
 	# extendAddress('12145')
 	# extendAddress('12045')
 	# 
-	extendAddress('11325')
-	extendAddress('11235')
-	extendAddress('11105')
-	extendAddress('11015')
+	# extendAddress('11325')
+	# extendAddress('11235')
+	# extendAddress('11105')
+	# extendAddress('11015')
 	# 
-	extendAddress('10335')
+	# extendAddress('10335')
 	# extendAddress('10205')
 	# extendAddress('10115')
 	# extendAddress('10025')
 	# 
-	extendAddress('02335')
-	extendAddress('02245')
-	extendAddress('02115')
-	extendAddress('02025')
+	# extendAddress('02335')
+	# extendAddress('02245')
+	# extendAddress('02115')
+	# extendAddress('02025')
 	# 
-	extendAddress('01335')
-	extendAddress('01205')
-	extendAddress('01115')
-	extendAddress('01025')
+	# extendAddress('01335')
+	# extendAddress('01205')
+	# extendAddress('01115')
+	# extendAddress('01025')
+	#
 	
 	
-	# V0
+	# V0 - [14]
 	# extendAddress('00001').color = 'yellow'
 	# extendAddress('00243').color = 'yellow'
 	# extendAddress('01112').color = 'red'
@@ -109,20 +130,20 @@ def run():
 	# extendAddress('12222').color = 'darkorange'
 	# extendAddress('12320').color = 'red'
 			
-	# V1
-	extendAddress('00001').color = 'yellow'
-	extendAddress('00243').color = 'yellow'
-	extendAddress('01123').color = 'green'
-	extendAddress('10004').color = 'orange'
-	extendAddress('10303').color = 'darkgreen'
-	extendAddress('11032').color = 'lightblue'
-	extendAddress('12032').color = 'lightgreen'
-	extendAddress('12124').color = 'blue'
-	extendAddress('12222').color = 'red'
-	extendAddress('12231').color = 'orange'
-	extendAddress('12241').color = 'darkblue'
+	# V1 - [14]
+	# extendAddress('00001').color = 'yellow'
+	# extendAddress('00243').color = 'yellow'
+	# extendAddress('01123').color = 'green'
+	# extendAddress('10004').color = 'orange'
+	# extendAddress('10303').color = 'darkgreen'
+	# extendAddress('11032').color = 'lightblue'
+	# extendAddress('12032').color = 'lightgreen'
+	# extendAddress('12124').color = 'blue'
+	# extendAddress('12222').color = 'red'
+	# extendAddress('12231').color = 'orange'
+	# extendAddress('12241').color = 'darkblue'
 	
-	# V2
+	# V2 - [14]
 	# extendAddress('00001')	
 	# extendAddress('00142')	
 	# extendAddress('01023')	
@@ -135,6 +156,20 @@ def run():
 	# extendAddress('12303')	
 	# extendAddress('12313')	
 	
+	# Q0 - [12]
+	# extendAddress('00011').color = 'red'
+	# extendAddress('10102').color = chainColors[1]
+	# extendAddress('10012').color = chainColors[2]
+	# extendAddress('10233').color = chainColors[3]
+	# extendAddress('10143').color = chainColors[4]
+	# extendAddress('11102').color = chainColors[5]
+	# extendAddress('12144').color = chainColors[6]
+	# extendAddress('12234').color = chainColors[7]
+	# extendAddress('12334').color = chainColors[8]
+	# extendAddress('11013').color = 'orange'
+	# extendAddress('11022').color = 'darkorange'	
+	# extendAddress('12304').color = 'orange'
+	# extendAddress('12322').color = 'darkorange'
 	'''
 	# Diagonals
 	# extendAddress('12304')

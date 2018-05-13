@@ -41,6 +41,8 @@ class Node (object):
 		
 		self.px = px
 		self.py = py
+		
+		self.color = None
 
 
 	def ext_reset(self):		
