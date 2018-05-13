@@ -2,15 +2,16 @@ from diagram import Diagram
 from time import time
 import pickle
 
+def id(x): return x
 
-def groupby(L, K):
+def groupby(L, K, V = id, G = id, S = id):
 	r = {}
 	for e in L:
 		k = K(e)
 		if k not in r.keys():
 			r[k] = []
-		r[k].append(e)
-	return r
+		r[k].append(V(e))
+	return S({ k:G(g) for k,g in r.items() })
 
 
 if __name__ == "__main__":
@@ -65,7 +66,16 @@ if __name__ == "__main__":
 	
 	h14 = [e for e in g5[14] if diagram.nodeByPerm['123450'] in e]
 	
+	q = []
+	for h in g5[12]:
+		e = [n for n in h if n.address[-1] == '5']
+		g = groupby(e, 
+			K = lambda n: n.address[:-3])
+		if len(g) == 3:
+			q.append(h)
+			
 	V = [[n for n in e if n.perm != '123450' and n.address[-1] != '5'] for e in h14]
+	
 
 	
 	'''
