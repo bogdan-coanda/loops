@@ -91,10 +91,19 @@ class Diagram (object):
 		gn_qq = 0
 		gn_all = set()
 		
-		DM = 64
-		RH = 16
-		
-		if self.spClass is 7:
+		DM = 32
+		RH = 8
+
+		if self.spClass is 8:
+			xydelta = [
+				(0, DM*(self.spClass-2)*(self.spClass-1)), 
+				(DM*((self.spClass-3)*(self.spClass-2)-1), 0), 
+				(DM*(self.spClass-1), 0), 
+				(0, DM*(self.spClass)), 
+				(DM, 0), 
+				(0, DM), 
+				(0, 0)]				
+		elif self.spClass is 7:
 			xydelta = [
 				(DM*((self.spClass-3)*(self.spClass-2)-1), 0), 
 				(DM*(self.spClass-1), 0), 
@@ -115,7 +124,11 @@ class Diagram (object):
 			
 			if lvl == self.spClass + 1:
 				gn_perm = gn_next
-				if self.spClass is 7:
+				if self.spClass is 8:
+					q8 = gn_address[-1]
+					dx = math.floor(RH*math.cos((q8 - 3.5) * 2 * math.pi / 8))
+					dy = math.floor(RH*math.sin((q8 - 3.5) * 2 * math.pi / 8))
+				elif self.spClass is 7:
 					q7 = gn_address[-1]
 					dx = math.floor(RH*math.cos((q7 - 3) * 2 * math.pi / 7))
 					dy = math.floor(RH*math.sin((q7 - 3) * 2 * math.pi / 7))

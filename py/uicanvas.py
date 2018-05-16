@@ -11,6 +11,43 @@ chainColors = ['#ffdd22',
 ]
 
 
+def 𝒞(node):
+	if node.address[-1] == '5':
+		return 'deepskyblue'
+	elif int(node.address[-1]) + int(node.address[-2]) == 4:
+		if node.address[-1] in ['0', '4']:
+			return 'green'#'#99ff99'
+		else:
+			return 'limegreen'
+	else:
+		if node.address[-1] in ['0', '4']:
+			return 'darkred'#'#ffbbbb'
+		else:
+			return 'red'
+			
+			
+def loadE(extender):
+	from diagram import Diagram
+	d = Diagram(6)
+	for node in extender:
+		n = d.nodeByPerm[node.perm]
+		#n.loop.color = 𝒞(n)
+		for nln in n.loop.nodes:
+			nln.color = 𝒞(nln)
+		d.extendLoop(n)
+	return d				
+			
+def loadS(sol):
+	from diagram import Diagram
+	d = Diagram(6)
+	for step in sol.state:
+		n = d.nodeByPerm[step.perm]
+		#n.loop.color = 𝒞(n)
+		for nln in n.loop.nodes:
+			nln.color = 𝒞(nln)
+		d.extendLoop(n)
+	return d
+
 def show(diagram):
 	with ui.ImageContext(diagram.W, diagram.H) as ctx:
 	
@@ -19,8 +56,8 @@ def show(diagram):
 		
 		for node in diagram.nodes:
 			
-			RR = 8
-			DH = 4
+			RR = 4
+			DH = 2
 			
 			oval = ui.Path.oval(node.px - RR/2, node.py - RR/2, RR, RR)
 
@@ -67,6 +104,8 @@ def run():
 	
 	def extendAddress(address):
 		node = diagram.nodeByAddress[address]
+		for nln in node.loop.nodes:
+			nln.color = 𝒞(nln)
 		assert diagram.extendLoop(
 			sorted(node.loop.nodes, key = lambda n: n.looped).pop()
 			if not node.looped and len([n for n in node.loop.nodes if n.looped]) is not 0
@@ -74,13 +113,40 @@ def run():
 		return node.loop
 
 
-	for node in [n for n in diagram.nodes if n.address.startswith("12")]:
-		if len([n for n in node.loop.nodes if not n.address.startswith("12")]) == 0:
-			if not node.address.endswith("5"):
-				node.loop.color = 'red'
-				print(str(node))
-			
-
+	extendAddress('12000')
+	extendAddress('12010')
+	extendAddress('12020')
+	
+	extendAddress('12110')
+	extendAddress('12120')
+	extendAddress('12130')
+	
+	extendAddress('12200')
+	extendAddress('12210')
+	extendAddress('12220')
+	
+	extendAddress('12310')
+	extendAddress('12320')
+	extendAddress('12330')
+	
+	
+	extendAddress('11004')
+	extendAddress('11204')
+	
+	extendAddress('02004')
+	extendAddress('02204')
+	
+	extendAddress('10104')
+	extendAddress('10304')
+	
+	extendAddress('01104')
+	extendAddress('01304')
+	
+	extendAddress('11105')
+	extendAddress('02105')
+	extendAddress('10205')
+	extendAddress('01205')
+				
 	# extendAddress('11013').color = chainColors[1]
 	# extendAddress('11022').color = chainColors[2]
 	

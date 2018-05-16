@@ -1,23 +1,10 @@
 from diagram import *
 from uicanvas import *
-from uicanvas import chainColors
+
 
 diagram = Diagram(6)
 diagram.loadKnowns()
 
-def 𝒞(node):
-	if node.address[-1] == '5':
-		return 'deepskyblue'
-	elif int(node.address[-1]) + int(node.address[-2]) == 4:
-		if node.address[-1] in ['0', '4']:
-			return 'green'#'#99ff99'
-		else:
-			return 'limegreen'
-	else:
-		if node.address[-1] in ['0', '4']:
-			return 'darkred'#'#ffbbbb'
-		else:
-			return 'red'
 
 # targetLoops = [diagram.nodeByAddress[address].loop for address in [
 # 	'01025', '01115', '01205', '01335', 
@@ -47,14 +34,7 @@ for target in targetLoops:
 	pf = list(filter(lambda sol: target in [diagram.nodeByPerm[step.perm].loop for step in sol.state], pf))
 	print(len(pf))
 	
-for sol in [pf[0]]:
-	d = Diagram(6)
-	for step in sol.state:
-		n = d.nodeByPerm[step.perm]
-		#n.loop.color = 𝒞(n)
-		for nln in n.loop.nodes:
-			nln.color = 𝒞(nln)
-		d.extendLoop(n)
-	show(d)
+for sol in [pf[0]]:	
+	show(loadS(sol))
 		
 
