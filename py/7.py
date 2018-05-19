@@ -28,37 +28,26 @@ def run():
 		for nln in node.loop.nodes:
 			nln.color = 𝒞(nln)
 		return node.loop
-		
-		
-	extendAddress("123000")
-	extendAddress("123010")
-	extendAddress("123020")
-	extendAddress("123030")
-
-	extendAddress("123110")
-	extendAddress("123120")
-	extendAddress("123130")
-	extendAddress("123140")
 				
-	extendAddress("123200")
-	extendAddress("123210")
+	extendAddress("123040")
+
+	extendAddress("123130")
+				
 	extendAddress("123220")
-	extendAddress("123230")
 
 	extendAddress("123310")
-	extendAddress("123320")
-	extendAddress("123330")
-	extendAddress("123340")								
 
 	extendAddress("123400")
-	extendAddress("123410")
-	extendAddress("123420")
-	extendAddress("123430")
 	
-	extendAddress("013004")												
-																								
-																																				
-																																																												
+	# ~~~~~~~~~~~~~~~~~~~	#
+	
+	# extendAddress("103106")
+	# extendAddress("113406")
+	# extendAddress("102206")
+	# extendAddress("122406")
+	# extendAddress("023406")
+	# extendAddress("013106")
+	
 	show(diagram)
 	return diagram
 	

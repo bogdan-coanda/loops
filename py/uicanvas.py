@@ -3,7 +3,7 @@ from diagram import *
 
 
 chainColors = ['#ffdd22',
-	'#880000', '#ff0000', '#ff8888', '#ffcccc',
+	'#ffcccc', '#ccffcc', '#ccccff', '#ffccff',
 	'#008800', '#00dd00', '#88ff88', '#ccffcc',
 	'#000088', '#4444ff', '#8888ff', '#ccccff',
 	'#008888', '#00dddd', '#88ffff', '#ccffff',
@@ -84,14 +84,45 @@ def show(diagram):
 				ui.set_color('red')				
 				oval.line_width = DH
 				oval.set_line_dash([1,1.05])			
+			elif node.loop.seen:
+				ui.set_color('white')				
+				oval.line_width = DH
+				oval.set_line_dash([1,1.05])			
 			elif node.loop.availabled:
 				ui.set_color('black')				
 				oval.line_width = DH
-				oval.set_line_dash([1,1.05])			
+				oval.set_line_dash([1,1.05])
+			elif node.looped:
+				ui.set_color('black')
+				oval.line_width = 0.2
+				oval.set_line_dash([1,0])
 			else:
 				oval.line_width = 0.2
 				oval.set_line_dash([1,0])
 			oval.stroke()
+
+			if node.looped:
+				line = ui.Path()
+				line.move_to(node.px, node.py)
+				line.line_to(node.nextLink.next.px, node.nextLink.next.py)
+				line.line_width = node.nextLink.type * 0.5
+				if node.nextLink.type == 1:					
+					ui.set_color('red')
+				elif node.nextLink.type == 2:
+					ui.set_color('#0066ff')
+				elif node.nextLink.type == 3:
+					ui.set_color('#008800')
+				line.line_cap_style = ui.LINE_CAP_ROUND
+				line.stroke()
+				
+			if node.marked:
+				mark = ui.Path.oval(node. px - 2*RR, node.py - 2*RR, 4*RR, 4*RR)
+				ui.set_color((1, 0, 1, 0.25))
+				mark.fill()
+				mark.line_width = 4
+				mark.set_line_dash([1,0])
+				mark.stroke()				
+				
 
 		img = ctx.get_image()
 		img.show()
@@ -113,7 +144,8 @@ def run():
 		return node.loop
 
 
-	extendAddress('12000')
+	extendAddress('12000') 
+	diagram.nodeByAddress['12000'].marked = True
 	extendAddress('12010')
 	extendAddress('12020')
 	

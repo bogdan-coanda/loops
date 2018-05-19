@@ -35,7 +35,7 @@ class Diagram (object):
 		self.mx_singles = set()
 		self.mx_sparks = set()
 														
-		self.rx_availables = set() # should only contain nodes that are looped, loop.availabled and not loop.extended
+		# self.rx_availables = set() # should only contain nodes that are looped, loop.availabled and not loop.extended
 														
 		self.ss = State(self)
 		self.drawn = Drawn(self)

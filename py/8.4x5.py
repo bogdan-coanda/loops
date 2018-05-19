@@ -37,21 +37,72 @@ def run():
 				extendAddress(address + str(i) + str(j) + '0')
 			extendAddress(address + str(i) + ('0' if (reverse ^ (i % 2 == 0)) else str(diagram.spClass-3)) + '0') # 0/5
 
+										
+	drawBlock('1234')
+	
+	extendAddress('1233107')
+	extendAddress('1233006')
+	extendAddress('1233206')
+	extendAddress('1233306')
+	extendAddress('1233406')
+		
+	extendAddress('1230407')
+	extendAddress('1230106')
+	extendAddress('1230206')
+	extendAddress('1230306')
+	extendAddress('1230506')
+		
+	extendAddress('1203207')
+	extendAddress('1203106')
+	extendAddress('1203306')
+	extendAddress('1203406')
+	extendAddress('1203506')
+	
+	extendAddress('1024107')
+	extendAddress('1024006')
+	extendAddress('1024206')
+	extendAddress('1024406')
+	extendAddress('1024506')
+	
+	extendAddress('0234307')
+	extendAddress('0234006')
+	extendAddress('0234106')
+	extendAddress('0234206')
+	extendAddress('0234406')
+	
+	extendAddress('0134407')
+	extendAddress('0134006')
+	extendAddress('0134106')
+	extendAddress('0134306')
+	extendAddress('0134506')
+	
+	extendAddress('1233001')
+	extendAddress('1203101')
+	extendAddress('0134301')
+	extendAddress('1230565')
+	extendAddress('0234465')
+	extendAddress('1024265')
+		
+	#drawBlock('1210', bar=True)
+	#drawBlock('1222', bar=True)
 
-	drawBlock('0034')
-	# drawBlock('0023')
-	# drawBlock('0104')
-	# drawBlock('0123')
-	# drawBlock('0223')
-	# drawBlock('0231')
-	# 
-	# drawBlock('1121')
-	# drawBlock('1110')
-	# drawBlock('1002')
-	# drawBlock('1012')
-	# drawBlock('1220')
-	# drawBlock('1201')
-	# 
+	#drawBlock('1112', bar=True)
+
+	#drawBlock('0034', bar=True)
+	#drawBlock('0023', bar=True)
+	#drawBlock('0104', bar=True)
+	#drawBlock('0123', bar=True)
+	#drawBlock('0223', bar=True)
+	#drawBlock('0231', bar=True)
+
+	#drawBlock('1121', bar=True)
+	#drawBlock('1110', bar=True)
+	#drawBlock('1002', bar=True)
+	#drawBlock('1012', bar=True)
+	#drawBlock('1220', bar=True)
+	#drawBlock('1201', bar=True)
+
+# 
 	
 	#drawBlock('1200')	
 	#drawBlock('1211')	

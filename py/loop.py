@@ -4,7 +4,7 @@ class Loop (object):
 		self.index = index
 		self.nodes = set()
 		self.availabled = True
-#		self.seen = False
+		self.seen = False # for faded coloring, marker
 		self.color = None
 		
 #	def __eq__(self, other):
