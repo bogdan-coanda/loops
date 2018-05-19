@@ -157,6 +157,25 @@ def run():
 		𝒮.append((saux, nodes[α]))
 		extend()
 		
+		
+	def tryCrash(avs):
+		if len(diagram.mx_unreachable_cycles) is not 0:
+			print("𝒞rashing for unreachables...")
+			look(avs)
+			print("𝒮o far: ")
+			for i in range(len(𝒮)):
+				print("lvl: " + str(i) + " | " + str(𝒮[i]))		
+			assert False
+		elif len(diagram.mx_singles) is not 0:
+			avs = [n for n in avs if n in diagram.mx_singles]
+			print("𝒞onstraining for singles to: " + str(len(avs)))
+			return avs
+		elif len(diagram.mx_sparks) is not 0:
+			print("Ignoring for sparks: " + str(len(diagram.mx_sparks)))
+		return avs # else
+			
+			
+		
 	### [60] [node:21756403@1224055§1|λA]
 	#extendSkip(60)
 	
@@ -173,7 +192,9 @@ def run():
 	#extendSkip(24)
 	
 	
-	currs = '''lvl: 0 | (60, [node:21756403@1224055§1|λε])
+	currs = ""
+	
+	'''lvl: 0 | (60, [node:21756403@1224055§1|λε])
 lvl: 1 | (65, [node:31725640@0124045§1|λε])
 lvl: 2 | (67, [node:64013725@0214042§1|λε])
 lvl: 3 | (103, [node:01723564@0004035§1|λε])
@@ -211,21 +232,13 @@ lvl: 34 | (53, [node:74315026@1032207§1|λε])
 lvl: 35 | (105, [node:40621375@1104231§1|λε])
 lvl: 36 | (135, [node:71246503@0120537§1|λε])
 lvl: 37 | (140, [node:72516403@1223137§1|λε])
-lvl: 38 | (230, [node:03651724@0122522§1|λε])
-lvl: 39 | (224, [node:65017243@0031533§1|λε])
-lvl: 40 | (212, [node:24051736@0211252§1|λε])
-lvl: 41 | (277, [node:31756240@0123055§1|λε])
-lvl: 42 | (118, [node:03712645@0120445§1|λε])
-lvl: 43 | (243, [node:12360457@0010330§1|λε])
-lvl: 45 | (1, [node:43261570@1233421§1|λε])
-lvl: 46 | (106, [node:03714265@0111535§1|λε])
-lvl: 47 | (268, [node:71056243@1033037§1|λε])'''
-	
-	look(measure())
-	for skip, step in [(int(curr.split("(")[1].split(',')[0]), curr.split(' | ')[1]) for curr in currs.split("\n")]:
-		extendSkip(skip)
-		look(measure())
-	
+lvl: 38 | (230, [node:03651724@0122522§1|λε])'''
+		
+	#look(measure())
+	#for skip, step in [(int(curr.split("(")[1].split(',')[0]), curr.split(' | ')[1]) for curr in currs.split("\n")]:
+		#extendSkip(skip)
+		#look(tryCrash(measure()))
+	#print("Done reloading...")
 	### lvl ###	
 	
 	for qq in range(24):
@@ -233,11 +246,8 @@ lvl: 47 | (268, [node:71056243@1033037§1|λε])'''
 		avs = measure()		
 		look(avs)
 		
-		if len(diagram.mx_singles) is not 0 or len(diagram.mx_sparks) is not 0 or len(diagram.mx_unreachable_cycles) is not 0:
-			print("𝒞rashing...\n𝒮o far: ")
-			for i in range(len(𝒮)):
-				print("lvl: " + str(i) + " | " + str(𝒮[i]))		
-		
+		avs = tryCrash(avs)
+
 		next()
 		cc = 0
 		maxavs2len = 0
@@ -281,7 +291,7 @@ lvl: 47 | (268, [node:71056243@1033037§1|λε])'''
 		print("min avs2: " + str(minavs2len) + " @ " + str(minavs2cc))		
 		print("max avails: " + str(maxavailslen) + " @ " + str(maxavailscc))
 		print("min avails: " + str(minavailslen) + " @ " + str(minavailscc))	
-		extendSkip(maxavs2cc)
+		extendSkip(minavs2cc)
 	#skip = 11
 	#while nodes[α] not in avs or skip > 0: # skip mechanism [~]
 		#if nodes[α] in avs:
