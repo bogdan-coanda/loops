@@ -10,21 +10,26 @@ chainColors = ['#ffdd22',
 	'#880088', '#ff00ff', '#ff88ff', '#ffccff',	
 ]
 
-
 def 𝒞(node):
-	if node.address[-1] == '5':
+	spClass = len(node.address)
+	if len(node.loop.root()) == spClass-2:
 		return 'deepskyblue'
-	elif int(node.address[-1]) + int(node.address[-2]) == 4:
+	elif len(node.loop.root()) == spClass-3: #int(node.address[-1]) + int(node.address[-2]) == 4:
 		if node.address[-1] in ['0', '4']:
 			return 'green'#'#99ff99'
 		else:
 			return 'limegreen'
-	else:
+	elif len(node.loop.root()) == spClass-4:
+		if node.address[-1] in ['0', '4']:
+			return '#f7d700'
+		else:
+			return '#f7f700'
+	else:		
 		if node.address[-1] in ['0', '4']:
 			return 'darkred'#'#ffbbbb'
 		else:
 			return 'red'
-			
+						
 			
 def loadE(extender):
 	from diagram import Diagram
@@ -53,7 +58,13 @@ def show(diagram):
 	
 		ui.set_color('white')
 		ui.fill_rect(0, 0, diagram.W, diagram.H)
-		
+
+		for node in diagram.nodes:
+			if node.looped:
+				if node.extended:
+					for nln in node.loop.nodes:
+						nln.color = 𝒞(nln)		
+								
 		for node in diagram.nodes:
 			
 			RR = 4
@@ -61,7 +72,7 @@ def show(diagram):
 			
 			oval = ui.Path.oval(node.px - RR/2, node.py - RR/2, RR, RR)
 
-			if node.looped:								
+			if node.looped:
 				for i in range(21):
 					if node.chainID is i or diagram.areConnected(i, node.chainID):
 						ui.set_color(chainColors[i])
@@ -145,7 +156,7 @@ def run():
 
 
 	extendAddress('12000') 
-	diagram.nodeByAddress['12000'].marked = True
+	#diagram.nodeByAddress['12000'].marked = True
 	extendAddress('12010')
 	extendAddress('12020')
 	

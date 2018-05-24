@@ -43,6 +43,8 @@ class Node (object):
 		self.py = py
 		
 		self.color = None
+		
+		self.real = None # the node that was actually extended when extend was called on this node		
 
 
 	def ext_reset(self):		

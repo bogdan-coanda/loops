@@ -20,14 +20,11 @@ def run():
 	diagram = Diagram(8)
 	
 	def extendNode(node):
-		node.marked = True
-		assert diagram.extendLoop(
-			sorted(node.loop.nodes, key = lambda n: n.looped).pop()
-			if not node.looped and len([n for n in node.loop.nodes if n.looped]) is not 0
-			else node)
+		node.real = sorted(node.loop.nodes, key = lambda n: n.looped).pop() if not node.looped and len([n for n in node.loop.nodes if n.looped]) is not 0 else node
+		node.real.marked = True		
+		assert diagram.extendLoop(node.real)
 		for nln in node.loop.nodes:
 			nln.color = 𝒞(nln)
-		return node.loop		
 	
 	def extendAddress(address):
 		extendNode(diagram.nodeByAddress[address])
@@ -36,7 +33,8 @@ def run():
 		return extendNode(last.prevs[1].node)
 		
 	def collapseNode(node):
-		diagram.collapseLoop(node)
+		node.real.marked = False
+		diagram.collapseLoop(node.real)
 
 	def collapseReverse(last):
 		collapseNode(last.prevs[1].node)
@@ -63,7 +61,7 @@ def run():
 		g = len([n for n in avs if n.address[-1] == '7'])
 		h = len([n for n in avs if int(n.address[-1]) + int(n.address[-2]) == 6])
 		k = len(avs) - g - h
-		print("           | " + str(len(avs)) + " {"+str(g)+":"+str(h)+":"+str(k)+"}" + " | availables: " + str(len(diagram.drawn.availables)) + " | chains: " + mark(len(diagram.drawn.chains), diagram.spClass-1) + " | singles: " + mark(len(diagram.mx_singles)) + " | sparks: " + mark(len(diagram.mx_sparks)) + " | unreachables: " + mark(len(diagram.mx_unreachable_cycles)))			
+		print("           | " + str(len(avs)) + " {"+str(g)+":"+str(h)+":"+str(k)+"}" + " | availables: " + str(len(diagram.drawn.availables)) + " | looped: " + str(diagram.rx_looped_count) + " | unlooped cycles: " + str(len(diagram.rx_unlooped_cycles)) + " | chains: " + mark(len(diagram.drawn.chains), diagram.spClass-1) + " | singles: " + mark(len(diagram.mx_singles)) + " | sparks: " + mark(len(diagram.mx_sparks)) + " | unreachables: " + mark(len(diagram.mx_unreachable_cycles)))			
 
 										
 										
@@ -121,12 +119,13 @@ def run():
 			extendNode(nodes[n])	
 		for n in [β, δ, ζ]:
 			extendReverse(nodes[n])					
-				
-	def collapse():
+		return dict(nodes)
+								
+	def collapse(ext_nodes):
 		for n in [α, γ, ε]:
-			collapseNode(nodes[n])	
+			collapseNode(ext_nodes[n])	
 		for n in [β, δ, ζ]:
-			collapseReverse(nodes[n])					
+			collapseReverse(ext_nodes[n])					
 
 	def next():
 		for n in [α, γ, ε]:
@@ -134,13 +133,11 @@ def run():
 		for n in [β, δ, ζ]:
 			nodes[n] = nodes[n].prevLink.node				
 		
-	memory = None
 	def remember():
-		nonlocal memory
-		memory = [len(avs), len(diagram.drawn.availables), len(diagram.drawn.chains), len(diagram.mx_singles), len(diagram.mx_sparks), len(diagram.mx_unreachable_cycles)]
+		return [len(avs), len(diagram.drawn.availables), len(diagram.drawn.chains), len(diagram.mx_singles), len(diagram.mx_sparks), len(diagram.mx_unreachable_cycles)]
 		
-	def reminisce():
-		assert memory == [len(avs), len(diagram.drawn.availables), len(diagram.drawn.chains), len(diagram.mx_singles), len(diagram.mx_sparks), len(diagram.mx_unreachable_cycles)]	
+	def reminisce(memory):
+		assert memory == [len(avs), len(diagram.drawn.availables), len(diagram.drawn.chains), len(diagram.mx_singles), len(diagram.mx_sparks), len(diagram.mx_unreachable_cycles)], str([len(avs), len(diagram.drawn.availables), len(diagram.drawn.chains), len(diagram.mx_singles), len(diagram.mx_sparks), len(diagram.mx_unreachable_cycles)])	
 
 	
 	𝒮 = []
@@ -156,24 +153,7 @@ def run():
 		print("### Extending α: " + str(nodes[α]) + " @ skip: " + str(saux))
 		𝒮.append((saux, nodes[α]))
 		extend()
-		
-		
-	def tryCrash(avs):
-		if len(diagram.mx_unreachable_cycles) is not 0:
-			print("𝒞rashing for unreachables...")
-			look(avs)
-			print("𝒮o far: ")
-			for i in range(len(𝒮)):
-				print("lvl: " + str(i) + " | " + str(𝒮[i]))		
-			assert False
-		elif len(diagram.mx_singles) is not 0:
-			avs = [n for n in avs if n in diagram.mx_singles]
-			print("𝒞onstraining for singles to: " + str(len(avs)))
-			return avs
-		elif len(diagram.mx_sparks) is not 0:
-			print("Ignoring for sparks: " + str(len(diagram.mx_sparks)))
-		return avs # else
-			
+					
 			
 		
 	### [60] [node:21756403@1224055§1|λA]
@@ -192,7 +172,8 @@ def run():
 	#extendSkip(24)
 	
 	
-	currs = '''lvl: 0 | (43, [node:43762150@1233365§1|λε])
+	#currs = 
+	'''lvl: 0 | (43, [node:43762150@1233365§1|λε])
 lvl: 1 | (34, [node:43672150@1233304§1|λε])
 lvl: 2 | (58, [node:43627150@1233313§1|λε])
 lvl: 3 | (74, [node:75640321@1224057§1|λε])
@@ -216,80 +197,66 @@ lvl: 20 | (40, [node:63127504@0133233§1|λε])
 lvl: 21 | (46, [node:63741520@0101215§1|λε])
 lvl: 22 | (46, [node:41652037@0101540§1|λε])'''
 	
-	look(measure())
-	for skip, step in [(int(curr.split("(")[1].split(',')[0]), curr.split(' | ')[1]) for curr in currs.split("\n")]:
-		extendSkip(skip)
-		look(tryCrash(measure()))
-	print("Done reloading...")
+	avs = measure()		
+			
+	#look(measure())
+	#for skip, step in [(int(curr.split("(")[1].split(',')[0]), curr.split(' | ')[1]) for curr in currs.split("\n")]:
+		#extendSkip(skip)
+		#look(tryCrash(measure()))
+	#print("Done reloading...")
 	### lvl ###	
-	
-	for qq in range(24):
-		nodes = { α: α, β: β, γ: γ, δ: δ, ε: ε, ζ: ζ }
+
+	nodes = { α: α, β: β, γ: γ, δ: δ, ε: ε, ζ: ζ }
+	next()
+
+	def bk(qq = 0):
+		nonlocal avs, nodes
 		avs = measure()		
 		look(avs)
-		
-		avs = tryCrash(avs)
 
-		next()
-		cc = 0
-		maxavs2len = 0
-		maxavs2cc = 0
-		minavs2len = 9999999
-		minavs2cc = 9999999
-		maxavailslen = 0
-		maxavailscc = 0
-		minavailslen = 9999999
-		minavailscc = 9999999
+		assert len(diagram.mx_unreachable_cycles) is 0
 		
-		while nodes[α] is not α:
-			if nodes[α] in avs:
-				print("["+str(qq)+"|"+str(cc)+"/"+str(len(avs))+"] "+str(nodes[α]))
-				# [~] remember()	
-				extend()															
-				avs2 = measure()
+		if len(diagram.mx_singles) is not 0:
+			avs = [n for n in avs if n in diagram.mx_singles]
+			print("𝒞onstraining for singles to: " + str(len(avs)))
+			if len(avs) is 0:
+				print("Refusing for singles: " + str(len(avs)))
+				return
+			nodes = { α: α, β: β, γ: γ, δ: δ, ε: ε, ζ: ζ }
+			while nodes[α] not in avs:
+				next()
+			measure()
+			#memory = remember()
+			ext_nodes = extend()
+			if len(diagram.mx_unreachable_cycles) == 0:
+				bk(qq+1)					
+			else:
+				print("Refusing for unreachables: " + str(len(diagram.mx_unreachable_cycles)))
+			collapse(ext_nodes)
+			nodes = dict(ext_nodes)
+			measure()
+			#reminisce(memory)											
 				
-				if len(avs2) > maxavs2len:
-					maxavs2len = len(avs2)
-					maxavs2cc = cc
-				if len(avs2) < minavs2len:
-					minavs2len = len(avs2)
-					minavs2cc = cc
-				if len(diagram.drawn.availables) > maxavailslen:
-					maxavailslen = len(diagram.drawn.availables)
-					maxavailscc = cc
-				if len(diagram.drawn.availables) < minavailslen:
-					minavailslen = len(diagram.drawn.availables)
-					minavailscc = cc										
-					
-				look(avs2)
-						
-				collapse()							
-				# [~] measure()
-				# [~] reminisce()
-				cc += 1
-			next()
-						
-		print("max avs2: " + str(maxavs2len) + " @ " + str(maxavs2cc))
-		print("min avs2: " + str(minavs2len) + " @ " + str(minavs2cc))		
-		print("max avails: " + str(maxavailslen) + " @ " + str(maxavailscc))
-		print("min avails: " + str(minavailslen) + " @ " + str(minavailscc))	
-		extendSkip(maxavs2cc)
-		look(measure())
-		
-	#skip = 11
-	#while nodes[α] not in avs or skip > 0: # skip mechanism [~]
-		#if nodes[α] in avs:
-			#skip -= 1
-		#next()
-	
-	# remember()	
-	# extend()												
-	# measure()
-	# 
-	# collapse()							
-	# measure()
-	# reminisce()
-
+		else:			
+			cc = 0		
+			while nodes[α] is not α:
+				if nodes[α] in avs:
+					print("["+str(qq)+"|"+str(cc)+"/"+str(len(avs))+"] "+str(nodes[α]))
+					memory = remember()
+					ext_nodes = extend()					
+					if len(diagram.mx_unreachable_cycles) == 0:
+						bk(qq+1)						
+					else:
+						print("Refusing for unreachables: " + str(len(diagram.mx_unreachable_cycles)))
+					collapse(ext_nodes)
+					nodes = dict(ext_nodes)
+					avs = measure()
+					reminisce(memory)							
+					cc += 1
+				next()
+								
+	bk()
+								
 	print("𝒮o far: ")
 	for i in range(len(𝒮)):
 		print("lvl: " + str(i) + " | " + str(𝒮[i]))		

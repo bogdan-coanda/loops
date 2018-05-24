@@ -278,6 +278,7 @@ class Diagram (object):
 		#assert self.startNode == 
 		self.appendPath(curr, linkType)#, "functional"
 		self.rx_unlooped_cycles = set([cycle for cycle in self.cycles if cycle.looped == False])
+		#print("[rx_unlooped_cycles] after generate kernel: " + str(len(self.rx_unlooped_cycles)))
 		self.tryMakeUnavailable(workedNodes)
 		
 		
@@ -383,6 +384,13 @@ class Diagram (object):
 		return extender
 		
 		
+	def loadExtenders(self):
+		with open('extenders.'+str(self.spClass)+".pkl", 'rb') as infile:	
+			self.extenders = list(pickle.load(infile))
+		self.extenders = [[self.nodeByPerm[perm] for perm in extender] for extender in self.extenders]
+		print("Loaded "+str(len(self.extenders))+" extenders")		
+		
+								
 	def appendPath(self, curr, type):
 #		assert curr.nextLink == None # and curr.links[type].next.looped == False	
 #		if self.jkcc <= 80 or "000000" in [curr.perm]: #, curr.links[type].next.perm]:
@@ -608,6 +616,7 @@ class Diagram (object):
 				next.cycle.looped = True
 				self.rx_unlooped_cycles.remove(next.cycle)
 				node.ext_loopedCycles.append(next.cycle)
+				#print("[rx_unlooped_cycles] during extend loop: removed " + str(next.cycle))				
 				#self.log("extending", "normal jump " + str(curr) + " » " + str(next))
 				next.chainID = node.chainID
 				node.ext_chained.append(next)
@@ -625,24 +634,26 @@ class Diagram (object):
 					node.ext_workedNodes.append(curr)
 					#self.log("extending", "worked: " + str(curr))
 				
+		#print("[rx_unlooped_cycles] after extend loop: " + str(len(self.rx_unlooped_cycles)))
+				
 		# append the last P path
 		#assert last == 
 		self.appendPath(curr, 2)#, "functional"
 		node.ext_appendedLinks.append(curr.nextLink)
 		node.ext_workedNodes.append(last)
 		#self.log("extending", "worked last: " + str(last))
-
-#		self.log("extending", "« deleted: " + str(len(node.ext_deletedLinks)))
-#		self.log("extending", "« appended: " + str(len(node.ext_appendedLinks)))
-#		self.log("extending", "« connected: " + str(len(node.ext_connectedChains)))
-#		self.log("extending", "« worked: " + str(len(node.ext_workedNodes)))		
-#		self.log("extending", "« chained: " + str(len(node.ext_chained)))
+		
+		#print("[extending] « deleted: " + str(len(node.ext_deletedLinks)))
+		#print("[extending] « appended: " + str(len(node.ext_appendedLinks)))
+		#print("[extending] « connected: " + str(len(node.ext_connectedChains)))
+		#print("[extending] « worked: " + str(len(node.ext_workedNodes)))		
+		#print("[extending] « chained: " + str(len(node.ext_chained)))
 				
-#		if self.jkcc >= 999999:
+#		if self.jkcc >= 999999:999999:
 #			assert False, "jk: " + str(self.jkcc)		
 			
 		node.ext_flp = self.tryMakeUnavailable(node.ext_workedNodes)
-#		print("[extending] avs: " + str(len(node.ext_avs)) + " | uns: " + str(len(node.ext_uns)))
+		#print("[extending] « avs: " + str(len(node.ext_flp)))
 		return True
 
 
@@ -652,9 +663,10 @@ class Diagram (object):
 						
 		# collapse only if extended
 		if not node.extended:
+			#print("[collapsing] » refusing unextended node: " + str(node))
 			return
 		
-#		self.log("collapsing", "» node: " + str(node))
+		#print("[collapsing] » node: " + str(node))
 	
 		# mark as not extended
 		node.extended = False		
@@ -668,6 +680,9 @@ class Diagram (object):
 		for cycle in node.ext_loopedCycles:
 			cycle.looped = False
 			self.rx_unlooped_cycles.add(cycle)
+			#print("[rx_unlooped_cycles] during collapse loop: " + str(cycle))
+					
+		#print("[rx_unlooped_cycles] after collapse loop: " + str(len(self.rx_unlooped_cycles)))			
 					
 		for n in node.ext_chained:
 			n.chainID = 0
@@ -708,6 +723,7 @@ class Diagram (object):
 			next.cycle.looped = True
 			self.rx_unlooped_cycles.remove(next.cycle)
 			node.ext_loopedCycles.append(next.cycle)
+			#print("[rx_unlooped_cycles] during add chain: " + str(next.cycle))
 			next.chainID = self.chainAutoInc
 			node.ext_chained.append(next)
 			curr = next
@@ -720,6 +736,8 @@ class Diagram (object):
 				node.ext_chained.append(next)
 				curr = next
 				node.ext_workedNodes.append(curr)						
+				
+		#print("[rx_unlooped_cycles] after add chain: " + str(len(self.rx_unlooped_cycles)))				
 				
 		node.ext_flp = self.tryMakeUnavailable(node.ext_workedNodes)
 		return True
@@ -742,6 +760,9 @@ class Diagram (object):
 		for cycle in node.ext_loopedCycles:
 			cycle.looped = False
 			self.rx_unlooped_cycles.add(cycle)
+			#print("[rx_unlooped_cycles] during remove chain: " + str(cycle))
+			
+		#print("[rx_unlooped_cycles] after remove chain: " + str(len(self.rx_unlooped_cycles)))
 						
 		for n in node.ext_chained:
 			n.chainID = 0
