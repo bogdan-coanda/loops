@@ -30,18 +30,19 @@ def filterOut(diagram, nodes, bcs):
 #			]
 
 dmc = 0
+bcs = []
 
 def rundmc(diagram, lvl, bases, initials):
-	global dmc
+	global dmc, bcs
 	
-	bcs = [b.chainID for b in bases if b.looped]
+	#bcs = [b.chainID for b in bases if b.looped]
 	
 	diagram.measureNodes()		
 
 	if lvl >= 100 or dmc % 100 is 0:
 		avg = groupby(filterOut(diagram, diagram.drawn.availables, bcs + [0]), K = lambda n: n.chainID)
 		ng = groupby([n for n in diagram.nodes if n.looped], K = lambda n: n.chainID)
-		print('['+str(dmc)+']['+str(lvl)+'] mx: ' + str(len(diagram.mx_singles)) + '|' + str(len(diagram.mx_sparks)) + '|' + str(len(diagram.mx_unreachable_cycles)) + ' | avg: ' + ' '.join([str(d[0])+'§'+str(d[1])+'/'+str(d[2]) for d in sorted([(chainID, len(avg.get(chainID) or []), len(ng[chainID])) for chainID in bcs])]))
+		print('['+str(dmc)+']['+str(lvl)+'] @ ' + tstr(time() - diagram.startTime) + ' mx: ' + str(len(diagram.mx_singles)) + '|' + str(len(diagram.mx_sparks)) + '|' + str(len(diagram.mx_unreachable_cycles)) + ' | avg: ' + ' '.join([str(d[0])+'§'+str(d[1])+'/'+str(d[2]) for d in sorted([(chainID, len(avg.get(chainID) or []), len(ng[chainID])) for chainID in bcs])]))
 				
 		#print(' | chains: ' + str(diagram.drawn.chains) + ' | connected: ' + str(diagram.connectedChainPairs))
 		#print(' | /g: ' + ' '.join([str(chainID)+'§'+str(len(ng[chainID])) for chainID in ng.keys() if chainID not in bcs]))
@@ -92,6 +93,9 @@ def rundmc(diagram, lvl, bases, initials):
 	for node in avs:
 		if diagram.extendLoop(node):			
 			#input('['+str(lvl)+'] extended ' + str(cc) + '/' + str(len(avs)) + " : " + str(node))			
+
+			if lvl < diagram.spClass-2:
+				bcs = [b.chainID for b in bases if b.looped]
 
 			if len(diagram.mx_unreachable_cycles) is 0:
 				rundmc(diagram, lvl+1, bases, initials)
