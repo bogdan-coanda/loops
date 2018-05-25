@@ -2,43 +2,76 @@ from diagram import *
 from time import time
 import pickle
 from uicanvas import *
-from itertools import zip_longest
+import itertools
 from types import SimpleNamespace as _
 from explorer import groupby
 
 
-def rundmc(diagram, lvl, bases, avsc, exsc):
-		
-	print('['+str(lvl)+'] exsc: ' + '|'.join([str(len(exs)) for exs in exsc]) + ' mx: ' + str(len(diagram.mx_singles)) + '|' + str(len(diagram.mx_sparks)) + '|' + str(len(diagram.mx_unreachable_cycles)))
+def filterOut(diagram, nodes, bcs):
+#	input('[filterOut] bcs: ' + str(bcs))
+#	for n in nodes:
+#		print(str(n) + ' : ' + str([str(nlb.looped) for nlb in n.loopBrethren]) + ' : ' + str(n.chainID) + ' : ' + str([set(diagram.allConnectedChains(nlb.chainID)) for nlb in n.loopBrethren]) + ':' + str(len([nlb for nlb in n.loopBrethren ## if any brethren
+#					if nlb.looped ## are looped
+#					and (nlb.chainID == 0 # are kernel nodes 
+#						or len(set(diagram.allConnectedChains(nlb.chainID)).difference([n.chainID]).intersection(bcs)) is not 0) ## or intersect a base
+#					])))
+	return [
+		n for n in nodes
+		# select nodes with at most a single connection to any of the base chains
+		if len([nln for nln in n.loop.nodes if nln.looped and len(set(diagram.allConnectedChains(nln.chainID)).intersection(bcs)) is not 0]) <= 1
+	]
+
+#	return [n for n in nodes 
+#			if n.chainID is not 0 # no kernel nodes
+#			and len([nlb for nlb in n.loopBrethren ## if any brethren
+#					if nlb.looped ## are looped
+#					and (nlb.chainID == 0 # are kernel nodes 
+#						or len(set(diagram.allConnectedChains(nlb.chainID)).difference([n.chainID]).intersection(bcs)) is not 0) ## or intersect a base
+#					]) is 0 # no chain connectors
+#			]
+
+def rundmc(diagram, lvl, bases, initials):
+
+	bcs = [b.chainID for b in bases if b.looped]
 	
-	if lvl >= 98:
+	diagram.measureNodes()		
+	avg = groupby(filterOut(diagram, diagram.drawn.availables, bcs + [0]), K = lambda n: n.chainID)
+	ng = groupby([n for n in diagram.nodes if n.looped], K = lambda n: n.chainID)
+
+	print('['+str(lvl)+'] mx: ' + str(len(diagram.mx_singles)) + '|' + str(len(diagram.mx_sparks)) + '|' + str(len(diagram.mx_unreachable_cycles)) + ' | avg: ' + ' '.join([str(d[0])+'§'+str(d[1])+'/'+str(d[2]) for d in sorted([(chainID, len(avg.get(chainID) or []), len(ng[chainID])) for chainID in bcs])]))			
+	print(' | chains: ' + str(diagram.drawn.chains) + ' | connected: ' + str(diagram.connectedChainPairs))
+	print(' | /g: ' + ' '.join([str(chainID)+'§'+str(len(ng[chainID])) for chainID in ng.keys() if chainID not in bcs]))
+	assert (1,2) not in diagram.connectedChainPairs and (1,3) not in diagram.connectedChainPairs and (1,4) not in diagram.connectedChainPairs and (1,5) not in diagram.connectedChainPairs and (2,3) not in diagram.connectedChainPairs and (2,4) not in diagram.connectedChainPairs and (2,5) not in diagram.connectedChainPairs and (3,4) not in diagram.connectedChainPairs and (3,5) not in diagram.connectedChainPairs and (4,5) not in diagram.connectedChainPairs , "connected stuff: " + str(diagram.connectedChainPairs)
+			
+	# [~] no chain should be left without an available node in it to connect it to the rest
+	
+			
+	if lvl >= 104:
 		show(diagram)
 		input()
-		
+				
 	if len(diagram.mx_unreachable_cycles) is not 0:
 		#print('['+str(lvl)+'] refusing for unreachable cycles: ' + str(len(diagram.mx_unreachable_cycles)))
 		return
 	
-	if len(diagram.mx_singles) is not 0:
+	if lvl in range(0, diagram.spClass-2):
+		avs = [n for n in initials[lvl] if len([nln for nln in n.loop.nodes if nln.looped]) is 0]
+		
+	elif len(diagram.mx_singles) is not 0:
 		# if we're forced into singles
 		#print('['+str(lvl)+'] singling...')
-		# filter singles for loop connectors
-		avs = [n for n in diagram.mx_singles if n.chainID is not 0 and len([nlb for nlb in n.loopBrethren if nlb.looped]) is 0]
-		if len(avs) == 0:
-			#print('['+str(lvl)+'] refusing for no availables in singles: ' + str(len(diagram.mx_singles)))
-			return
-		# select the first entry
-		avs = avs[0:1]
-		# find its group id
-		id = [bid for bid, b in enumerate(bases) if b.chainID == avs[0].chainID][0]
+
+		# [~] filter out kernel singles.
+		avs = filterOut(diagram, diagram.mx_singles, bcs)
+
+	elif len(diagram.mx_sparks) is not 0:
+		avs = list(diagram.mx_sparks)
 
 	else: 
-		# select chain with smallest number of extensions done
-		id, _ = sorted(list(enumerate(exsc)), key=lambda d: len(d[1]))[0]
-		avs = avsc[id]
+		# order by base chain with smallest number of extensions done
+		avs = list(itertools.chain(*[pp[1] for pp in sorted([pp for pp in avg.items() if pp[0] is not 0], key = lambda pair: len(pair[1]) if pair[0] in bcs else 999999999)]))
 		
-	# [~] make sure to select only avs nodes that don't connect the chains together
-	#avs = [n for n in avs if len([nlb for nlb in n.loopBrethren if nlb.looped]) is 0]
+	# if no node remains…						
 	if len(avs) is 0:		
 		#print('['+str(lvl)+'] refusing for no availables in group: ' + str(id))
 		return		
@@ -48,23 +81,13 @@ def rundmc(diagram, lvl, bases, avsc, exsc):
 	lvl_seen = []		
 	cc = 0
 	for node in avs:
-		if diagram.extendLoop(node):
-			
-			#print('['+str(lvl)+'] extended ' + str(cc) + '/' + str(len(avs)) + " : " + str(node))			
-			
-			diagram.measureNodes()
-			
-			# for each extension group, pass down as is or with the current node appended
-			next_exsc = [exs + [node] if eid == id else exs for eid, exs in enumerate(exsc)]
-			# for each base: if never yet extended, then return the original avsc (passed down), else return filtered availables
-			next_avsc = [[av for av in (avsc[bid] if len(next_exsc[bid]) == 0 else diagram.drawn.availables) 
-				if av.chainID == b.chainID 
-				and len([avlb for avlb in av.loopBrethren if avlb.looped]) is 0] for bid, b in enumerate(bases)]
-			
-			rundmc(diagram, lvl+1, bases, next_avsc, next_exsc)
+		if diagram.extendLoop(node):			
+			print('['+str(lvl)+'] extended ' + str(cc) + '/' + str(len(avs)) + " : " + str(node))			
+
+			rundmc(diagram, lvl+1, bases, initials)
 			
 			diagram.collapseLoop(node)
-			#print('['+str(lvl)+'] collapsed ' + str(cc) + '/' + str(len(avs)) + " : " + str(node))
+			print('['+str(lvl)+'] collapsed ' + str(cc) + '/' + str(len(avs)) + " : " + str(node))
 						
 			node.loop.availabled = False
 			for nn in node.loop.nodes:
@@ -92,11 +115,17 @@ if __name__ == "__main__":
 	diagram.extendLoop(splitNode)	
 	bases = sorted(splitNode.loopBrethren, key = lambda n: n.address)
 	#input(bases)
-	avsc = [[ncn for ncn in b.cycle.nodes if ncn.loop.availabled and not ncn.extended and len([ncnlb for ncnlb in ncn.loopBrethren if ncnlb.looped]) is 0] for b in bases]
-	#input(avsc)
+	diagram.measureNodes()
+	initials = [[ncn for ncn in b.cycle.nodes if ncn.loop.availabled and not ncn.extended and len([ncnlb for ncnlb in ncn.loopBrethren if ncnlb.looped]) is 0] for b in bases]
+	input(initials)
+	
+	ccp = splitNode.ext_connectedChains
+	
 	diagram.collapseLoop(splitNode)
 	
-	rundmc(diagram, 0, bases, avsc, [[]]*(diagram.spClass-2))
+	diagram.connectedChainPairs.update(ccp)
+	
+	rundmc(diagram, 0, bases, initials)
 	
 	print('~~~')#show(diagram)
 	

@@ -597,8 +597,9 @@ class Diagram (object):
 				node.ext_appendedLinks.append(curr.nextLink)
 				# connect these chains together
 				#self.log("extending", "connecting chains " + str(curr) + " » " + str(next))
-				self.connectedChainPairs.update([(curr.chainID, next.chainID),(next.chainID, curr.chainID)])
+				self.connectedChainPairs.update([(curr.chainID, next.chainID), (next.chainID, curr.chainID)])
 				node.ext_connectedChains.append((curr.chainID, next.chainID))
+				node.ext_connectedChains.append((next.chainID, curr.chainID))
 				
 				# [old] jump straight to the end of this cycle, as it's looped by the other chain
 				# curr = prev
