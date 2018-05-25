@@ -8,18 +8,17 @@ from explorer import groupby
 
 
 def filterOut(diagram, nodes, bcs):
-#	input('[filterOut] bcs: ' + str(bcs))
-#	for n in nodes:
-#		print(str(n) + ' : ' + str([str(nlb.looped) for nlb in n.loopBrethren]) + ' : ' + str(n.chainID) + ' : ' + str([set(diagram.allConnectedChains(nlb.chainID)) for nlb in n.loopBrethren]) + ':' + str(len([nlb for nlb in n.loopBrethren ## if any brethren
-#					if nlb.looped ## are looped
-#					and (nlb.chainID == 0 # are kernel nodes 
-#						or len(set(diagram.allConnectedChains(nlb.chainID)).difference([n.chainID]).intersection(bcs)) is not 0) ## or intersect a base
-#					])))
+	
 	return [
 		n for n in nodes
 		# select nodes with at most a single connection to any of the base chains
 		if len([nln for nln in n.loop.nodes if nln.looped and len(set(diagram.allConnectedChains(nln.chainID)).intersection(bcs)) is not 0]) <= 1
 	]
+	'''
+	return [
+		n for n in nodes
+		if len([nln for nln in n.loop.nodes if nln.looped and nln.chainID is 0]) is 0
+	]'''
 
 #	return [n for n in nodes 
 #			if n.chainID is not 0 # no kernel nodes
@@ -41,15 +40,16 @@ def rundmc(diagram, lvl, bases, initials):
 	avg = groupby(filterOut(diagram, diagram.drawn.availables, bcs + [0]), K = lambda n: n.chainID)
 	ng = groupby([n for n in diagram.nodes if n.looped], K = lambda n: n.chainID)
 
-	print('['+str(dmc)+']['+str(lvl)+'] mx: ' + str(len(diagram.mx_singles)) + '|' + str(len(diagram.mx_sparks)) + '|' + str(len(diagram.mx_unreachable_cycles)) + ' | avg: ' + ' '.join([str(d[0])+'§'+str(d[1])+'/'+str(d[2]) for d in sorted([(chainID, len(avg.get(chainID) or []), len(ng[chainID])) for chainID in bcs])]))
-	
-	dmc += 1
+	if lvl >= 100 or dmc % 100 is 0:
+		print('['+str(dmc)+']['+str(lvl)+'] mx: ' + str(len(diagram.mx_singles)) + '|' + str(len(diagram.mx_sparks)) + '|' + str(len(diagram.mx_unreachable_cycles)) + ' | avg: ' + ' '.join([str(d[0])+'§'+str(d[1])+'/'+str(d[2]) for d in sorted([(chainID, len(avg.get(chainID) or []), len(ng[chainID])) for chainID in bcs])]))
 				
-	#print(' | chains: ' + str(diagram.drawn.chains) + ' | connected: ' + str(diagram.connectedChainPairs))
-	#print(' | /g: ' + ' '.join([str(chainID)+'§'+str(len(ng[chainID])) for chainID in ng.keys() if chainID not in bcs]))
-	assert (1,2) not in diagram.connectedChainPairs and (1,3) not in diagram.connectedChainPairs and (1,4) not in diagram.connectedChainPairs and (1,5) not in diagram.connectedChainPairs and (2,3) not in diagram.connectedChainPairs and (2,4) not in diagram.connectedChainPairs and (2,5) not in diagram.connectedChainPairs and (3,4) not in diagram.connectedChainPairs and (3,5) not in diagram.connectedChainPairs and (4,5) not in diagram.connectedChainPairs , "connected stuff: " + str(diagram.connectedChainPairs)	
+		#print(' | chains: ' + str(diagram.drawn.chains) + ' | connected: ' + str(diagram.connectedChainPairs))
+		#print(' | /g: ' + ' '.join([str(chainID)+'§'+str(len(ng[chainID])) for chainID in ng.keys() if chainID not in bcs]))
+	#assert (1,2) not in diagram.connectedChainPairs and (1,3) not in diagram.connectedChainPairs and (1,4) not in diagram.connectedChainPairs and (1,5) not in diagram.connectedChainPairs and (2,3) not in diagram.connectedChainPairs and (2,4) not in diagram.connectedChainPairs and (2,5) not in diagram.connectedChainPairs and (3,4) not in diagram.connectedChainPairs and (3,5) not in diagram.connectedChainPairs and (4,5) not in diagram.connectedChainPairs , "connected stuff: " + str(diagram.connectedChainPairs)	
 			
-	if lvl >= 104:
+	dmc += 1
+	
+	if lvl >= 106:
 		show(diagram)
 		input()
 				
@@ -124,14 +124,14 @@ if __name__ == "__main__":
 	#input(bases)
 	diagram.measureNodes()
 	initials = [[ncn for ncn in b.cycle.nodes if ncn.loop.availabled and not ncn.extended and len([ncnlb for ncnlb in ncn.loopBrethren if ncnlb.looped]) is 0] for b in bases]
-	input(initials)
+	#input(initials)
 	
-	ccp = splitNode.ext_connectedChains
+	#ccp = list(splitNode.ext_connectedChains)
 	
 	diagram.collapseLoop(splitNode)
 	
-	diagram.connectedChainPairs.update(ccp)
-	
+	diagram.connectedChainPairs.update([(0,1),(0,2),(0,3),(0,4),(0,5)])
+	#print('ccp: ' + str(ccp) + ' | chains: ' + str(diagram.drawn.chains) + ' | connected: ' + str(diagram.connectedChainPairs))
 	rundmc(diagram, 0, bases, initials)
 	
 	print('~~~')#show(diagram)
