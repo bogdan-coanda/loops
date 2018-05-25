@@ -63,20 +63,22 @@ def rundmc(diagram, lvl, bases, initials):
 		
 	if lvl in range(0, diagram.spClass-2):
 		avs = [n for n in initials[lvl] if len([nln for nln in n.loop.nodes if nln.looped]) is 0]
+		#input(avs)
 		
 	elif len(diagram.mx_singles) is not 0:
 		# if we're forced into singles
 		#print('['+str(lvl)+'] singling...')
 
 		# [~] filter out kernel singles.
-		avs = filterOut(diagram, diagram.mx_singles, bcs)
+		avs = sorted(filterOut(diagram, diagram.mx_singles, bcs), key = lambda n: n.address)
 
 	elif len(diagram.mx_sparks) is not 0:
-		avs = list(diagram.mx_sparks)
+		avs = sorted(diagram.mx_sparks, key = lambda n: n.address)
 
 	else: 
 		# order by base chain with smallest number of extensions done
 		avs = list(itertools.chain(*[pp[1] for pp in sorted([pp for pp in avg.items() if pp[0] is not 0], key = lambda pair: len(pair[1]) if pair[0] in bcs else 999999999)]))
+		
 		
 	# if no node remains…						
 	if len(avs) is 0:		
@@ -89,7 +91,7 @@ def rundmc(diagram, lvl, bases, initials):
 	cc = 0
 	for node in avs:
 		if diagram.extendLoop(node):			
-			#print('['+str(lvl)+'] extended ' + str(cc) + '/' + str(len(avs)) + " : " + str(node))			
+			#input('['+str(lvl)+'] extended ' + str(cc) + '/' + str(len(avs)) + " : " + str(node))			
 
 			rundmc(diagram, lvl+1, bases, initials)
 			
@@ -123,7 +125,13 @@ if __name__ == "__main__":
 	bases = sorted(splitNode.loopBrethren, key = lambda n: n.address)
 	#input(bases)
 	diagram.measureNodes()
-	initials = [[ncn for ncn in b.cycle.nodes if ncn.loop.availabled and not ncn.extended and len([ncnlb for ncnlb in ncn.loopBrethren if ncnlb.looped]) is 0] for b in bases]
+	initials = [sorted(
+		[
+			ncn for ncn in b.cycle.nodes 
+			if ncn.loop.availabled 
+				and not ncn.extended 
+				and len([ncnlb for ncnlb in ncn.loopBrethren if ncnlb.looped]) is 0
+		], key = lambda n: n.address) for b in bases]
 	#input(initials)
 	
 	#ccp = list(splitNode.ext_connectedChains)
