@@ -50,7 +50,7 @@ def rundmc(diagram, lvl, bases, initials):
 			
 	dmc += 1
 	
-	if lvl >= 106:
+	if lvl >= 107:
 		show(diagram)
 		input()
 				
