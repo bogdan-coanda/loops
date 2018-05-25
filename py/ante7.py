@@ -37,10 +37,10 @@ def rundmc(diagram, lvl, bases, initials):
 	bcs = [b.chainID for b in bases if b.looped]
 	
 	diagram.measureNodes()		
-	avg = groupby(filterOut(diagram, diagram.drawn.availables, bcs + [0]), K = lambda n: n.chainID)
-	ng = groupby([n for n in diagram.nodes if n.looped], K = lambda n: n.chainID)
 
 	if lvl >= 100 or dmc % 100 is 0:
+		avg = groupby(filterOut(diagram, diagram.drawn.availables, bcs + [0]), K = lambda n: n.chainID)
+		ng = groupby([n for n in diagram.nodes if n.looped], K = lambda n: n.chainID)
 		print('['+str(dmc)+']['+str(lvl)+'] mx: ' + str(len(diagram.mx_singles)) + '|' + str(len(diagram.mx_sparks)) + '|' + str(len(diagram.mx_unreachable_cycles)) + ' | avg: ' + ' '.join([str(d[0])+'§'+str(d[1])+'/'+str(d[2]) for d in sorted([(chainID, len(avg.get(chainID) or []), len(ng[chainID])) for chainID in bcs])]))
 				
 		#print(' | chains: ' + str(diagram.drawn.chains) + ' | connected: ' + str(diagram.connectedChainPairs))
@@ -53,14 +53,10 @@ def rundmc(diagram, lvl, bases, initials):
 		show(diagram)
 		input()
 				
-	if len(diagram.mx_unreachable_cycles) is not 0:
+	#if len(diagram.mx_unreachable_cycles) is not 0:
 		#print('['+str(lvl)+'] refusing for unreachable cycles: ' + str(len(diagram.mx_unreachable_cycles)))
-		return
-	
-	# [~] no chain should be left without an available node in it to connect it to the rest
-	if len([c for c in bcs + [0] if not avg.get(c)]) is not 0: # [~] currently just checking the forced bases and kernel
-		return
-		
+		#return
+			
 	if lvl in range(0, diagram.spClass-2):
 		avs = [n for n in initials[lvl] if len([nln for nln in n.loop.nodes if nln.looped]) is 0]
 		#input(avs)
@@ -76,6 +72,10 @@ def rundmc(diagram, lvl, bases, initials):
 		avs = sorted(diagram.mx_sparks, key = lambda n: n.address)
 
 	else: 
+		avg = groupby(filterOut(diagram, diagram.drawn.availables, bcs + [0]), K = lambda n: n.chainID)
+		# [~] no chain should be left without an available node in it to connect it to the rest
+		if len([c for c in bcs + [0] if not avg.get(c)]) is not 0: # [~] currently just checking the forced bases and kernel
+			return		
 		# order by base chain with smallest number of extensions done
 		avs = list(itertools.chain(*[pp[1] for pp in sorted([pp for pp in avg.items() if pp[0] is not 0], key = lambda pair: len(pair[1]) if pair[0] in bcs else 999999999)]))
 		
@@ -93,7 +93,8 @@ def rundmc(diagram, lvl, bases, initials):
 		if diagram.extendLoop(node):			
 			#input('['+str(lvl)+'] extended ' + str(cc) + '/' + str(len(avs)) + " : " + str(node))			
 
-			rundmc(diagram, lvl+1, bases, initials)
+			if len(diagram.mx_unreachable_cycles) is 0:
+				rundmc(diagram, lvl+1, bases, initials)
 			
 			diagram.collapseLoop(node)
 			#print('['+str(lvl)+'] collapsed ' + str(cc) + '/' + str(len(avs)) + " : " + str(node))
