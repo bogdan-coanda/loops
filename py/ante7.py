@@ -39,12 +39,9 @@ def rundmc(diagram, lvl, bases, initials):
 	ng = groupby([n for n in diagram.nodes if n.looped], K = lambda n: n.chainID)
 
 	print('['+str(lvl)+'] mx: ' + str(len(diagram.mx_singles)) + '|' + str(len(diagram.mx_sparks)) + '|' + str(len(diagram.mx_unreachable_cycles)) + ' | avg: ' + ' '.join([str(d[0])+'§'+str(d[1])+'/'+str(d[2]) for d in sorted([(chainID, len(avg.get(chainID) or []), len(ng[chainID])) for chainID in bcs])]))			
-	print(' | chains: ' + str(diagram.drawn.chains) + ' | connected: ' + str(diagram.connectedChainPairs))
-	print(' | /g: ' + ' '.join([str(chainID)+'§'+str(len(ng[chainID])) for chainID in ng.keys() if chainID not in bcs]))
-	assert (1,2) not in diagram.connectedChainPairs and (1,3) not in diagram.connectedChainPairs and (1,4) not in diagram.connectedChainPairs and (1,5) not in diagram.connectedChainPairs and (2,3) not in diagram.connectedChainPairs and (2,4) not in diagram.connectedChainPairs and (2,5) not in diagram.connectedChainPairs and (3,4) not in diagram.connectedChainPairs and (3,5) not in diagram.connectedChainPairs and (4,5) not in diagram.connectedChainPairs , "connected stuff: " + str(diagram.connectedChainPairs)
-			
-	# [~] no chain should be left without an available node in it to connect it to the rest
-	
+	#print(' | chains: ' + str(diagram.drawn.chains) + ' | connected: ' + str(diagram.connectedChainPairs))
+	#print(' | /g: ' + ' '.join([str(chainID)+'§'+str(len(ng[chainID])) for chainID in ng.keys() if chainID not in bcs]))
+	assert (1,2) not in diagram.connectedChainPairs and (1,3) not in diagram.connectedChainPairs and (1,4) not in diagram.connectedChainPairs and (1,5) not in diagram.connectedChainPairs and (2,3) not in diagram.connectedChainPairs and (2,4) not in diagram.connectedChainPairs and (2,5) not in diagram.connectedChainPairs and (3,4) not in diagram.connectedChainPairs and (3,5) not in diagram.connectedChainPairs and (4,5) not in diagram.connectedChainPairs , "connected stuff: " + str(diagram.connectedChainPairs)	
 			
 	if lvl >= 104:
 		show(diagram)
@@ -54,6 +51,10 @@ def rundmc(diagram, lvl, bases, initials):
 		#print('['+str(lvl)+'] refusing for unreachable cycles: ' + str(len(diagram.mx_unreachable_cycles)))
 		return
 	
+	# [~] no chain should be left without an available node in it to connect it to the rest
+	if len([c for c in bcs + [0] if not avg.get(c)]) is not 0: # [~] currently just checking the forced bases and kernel
+		return
+		
 	if lvl in range(0, diagram.spClass-2):
 		avs = [n for n in initials[lvl] if len([nln for nln in n.loop.nodes if nln.looped]) is 0]
 		
@@ -82,12 +83,12 @@ def rundmc(diagram, lvl, bases, initials):
 	cc = 0
 	for node in avs:
 		if diagram.extendLoop(node):			
-			print('['+str(lvl)+'] extended ' + str(cc) + '/' + str(len(avs)) + " : " + str(node))			
+			#print('['+str(lvl)+'] extended ' + str(cc) + '/' + str(len(avs)) + " : " + str(node))			
 
 			rundmc(diagram, lvl+1, bases, initials)
 			
 			diagram.collapseLoop(node)
-			print('['+str(lvl)+'] collapsed ' + str(cc) + '/' + str(len(avs)) + " : " + str(node))
+			#print('['+str(lvl)+'] collapsed ' + str(cc) + '/' + str(len(avs)) + " : " + str(node))
 						
 			node.loop.availabled = False
 			for nn in node.loop.nodes:
