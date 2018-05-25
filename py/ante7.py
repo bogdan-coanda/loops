@@ -29,20 +29,34 @@ def filterOut(diagram, nodes, bcs):
 #					]) is 0 # no chain connectors
 #			]
 
+def strstate(state):
+
+	def pack(s):
+		if s[2] > 0:
+			return '('+str(s[1])+')'
+		elif s[3] > 0:
+			return '{'+str(s[1])+'}'
+		else:
+			return str(s[1])
+		
+	return ' '.join([str(s[0])+'/'+pack(s) for s in state])
+	
+
 dmc = 0
 bcs = []
 
-def rundmc(diagram, lvl, bases, initials):
+def rundmc(diagram, lvl, bases, initials, state):
 	global dmc, bcs
 	
 	#bcs = [b.chainID for b in bases if b.looped]
 	
 	diagram.measureNodes()		
 
-	if lvl >= 100 or dmc % 100 is 0:
+	if lvl >= 100 or dmc % 200 is 0:
 		avg = groupby(filterOut(diagram, diagram.drawn.availables, bcs + [0]), K = lambda n: n.chainID)
 		ng = groupby([n for n in diagram.nodes if n.looped], K = lambda n: n.chainID)
 		print('['+str(dmc)+']['+str(lvl)+'] @ ' + tstr(time() - diagram.startTime) + ' mx: ' + str(len(diagram.mx_singles)) + '|' + str(len(diagram.mx_sparks)) + '|' + str(len(diagram.mx_unreachable_cycles)) + ' | avg: ' + ' '.join([str(d[0])+'§'+str(d[1])+'/'+str(d[2]) for d in sorted([(chainID, len(avg.get(chainID) or []), len(ng[chainID])) for chainID in bcs])]))
+		print(strstate(state))
 				
 		#print(' | chains: ' + str(diagram.drawn.chains) + ' | connected: ' + str(diagram.connectedChainPairs))
 		#print(' | /g: ' + ' '.join([str(chainID)+'§'+str(len(ng[chainID])) for chainID in ng.keys() if chainID not in bcs]))
@@ -57,10 +71,10 @@ def rundmc(diagram, lvl, bases, initials):
 	#if len(diagram.mx_unreachable_cycles) is not 0:
 		#print('['+str(lvl)+'] refusing for unreachable cycles: ' + str(len(diagram.mx_unreachable_cycles)))
 		#return
-			
+									
 	if lvl in range(0, diagram.spClass-2):
 		avs = [n for n in initials[lvl] if len([nln for nln in n.loop.nodes if nln.looped]) is 0]
-		#input(avs)
+		#print("initials: " + str(len(avs)) + " from " + str(len(initials[lvl])))
 		
 	elif len(diagram.mx_singles) is not 0:
 		# if we're forced into singles
@@ -68,9 +82,11 @@ def rundmc(diagram, lvl, bases, initials):
 
 		# [~] filter out kernel singles.
 		avs = sorted(filterOut(diagram, diagram.mx_singles, bcs), key = lambda n: n.address)
+		#print("singling: " + str(len(avs)) + " from " + str(len(diagram.mx_singles)))
 
 	elif len(diagram.mx_sparks) is not 0:
 		avs = sorted(diagram.mx_sparks, key = lambda n: n.address)
+		#print("sparkling: " + str(len(avs)) + " from " + str(len(diagram.mx_sparks)))
 
 	else: 
 		avg = groupby(filterOut(diagram, diagram.drawn.availables, bcs + [0]), K = lambda n: n.chainID)
@@ -79,6 +95,7 @@ def rundmc(diagram, lvl, bases, initials):
 			return		
 		# order by base chain with smallest number of extensions done
 		avs = list(itertools.chain(*[pp[1] for pp in sorted([pp for pp in avg.items() if pp[0] is not 0], key = lambda pair: len(pair[1]) if pair[0] in bcs else 999999999)]))
+		#print("normal: " + str(len(avs)))
 		
 		
 	# if no node remains…						
@@ -90,6 +107,9 @@ def rundmc(diagram, lvl, bases, initials):
 
 	lvl_seen = []		
 	cc = 0
+	singlesCount = len(diagram.mx_singles)
+	sparksCount = len(diagram.mx_sparks)
+		
 	for node in avs:
 		if diagram.extendLoop(node):			
 			#input('['+str(lvl)+'] extended ' + str(cc) + '/' + str(len(avs)) + " : " + str(node))			
@@ -98,7 +118,7 @@ def rundmc(diagram, lvl, bases, initials):
 				bcs = [b.chainID for b in bases if b.looped]
 
 			if len(diagram.mx_unreachable_cycles) is 0:
-				rundmc(diagram, lvl+1, bases, initials)
+				rundmc(diagram, lvl+1, bases, initials, state + [(cc, len(avs), singlesCount, sparksCount)])
 			
 			diagram.collapseLoop(node)
 			#print('['+str(lvl)+'] collapsed ' + str(cc) + '/' + str(len(avs)) + " : " + str(node))
@@ -145,7 +165,7 @@ if __name__ == "__main__":
 	
 	diagram.connectedChainPairs.update([(0,1),(0,2),(0,3),(0,4),(0,5)])
 	#print('ccp: ' + str(ccp) + ' | chains: ' + str(diagram.drawn.chains) + ' | connected: ' + str(diagram.connectedChainPairs))
-	rundmc(diagram, 0, bases, initials)
+	rundmc(diagram, 0, bases, initials, [])
 	
 	print('~~~')#show(diagram)
 	
