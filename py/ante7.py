@@ -45,6 +45,7 @@ def strstate(state):
 
 dmc = 0
 bcs = []
+foundany = False
 
 seed = random.randrange(sys.maxsize)
 random.seed(seed)
@@ -54,35 +55,36 @@ with open("ante7.rnd.pkl", 'wb') as outfile:
 					
 # "ante7.rnd.0.pkl" - max T: 108 @ dmc: 28629 / 32k
 # "ante7.rnd.1.pkl" - max T: 108 @ dmc: 851 / 32k
-# "ante7.rnd.2.pkl" - max T: 109 @ dmc: 22076 / 40k
-#with open("ante7.rnd.0.pkl", 'rb') as infile:
+# "ante7.rnd.2.pkl" - max T: 110 @ dmc: 79146, 181273 / 272k
+#with open("ante7.rnd.2.pkl", 'rb') as infile:
 #	random.setstate(pickle.load(infile))
 #	print("Loaded prev. seed")
 			
 print("---------")
 
 def rundmc(diagram, lvl, bases, initials, state):
-	global dmc, bcs
-	
+	global dmc, bcs, foundany
+		
 	#bcs = [b.chainID for b in bases if b.looped]
 	
 	diagram.measureNodes()		
-
+	R = 109
 	T = 110
-	if lvl >= 109 or dmc % 2000 is 0:
+	if lvl >= R or dmc % 4000 is 0:
 		avg = groupby(filterOut(diagram, diagram.drawn.availables, bcs + [0]), K = lambda n: n.chainID)
 		ng = groupby([n for n in diagram.nodes if n.looped], K = lambda n: n.chainID)
 		print('['+str(dmc)+']['+str(lvl)+'] @ ' + tstr(time() - diagram.startTime) + ' mx: ' + str(len(diagram.mx_singles)) + '|' + str(len(diagram.mx_sparks)) + '|' + str(len(diagram.mx_unreachable_cycles)) + ' | avg: ' + ' '.join([str(d[0])+'§'+str(d[1])+'/'+str(d[2]) for d in sorted([(chainID, len(avg.get(chainID) or []), len(ng[chainID])) for chainID in bcs])]))
 		print(strstate(state))
+		if lvl >= R:
+			foundany = True
 		if lvl >= T:
-			print('» '+str(T))
+			print(str(lvl)+'» '+str(T))
 			show(diagram)
 			input()
 		#print(' | chains: ' + str(diagram.drawn.chains) + ' | connected: ' + str(diagram.connectedChainPairs))
 		#print(' | /g: ' + ' '.join([str(chainID)+'§'+str(len(ng[chainID])) for chainID in ng.keys() if chainID not in bcs]))
 	#assert (1,2) not in diagram.connectedChainPairs and (1,3) not in diagram.connectedChainPairs and (1,4) not in diagram.connectedChainPairs and (1,5) not in diagram.connectedChainPairs and (2,3) not in diagram.connectedChainPairs and (2,4) not in diagram.connectedChainPairs and (2,5) not in diagram.connectedChainPairs and (3,4) not in diagram.connectedChainPairs and (3,5) not in diagram.connectedChainPairs and (4,5) not in diagram.connectedChainPairs , "connected stuff: " + str(diagram.connectedChainPairs)	
-	
-
+		
 	dmc += 1			
 	
 	#if len(diagram.mx_unreachable_cycles) is not 0:
@@ -149,6 +151,9 @@ def rundmc(diagram, lvl, bases, initials, state):
 						
 			if singlesCount > 0 or sparksCount > 0:
 				return ###
+				
+			if dmc > 20000 and not foundany:
+				return # hardcore
 						
 			node.loop.availabled = False
 			for nn in node.loop.nodes:
