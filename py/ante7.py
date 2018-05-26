@@ -5,7 +5,8 @@ from uicanvas import *
 import itertools
 from types import SimpleNamespace as _
 from explorer import groupby
-
+import random
+import sys
 
 def filterOut(diagram, nodes, bcs):
 	
@@ -45,6 +46,21 @@ def strstate(state):
 dmc = 0
 bcs = []
 
+seed = random.randrange(sys.maxsize)
+random.seed(seed)
+print("Seed is:", seed)
+with open("ante7.rnd.pkl", 'wb') as outfile:
+	pickle.dump(random.getstate(), outfile, 0)
+					
+# "ante7.rnd.0.pkl" - max T: 108 @ dmc: 28629 / 32k
+# "ante7.rnd.1.pkl" - max T: 108 @ dmc: 851 / 32k
+# "ante7.rnd.2.pkl" - max T: 109 @ dmc: 22076 / 40k
+#with open("ante7.rnd.0.pkl", 'rb') as infile:
+#	random.setstate(pickle.load(infile))
+#	print("Loaded prev. seed")
+			
+print("---------")
+
 def rundmc(diagram, lvl, bases, initials, state):
 	global dmc, bcs
 	
@@ -52,8 +68,8 @@ def rundmc(diagram, lvl, bases, initials, state):
 	
 	diagram.measureNodes()		
 
-	T = 107
-	if lvl >= 105 or dmc % 5000 is 0:
+	T = 110
+	if lvl >= 109 or dmc % 2000 is 0:
 		avg = groupby(filterOut(diagram, diagram.drawn.availables, bcs + [0]), K = lambda n: n.chainID)
 		ng = groupby([n for n in diagram.nodes if n.looped], K = lambda n: n.chainID)
 		print('['+str(dmc)+']['+str(lvl)+'] @ ' + tstr(time() - diagram.startTime) + ' mx: ' + str(len(diagram.mx_singles)) + '|' + str(len(diagram.mx_sparks)) + '|' + str(len(diagram.mx_unreachable_cycles)) + ' | avg: ' + ' '.join([str(d[0])+'§'+str(d[1])+'/'+str(d[2]) for d in sorted([(chainID, len(avg.get(chainID) or []), len(ng[chainID])) for chainID in bcs])]))
@@ -76,6 +92,7 @@ def rundmc(diagram, lvl, bases, initials, state):
 	if lvl in range(0, diagram.spClass-2):
 		avs = [n for n in initials[lvl] if len([nln for nln in n.loop.nodes if nln.looped]) is 0]
 		#print("initials: " + str(len(avs)) + " from " + str(len(initials[lvl])))
+		random.shuffle(avs)
 		
 	elif len(diagram.mx_singles) is not 0:
 		# if we're forced into singles
@@ -83,19 +100,23 @@ def rundmc(diagram, lvl, bases, initials, state):
 
 		# [~] filter out kernel singles.
 		avs = sorted(filterOut(diagram, diagram.mx_singles, bcs), key = lambda n: n.address)
+		random.shuffle(avs)
 		#print("singling: " + str(len(avs)) + " from " + str(len(diagram.mx_singles)))
 
 	elif len(diagram.mx_sparks) is not 0:
 		avs = sorted(diagram.mx_sparks, key = lambda n: n.address)
+		random.shuffle(avs)
 		#print("sparkling: " + str(len(avs)) + " from " + str(len(diagram.mx_sparks)))
 
 	else: 
 		avg = groupby(filterOut(diagram, diagram.drawn.availables, bcs + [0]), K = lambda n: n.chainID)
+		ng = groupby([n for n in diagram.nodes if n.looped], K = lambda n: n.chainID)
 		# [~] no chain should be left without an available node in it to connect it to the rest
 		if len([c for c in bcs + [0] if not avg.get(c)]) is not 0: # [~] currently just checking the forced bases and kernel
 			return		
 		# order by base chain with smallest number of extensions done
-		avs = list(itertools.chain(*[pp[1] for pp in sorted([pp for pp in avg.items() if pp[0] is not 0], key = lambda pair: len(pair[1]) if pair[0] in bcs else 999999999)]))
+		'''pair[1]'''
+		avs = list(itertools.chain(*[pp[1] for pp in sorted([pp for pp in avg.items()if pp[0] is not 0], key = lambda pair: len(ng[pair[0]]) if pair[0] in bcs else 999999999)]))
 		#print("normal: " + str(len(avs)))
 		
 		
@@ -110,7 +131,9 @@ def rundmc(diagram, lvl, bases, initials, state):
 	cc = 0
 	singlesCount = len(diagram.mx_singles)
 	sparksCount = len(diagram.mx_sparks)
-		
+	
+	#random.shuffle(avs)
+	
 	for node in avs:
 		if diagram.extendLoop(node):			
 			#input('['+str(lvl)+'] extended ' + str(cc) + '/' + str(len(avs)) + " : " + str(node))			
