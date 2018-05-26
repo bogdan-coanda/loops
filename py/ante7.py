@@ -55,8 +55,8 @@ class DMC (object):
 		self.diagram.connectedChainPairs.update([(0,1),(0,2),(0,3),(0,4),(0,5)])
 		#print('ccp: ' + str(ccp) + ' | chains: ' + str(self.diagram.drawn.chains) + ' | connected: ' + str(self.diagram.connectedChainPairs))
 	
-		#self.seed()		
-		self.load()
+		self.seed()		
+		#self.load()
 		
 		print("---------")
 
@@ -72,8 +72,8 @@ class DMC (object):
 	def load(self):			
 		# "ante7.rnd.0.pkl" - max T: 108 @ dmc: 28629 / 32k
 		# "ante7.rnd.1.pkl" - max T: 108 @ dmc: 851 / 32k
-		# "ante7.rnd.2.pkl" - max T: 110 @ dmc: 79146, 181273 / 272k
-		with open("ante7.rnd.0.pkl", 'rb') as infile:
+		# "ante7.rnd.2.pkl" - max T: 110 @ dmc: 79146, 181273 / 272k …
+		with open("ante7.rnd.2.pkl", 'rb') as infile:
 			random.setstate(pickle.load(infile))
 			print("Loaded prev. seed")
 		
