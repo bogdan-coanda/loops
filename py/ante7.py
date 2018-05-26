@@ -22,6 +22,10 @@ def strstate(state):
 	return ' '.join([str(s[0])+'/'+pack(s) for s in state])
 	
 	
+def rshuffle(stuff):
+	return random.sample(stuff, len(stuff))
+	
+	
 class DMC (object):
 	
 	def __init__(self):
@@ -139,7 +143,7 @@ class DMC (object):
 				return		
 			# order by base chain with smallest number of extensions done
 			'''pair[1]'''
-			avs = list(itertools.chain(*[pp[1] for pp in sorted([pp for pp in avg.items()if pp[0] is not 0], key = lambda pair: len(ng[pair[0]]) if pair[0] in self.bcs else 999999999)]))
+			avs = list(itertools.chain(*[rshuffle(pp[1]) for pp in sorted([pp for pp in avg.items()if pp[0] is not 0], key = lambda pair: len(ng[pair[0]]) if pair[0] in self.bcs else 999999999)]))
 			#print("normal: " + str(len(avs)))
 			
 			
