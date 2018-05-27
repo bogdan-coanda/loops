@@ -552,7 +552,10 @@ class Diagram (object):
 					if node == startNode:
 						break
 																												
-
+	# [~] real extend loop
+	# assert loop is instance of Loop
+	# extendNode
+	# loop.extendedFrom - for collapseLoop
 	def extendLoop(self, node):
 			
 		if not node.looped:
