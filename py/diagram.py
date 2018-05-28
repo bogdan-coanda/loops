@@ -563,12 +563,15 @@ if __name__ == "__main__":
 
 	diagram = Diagram(6)
 	show(diagram)
-	
+	avs = [l for l in diagram.loops if l.availabled]
+	input(str(len(avs))+":"+str(len(diagram.rx_singles))+":"+str(len(diagram.rx_unreachables)))		
+				
 	while True:
-		avs = [l for l in diagram.loops if l.availabled]
 		if len(avs) is 0:
 			diagram.collapseLoop(choice([l for l in diagram.loops if l.extended]))
 		else:
 			diagram.extendLoop(choice(avs))
 		show(diagram)
-		input(str(len(diagram.rx_singles))+":"+str(len(diagram.rx_unreachables)))
+		avs = [l for l in diagram.loops if l.availabled]
+		input(str(len(avs))+":"+str(len(diagram.rx_singles))+":"+str(len(diagram.rx_unreachables)))		
+

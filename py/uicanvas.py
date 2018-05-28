@@ -1,5 +1,7 @@
 import ui
 from diagram import *
+from colorsys import hls_to_rgb
+from random import random
 
 
 chainColors = ['#ffdd22',
@@ -65,6 +67,8 @@ def show(diagram):
 					for nln in node.loop.nodes:
 						nln.color = 𝒞(nln)		
 								
+		chainColors = { 0: '#ffdd22' }	
+							
 		for node in diagram.nodes:
 			
 			RR = 4
@@ -73,10 +77,9 @@ def show(diagram):
 			oval = ui.Path.oval(node.px - RR/2, node.py - RR/2, RR, RR)
 
 			if node.chainID is not None:
-				for i in range(21):
-					if node.chainID is i:
-						ui.set_color(chainColors[i])
-						break												
+				if node.chainID not in chainColors:
+					chainColors[node.chainID] = hls_to_rgb(random(), 0.5, 1)
+				ui.set_color(chainColors[node.chainID])
 			else:
 				ui.set_color('white')
 			oval.fill()
