@@ -561,7 +561,7 @@ class Diagram (object):
 
 if __name__ == "__main__":
 
-	diagram = Diagram(6)
+	diagram = Diagram(7)
 	show(diagram)
 	avs = [l for l in diagram.loops if l.availabled]
 	input(str(len(avs))+":"+str(len(diagram.rx_singles))+":"+str(len(diagram.rx_unreachables)))		
@@ -579,15 +579,16 @@ if __name__ == "__main__":
 			
 		cc, lc = counts(diagram)
 		avs = [l for l in diagram.loops if l.availabled]
-		#print(str(len(avs))+":"+str(len(diagram.rx_singles))+":"+str(len(diagram.rx_unreachables)))
+		
+		print("[diagram] " + str(len(avs))+":"+str(len(diagram.rx_singles))+":"+str(len(diagram.rx_unreachables)) + " | chain count: " + str(cc) + " | looped: " + str(lc) + "/" + str(len(diagram.nodes)) + " | remaining: " + str(len(diagram.nodes) - lc))
 		
 		if cc == 1 and lc == len(diagram.nodes):
 			show(diagram)
 			print("Found…")
 			break
 		else:
-			continue
-			if lc >= len(diagram.nodes) - 0:
+			#continue
+			if  len(diagram.nodes) - lc <= 800:
 				show(diagram)
 				input()
 
