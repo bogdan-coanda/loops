@@ -59,8 +59,8 @@ class DMC (object):
 		self.diagram.connectedChainPairs.update([(0,1),(0,2),(0,3),(0,4),(0,5)])
 		#print('ccp: ' + str(ccp) + ' | chains: ' + str(self.diagram.drawn.chains) + ' | connected: ' + str(self.diagram.connectedChainPairs))
 	
-		self.seed()		
-		#self.load()
+		#self.seed()		
+		self.load()
 		
 		print("---------")
 
@@ -78,7 +78,7 @@ class DMC (object):
 		# "ante7.rnd.1.pkl" - max T: 108 @ dmc: 851 / 32k
 		# "ante7.rnd.2.pkl" - max T: 110 @ dmc: 79146, 181273 / 272k …
 		# "ante7.rnd.3.pkl" - max T: 109 @ dmc: 16995, 42059, 117243
-		with open("ante7.rnd.2.pkl", 'rb') as infile:
+		with open("ante7.rnd.pkl", 'rb') as infile:
 			random.setstate(pickle.load(infile))
 			print("Loaded prev. seed")
 		
@@ -93,9 +93,9 @@ class DMC (object):
 
 	def run(self, lvl, state):		
 		self.diagram.measureNodes()		
-		R = 109
+		R = 100
 		T = 110
-		if lvl >= R or self.dmc % 4000 is 0:
+		if lvl >= R or self.dmc % 400 is 0:
 			avg = groupby(self.filterOut(self.diagram.drawn.availables, self.bcs + [0]), K = lambda n: n.chainID)
 			ng = groupby([n for n in self.diagram.nodes if n.looped], K = lambda n: n.chainID)
 			print('['+str(self.dmc)+']['+str(lvl)+'] @ ' + tstr(time() - self.diagram.startTime) + ' mx: ' + str(len(self.diagram.mx_singles)) + '|' + str(len(self.diagram.mx_sparks)) + '|' + str(len(self.diagram.mx_unreachable_cycles)) + ' | avg: ' + ' '.join([str(d[0])+'§'+str(d[1])+'/'+str(d[2]) for d in sorted([(chainID, len(avg.get(chainID) or []), len(ng[chainID])) for chainID in self.bcs])]))

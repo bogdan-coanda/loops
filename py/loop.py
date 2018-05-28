@@ -4,9 +4,11 @@ class Loop (object):
 		self.index = index
 		self.nodes = set()
 		self.availabled = True
+		self.extended = False
 		self.seen = False # for faded coloring, marker
 		self.color = None
 		self._root = None # cache for root()
+
 		
 	def root(self):
 		if self._root is not None:
@@ -29,6 +31,3 @@ class Loop (object):
 	def pseudo(self):
 		return min([n.address for n in self.nodes])
 		
-				
-		
-

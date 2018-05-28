@@ -37,7 +37,7 @@ class Node (object):
 		
 		self.chainStarter = False
 		
-		self.chainID = 0
+		self.chainID = None # also accounts for self.looped == self.chainID is not None
 		
 		self.px = px
 		self.py = py

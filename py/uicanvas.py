@@ -60,8 +60,8 @@ def show(diagram):
 		ui.fill_rect(0, 0, diagram.W, diagram.H)
 
 		for node in diagram.nodes:
-			if node.looped:
-				if node.extended:
+			if node.chainID is not None:
+				if node.loop.extended:
 					for nln in node.loop.nodes:
 						nln.color = 𝒞(nln)		
 								
@@ -72,9 +72,9 @@ def show(diagram):
 			
 			oval = ui.Path.oval(node.px - RR/2, node.py - RR/2, RR, RR)
 
-			if node.looped:
+			if node.chainID is not None:
 				for i in range(21):
-					if node.chainID is i or diagram.areConnected(i, node.chainID):
+					if node.chainID is i:
 						ui.set_color(chainColors[i])
 						break												
 			else:

@@ -12,6 +12,8 @@ from jk import *
 from time import time
 import pickle
 import math
+from uicanvas import *
+from random import choice
 
 
 class Diagram (object):
@@ -30,36 +32,16 @@ class Diagram (object):
 		self.arrowCount = [0, 0, 0]
 		self.jkcc = 0	
 		self.rx_looped_count = 0
-
-		self.mx_unreachable_cycles = set()
-		self.mx_singles = set()
-		self.mx_sparks = set()
-														
-		# self.rx_availables = set() # should only contain nodes that are looped, loop.availabled and not loop.extended
-														
-		self.ss = State(self)
-		self.drawn = Drawn(self)
-		self.forest = Forest(self)
-				
+		
+		# interesting cycles
+		self.rx_unreachables = set()
+		self.rx_singles = set()
+		
+		self.chainAutoInc = 0 # first chain is the kernel
+															
 		self.generateKernel()
 
-		self.solution = ""			
-		self.eecc = 0
-		self.RR = 1200
-		self.mxlvl = 0
-		self.auto = True
-		self.cursive = True
-		self.chainAutoInc = 0
-		self.chainStarters = [self.startNode]
-		self.chainColors = { 0: "#ffdd22" }
-		self.connectedChainPairs = set()
-		self.skipped = 0		
-		self.cached_superperm = None
-		self.cached_road = None
-		self.road_is_walked = False
-		self.cached_extender = None		
 		self.startTime = time()
-		self.C5 = "2".join(["1"*(self.spClass-1)]*(self.spClass-1))	
 
 				
 	def generateGraph(self):
@@ -242,44 +224,34 @@ class Diagram (object):
 		self.startNode = self.nodeByPerm[self.startPerm]									
 
 		node = self.startNode				
-		node.looped = True
-		node.cycle.looped = True
-
-		next = None
-		curr = node
-		
-		workedNodes = set() 		
-		workedNodes.add(node)
-			
-		linkType = 0
-			
+	
+		walked = set()
+								
+		def appendPath(node, type):					
+			walked.add(node.loop)
+			node.nextLink = node.nextLink.next.prevLink = node.links[type] # self.appendPath(curr, type)
+			return node.nextLink.next
+	
+		type = None							
 		for i in range(self.k3cc):
 			for j in range(self.k2cc):
-			
-				if next != None:
-					next = self.appendPath(curr, linkType)
-					curr = next
-					workedNodes.add(curr)
-					curr.cycle.looped = True
-
-				for k in range(self.k1cc):				
-					linkType = 1
-					next = self.appendPath(curr, linkType)
+				
+				if type is not None:
+					node.chainID = self.chainAutoInc
+					node = appendPath(node, type)
 					
-					curr = next
-					workedNodes.add(curr)
-
-				next = curr.links[2].next
-				linkType = 2
-			
-			next = curr.links[3].next
-			linkType = 3
+				node.cycle.chained_by_count = 1 # generically chained by kernel
+				for k in range(self.k1cc):
+					node.chainID = self.chainAutoInc
+					node = appendPath(node, 1)
+					
+				type = 2
+			type = 3
+		node.chainID = self.chainAutoInc			
+		node = appendPath(node, 3) # circle back		
+		assert node is self.startNode
 		
-		#assert self.startNode == 
-		self.appendPath(curr, linkType)#, "functional"
-		self.rx_unlooped_cycles = set([cycle for cycle in self.cycles if cycle.looped == False])
-		#print("[rx_unlooped_cycles] after generate kernel: " + str(len(self.rx_unlooped_cycles)))
-		self.tryMakeUnavailable(workedNodes)
+		self.tryMakeUnavailable(walked)
 		
 		
 	def loadKnowns(self):
@@ -390,394 +362,213 @@ class Diagram (object):
 		self.extenders = [[self.nodeByPerm[perm] for perm in extender] for extender in self.extenders]
 		print("Loaded "+str(len(self.extenders))+" extenders")		
 		
-								
-	def appendPath(self, curr, type):
-#		assert curr.nextLink == None # and curr.links[type].next.looped == False	
-#		if self.jkcc <= 80 or "000000" in [curr.perm]: #, curr.links[type].next.perm]:
-#			self.log("appending", "path type: " + str(type) + " from: " + str(curr) + " | to: " + str(curr.links[type].next))
-		next = curr.links[type].next
-		next.looped = True		
-		self.rx_looped_count += 1
-		curr.nextLink = next.prevLink = curr.links[type]
-		return curr.nextLink.next
 
 
-	def deletePath(self, curr):
-#		assert curr.nextLink != None # and curr.nextLink.next.looped == True
-#		if self.jkcc <= 80 or "000000" in [curr.perm]: #, curr.nextLink.next.perm]:
-#			##self.log("deleting", "path type: " + str(curr.nextLink.type) + " from: " + str(curr) + " | to: " + str(curr.nextLink.next))
-		next = curr.nextLink.next			
-		next.looped = False
-		self.rx_looped_count -= 1
-		next.extended = False
-		curr.nextLink = next.prevLink = None		
-		return next
+	# » » » v2 « « « #
 	
-	
-	def tryMakeUnavailable(self, nodes):
-#		print("[makeAv] » » »\nnodes: " + " ".join([str(node) for node in nodes]))
-		flp = set()
-		
-		for node in nodes:
-			if node.loop.availabled:
-				if not self.checkAvailability(node):
-					node.loop.availabled = False
-					for node in node.loop.nodes:
-						node.cycle.available_loops_count -= 1						
-					flp.add(node.loop)
-		
-		self.measureCycles()
-
-#		print("[makeUn] called with " + str(len(nodes)) + " nodes => flp: " + str(len(flp)) + " | unreachables: " + str(len(self.mx_unreachable_cycles)) + " | singles: " + str(len(self.mx_singles)) + " | sparks: " + str(len(self.mx_sparks)))		
-		return flp
-				
-				
-	def makeAvailableAgain(self, node):
-		for loop in node.ext_flp:
-			loop.availabled = True
-			for nn in loop.nodes:
-				nn.cycle.available_loops_count += 1				
-
-		self.measureCycles()		
-				
-#		print("[makeAv] called for " + str(node) + " => flp: " + str(len(node.ext_flp)) + " | unreachables: " + str(len(self.mx_unreachable_cycles)) + " | singles: " + str(len(self.mx_singles)) + " | sparks: " + str(len(self.mx_sparks)))
-				
-				
-	def measureCycles(self):
-		self.mx_unreachable_cycles.clear()
-		self.mx_singles.clear()
-		self.mx_sparks.clear()
-		
-		for cycle in self.rx_unlooped_cycles: #touched_cycles:
-			if cycle.available_loops_count == 0: # if no loop is available
-				self.mx_unreachable_cycles.add(cycle) # ⇒ the cycle is unreachable
-			elif cycle.available_loops_count == 1: # if a single loop is available
-				lf = [nn for nn in cycle.nodes if nn.loop.availabled][0] # get the cycle's available node
-				bros = list(filter(lambda bro: bro.looped, lf.loopBrethren)) # get the node's looped bros
-				if len(bros) == 1: # if a single bro is looped
-					self.mx_singles.add(bros[0]) # ⇒ the cycle is singled 
-				elif len(bros) == 0: # if no bro is looped
-					self.mx_sparks.add(lf) # [~] sparks should contain loops, not one of their nodes
-
+	# def appendPathV2(self, node, type):
+	# 	assert node.nextLink is None
+	# 	next = node.links[type].next
+	# 	node.nextLink = next.prevLink = node.links[type]
+	# 	return next # [~] can be optimized to no function call at all:
+	#		# node.nextLink = node.nextLink.next.prevLink = node.links[1]
+	# 
+	# 
+	# def deletePathV2(self, node):
+	# 	assert node.nextLink is not None
+	# 	next = node.nextLink.next
+	# 	node.nextLink = next.prevLink = None		
+	# 	return next # [~] can be optimized to no function call at all:
+	#		# node.nextLink.next.prevLink = node.nextLink =  None
+						
 								
-	def checkAvailability(self, curr):
-		if curr.looped and (
-				#curr.prevLink == None or 
-				curr.prevLink.type != 1 
-				#or curr.nextLink == None 
-				or curr.nextLink.type != 1 
-				#or curr.nextLink.next.nextLink == None 
-				or curr.nextLink.next.nextLink.type != 1):
+	def extendLoop(self, loop):
+
+		# assert/return false if not we can't or already did extend		
+		if loop.availabled is False or loop.extended is True:
 			return False
-						
-		##self.log("checkAv", "» curr: " + str(curr) + " | loop nodes: " + " ".join([str(node) for node in curr.loop.nodes if node.looped]))
-		
-		chains = set()
-		# for every looped current loop node
-		for node in [node for node in curr.loop.nodes if node.looped]:				
-			if node.chainID in chains:
-				##self.log("checkAv", "failed for same chain check: " + str(node.chainID))
-				return False # check if we see the same chainID twice
-			else:
-				##self.log("checkAv", "adding " + str(node) + " to chains")
-				chains.add(node.chainID)
-		
-		while len(chains) > 1:
-			ch = chains.pop()
-			if len(chains.intersection(self.allConnectedChains(ch))) > 0:
-				##self.log("checkAv", "failed for connected chains check: " + str(node))
-				return False
-										
-		##self.log("checkAv", "passed for chains: " + " ".join([str(chainID) for chainID in chains]))
-		return True
-		
+		loop.extended = True
+									
+		# will hold all touched loops			
+		walked = set()
 
-	def allConnectedChains(self, chain):
-		# returns an array flood filled from chain
-		#print("[conns] pairs: " + " ".join([str(a) + ":" + str(b) for a,b in self.connectedChainPairs]))
-		seen = set([chain])
-		done = []
-		while len(seen) > 0:
-			ch = seen.pop()
-			for a,b in self.connectedChainPairs:
-				#print("[conns] a: " + str(a) + " | ch: " + str(ch) + " | b: " + str(b) + " | seen: " + " ".join([str(ch) for ch in seen]) + " | done: " + " ".join([str(ch) for ch in done]))
-				if a == ch and b not in seen and b not in done:
-					seen.add(b)
-			done.append(ch)
-		#print("[conns] chain: " + str(chain) + " | conns: " + " ".join([str(ch) for ch in done]))
-		return done					
-
-
-	def areConnected(self, chain1, chain2):
-		return chain2 in self.allConnectedChains(chain1)
-		
-
-	def measureNodes(self, last_extended_node = None):
-		#print("[measuring] » » » chain starters: " + " ".join([node.perm for node in self.chainStarters]))
-	
-		if last_extended_node is None:
-			last_extended_node = self.startNode
-		last_extended_node = self.startNode # [~] ignoring input
-	
-		self.drawn.reset()		
-
-		if len(self.chainStarters) == 1:
-			
-			startNode = self.chainStarters[0]
-			self.drawn.chains.add(startNode.chainID)			
-			node = last_extended_node if startNode.chainID == 0 else startNode 			
-			#if node != startNode:
-				#print("[measuring] rewrote start node to: " + str(node) + " with index: " + str(startNode.index))
-			while True:
-				if node.loop.availabled and not node.extended:
-					self.drawn.availables.append(node)
-				node = node.nextLink.next
-				if node == startNode:
-					break
-					
-		else:	
-								
-			for startNode in self.chainStarters:
-				if len(self.drawn.chains.intersection(self.allConnectedChains(startNode.chainID))) > 0:
-					continue
-				self.drawn.chains.add(startNode.chainID)
-				node = last_extended_node if startNode.chainID == 0 else startNode			
-				#if node != startNode:
-					#print("[measuring] rewrote start node to: " + str(node) + " with index: " + str(startNode.index))
-				while True:
-					if node.loop.availabled and not node.extended:
-						self.drawn.availables.append(node)
-						#print("[measuring] av: " + " ".join([node.perm + "§" + str(node.chainID) for node in self.drawn.availables]))
-					node = node.nextLink.next
-					if node == startNode:
-						break
-																												
-	# [~] real extend loop
-	# assert loop is instance of Loop
-	# extendNode
-	# loop.extendedFrom - for collapseLoop
-	def extendLoop(self, node):
-			
-		if not node.looped:
-			return self.addChain(node)
-						
-		# extend S2 if S1:S2:S3 to S1:[P:[S]x(ss-1)]x(ss-2):P:S3
-			
-		# extend only if available and not already extended	or seen
-		# [~] loops can be unavailabled from the jk inner loop
-		if not node.loop.availabled or node.extended:
-			return False
-					
-		#print("[extending] » » » node: " + str(node) + " with index: " + str(node.index))					
-					
-		# mark as extended		
-		node.extended = True
-		node.ext_reset()
-				
-		# delete S2
-#		assert node.links[1] == node.nextLink
-		node.ext_deletedLinks.append(node.nextLink)
-		last = self.deletePath(node)
-		
-		# add the last node to bases
-		node.ext_workedNodes.append(node)
-						
-		# append extended path
-		curr = node
-		for j in range(self.spClass - 2):
-			next = curr.links[2].next
-			###self.log("extending", "next@d2: " + str(next) + " | looped: " + str(next.looped) + " | in chain: " + str(next.chainID))
-			
-			#assert not next.looped or next.chainID != curr.chainID, "Trying to extend into the same chain - [~] should? check if the chains are connected instead of same"
-			if next.looped:
-				#assert next.prevLink.type == 1 and next.nextLink.type == 1 and next.prevLink.node.prevLink.type == 1, "Invalid extension entrypoint into different chain"
-				prev = next.prevLink.node
-				node.ext_deletedLinks.append(next.prevLink)
-				#assert next == 
-				self.deletePath(next.prevLink.node)#, "functional"
-				#assert next == 
-				self.appendPath(curr, 2)#, "functional"				
-				node.ext_appendedLinks.append(curr.nextLink)
-				# connect these chains together
-				#self.log("extending", "connecting chains " + str(curr) + " » " + str(next))
-				self.connectedChainPairs.update([(curr.chainID, next.chainID), (next.chainID, curr.chainID)])
-				node.ext_connectedChains.append((curr.chainID, next.chainID))
-				node.ext_connectedChains.append((next.chainID, curr.chainID))
-				
-				# [old] jump straight to the end of this cycle, as it's looped by the other chain
-				# curr = prev
-				# walk all the way along the path to 'work' all the nodes in the other cycle, up to the end of this cycle
-				while curr != prev:
-					node.ext_workedNodes.append(curr)
-					#self.log("extending", "worked: " + str(curr))
-					curr = curr.nextLink.next
-				
-				#assert False, "jk: " + str(self.jkcc)
-				
-			else: # normal, empty chain				
-				next = self.appendPath(curr, 2)
-				node.ext_appendedLinks.append(curr.nextLink)
-				next.cycle.looped = True
-				self.rx_unlooped_cycles.remove(next.cycle)
-				node.ext_loopedCycles.append(next.cycle)
-				#print("[rx_unlooped_cycles] during extend loop: removed " + str(next.cycle))				
-				#self.log("extending", "normal jump " + str(curr) + " » " + str(next))
-				next.chainID = node.chainID
-				node.ext_chained.append(next)
-				curr = next
-				node.ext_workedNodes.append(curr)
-				#self.log("extending", "worked: " + str(curr))
-					
-				for i in range(self.spClass - 1):
-					#self.log("extending", "next@d1: " + str(curr.links[1].next) + " | looped: " + str(curr.links[1].next.looped) + " | in chain: " + str(curr.links[1].next.chainID))
-					next = self.appendPath(curr, 1)
-					node.ext_appendedLinks.append(curr.nextLink)
-					next.chainID = node.chainID
-					node.ext_chained.append(next)
-					curr = next
-					node.ext_workedNodes.append(curr)
-					#self.log("extending", "worked: " + str(curr))
-				
-		#print("[rx_unlooped_cycles] after extend loop: " + str(len(self.rx_unlooped_cycles)))
-				
-		# append the last P path
-		#assert last == 
-		self.appendPath(curr, 2)#, "functional"
-		node.ext_appendedLinks.append(curr.nextLink)
-		node.ext_workedNodes.append(last)
-		#self.log("extending", "worked last: " + str(last))
-		
-		#print("[extending] « deleted: " + str(len(node.ext_deletedLinks)))
-		#print("[extending] « appended: " + str(len(node.ext_appendedLinks)))
-		#print("[extending] « connected: " + str(len(node.ext_connectedChains)))
-		#print("[extending] « worked: " + str(len(node.ext_workedNodes)))		
-		#print("[extending] « chained: " + str(len(node.ext_chained)))
-				
-#		if self.jkcc >= 999999:999999:
-#			assert False, "jk: " + str(self.jkcc)		
-			
-		node.ext_flp = self.tryMakeUnavailable(node.ext_workedNodes)
-		#print("[extending] « avs: " + str(len(node.ext_flp)))
-		return True
-
-
-	def collapseLoop(self, node):
-		if node.chainStarter:
-			self.removeChain(node)
-						
-		# collapse only if extended
-		if not node.extended:
-			#print("[collapsing] » refusing unextended node: " + str(node))
-			return
-		
-		#print("[collapsing] » node: " + str(node))
-	
-		# mark as not extended
-		node.extended = False		
-								
-		for link in node.ext_appendedLinks:
-			self.deletePath(link.node)
-			
-		for link in node.ext_deletedLinks:
-			self.appendPath(link.node, link.type)
-		
-		for cycle in node.ext_loopedCycles:
-			cycle.looped = False
-			self.rx_unlooped_cycles.add(cycle)
-			#print("[rx_unlooped_cycles] during collapse loop: " + str(cycle))
-					
-		#print("[rx_unlooped_cycles] after collapse loop: " + str(len(self.rx_unlooped_cycles)))			
-					
-		for n in node.ext_chained:
-			n.chainID = 0
-			
-		for pair in node.ext_connectedChains:
-			self.connectedChainPairs.difference_update([pair, pair[::-1]])
-						
-		self.makeAvailableAgain(node)
-										
-
-	def addChain(self, node):
-		
-		# extend only if available and not already extended	or seen
-		if not node.loop.availabled or node.extended:
-#			assert False, "[addChain] refusing to add chain for node: " + str(node)
-			return False
-						
-#		self.log("adding chain", "» node: " + str(node))
-						
-		# mark as extended
-		node.looped = True
-		node.extended = True
-		node.chainStarter = True
+		# generate a new chain id			
 		self.chainAutoInc += 1
-		node.chainID = self.chainAutoInc
-		self.chainStarters.append(node)
-		
-		node.ext_reset()
-	
-		# add the last node to bases
-		node.ext_workedNodes.append(node)
-		
-		# append extended path
-		curr = node
-		for j in range(self.spClass - 1):
-			next = self.appendPath(curr, 2)
-			node.ext_appendedLinks.append(curr.nextLink)
-			next.cycle.looped = True
-			self.rx_unlooped_cycles.remove(next.cycle)
-			node.ext_loopedCycles.append(next.cycle)
-			#print("[rx_unlooped_cycles] during add chain: " + str(next.cycle))
-			next.chainID = self.chainAutoInc
-			node.ext_chained.append(next)
-			curr = next
-			node.ext_workedNodes.append(curr)				
-			
-			for i in range(self.spClass - 1):
-				next = self.appendPath(curr, 1)
-				node.ext_appendedLinks.append(curr.nextLink)
-				next.chainID = self.chainAutoInc
-				node.ext_chained.append(next)
-				curr = next
-				node.ext_workedNodes.append(curr)						
+										
+		# for each loop node
+		for node in loop.nodes:
+
+			# mark & walk the loop node as looped inside the new chain
+			node.chainID = self.chainAutoInc
+			walked.add(node.loop)
+			if node.cycle.chained_by_count is not 0:
+				# deletepath(1)
+				node.nextLink.next.prevLink = node.nextLink =  None # self.deletePath(node)
+										
+		# for each loop node (again)
+		for node in loop.nodes:																														
+			# if its cycle is already looped in
+			if node.cycle.chained_by_count is not 0:
+				# starting from next(1)
+				curr = node.links[1].next
+				# until back to the loop node
+				while curr is not node:
+					# mark & walk the current node
+					curr.chainID = self.chainAutoInc
+					walked.add(curr.loop)
+					# » advance »
+					curr = curr.nextLink.next					
+					
+													
+			# else, its cycle is not yet looped it	
+			else:
+				# starting from next(1)
+				curr = node.links[1].next
+				# for every 1-path that will be added within this cycle
+				for _ in range(diagram.spClass-1):
+					# appendpath(1)
+					curr.nextLink = curr.nextLink.next.prevLink = curr.links[1] # self.appendPath(curr, 1)
+					# mark & walk the current node
+					curr.chainID = self.chainAutoInc
+					walked.add(curr.loop)
+					# » advance »
+					curr = curr.nextLink.next
+					
+			# the cycle is now looped in
+			node.cycle.chained_by_count += 1
+			# append the 2-path
+			node.nextLink = node.nextLink.next.prevLink = node.links[2] # self.appendPath(node, 2)		
+
+		# for ALL walked nodes, try make unavailable									
+		self.tryMakeUnavailable(walked)
 				
-		#print("[rx_unlooped_cycles] after add chain: " + str(len(self.rx_unlooped_cycles)))				
-				
-		node.ext_flp = self.tryMakeUnavailable(node.ext_workedNodes)
+		# extendLoop succeded
 		return True
 
 
-	def removeChain(self, node):
-#		self.log("removing chain", "» node: " + str(node))
-		self.chainStarters.pop() # [~] equals pop ?
-		node.chainID = 0
-		node.chainStarter = False
-		node.extended = False
-		node.looped = False
+	def collapseLoop(self, loop):
 		
-		for link in node.ext_appendedLinks:
-			self.deletePath(link.node)
+		# assert/return false if not we can't or did already collapse		
+		if not loop.extended:
+			return False
+		loop.extended = False
 			
-		for link in node.ext_deletedLinks:
-			self.appendPath(link.node, link.type)
-			
-		for cycle in node.ext_loopedCycles:
-			cycle.looped = False
-			self.rx_unlooped_cycles.add(cycle)
-			#print("[rx_unlooped_cycles] during remove chain: " + str(cycle))
-			
-		#print("[rx_unlooped_cycles] after remove chain: " + str(len(self.rx_unlooped_cycles)))
-						
-		for n in node.ext_chained:
-			n.chainID = 0
-	
-		self.makeAvailableAgain(node)
-				
+		# will hold all touched loops			
+		walked = set()
+					
+		# for each loop node
+		for node in loop.nodes:
+			# delete the 2-path
+			node.nextLink.next.prevLink = node.nextLink =  None # self.deletePath(node)
+			# the cycle is now looped out
+			node.cycle.chained_by_count -= 1											
+								
+		# for each loop node (again)
+		for node in loop.nodes:		
+			# if its cycle is still looped in
+			if node.cycle.chained_by_count is not 0:			
+				# appendpath(1)
+				node.nextLink = node.nextLink.next.prevLink = node.links[1] # self.appendPath(node, 1)
+				# generate a new chain id	
+				self.chainAutoInc += 1				
+				# mark & walk the loop node as looped inside the new chain
+				node.chainID = self.chainAutoInc
+				walked.add(node.loop)										
+				# starting from next(1)
+				curr = node.links[1].next
+				# until back to the loop node
+				while curr is not node:
+					# mark & walk the current node
+					curr.chainID = self.chainAutoInc
+					walked.add(curr.loop)
+					# » advance »
+					curr = curr.nextLink.next									
 
-	def log(self, mark, text, forced = False):
-		if False: # forced or "lvl:" in mark: # False: #mark == "appending" or mark == "deleting" or mark == "extending" or mark == "collapsing" or mark == "adding chain" or mark == "removing chain" or self.jkcc == -19: # or (("connecting" in text or mark == "extending") and self.jkcc <= 45)  and "014253" in text) or self.jkcc in [169, 169] or:
-			print("["+str(self.jkcc)+"]["+mark+"] " + text)
+			# else, its cycle is no longer looped in
+			else:
+				# mark & walk the loop node as unlooped
+				node.chainID = None
+				walked.add(node.loop)										
+				# starting from next(1)
+				curr = node.links[1].next
+				# for every 1-path that will be removed from this cycle
+				for _ in range(diagram.spClass-1):
+					# deletepath(1)
+					next = curr.nextLink.next
+					curr.nextLink.next.prevLink = curr.nextLink =  None # self.deletePath(curr)
+					# mark & walk the current node
+					curr.chainID = None
+					walked.add(curr.loop)
+					# » advance »
+					curr = next				
+																
+		# for All walked nodes, try make available				
+		self.tryMakeAvailable(walked)
+		
+		# collapseLoop succeded
+		return True				
+
+
+	def tryMakeUnavailable(self, loops):						
+		for loop in loops:
+			if loop.availabled:
+				if not self.checkAvailability(loop):
+					loop.availabled = False
+					for node in loop.nodes:
+						cycle = node.cycle
+						cycle.available_loops_count -= 1								
+						if cycle.available_loops_count == 0:
+							self.rx_singles.discard(cycle)
+							if cycle.chained_by_count is 0:
+								self.rx_unreachables.add(cycle)
+						elif cycle.available_loops_count == 1:
+							if cycle.chained_by_count is 0:
+								self.rx_singles.add(cycle) 
+											
+
+	def tryMakeAvailable(self, loops):
+		for loop in loops:
+			if not loop.availabled:
+				if self.checkAvailability(loop):
+					loop.availabled = True
+					for node in loop.nodes:
+						cycle = node.cycle
+						if cycle.available_loops_count == 0:
+							self.rx_unreachables.discard(cycle)
+							if cycle.chained_by_count is 0:
+								self.rx_singles.add(cycle)
+						elif cycle.available_loops_count == 1:
+							self.rx_singles.discard(cycle)	
+						cycle.available_loops_count += 1
+				
+						
+	def checkAvailability(self, loop):		
+		chainsIDs = set()
+		for node in loop.nodes:
+			if node.chainID is not None and (node.prevLink is None or node.nextLink is None or node.nextLink.next.nextLink is None):
+				print("broken chain!!!")
+			if node.chainID is not None:
+				if (node.prevLink.type is not 1
+				or node.nextLink.type is not 1
+				or node.nextLink.next.nextLink.type is not 1
+				or node.chainID in chainsIDs):
+					return False
+				else:
+					chainsIDs.add(node.chainID)
+		return True
+
+
 
 if __name__ == "__main__":
-	from common import Step, Sol
-	run()	
+
+	diagram = Diagram(6)
+	show(diagram)
+	
+	while True:
+		avs = [l for l in diagram.loops if l.availabled]
+		if len(avs) is 0:
+			diagram.collapseLoop(choice([l for l in diagram.loops if l.extended]))
+		else:
+			diagram.extendLoop(choice(avs))
+		show(diagram)
+		input(str(len(diagram.rx_singles))+":"+str(len(diagram.rx_unreachables)))
