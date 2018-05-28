@@ -98,9 +98,9 @@ def show(diagram):
 				ui.set_color('white')
 			oval.fill()
 
-			if node.color is not None:
+			if node.chainID is not None and node.loop.extended:				
 				# getting personal				
-				ui.set_color(node.color)
+				ui.set_color(𝒞(node))
 				oval.line_width = 6*DH
 				oval.set_line_dash([1,1.05])				
 			elif node.loop.color is not None:	
@@ -165,12 +165,7 @@ def run():
 	
 	def extendAddress(address):
 		node = diagram.nodeByAddress[address]
-		for nln in node.loop.nodes:
-			nln.color = 𝒞(nln)
-		assert diagram.extendLoop(
-			sorted(node.loop.nodes, key = lambda n: n.looped).pop()
-			if not node.looped and len([n for n in node.loop.nodes if n.looped]) is not 0
-			else node)
+		assert diagram.extendLoop(node.loop)
 		return node.loop
 
 

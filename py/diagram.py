@@ -425,7 +425,7 @@ class Diagram (object):
 				# starting from next(1)
 				curr = node.links[1].next
 				# for every 1-path that will be added within this cycle
-				for _ in range(diagram.spClass-1):
+				for _ in range(self.spClass-1):
 					# appendpath(1)
 					curr.nextLink = curr.nextLink.next.prevLink = curr.links[1] # self.appendPath(curr, 1)
 					# mark & walk the current node
@@ -568,23 +568,26 @@ if __name__ == "__main__":
 				
 	while True:
 		if len(avs) is 0 or len(diagram.rx_unreachables) is not 0:
-			print("collapsing")
+			#print("collapsing")
 			diagram.collapseLoop(choice([l for l in diagram.loops if l.extended]))
 		else:
 			if len(diagram.rx_singles) is not 0:
-				print("singling")
+				#print("singling")
 				avs = [[n for n in list(diagram.rx_singles)[0].nodes if n.loop.availabled][0].loop]
-			print("extending")
+			#print("extending")
 			diagram.extendLoop(choice(avs))
+			
 		cc, lc = counts(diagram)
 		avs = [l for l in diagram.loops if l.availabled]
-		print(str(len(avs))+":"+str(len(diagram.rx_singles))+":"+str(len(diagram.rx_unreachables)))
+		#print(str(len(avs))+":"+str(len(diagram.rx_singles))+":"+str(len(diagram.rx_unreachables)))
+		
 		if cc == 1 and lc == len(diagram.nodes):
 			show(diagram)
 			print("Found…")
 			break
 		else:
-			if lc > len(diagram.nodes) - 100:
+			continue
+			if lc >= len(diagram.nodes) - 0:
 				show(diagram)
 				input()
 
