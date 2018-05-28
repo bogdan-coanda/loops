@@ -55,6 +55,18 @@ def loadS(sol):
 		d.extendLoop(n)
 	return d
 
+
+def counts(diagram):
+	chains = []
+	loopedCount = 0
+							
+	for node in diagram.nodes:
+		if node.chainID is not None:
+			loopedCount += 1
+			if node.chainID not in chains:
+				chains.append(node.chainID)
+	return (len(chains), loopedCount)
+				
 def show(diagram):
 	with ui.ImageContext(diagram.W, diagram.H) as ctx:
 	
@@ -68,6 +80,7 @@ def show(diagram):
 						nln.color = 𝒞(nln)		
 								
 		chainColors = { 0: '#ffdd22' }	
+		loopedCount = 0
 							
 		for node in diagram.nodes:
 			
@@ -77,6 +90,7 @@ def show(diagram):
 			oval = ui.Path.oval(node.px - RR/2, node.py - RR/2, RR, RR)
 
 			if node.chainID is not None:
+				loopedCount += 1
 				if node.chainID not in chainColors:
 					chainColors[node.chainID] = hls_to_rgb(random(), 0.5, 1)
 				ui.set_color(chainColors[node.chainID])
@@ -140,6 +154,8 @@ def show(diagram):
 
 		img = ctx.get_image()
 		img.show()
+		print("[show] chain count: " + str(len(chainColors)) + " | looped: " + str(loopedCount) + "/" + str(len(diagram.nodes)) + " | remaining: " + str(len(diagram.nodes) - loopedCount))
+		return (len(chainColors), loopedCount)
 		
 		
 def run():

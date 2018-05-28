@@ -567,11 +567,24 @@ if __name__ == "__main__":
 	input(str(len(avs))+":"+str(len(diagram.rx_singles))+":"+str(len(diagram.rx_unreachables)))		
 				
 	while True:
-		if len(avs) is 0:
+		if len(avs) is 0 or len(diagram.rx_unreachables) is not 0:
+			print("collapsing")
 			diagram.collapseLoop(choice([l for l in diagram.loops if l.extended]))
 		else:
+			if len(diagram.rx_singles) is not 0:
+				print("singling")
+				avs = [[n for n in list(diagram.rx_singles)[0].nodes if n.loop.availabled][0].loop]
+			print("extending")
 			diagram.extendLoop(choice(avs))
-		show(diagram)
+		cc, lc = counts(diagram)
 		avs = [l for l in diagram.loops if l.availabled]
-		input(str(len(avs))+":"+str(len(diagram.rx_singles))+":"+str(len(diagram.rx_unreachables)))		
+		print(str(len(avs))+":"+str(len(diagram.rx_singles))+":"+str(len(diagram.rx_unreachables)))
+		if cc == 1 and lc == len(diagram.nodes):
+			show(diagram)
+			print("Found…")
+			break
+		else:
+			if lc > len(diagram.nodes) - 100:
+				show(diagram)
+				input()
 
