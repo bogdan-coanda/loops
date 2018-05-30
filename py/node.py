@@ -60,6 +60,6 @@ class Node (object):
 		
 						
 	def __repr__(self):
-		return "[node:"+self.perm+"@"+self.address+"§"+str(self.chainID)+"|"+("λ" if self.looped else "")+("ε" if self.extended else "")+("ψ" if self.chainStarter else "")+("A" if self.loop.availabled else "")+"]"
+		return "⟨node:"+self.perm+"@"+self.address+"§"+str(self.chainID)+"|"+("λ" if self.looped else "")+("ε" if self.extended else "")+("ψ" if self.chainStarter else "")+("A" if self.loop.availabled else "")+"⟩"
 		
 		

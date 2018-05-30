@@ -31,3 +31,6 @@ class Loop (object):
 	def pseudo(self):
 		return min([n.address for n in self.nodes])
 		
+	def __repr__(self):
+		return '⟨loop:'+self.root()+'|'+':'.join(sorted([n.address[len(self._root):] for n in self.nodes]))+'⟩'
+		

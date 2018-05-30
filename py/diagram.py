@@ -42,6 +42,9 @@ class Diagram (object):
 		self.generateKernel()
 
 		self.startTime = time()
+		
+		# runtime
+		self.chosenLoop = None
 
 				
 	def generateGraph(self):
@@ -458,7 +461,7 @@ class Diagram (object):
 					
 		# for each loop node
 		for node in loop.nodes:
-			# delete the 2-path
+			# print("deleting 2-path: " + str(node.nextLink)) # delete the 2-path
 			node.nextLink.next.prevLink = node.nextLink =  None # self.deletePath(node)
 			# the cycle is now looped out
 			node.cycle.chained_by_count -= 1											
@@ -492,8 +495,8 @@ class Diagram (object):
 				# starting from next(1)
 				curr = node.links[1].next
 				# for every 1-path that will be removed from this cycle
-				for _ in range(diagram.spClass-1):
-					# deletepath(1)
+				for _ in range(self.spClass-1):					
+					# print("deleting 1-path: " + str(curr.nextLink)) # deletepath(1)
 					next = curr.nextLink.next
 					curr.nextLink.next.prevLink = curr.nextLink =  None # self.deletePath(curr)
 					# mark & walk the current node
@@ -558,9 +561,78 @@ class Diagram (object):
 		return True
 
 
-
+	def extendAny(self): # [~]
+		if len(self.rx_singles) is not 0:
+			#print("singling")			
+			avs = [[n for n in choice(list(self.rx_singles)).nodes if n.loop.availabled][0].loop]
+		else:
+			avs = [l for l in self.loops if l.availabled]
+		if len(avs) is 0:
+			return False
+		self.chosenLoop = choice(avs)
+		print("[extend] chosen: " + str(self.chosenLoop))
+		return self.extendLoop(self.chosenLoop)
+		
+		
+	def collapseAny(self): # [~]
+		exs = [l for l in diagram.loops if l.extended]
+		if len(exs) is 0:
+			return False
+		loop = choice(exs)
+		print("[extend] collapse: " + str(loop))
+		return diagram.collapseLoop(loop)
+				
+	def measure(self):
+		cc, lc = counts(self)
+		avs = [l for l in self.loops if l.availabled]
+		
+		print("[measure] " + str(len(avs))+":"+str(len(self.rx_singles))+":"+str(len(self.rx_unreachables)) + " | chain count: " + str(cc) + " | looped: " + str(lc) + "/" + str(len(self.nodes)) + " | remaining: " + str(len(self.nodes) - lc))		
+		return (cc, lc)
+			
 if __name__ == "__main__":
 
+	diagram = Diagram(7)
+	
+	while True:
+		
+		while len(diagram.rx_unreachables) is 0:
+			if not diagram.extendAny():
+				break
+						
+		#show(diagram)
+		cc, lc = diagram.measure()
+		if lc == len(diagram.nodes):
+			if cc is 1:
+				show(diagram)
+				print("Found…")
+				break
+			else:
+				show(diagram)
+				input()
+				for _ in range(diagram.spClass):
+					diagram.collapseAny()
+		elif len(diagram.nodes) - lc < 791:
+			show(diagram)
+			input()
+	
+		while len(diagram.rx_unreachables) is not 0:
+			while True:
+				old_unreachables_count = len(diagram.rx_unreachables)
+				l = choice([l for l in diagram.loops if l.extended])
+				print("[xxx] collapsing: " + str(l))
+				diagram.collapseLoop(l);
+				if len(diagram.rx_unreachables) < old_unreachables_count:
+					print("[xxx] committing")
+					break
+				else:
+					diagram.extendLoop(l)
+					print("[xxx] reverting")
+
+		#show(diagram)
+		diagram.measure()
+		#input()
+	
+	'''
 	diagram = Diagram(7)
 	show(diagram)
 	avs = [l for l in diagram.loops if l.availabled]
@@ -580,7 +652,7 @@ if __name__ == "__main__":
 		cc, lc = counts(diagram)
 		avs = [l for l in diagram.loops if l.availabled]
 		
-		print("[diagram] " + str(len(avs))+":"+str(len(diagram.rx_singles))+":"+str(len(diagram.rx_unreachables)) + " | chain count: " + str(cc) + " | looped: " + str(lc) + "/" + str(len(diagram.nodes)) + " | remaining: " + str(len(diagram.nodes) - lc))
+		input("[diagram] " + str(len(avs))+":"+str(len(diagram.rx_singles))+":"+str(len(diagram.rx_unreachables)) + " | chain count: " + str(cc) + " | looped: " + str(lc) + "/" + str(len(diagram.nodes)) + " | remaining: " + str(len(diagram.nodes) - lc))
 		
 		if cc == 1 and lc == len(diagram.nodes):
 			show(diagram)
@@ -591,4 +663,13 @@ if __name__ == "__main__":
 			if  len(diagram.nodes) - lc <= 800:
 				show(diagram)
 				input()
+	'''
+	
+	# console
+	# d = Diagram(6); show(d); d.measure()
+	# d.extendAny(); show(d); d.measure()
+	# cy = list(d.rx_unreachables)[0]; cy
+	# l = [d.nodeByAddress[cy.address+str(i)].loop for i in range(d.spClass)]
+	# x = [[n for n in sorted(l[i].nodes, key = lambda n: n.address) if n.chainID is not None and (n.prevLink.type is not 1 or n.nextLink.type is not 1 or n.nextLink.next.nextLink.type is not 1)] for i in range(d.spClass)]
+
 

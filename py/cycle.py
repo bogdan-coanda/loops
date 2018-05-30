@@ -12,4 +12,4 @@ class Cycle (object):
 		
 		
 	def __repr__(self):
-		return "[cycle:"+str(self.index)+"@"+self.address+"|"+("λ" if self.looped else "")+str(self.available_loops_count)+"]"
+		return "⟨cycle:"+str(self.index)+"@"+self.address+"|"+("λ" if self.looped else "")+str(self.available_loops_count)+"⟩"

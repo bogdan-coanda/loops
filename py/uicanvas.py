@@ -78,8 +78,8 @@ def show(diagram):
 				if node.loop.extended:
 					for nln in node.loop.nodes:
 						nln.color = 𝒞(nln)		
-								
-		chainColors = { 0: '#ffdd22' }	
+
+		chainColors = { diagram.startNode.chainID: 'white' } # '#ffdd22' }	
 		loopedCount = 0
 							
 		for node in diagram.nodes:
@@ -101,7 +101,7 @@ def show(diagram):
 			if node.chainID is not None and node.loop.extended:				
 				# getting personal				
 				ui.set_color(𝒞(node))
-				oval.line_width = 6*DH
+				oval.line_width = 4*DH
 				oval.set_line_dash([1,1.05])				
 			elif node.loop.color is not None:	
 				# marked
@@ -120,7 +120,7 @@ def show(diagram):
 				ui.set_color('black')				
 				oval.line_width = DH
 				oval.set_line_dash([1,1.05])
-			elif node.looped:
+			elif node.chainID is not None:
 				ui.set_color('black')
 				oval.line_width = 0.2
 				oval.set_line_dash([1,0])
@@ -129,7 +129,7 @@ def show(diagram):
 				oval.set_line_dash([1,0])
 			oval.stroke()
 
-			if node.looped:
+			if node.chainID is not None:
 				line = ui.Path()
 				line.move_to(node.px, node.py)
 				line.line_to(node.nextLink.next.px, node.nextLink.next.py)
