@@ -611,7 +611,7 @@ if __name__ == "__main__":
 				input()
 				for _ in range(diagram.spClass):
 					diagram.collapseAny()
-		elif len(diagram.nodes) - lc < 476:
+		elif len(diagram.nodes) - lc < 280:
 			show(diagram)
 			input()
 	

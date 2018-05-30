@@ -1,4 +1,5 @@
 /py/*.pkl
+
 !/py/ante7.rnd.0.pkl
 
 !/py/ante7.rnd.1.pkl
@@ -7,3 +8,4 @@
 
 !/py/ante7.rnd.3.pkl
 
+*.icloud
