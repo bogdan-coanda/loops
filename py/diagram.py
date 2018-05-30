@@ -570,7 +570,7 @@ class Diagram (object):
 		if len(avs) is 0:
 			return False
 		self.chosenLoop = choice(avs)
-		print("[extend] chosen: " + str(self.chosenLoop))
+		### print("[extend] chosen: " + str(self.chosenLoop))
 		return self.extendLoop(self.chosenLoop)
 		
 		
@@ -579,7 +579,7 @@ class Diagram (object):
 		if len(exs) is 0:
 			return False
 		loop = choice(exs)
-		print("[extend] collapse: " + str(loop))
+		### print("[extend] collapse: " + str(loop))
 		return diagram.collapseLoop(loop)
 				
 	def measure(self):
@@ -611,7 +611,7 @@ if __name__ == "__main__":
 				input()
 				for _ in range(diagram.spClass):
 					diagram.collapseAny()
-		elif len(diagram.nodes) - lc < 791:
+		elif len(diagram.nodes) - lc < 476:
 			show(diagram)
 			input()
 	
@@ -619,17 +619,17 @@ if __name__ == "__main__":
 			while True:
 				old_unreachables_count = len(diagram.rx_unreachables)
 				l = choice([l for l in diagram.loops if l.extended])
-				print("[xxx] collapsing: " + str(l))
+				#print("[xxx] collapsing: " + str(l))
 				diagram.collapseLoop(l);
 				if len(diagram.rx_unreachables) < old_unreachables_count:
-					print("[xxx] committing")
+					#print("[xxx] committing")
 					break
 				else:
 					diagram.extendLoop(l)
-					print("[xxx] reverting")
+					#print("[xxx] reverting")
 
 		#show(diagram)
-		diagram.measure()
+		### diagram.measure()
 		#input()
 	
 	'''
