@@ -563,10 +563,13 @@ class Diagram (object):
 
 	def extendAny(self): # [~]
 		if len(self.rx_singles) is not 0:
-			#print("singling")			
-			avs = [[n for n in choice(list(self.rx_singles)).nodes if n.loop.availabled][0].loop]
+			#print("singling")
+			singleLoops = [[n for n in cy.nodes if n.loop.availabled][0].loop for cy in self.rx_singles]
+			avs = [l for l in singleLoops if len([n for n in l.nodes if n.chainID is not None]) is not 0]
+			if len(avs) is 0:
+				avs = singleLoops
 		else:
-			avs = [l for l in self.loops if l.availabled]
+			avs = [l for l in self.loops if l.availabled and len([n for n in l.nodes if n.chainID is not None]) is not 0]
 		if len(avs) is 0:
 			return False
 		self.chosenLoop = choice(avs)
@@ -598,6 +601,8 @@ if __name__ == "__main__":
 		while len(diagram.rx_unreachables) is 0:
 			if not diagram.extendAny():
 				break
+			diagram.measure()
+			input()
 						
 		#show(diagram)
 		cc, lc = diagram.measure()
@@ -629,8 +634,8 @@ if __name__ == "__main__":
 					#print("[xxx] reverting")
 
 		#show(diagram)
-		### diagram.measure()
-		#input()
+		diagram.measure()
+		input()
 	
 	'''
 	diagram = Diagram(7)
