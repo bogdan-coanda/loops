@@ -17,16 +17,7 @@ class Node (object):
 
 		# all normal nodes are available at start for extending as they're unblemished
 		#self.availabled = True # is now a loop-level property
-													
-		# [2] each normal node holds links to its (N-2)*N potential nodes (nodes looped in when extended from this node)
-		self.potentials = set()
-	
-		# [3] each normal node holds links to its (N-2) base nodes (nodes that when extended, loop in this node as well among others)
-		self.bases = set();
-
- 		# [4] each normal node is CURRENTLY potentialed by up to (N-2) base nodes
-		self.potentialedBy = set()	
-	
+														
 		# [5] each node has a loop index (0-based with -1 meaning unparsed) for the loop it extends into
 		self.loopIndex = -1
 			

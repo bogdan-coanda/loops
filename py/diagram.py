@@ -195,20 +195,9 @@ class Diagram (object):
 			for j in range(self.spClass-2):
 				# make the jump into the cycle
 				next = next.links[2].next
-				
-				# [2] potentials will be looped in if this node becomes availabled and then extended
-				node.potentials.add(next)				
-				
-				# [3] bases will be unavailabled when this next node becomes looped in
-				next.bases.add(node)
-				
-				# [4] all bases are available at start
-				next.potentialedBy.add(node)
-						
+												
 				for i in range(self.spClass-1):
 					next = next.links[1].next
-					# [2] potential as well
-					node.potentials.add(next)
 				
 				# [7] the last node in the cycle is the one to make the jump, so we store it as a brethren of the current node
 				node.loopBrethren.add(next)
