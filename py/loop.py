@@ -8,6 +8,8 @@ class Loop (object):
 		self.seen = False # for faded coloring, marker
 		self.color = None
 		self._root = None # cache for root()
+		self._type = None # cache for type()
+		self._pseudo = None # cache for pseudo()
 
 		
 	def root(self):
@@ -23,13 +25,22 @@ class Loop (object):
 			self._root += nodes[0].address[k]
 		return self._root # should never be needed
 		
+	
+	def type(self):
+		if self._type is None:
+			self._type = len(self.pseudo()) - len(self.root())
+		return self._type
+		
 
 	def hasKernelNodes(self):
 		return len([n for n in self.nodes if set(n.address[:-3]) == set(['0'])]) > 0
 		
 		
 	def pseudo(self):
-		return min([n.address for n in self.nodes])
+		if self._pseudo is None:
+			self._pseudo = min([n.address for n in self.nodes])
+		return self._pseudo
+ 
 		
 	def __repr__(self):
 		return '⟨loop:'+self.root()+'|'+':'.join(sorted([n.address[len(self._root):] for n in self.nodes]))+'⟩'

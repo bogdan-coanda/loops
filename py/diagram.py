@@ -14,6 +14,7 @@ import pickle
 import math
 from uicanvas import *
 from random import choice
+from explorer import groupby
 
 
 class Diagram (object):
@@ -578,12 +579,12 @@ class Diagram (object):
 		
 		
 	def collapseAny(self): # [~]
-		exs = [l for l in diagram.loops if l.extended]
+		exs = [l for l in self.loops if l.extended]
 		if len(exs) is 0:
 			return False
 		loop = choice(exs)
 		### print("[extend] collapse: " + str(loop))
-		return diagram.collapseLoop(loop)
+		return self.collapseLoop(loop)
 				
 	def measure(self):
 		cc, lc = counts(self)
@@ -593,7 +594,12 @@ class Diagram (object):
 		return (cc, lc)
 			
 if __name__ == "__main__":
+	
+	diagram = Diagram(6)
+	
+	sloops = sorted(diagram.loops, key = lambda l: (l.type(), l.pseudo()))
 
+	'''
 	diagram = Diagram(7)
 	
 	while True:
@@ -636,7 +642,7 @@ if __name__ == "__main__":
 		#show(diagram)
 		diagram.measure()
 		input()
-	
+	'''
 	'''
 	diagram = Diagram(7)
 	show(diagram)
