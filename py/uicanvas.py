@@ -23,7 +23,7 @@ def 𝒞(node):
 			return 'limegreen'
 	elif len(node.loop.root()) == spClass-4:
 		if node.address[-1] in ['0', '4']:
-			return '#f7d700'
+			return '#ffb700'
 		else:
 			return '#f7f700'
 	else:		
@@ -31,7 +31,26 @@ def 𝒞(node):
 			return 'darkred'#'#ffbbbb'
 		else:
 			return 'red'
-						
+
+def ℓ6(node):
+	if node.loop.type() == 2:
+		return 'deepskyblue'
+	elif node.loop.type() == 3:
+		return 'green' if node.address[-1] is '0' else 'greenyellow'
+	elif node.loop.type() == 4:
+		return '#f7d700' if node.address[-1] is '0' else '#f7f700'
+	elif node.loop.type() == 5:		
+		if (int(node.loop.head.address[2]) + int(node.loop.head.address[3]) ) % 4 == (2 - int(node.loop.head.address[1])) % 3:
+			return 'darkred'  if node.address[-1] is '0' else 'red'
+		elif (int(node.loop.head.address[2]) + int(node.loop.head.address[3]) ) % 4 == (1 - int(node.loop.head.address[1])) % 3:
+			return 'darkorange'  if node.address[-1] is '0' else 'orange'			
+		elif (int(node.loop.head.address[2]) + int(node.loop.head.address[3]) ) % 4 == (0 - int(node.loop.head.address[1])) % 3:			
+			return 'darkviolet'  if node.address[-1] is '0' else 'violet'			
+		else:
+			return 'red'  if node.address[-1] is '0' else 'pink'
+	else:
+		return 'black'
+		
 			
 def loadE(extender):
 	from diagram import Diagram
@@ -117,7 +136,7 @@ def show(diagram):
 				oval.line_width = DH
 				oval.set_line_dash([1,1.05])			
 			elif node.loop.availabled:
-				ui.set_color('black')				
+				ui.set_color(ℓ6(node))				
 				oval.line_width = DH
 				oval.set_line_dash([1,1.05])
 			elif node.chainID is not None:
@@ -168,7 +187,7 @@ def run():
 		assert diagram.extendLoop(node.loop)
 		return node.loop
 
-
+	'''
 	extendAddress('12000') 
 	#diagram.nodeByAddress['12000'].marked = True
 	extendAddress('12010')
@@ -203,7 +222,8 @@ def run():
 	extendAddress('02105')
 	extendAddress('10205')
 	extendAddress('01205')
-				
+	'''
+	
 	# extendAddress('11013').color = chainColors[1]
 	# extendAddress('11022').color = chainColors[2]
 	

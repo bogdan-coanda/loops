@@ -17,10 +17,7 @@ class Node (object):
 
 		# all normal nodes are available at start for extending as they're unblemished
 		#self.availabled = True # is now a loop-level property
-														
-		# [5] each node has a loop index (0-based with -1 meaning unparsed) for the loop it extends into
-		self.loopIndex = -1
-			
+																	
 		# [7] each node holds links to its N-2 brethren (nodes that extend into the same loop)
 		self.loopBrethren = set()
 		
@@ -36,6 +33,8 @@ class Node (object):
 		self.color = None
 		
 		self.real = None # the node that was actually extended when extend was called on this node		
+		
+		self.loop = None
 
 
 	def ext_reset(self):		

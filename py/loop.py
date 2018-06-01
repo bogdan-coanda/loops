@@ -2,7 +2,7 @@ class Loop (object):
 	
 	def __init__(self, index):
 		self.index = index
-		self.nodes = set()
+		self.nodes = None # ordered list
 		self.availabled = True
 		self.extended = False
 		self.seen = False # for faded coloring, marker
@@ -10,6 +10,7 @@ class Loop (object):
 		self._root = None # cache for root()
 		self._type = None # cache for type()
 		self._pseudo = None # cache for pseudo()
+		self.head = None # first node from sorted nodes list
 
 		
 	def root(self):
@@ -43,5 +44,9 @@ class Loop (object):
  
 		
 	def __repr__(self):
-		return '⟨loop:'+self.root()+'|'+':'.join(sorted([n.address[len(self._root):] for n in self.nodes]))+'⟩'
+		return '⟨loop:'+self.root()+'|'+':'.join([n.address[len(self._root):] for n in self.nodes])+'⟩'
 		
+
+	def __lt__(self, other):
+		return self.head.address < other.head.address
+

@@ -180,42 +180,38 @@ class Diagram (object):
 			node.cycleBrethren = [n for n in node.cycle.nodes if n != node]
 			
 			# if this node has yet to be included in a loop
-			if node.loopIndex == -1:
+			if node.loop is None:
 				# adapt current loop details to a new loop
 				lix += 1				
+				# create a new loop
 				self.loops.append(Loop(lix))
-				# [5] this is the first node in the new loop
-				node.loopIndex = lix
-				node.loop = self.loops[lix]
-				self.loops[lix].nodes.add(node)
-						
-			next = node
-			
-			# for each cycle in the loop extension
-			for j in range(self.spClass-2):
-				# make the jump into the cycle
-				next = next.links[2].next
-												
-				for i in range(self.spClass-1):
-					next = next.links[1].next
+										
+				# collect loop nodes
+				loopNodes = [node]
+				next = node			
+				# for each cycle in the loop extension
+				for j in range(self.spClass-2):
+					# make the jump into the cycle
+					next = next.links[2].next
+					# jump the 1-paths												
+					for i in range(self.spClass-1):
+						next = next.links[1].next
+					# the last node is a loop extender
+					loopNodes.append(next)
 				
-				# [7] the last node in the cycle is the one to make the jump, so we store it as a brethren of the current node
-				node.loopBrethren.add(next)
-				
-				# [5] copy details from the first node in the current loop
-				next.loopIndex = node.loopIndex		
-				node.loop = self.loops[node.loopIndex]
-				self.loops[node.loopIndex].nodes.add(node)
-
-		#assert len(self.nodes) == len(self.perms)
-		#assert len(self.nodes) / self.spClass == len(self.cycles)
-		#assert len(self.nodes) / (self.spClass-1) == len(self.loops)		
-		
+				# update loop & nodes details
+				self.loops[lix].head = sorted(loopNodes, key = lambda n: (n.address[-1], n.address[-2]))[0]
+				self.loops[lix].nodes = loopNodes[loopNodes.index(self.loops[lix].head):] + loopNodes[:loopNodes.index(self.loops[lix].head)]
+				for ln in loopNodes:
+					ln.loop = self.loops[lix]
+					lnindex = loopNodes.index(ln)
+					ln.loopBrethren = loopNodes[lnindex+1:] + loopNodes[:lnindex]
+													
 		
 	def generateKernel(self):
 		self.startPerm = self.perms[0]	
 		self.startNode = self.nodeByPerm[self.startPerm]									
-
+		return # [~] !!!
 		node = self.startNode				
 	
 		walked = set()
@@ -502,9 +498,42 @@ class Diagram (object):
 		return True				
 
 
+	def forceUnavailable(self, loops):
+		for loop in loops:
+			#assert loop.availabled
+			loop.availabled = False
+			loop.seen = True
+			for node in loop.nodes:
+				cycle = node.cycle
+				cycle.available_loops_count -= 1								
+				if cycle.available_loops_count == 0:
+					self.rx_singles.discard(cycle)
+					if cycle.chained_by_count is 0:
+						self.rx_unreachables.add(cycle)
+				elif cycle.available_loops_count == 1:
+					if cycle.chained_by_count is 0:
+						self.rx_singles.add(cycle) 			
+
+
+	def forceAvailable(self, loops):
+		for loop in loops:
+			#assert not loop.availabled
+			loop.availabled = True
+			loop.seen = False
+			for node in loop.nodes:
+				cycle = node.cycle
+				if cycle.available_loops_count == 0:
+					self.rx_unreachables.discard(cycle)
+					if cycle.chained_by_count is 0:
+						self.rx_singles.add(cycle)
+				elif cycle.available_loops_count == 1:
+					self.rx_singles.discard(cycle)	
+				cycle.available_loops_count += 1
+						
+
 	def tryMakeUnavailable(self, loops):						
 		for loop in loops:
-			if loop.availabled:
+			if loop.availabled and not loop.seen:
 				if not self.checkAvailability(loop):
 					loop.availabled = False
 					for node in loop.nodes:
@@ -521,7 +550,7 @@ class Diagram (object):
 
 	def tryMakeAvailable(self, loops):
 		for loop in loops:
-			if not loop.availabled:
+			if not loop.availabled and not loop.seen:
 				if self.checkAvailability(loop):
 					loop.availabled = True
 					for node in loop.nodes:
@@ -582,12 +611,84 @@ class Diagram (object):
 		print("[measure] " + str(len(avs))+":"+str(len(self.rx_singles))+":"+str(len(self.rx_unreachables)) + " | chain count: " + str(cc) + " | looped: " + str(lc) + "/" + str(len(self.nodes)) + " | remaining: " + str(len(self.nodes) - lc))		
 		return (cc, lc)
 			
+mkfound = 0
+
+def mk(diagram, lvl=0, a=0, b=0, c=0, seen=[]): # [~] !!! needed so we don't repeat sols
+	global mkfound
+	
+	if lvl == 24:
+		show(diagram)
+		diagram.measure()
+		input("Found #" + str(mkfound))
+		input("\n".join(sorted([str(loop) for loop in diagram.loops if loop.extended])))
+		mkfound += 1
+		return
+		
+	def inc(fa, fb, fc):
+		fc += 1
+		if fc is 4:
+			fc = 0
+			fb += 1
+			if fb is 3:
+				fb = 0
+				fa += 1
+		return fa, fb, fc
+		
+	ra, rb, rc = inc(a, b, c)
+	while ra is not 2:
+		ravs = [l for l in diagram.loops if l.type() == 5 and len([nln for nln in l.nodes if nln.chainID is not None]) is 0 and l.availabled and not l.seen and l.head.address[0] == str(ra) and l.head.address[1] == str(rb) and l.head.address[2] == str(rc)]		
+		ra, rb, rc = inc(ra, rb, rc)
+		if len(ravs) is 0:
+			return
+		
+		
+	avs = [l for l in diagram.loops if l.type() == 5 and len([nln for nln in l.nodes if nln.chainID is not None]) is 0 and l.availabled and not l.seen and l.head.address[0] == str(a) and l.head.address[1] == str(b) and l.head.address[2] == str(c)]
+#	show(diagram)
+#	diagram.measure()
+#	input("[mk:"+str(lvl)+"] avs: " + str(len(avs)))
+		
+	lvl_seen = []
+		
+	for loop in avs:  # [~] need loop.seen…
+		
+		print("[mk:"+str(lvl)+"] extending: " + str(loop))
+		diagram.extendLoop(loop)
+		
+		flipped = []
+		for n in diagram.nodes:
+			if n.chainID is not None and n.loop.availabled:
+				diagram.forceUnavailable([n.loop])
+				flipped.append(n.loop)
+				
+		if len(diagram.rx_unreachables) is 0:
+			ma, mb, mc = inc(a, b, c)
+			mk(diagram, lvl+1, ma, mb, mc, seen+lvl_seen)
+
+		diagram.forceAvailable(flipped)
+			
+		print("[mk:"+str(lvl)+"] collapsing: " + str(loop))
+		diagram.collapseLoop(loop)
+
+		lvl_seen.append(loop)
+		diagram.forceUnavailable([loop])		
+		
+	diagram.forceAvailable(lvl_seen)		
+		
+				
 if __name__ == "__main__":
 	
 	diagram = Diagram(6)
 	
-	sloops = sorted(diagram.loops, key = lambda l: (l.type(), l.pseudo()))
+	#gloops = groupby(diagram.loops, K = lambda l: l.type())
+	#sloops = sorted(diagram.loops, key = lambda l: (l.type(), l.pseudo()))
+	
+	# groupby(gloops[5], K = lambda loop: groupby([n.address[:2] for n in loop.nodes], G = lambda g: len(g), S = lambda s: ":".join([str(r) for r in reversed(sorted(s.values()))])), G = lambda g: len(g))
+	# » » » {'3:1:1': 36, '2:2:1': 36}
 
+	diagram.forceUnavailable([l for l in diagram.loops if l.type() is not 5])
+			
+	mk(diagram)
+	
 	'''
 	diagram = Diagram(7)
 	
