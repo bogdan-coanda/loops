@@ -51,7 +51,7 @@ def run():
 						for i7 in range(7):
 							extendAddress(''.join([str(x) for x in [i2, i3, i4, i5, i6, i7, (6-i7)%7, 0]]))
 	#'''
-	'''# type:3
+	# type:3
 	diagram.forceUnavailable([l for l in diagram.loops if l.type() is not 5])
 
 	for i2 in range(2):
@@ -61,7 +61,8 @@ def run():
 					print('[run] ⟨'+str(i2)+str(i3)+str(i4)+str(i5)+'⟩')										
 					for i6 in range(6):
 						for i7 in range(7):
-							extendAddress(''.join([str(x) for x in [i2, i3, i4, i5, i6, (i7-i6)%7, (5-i7)%7, 0]]))
+							extendAddress(''.join([str(x) for x in [i2, i3, i4, i5, i6, i7, (((5-i6)%6)-i7)%7, 0]]))
+							# extendAddress(''.join([str(x) for x in [i2, i3, i4, i5, i6, (i7-i6)%7, (5-i7)%7, 0]]))
 	#'''
 	'''# type:4
 	diagram.forceUnavailable([l for l in diagram.loops if l.type() is not 6])
@@ -111,7 +112,7 @@ def run():
 						for i2 in range(2):
 							extendAddress(''.join([str(x) for x in [i2, i3, i4, i5, i6, i7, (((((((((((1-i2)%2-i3)%3)-i4)%4)-i5)%5)-i6)%6)-i7)%7), '0']]))			
 	#'''
-	# type:8
+	'''# type:8
 	diagram.forceUnavailable([l for l in diagram.loops if l.type() is not 8])
 	
 	for i7 in range(7):
