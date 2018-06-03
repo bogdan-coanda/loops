@@ -77,10 +77,20 @@ class Diagram (object):
 		gn_qq = 0
 		gn_all = set()
 		
-		DM = 32
-		RH = 8
+		DM = 32 if self.spClass is not 9 else 10
+		RH = 8 if self.spClass is not 9 else 3
 
-		if self.spClass is 8:
+		if self.spClass is 9:
+			xydelta = [
+				(DM*(41*3+1), 0), 
+				(DM*41, 0),
+				(0, DM*((self.spClass-3)*(self.spClass-2)+13)), 
+				(DM*(self.spClass-1), 0), 
+				(0, DM*(self.spClass)), 
+				(DM, 0), 
+				(0, DM), 
+				(0, 0)]				
+		elif self.spClass is 8:
 			xydelta = [
 				(0, DM*(self.spClass-2)*(self.spClass-1)), 
 				(DM*((self.spClass-3)*(self.spClass-2)-1), 0), 
@@ -110,7 +120,11 @@ class Diagram (object):
 			
 			if lvl == self.spClass + 1:
 				gn_perm = gn_next
-				if self.spClass is 8:
+				if self.spClass is 9:
+					q9 = gn_address[-1]
+					dx = math.floor(RH*math.cos((q9 - 4) * 2 * math.pi / 9))
+					dy = math.floor(RH*math.sin((q9 - 4) * 2 * math.pi / 9))
+				elif self.spClass is 8:
 					q8 = gn_address[-1]
 					dx = math.floor(RH*math.cos((q8 - 3.5) * 2 * math.pi / 8))
 					dy = math.floor(RH*math.sin((q8 - 3.5) * 2 * math.pi / 8))
@@ -149,7 +163,8 @@ class Diagram (object):
 		genNode()
 		max([node.px for node in self.nodes])
 		self.W = max([cycle.px for cycle in self.cycles]) + DM
-		self.H = max([cycle.py for cycle in self.cycles]) + DM
+		self.H = max([cycle.py for cycle in self.cycles]) + DM		
+		print("generated nodes | WxH: " + str(self.W) + "x" + str(self.H))
 		#assert len(gn_all) == len(self.perms)
 				
 				
@@ -161,13 +176,19 @@ class Diagram (object):
 			node.links = [None]*self.spClass
 			node.prevs = [None]*self.spClass
 		
+		nc = 0
 		for node in self.nodes:
+			if nc % 10000 is 0:
+				print("[links] " + str(nc) + "/" + str(len(self.nodes)))
 			for type in range(1, self.spClass):
 				next = self.nodeByPerm[DX(type, node.perm)]
 				link = Link(type, node, next)
 				node.links[type] = link
 				next.prevs[type] = link
 				self.links[type].append(link)
+			nc += 1
+			
+		print("generated links")
 				
 				
 	def generateLoops(self):
@@ -206,7 +227,9 @@ class Diagram (object):
 					ln.loop = self.loops[lix]
 					lnindex = loopNodes.index(ln)
 					ln.loopBrethren = loopNodes[lnindex+1:] + loopNodes[:lnindex]
-													
+
+		print("generated loops")
+																										
 		
 	def generateKernel(self):
 		self.startPerm = self.perms[0]	
@@ -241,6 +264,7 @@ class Diagram (object):
 		assert node is self.startNode
 		
 		self.tryMakeUnavailable(walked)
+		print("generated kernel")
 		
 		
 	def loadKnowns(self):
@@ -613,10 +637,10 @@ class Diagram (object):
 			
 mkfound = 0
 
-def mk(diagram, lvl=0, a=0, b=0, c=0, seen=[]): # [~] !!! needed so we don't repeat sols
+def mk(diagram, lvl=0, a=0, b=0, c=0, d=0, seen=[]): # [~] !!! needed so we don't repeat sols
 	global mkfound
 	
-	if lvl == 24:
+	if lvl == 120:
 		show(diagram)
 		diagram.measure()
 		input("Found #" + str(mkfound))
@@ -624,25 +648,28 @@ def mk(diagram, lvl=0, a=0, b=0, c=0, seen=[]): # [~] !!! needed so we don't rep
 		mkfound += 1
 		return
 		
-	def inc(fa, fb, fc):
-		fc += 1
-		if fc is 4:
-			fc = 0
-			fb += 1
-			if fb is 3:
-				fb = 0
-				fa += 1
-		return fa, fb, fc
+	def inc(fa, fb, fc, fd):
+		fd += 1
+		if fd is 5:
+			fd = 0
+			fc += 1
+			if fc is 4:
+				fc = 0
+				fb += 1
+				if fb is 3:
+					fb = 0
+					fa += 1
+		return fa, fb, fc, fd
 		
-	ra, rb, rc = inc(a, b, c)
+	ra, rb, rc, rd = inc(a, b, c, d)
 	while ra is not 2:
-		ravs = [l for l in diagram.loops if l.type() == 5 and len([nln for nln in l.nodes if nln.chainID is not None]) is 0 and l.availabled and not l.seen and l.head.address[0] == str(ra) and l.head.address[1] == str(rb) and l.head.address[2] == str(rc)]		
-		ra, rb, rc = inc(ra, rb, rc)
+		ravs = [l for l in diagram.loops if l.type() == 6 and len([nln for nln in l.nodes if nln.chainID is not None]) is 0 and l.availabled and not l.seen and l.head.address[0] == str(ra) and l.head.address[1] == str(rb) and l.head.address[2] == str(rc) and l.head.address[3] == str(rd)]		
+		ra, rb, rc, rd = inc(ra, rb, rc, rd)
 		if len(ravs) is 0:
 			return
 		
 		
-	avs = [l for l in diagram.loops if l.type() == 5 and len([nln for nln in l.nodes if nln.chainID is not None]) is 0 and l.availabled and not l.seen and l.head.address[0] == str(a) and l.head.address[1] == str(b) and l.head.address[2] == str(c)]
+	avs = [l for l in diagram.loops if l.type() == 6 and len([nln for nln in l.nodes if nln.chainID is not None]) is 0 and l.availabled and not l.seen and l.head.address[0] == str(a) and l.head.address[1] == str(b) and l.head.address[2] == str(c) and l.head.address[3] == str(d)]
 #	show(diagram)
 #	diagram.measure()
 #	input("[mk:"+str(lvl)+"] avs: " + str(len(avs)))
@@ -661,8 +688,8 @@ def mk(diagram, lvl=0, a=0, b=0, c=0, seen=[]): # [~] !!! needed so we don't rep
 				flipped.append(n.loop)
 				
 		if len(diagram.rx_unreachables) is 0:
-			ma, mb, mc = inc(a, b, c)
-			mk(diagram, lvl+1, ma, mb, mc, seen+lvl_seen)
+			ma, mb, mc, md = inc(a, b, c, d)
+			mk(diagram, lvl+1, ma, mb, mc, md, seen+lvl_seen)
 
 		diagram.forceAvailable(flipped)
 			
@@ -677,7 +704,301 @@ def mk(diagram, lvl=0, a=0, b=0, c=0, seen=[]): # [~] !!! needed so we don't rep
 				
 if __name__ == "__main__":
 	
-	diagram = Diagram(6)
+	diagram = Diagram(7)
+
+	'''
+			if (int(node.loop.head.address[2]) + int(node.loop.head.address[3]) ) % 4 == (2 - int(node.loop.head.address[1])) % 3:
+																				 # -54321 #
+	diagram.extendLoop(diagram.nodeByAddress['00020'].loop) [-3]+[-2] % 4 == (2-[-4]) % 3
+	diagram.extendLoop(diagram.nodeByAddress['00110'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['00200'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['00330'].loop)
+
+	diagram.extendLoop(diagram.nodeByAddress['01010'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['01100'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['01230'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['01320'].loop)
+	
+	diagram.extendLoop(diagram.nodeByAddress['02000'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['02130'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['02220'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['02310'].loop)
+
+	diagram.extendLoop(diagram.nodeByAddress['10020'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['10110'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['10200'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['10330'].loop)
+
+	diagram.extendLoop(diagram.nodeByAddress['11010'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['11100'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['11230'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['11320'].loop)
+
+	diagram.extendLoop(diagram.nodeByAddress['12000'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['12130'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['12220'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['12310'].loop)
+	'''
+	''' # type:0
+	assert diagram.extendLoop(diagram.nodeByAddress['000006'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['000106'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['000206'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['000306'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['000406'].loop)			
+	'''
+	''' # type:1
+	for i2 in range(2):
+		for i3 in range(3):
+			for i4 in range(4):
+				h3 = str(i2)+str(i3)+str(i4)
+				assert diagram.extendLoop(diagram.nodeByAddress[h3+'005'].loop)
+				assert diagram.extendLoop(diagram.nodeByAddress[h3+'105'].loop)
+				assert diagram.extendLoop(diagram.nodeByAddress[h3+'205'].loop)
+				assert diagram.extendLoop(diagram.nodeByAddress[h3+'305'].loop)
+				assert diagram.extendLoop(diagram.nodeByAddress[h3+'405'].loop)				
+	'''
+	# type:2
+	for i2 in range(2):
+		for i3 in range(3):
+			h2 = str(i2)+str(i3)
+			assert diagram.extendLoop(diagram.nodeByAddress[h2+'0004'].loop)
+			assert diagram.extendLoop(diagram.nodeByAddress[h2+'1004'].loop)
+			assert diagram.extendLoop(diagram.nodeByAddress[h2+'2004'].loop)
+			assert diagram.extendLoop(diagram.nodeByAddress[h2+'3004'].loop)
+	
+	''' # type:3
+	assert diagram.extendLoop(diagram.nodeByAddress['000003'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['010003'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['020003'].loop)
+	'''
+	''' # type:4
+	assert diagram.extendLoop(diagram.nodeByAddress['000002'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['100002'].loop)
+	'''
+	''' # type:5
+	assert diagram.extendLoop(diagram.nodeByAddress['000001'].loop)
+	'''
+	''' # type:6
+	assert diagram.extendLoop(diagram.nodeByAddress['000000'].loop)
+	'''
+									
+	#for i in range(5):		
+		#assert diagram.extendLoop(diagram.nodeByAddress['000' + str(i) + str((0 - 0) % 5) + '4'].loop)
+	'''	
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['001' + str(i) + str((1 - i) % 5) + '0'].loop)
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['002' + str(i) + str((0 - i) % 5) + '0'].loop)																
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['003' + str(i) + str((3 - i) % 5) + '0'].loop)																
+	'''
+	'''
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['010' + str(i) + str((1 - i) % 5) + '0'].loop)
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['011' + str(i) + str((0 - i) % 5) + '0'].loop)
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['012' + str(i) + str((3 - i) % 5) + '0'].loop)																
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['013' + str(i) + str((2 - i) % 5) + '0'].loop)																
+																																																																																										
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['020' + str(i) + str((0 - i) % 5) + '0'].loop)
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['021' + str(i) + str((3 - i) % 5) + '0'].loop)
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['022' + str(i) + str((2 - i) % 5) + '0'].loop)																
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['023' + str(i) + str((1 - i) % 5) + '0'].loop)																
+	
+																																																																										
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['100' + str(i) + str((3 - i) % 5) + '0'].loop)
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['101' + str(i) + str((2 - i) % 5) + '0'].loop)
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['102' + str(i) + str((1 - i) % 5) + '0'].loop)																
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['103' + str(i) + str((0 - i) % 5) + '0'].loop)																
+
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['110' + str(i) + str((1 - i) % 5) + '0'].loop)
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['111' + str(i) + str((0 - i) % 5) + '0'].loop)
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['112' + str(i) + str((3 - i) % 5) + '0'].loop)																
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['113' + str(i) + str((2 - i) % 5) + '0'].loop)																																									
+		
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['120' + str(i) + str((1 - i) % 5) + '0'].loop)
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['121' + str(i) + str((0 - i) % 5) + '0'].loop)
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['122' + str(i) + str((3 - i) % 5) + '0'].loop)																
+	for i in range(5):		
+		assert diagram.extendLoop(diagram.nodeByAddress['123' + str(i) + str((2 - i) % 5) + '0'].loop)																
+	'''
+		
+	'''																						# -654321 #
+	assert diagram.extendLoop(diagram.nodeByAddress['000010'].loop) # [-3]+[-2] mod 5 == 1 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['000100'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['000240'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['000330'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['000420'].loop)
+	
+	assert diagram.extendLoop(diagram.nodeByAddress['001000'].loop) # [-3]+[-2] mod 5 == 0 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['001140'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['001230'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['001320'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['001410'].loop)
+
+	assert diagram.extendLoop(diagram.nodeByAddress['002030'].loop) # [-3]+[-2] mod 5 == 3 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['002120'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['002210'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['002300'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['002440'].loop)
+
+	assert diagram.extendLoop(diagram.nodeByAddress['003020'].loop) # [-3]+[-2] mod 5 == 2 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['003110'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['003200'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['003340'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['003430'].loop)
+	'''	
+
+	'''
+	assert diagram.extendLoop(diagram.nodeByAddress['100010'].loop) # [-3]+[-2] mod 5 == 1 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['100100'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['100240'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['100330'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['100420'].loop)
+
+	assert diagram.extendLoop(diagram.nodeByAddress['101000'].loop) # [-3]+[-2] mod 5 == 0 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['101140'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['101230'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['101320'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['101410'].loop)
+
+	assert diagram.extendLoop(diagram.nodeByAddress['102030'].loop) # [-3]+[-2] mod 5 == 3 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['102120'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['102210'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['102300'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['102440'].loop)
+
+	assert diagram.extendLoop(diagram.nodeByAddress['103020'].loop) # [-3]+[-2] mod 5 == 2 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['103110'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['103200'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['103340'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['103430'].loop)
+	
+	
+	
+	assert diagram.extendLoop(diagram.nodeByAddress['010000'].loop) # [-3]+[-2] mod 5 == 0 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['010140'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['010230'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['010320'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['010410'].loop)
+	 
+	assert diagram.extendLoop(diagram.nodeByAddress['011030'].loop) # [-3]+[-2] mod 5 == 3 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['011120'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['011210'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['011300'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['011440'].loop)
+
+	assert diagram.extendLoop(diagram.nodeByAddress['012020'].loop) # [-3]+[-2] mod 5 == 2 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['012110'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['012200'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['012340'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['012430'].loop)
+
+	assert diagram.extendLoop(diagram.nodeByAddress['013010'].loop) # [-3]+[-2] mod 5 == 1 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['013100'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['013240'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['013330'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['013420'].loop)
+
+
+	assert diagram.extendLoop(diagram.nodeByAddress['020020'].loop) # [-3]+[-2] mod 5 == 3 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['020110'].loop) 
+	assert diagram.extendLoop(diagram.nodeByAddress['020200'].loop) 
+	assert diagram.extendLoop(diagram.nodeByAddress['020340'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['020430'].loop)
+	
+	assert diagram.extendLoop(diagram.nodeByAddress['021010'].loop) # [-3]+[-2] mod 5 == 2 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['021100'].loop) 
+	assert diagram.extendLoop(diagram.nodeByAddress['021240'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['021330'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['021420'].loop)
+
+	assert diagram.extendLoop(diagram.nodeByAddress['022000'].loop) # [-3]+[-2] mod 5 == 1 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['022140'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['022230'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['022320'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['022410'].loop)
+
+	assert diagram.extendLoop(diagram.nodeByAddress['023030'].loop) # [-3]+[-2] mod 5 == 0 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['023120'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['023210'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['023300'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['023440'].loop)										
+
+																
+
+
+
+
+	assert diagram.extendLoop(diagram.nodeByAddress['110020'].loop) # [-3]+[-2] mod 5 == 0 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['110110'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['110200'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['110340'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['110430'].loop)
+
+	assert diagram.extendLoop(diagram.nodeByAddress['111020'].loop) # [-3]+[-2] mod 5 == 3 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['111110'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['111200'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['111340'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['111430'].loop)
+
+	assert diagram.extendLoop(diagram.nodeByAddress['112020'].loop) # [-3]+[-2] mod 5 == 2 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['112110'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['112200'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['112340'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['112430'].loop)
+
+	assert diagram.extendLoop(diagram.nodeByAddress['113010'].loop) # [-3]+[-2] mod 5 == 1 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['113100'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['113240'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['113330'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['113420'].loop)
+
+
+
+	assert diagram.extendLoop(diagram.nodeByAddress['120020'].loop) # [-3]+[-2] mod 5 == 3 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['120110'].loop) 
+	assert diagram.extendLoop(diagram.nodeByAddress['120200'].loop) 
+	assert diagram.extendLoop(diagram.nodeByAddress['120340'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['120430'].loop)
+	 
+	assert diagram.extendLoop(diagram.nodeByAddress['121010'].loop) # [-3]+[-2] mod 5 == 2 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['121100'].loop) 
+	assert diagram.extendLoop(diagram.nodeByAddress['121240'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['121330'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['121420'].loop)
+
+	assert diagram.extendLoop(diagram.nodeByAddress['122000'].loop) # [-3]+[-2] mod 5 == 1 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['122140'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['122230'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['122320'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['122410'].loop)
+
+	assert diagram.extendLoop(diagram.nodeByAddress['123030'].loop) # [-3]+[-2] mod 5 == 0 == (1 - [-4]+[-5]) mod 4
+	assert diagram.extendLoop(diagram.nodeByAddress['123120'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['123210'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['123300'].loop)
+	assert diagram.extendLoop(diagram.nodeByAddress['123440'].loop)										
+	'''
+	
+	show(diagram)
 	
 	#gloops = groupby(diagram.loops, K = lambda l: l.type())
 	#sloops = sorted(diagram.loops, key = lambda l: (l.type(), l.pseudo()))
@@ -685,9 +1006,9 @@ if __name__ == "__main__":
 	# groupby(gloops[5], K = lambda loop: groupby([n.address[:2] for n in loop.nodes], G = lambda g: len(g), S = lambda s: ":".join([str(r) for r in reversed(sorted(s.values()))])), G = lambda g: len(g))
 	# » » » {'3:1:1': 36, '2:2:1': 36}
 
-	diagram.forceUnavailable([l for l in diagram.loops if l.type() is not 5])
+	#diagram.forceUnavailable([l for l in diagram.loops if l.type() is not 6])
 			
-	mk(diagram)
+	#mk(diagram)
 	
 	'''
 	diagram = Diagram(7)

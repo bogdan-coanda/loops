@@ -1,12 +1,13 @@
 class Loop (object):
 	
+	__slots__ = ['index', 'nodes', 'availabled', 'extended', 'seen', '_root', '_type', '_pseudo', 'head']
+	
 	def __init__(self, index):
 		self.index = index
 		self.nodes = None # ordered list
 		self.availabled = True
 		self.extended = False
 		self.seen = False # for faded coloring, marker
-		self.color = None
 		self._root = None # cache for root()
 		self._type = None # cache for type()
 		self._pseudo = None # cache for pseudo()
