@@ -9,23 +9,60 @@ class colors (object):
 	blue 				= '#08f'
 
 	green 			= '#0d0'
-	lightgreen 	= '#9f9'
+	lightgreen 	= '#bfb'
 	
 	yellow			= '#ff0'
-	lightyellow	= '#ff9'
+	lightyellow	= '#ffb'
 	
 	orange			= '#f90'
-	lightorange	= '#fd9'
+	lightorange	= '#feb'
 	
 	red					= '#f00'
-	lightred		= '#fbb'
+	lightred		= '#fdd'
 	
 	violet			= '#f0f'
-	lightviolet	= '#fbf'
+	lightviolet	= '#fdf'
 	
 	indigo			= '#808'
-	lightindigo	= '#d9d'
+	lightindigo	= '#ece'
 	
+	def normal(index):
+		if index is 0:
+			return colors.blue
+		elif index is 1:
+			return colors.green
+		elif index is 2:
+			return colors.yellow
+		elif index is 3:
+			return colors.orange			
+		elif index is 4:
+			return colors.red	
+		elif index is 5:
+			return colors.violet
+		elif index is 6:
+			return colors.indigo
+		else:
+			return 'black'
+			
+	def light(index):
+		if index is 0:
+			return colors.blue
+		elif index is 1:
+			return colors.lightgreen
+		elif index is 2:
+			return colors.lightyellow
+		elif index is 3:
+			return colors.lightorange			
+		elif index is 4:
+			return colors.lightred	
+		elif index is 5:
+			return colors.lightviolet
+		elif index is 6:
+			return colors.lightindigo
+		else:
+			return 'lightgray'
+			
+									
 xq = ['#ffff00','#00ffff','#ff00ff']
 
 chainColors = ['#ffdd22',
@@ -58,6 +95,9 @@ def 𝒞(node):
 			
 
 def ℓ(diagram, node):
+	
+	return colors.normal(node.ktype) if node.address[-1] is '0' else colors.light(node.ktype)
+	'''
 	if diagram.spClass is 6:
 		return ℓ6(node)
 	elif diagram.spClass is 7:
@@ -68,9 +108,13 @@ def ℓ(diagram, node):
 		return ℓ9(node)		
 	else:
 		assert False, "no ℓ function for " + str(diagram.spClass)
+	'''
 		
 
 def ℓ6(node):
+	if node.loop.utype is not None:
+		return ℓU6(node)
+	
 	if node.loop.type() == 2:
 		return colors.blue
 	elif node.loop.type() == 3:
@@ -85,7 +129,22 @@ def ℓ6(node):
 			return colors.red  if node.address[-1] is '0' else colors.lightred			
 		elif (int(node.loop.head.address[-3]) + int(node.loop.head.address[-2]) ) % 4 == (0 - int(node.loop.head.address[-4])) % 3:			
 			return colors.violet  if node.address[-1] is '0' else colors.lightviolet			
-		
+
+
+def ℓU6(node):
+	if node.loop.utype == 0:
+		return colors.blue
+	elif node.loop.utype == 1:
+		return colors.green if node.address[-1] is '0' else colors.lightgreen
+	elif node.loop.utype == 2:
+		return colors.yellow if node.address[-1] is '0' else colors.lightyellow
+	elif node.loop.utype == 3:		
+		return colors.orange if node.address[-1] is '0' else colors.lightorange
+	elif node.loop.utype == 4:
+		return colors.red if node.address[-1] is '0' else colors.lightred			
+	elif node.loop.utype == 5:
+		return colors.violet if node.address[-1] is '0' else colors.lightviolet			
+							
 		
 def ℓ7(node):
 	if node.loop.type() == 2:
@@ -266,7 +325,7 @@ def show9(diagram):
 				MQ = 1.5
 			elif node.loop.availabled:
 				ui.set_color(ℓ(diagram, node))
-				LH = DH
+				LH = 4*DH
 				MQ = 1.5
 			elif node.chainID is not None:
 				ui.set_color('black')

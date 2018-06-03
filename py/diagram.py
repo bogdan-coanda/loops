@@ -39,8 +39,11 @@ class Diagram (object):
 		self.rx_singles = set()
 		
 		self.chainAutoInc = 0 # first chain is the kernel
-															
-		self.generateKernel()
+										
+		self.startPerm = self.perms[0]	
+		self.startNode = self.nodeByPerm[self.startPerm]									
+																						
+		# [~] !!! self.generateKernel()
 
 		self.startTime = time()
 		
@@ -232,11 +235,7 @@ class Diagram (object):
 																										
 		
 	def generateKernel(self):
-		self.startPerm = self.perms[0]	
-		self.startNode = self.nodeByPerm[self.startPerm]									
-		return # [~] !!!
-		node = self.startNode				
-	
+		node = self.startNode
 		walked = set()
 								
 		def appendPath(node, type):					
@@ -372,7 +371,7 @@ class Diagram (object):
 	def loadExtenders(self):
 		with open('extenders.'+str(self.spClass)+".pkl", 'rb') as infile:	
 			self.extenders = list(pickle.load(infile))
-		self.extenders = [[self.nodeByPerm[perm] for perm in extender] for extender in self.extenders]
+		self.extenders = [[self.nodeByPerm[perm].loop for perm in extender] for extender in self.extenders]
 		print("Loaded "+str(len(self.extenders))+" extenders")		
 		
 

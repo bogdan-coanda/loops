@@ -51,7 +51,7 @@ def run():
 						for i7 in range(7):
 							extendAddress(''.join([str(x) for x in [i2, i3, i4, i5, i6, i7, (6-i7)%7, 0]]))
 	#'''
-	# type:3
+	'''# type:3
 	diagram.forceUnavailable([l for l in diagram.loops if l.type() is not 5])
 
 	for i2 in range(2):

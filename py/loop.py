@@ -1,6 +1,6 @@
 class Loop (object):
 	
-	__slots__ = ['index', 'nodes', 'availabled', 'extended', 'seen', '_root', '_type', '_pseudo', 'head']
+	__slots__ = ['index', 'nodes', 'availabled', 'extended', 'seen', '_root', '_type', '_pseudo', 'head', 'utype']
 	
 	def __init__(self, index):
 		self.index = index
@@ -12,6 +12,7 @@ class Loop (object):
 		self._type = None # cache for type()
 		self._pseudo = None # cache for pseudo()
 		self.head = None # first node from sorted nodes list
+		self.utype = None
 
 		
 	def root(self):
