@@ -1,6 +1,6 @@
 class Cycle (object):
 	
-	__slots__ = ['index', 'address', 'nodes', 'available_loops_count', 'px', 'py', 'chained_by_count']
+	__slots__ = ['index', 'address', 'nodes', 'available_loops_count', 'px', 'py', 'chained_by_count', 'moved']
 	
 	def __init__(self, index, address, px, py):
 		self.index = index
@@ -10,6 +10,7 @@ class Cycle (object):
 		self.px = px
 		self.py = py
 		self.chained_by_count = 0
+		self.moved = False
 		
 		
 	def __repr__(self):

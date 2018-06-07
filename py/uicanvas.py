@@ -3,6 +3,7 @@ from diagram import *
 from colorsys import hls_to_rgb
 from random import random
 from enum import Enum
+from itertools import chain
 
 
 class colors (object):
@@ -94,103 +95,10 @@ def 𝒞(node):
 			return 'red'
 			
 
-def ℓ(diagram, node):
-	
-	return colors.normal(node.ktype) if node.address[-1] is '0' else colors.light(node.ktype)
-	'''
-	if diagram.spClass is 6:
-		return ℓ6(node)
-	elif diagram.spClass is 7:
-		return ℓ7(node)
-	elif diagram.spClass is 8:
-		return ℓ8(node)
-	elif diagram.spClass is 9:
-		return ℓ9(node)		
-	else:
-		assert False, "no ℓ function for " + str(diagram.spClass)
-	'''
-		
-
-def ℓ6(node):
-	if node.loop.utype is not None:
-		return ℓU6(node)
-	
-	if node.loop.type() == 2:
-		return colors.blue
-	elif node.loop.type() == 3:
-		return colors.green if node.address[-1] is '0' else colors.lightgreen
-	elif node.loop.type() == 4:
-		return colors.yellow if node.address[-1] is '0' else colors.lightyellow
-	elif node.loop.type() == 5:		
-		return 'black'  if node.address[-1] is '0' else 'lightgray'
-		if (int(node.loop.head.address[-3]) + int(node.loop.head.address[-2]) ) % 4 == (2 - int(node.loop.head.address[-4])) % 3:
-			return colors.orange  if node.address[-1] is '0' else colors.lightorange
-		elif (int(node.loop.head.address[-3]) + int(node.loop.head.address[-2]) ) % 4 == (1 - int(node.loop.head.address[-4])) % 3:
-			return colors.red  if node.address[-1] is '0' else colors.lightred			
-		elif (int(node.loop.head.address[-3]) + int(node.loop.head.address[-2]) ) % 4 == (0 - int(node.loop.head.address[-4])) % 3:			
-			return colors.violet  if node.address[-1] is '0' else colors.lightviolet			
-
-
-def ℓU6(node):
-	if node.loop.utype == 0:
-		return colors.blue
-	elif node.loop.utype == 1:
-		return colors.green if node.address[-1] is '0' else colors.lightgreen
-	elif node.loop.utype == 2:
-		return colors.yellow if node.address[-1] is '0' else colors.lightyellow
-	elif node.loop.utype == 3:		
-		return colors.orange if node.address[-1] is '0' else colors.lightorange
-	elif node.loop.utype == 4:
-		return colors.red if node.address[-1] is '0' else colors.lightred			
-	elif node.loop.utype == 5:
-		return colors.violet if node.address[-1] is '0' else colors.lightviolet			
-							
-		
-def ℓ7(node):
-	if node.loop.type() == 2:
-		return colors.blue
-	elif node.loop.type() == 3:
-		return colors.green if node.address[-1] is '0' else colors.lightgreen
-	elif node.loop.type() == 4:
-		return colors.yellow if node.address[-1] is '0' else colors.lightyellow
-	elif node.loop.type() == 5:
-		return colors.orange if node.address[-1] is '0' else colors.lightorange		
-	elif node.loop.type() == 6:
-		return 'black'  if node.address[-1] is '0' else 'lightgray'
-
-
-def ℓ8(node):
-	if node.loop.type() == 2:
-		return colors.blue
-	elif node.loop.type() == 3:
-		return colors.green if node.address[-1] is '0' else colors.lightgreen
-	elif node.loop.type() == 4:
-		return colors.yellow if node.address[-1] is '0' else colors.lightyellow
-	elif node.loop.type() == 5:
-		return colors.orange if node.address[-1] is '0' else colors.lightorange		
-	elif node.loop.type() == 6:
-		return colors.red  if node.address[-1] is '0' else colors.lightred
-	elif node.loop.type() == 7:
-		return 'black'  if node.address[-1] is '0' else 'lightgray'										
-
-
-def ℓ9(node):
-	if node.loop.type() == 2:
-		return colors.blue
-	elif node.loop.type() == 3:
-		return colors.green if node.address[-1] is '0' else colors.lightgreen
-	elif node.loop.type() == 4:
-		return colors.yellow if node.address[-1] is '0' else colors.lightyellow
-	elif node.loop.type() == 5:
-		return colors.orange if node.address[-1] is '0' else colors.lightorange		
-	elif node.loop.type() == 6:
-		return colors.red  if node.address[-1] is '0' else colors.lightred
-	elif node.loop.type() == 7:
-		return colors.violet if node.address[-1] is '0' else colors.lightviolet
-	elif node.loop.type() == 8:
-		return 'black'  if node.address[-1] is '0' else 'lightgray'										
-		
-														
+def ℓ(diagram, node, forceNormal=False):	
+	return colors.normal(node.ktype) if node.address[-1] is '0' or forceNormal else colors.light(node.ktype)
+					
+																
 def loadE(extender):
 	from diagram import Diagram
 	d = Diagram(6)
@@ -273,19 +181,21 @@ def show(diagram):
 				oval.set_line_dash([1,0])
 			oval.stroke()			
 			
-			if node.chainID is not None:
-				line = ui.Path()
-				line.move_to(node.px, node.py)
-				line.line_to(node.nextLink.next.px, node.nextLink.next.py)
-				line.line_width = node.nextLink.type * 0.5
-				if node.nextLink.type == 1:					
-					ui.set_color('red')
-				elif node.nextLink.type == 2:
-					ui.set_color('#0066ff')
-				elif node.nextLink.type == 3:
-					ui.set_color('#008800')
-				line.line_cap_style = ui.LINE_CAP_ROUND
-				line.stroke()				
+			if node.chainID is not None or len(node.showLinksOfTypes) is not 0:
+				for nextLink in set(chain([node.nextLink], [node.links[t] for t in node.showLinksOfTypes]) if node.chainID is not None else [node.links[t] for t in node.showLinksOfTypes]):
+					if nextLink.type is 2:
+						line = ui.Path()
+						line.move_to(node.px, node.py)
+						line.line_to(nextLink.next.px, nextLink.next.py)
+						line.line_width = nextLink.type * 0.5
+						ui.set_color(ℓ(diagram, node, True))
+						line.line_cap_style = ui.LINE_CAP_ROUND
+						line.stroke()			
+						
+						circle = ui.Path.oval(node.px - 1.5*RR/2, node.py - 1.5*RR/2, 1.5*RR, 1.5*RR)
+						ui.set_color(ℓ(diagram, node, True))
+						circle.line_width = 1
+						circle.stroke()
 			
 			nc += 1
 			
@@ -296,6 +206,7 @@ def show(diagram):
 		
 		
 def show9(diagram):
+	assert False, "stale code"
 	with ui.ImageContext(diagram.W, diagram.H) as ctx:
 	
 		print("show()")
@@ -351,16 +262,17 @@ def show9(diagram):
 			
 
 			
-			if node.chainID is not None:
+			if node.chainID is not None or node.showLinkOfType is not None:
+				nextLink = node.nextLink if node.chainID is not None else node.links[node.showLinkOfType]
 				line = ui.Path()
-				line.move_to(node.px, node.py)
-				line.line_to(node.nextLink.next.px, node.nextLink.next.py)
-				line.line_width = node.nextLink.type * 0.25
-				if node.nextLink.type == 1:					
+				line.move_to(node.px, node.py)				
+				line.line_to(nextLink.next.px, nextLink.next.py)
+				line.line_width = nextLink.type * 0.25
+				if nextLink.type == 1:					
 					ui.set_color('red')
-				elif node.nextLink.type == 2:
+				elif nextLink.type == 2:
 					ui.set_color('#0066ff')
-				elif node.nextLink.type == 3:
+				elif nextLink.type == 3:
 					ui.set_color('#008800')
 				line.line_cap_style = ui.LINE_CAP_ROUND
 				line.stroke()				

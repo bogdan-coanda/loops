@@ -123,23 +123,9 @@ class Diagram (object):
 			
 			if lvl == self.spClass + 1:
 				gn_perm = gn_next
-				if self.spClass is 9:
-					q9 = gn_address[-1]
-					dx = math.floor(RH*math.cos((q9 - 4) * 2 * math.pi / 9))
-					dy = math.floor(RH*math.sin((q9 - 4) * 2 * math.pi / 9))
-				elif self.spClass is 8:
-					q8 = gn_address[-1]
-					dx = math.floor(RH*math.cos((q8 - 3.5) * 2 * math.pi / 8))
-					dy = math.floor(RH*math.sin((q8 - 3.5) * 2 * math.pi / 8))
-				elif self.spClass is 7:
-					q7 = gn_address[-1]
-					dx = math.floor(RH*math.cos((q7 - 3) * 2 * math.pi / 7))
-					dy = math.floor(RH*math.sin((q7 - 3) * 2 * math.pi / 7))
-				elif self.spClass is 6:
-					q6 = gn_address[-1]
-					dx = math.floor(RH*math.cos((q6 - 2.5) * 2 * math.pi / 6))
-					dy = math.floor(RH*math.sin((q6 - 2.5) * 2 * math.pi / 6))
-				
+				qLast = gn_address[-1]
+				dx = math.floor(RH*math.cos((2*qLast - (self.spClass-1)) * math.pi / self.spClass))
+				dy = math.floor(RH*math.sin((2*qLast - (self.spClass-1)) * math.pi / self.spClass))				
 				
 				node = Node(gn_perm, gn_qq, gn_cc, "".join([str(a) for a in gn_address]), qx+dx, qy+dy)
 				self.nodes.append(node)
