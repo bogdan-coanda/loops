@@ -149,7 +149,7 @@ if __name__ == "__main__":
 	
 	# center orange
 	node = node.links[1].next				
-	## showLinks(node)
+	showLinks(node)
 
 	moveCycle(node.loopBrethren[0].cycle, 9, 1/12, 	7)
 	moveCycle(node.loopBrethren[1].cycle, 3, 9/12,	1, False, node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
@@ -158,7 +158,7 @@ if __name__ == "__main__":
 
 	# center yellow	
 	node = node.links[1].next				
-	## showLinks(node)
+	showLinks(node)
 
 	moveCycle(node.loopBrethren[0].cycle, 9,	3/12,  7)
 	moveCycle(node.loopBrethren[1].cycle, 3, 11/12,	-1, False, node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
@@ -167,7 +167,7 @@ if __name__ == "__main__":
 			
 	# center green
 	node = node.links[1].next				
-	## showLinks(node)
+	showLinks(node)
 
 	moveCycle(node.loopBrethren[0].cycle, 9, 5/12, 	 5)
 	moveCycle(node.loopBrethren[1].cycle, 3, 1/12,	-1, False, node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
@@ -176,7 +176,7 @@ if __name__ == "__main__":
 		
 	# center blue
 	node = node.links[1].next				
-	## showLinks(node)
+	showLinks(node)
 
 	moveCycle(node.loopBrethren[0].cycle, 9, 7/12,	9)
 	moveCycle(node.loopBrethren[1].cycle, 3, 3/12, -7, False, node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
@@ -223,7 +223,7 @@ if __name__ == "__main__":
 		
 	# topleft yellow
 	node = node.links[2].next
-	## showLinks(node)
+	showLinks(node)
 	
 	moveCycle(node.loopBrethren[0].cycle, 3, 9/12,  1, False, node.cycle.px, node.cycle.py)
 	moveCycle(node.loopBrethren[1].cycle, 1, 5/12, -5, False, node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
@@ -231,7 +231,7 @@ if __name__ == "__main__":
 	
 	# topleft green
 	node = node.links[1].next
-	## showLinks(node)
+	showLinks(node)
 	
 	moveCycle(node.loopBrethren[0].cycle, 3, 11/12, 11, False, node.cycle.px, node.cycle.py)
 	moveCycle(node.loopBrethren[1].cycle, 1,  7/12, -5, False, node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
@@ -239,7 +239,7 @@ if __name__ == "__main__":
 
 	# topleft blue
 	node = node.links[1].next
-	## showLinks(node)
+	showLinks(node)
 	
 	moveCycle(node.loopBrethren[0].cycle, 3, 1/12, 3, False, node.cycle.px, node.cycle.py)
 	moveCycle(node.loopBrethren[1].cycle, 1, 9/12, 1, False, node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
@@ -247,7 +247,7 @@ if __name__ == "__main__":
 	
 	# topleft violet
 	node = node.links[1].next
-	## showLinks(node)
+	showLinks(node)
 	
 	avg1 = (node.loopBrethren[1].cycle.px, node.loopBrethren[1].cycle.py)
 	moveCycle(node.loopBrethren[0].cycle, 3,  3/12, 11, False, node.cycle.px, node.cycle.py)
@@ -263,7 +263,7 @@ if __name__ == "__main__":
 		
 	# botleft green
 	node = node.links[2].next
-	## showLinks(node)
+	showLinks(node)
 	
 	moveCycle(node.loopBrethren[0].cycle, 3, 11/12, 11, False, node.cycle.px, node.cycle.py)
 	moveCycle(node.loopBrethren[1].cycle, 1,  7/12, -5, False, node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
@@ -271,7 +271,7 @@ if __name__ == "__main__":
 	
 	# botleft blue
 	node = node.links[1].next
-	## showLinks(node)
+	showLinks(node)
 	
 	moveCycle(node.loopBrethren[0].cycle, 3, 1/12, 3, False, node.cycle.px, node.cycle.py)
 	moveCycle(node.loopBrethren[1].cycle, 1, 9/12, 1, False, node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
@@ -279,7 +279,7 @@ if __name__ == "__main__":
 	
 	# botleft violet
 	node = node.links[1].next
-	## showLinks(node)
+	showLinks(node)
 	
 	avg0 = (node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
 	avg1 = (node.loopBrethren[1].cycle.px, node.loopBrethren[1].cycle.py)
@@ -297,7 +297,7 @@ if __name__ == "__main__":
 	
 	# botleft red
 	node = node.links[1].next
-	## showLinks(node)
+	showLinks(node)
 	
 	avg1 = (node.loopBrethren[1].cycle.px, node.loopBrethren[1].cycle.py)
 	moveCycle(node.loopBrethren[0].cycle, 3, 5/12, 11, False, node.cycle.px, node.cycle.py)
@@ -313,7 +313,7 @@ if __name__ == "__main__":
 		
 	# bot blue
 	node = node.links[2].next
-	## showLinks(node)
+	showLinks(node)
 	
 	moveCycle(node.loopBrethren[0].cycle, 3, 1/12, 3, False, node.cycle.px, node.cycle.py)
 	moveCycle(node.loopBrethren[1].cycle, 1, 9/12, 1, False, node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
@@ -321,7 +321,7 @@ if __name__ == "__main__":
 	
 	# bot violet
 	node = node.links[1].next
-	## showLinks(node)
+	showLinks(node)
 	
 	avg0 = (node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
 	moveCycle(node.loopBrethren[0].cycle, 3,  3/12, 1, False, node.cycle.px, node.cycle.py)
@@ -334,7 +334,7 @@ if __name__ == "__main__":
 	
 	# bot red
 	node = node.links[1].next
-	## showLinks(node)
+	showLinks(node)
 	
 	avg0 = (node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
 	avg1 = (node.loopBrethren[1].cycle.px, node.loopBrethren[1].cycle.py)
@@ -352,7 +352,7 @@ if __name__ == "__main__":
 		
 	# bot orange
 	node = node.links[1].next
-	## showLinks(node)
+	showLinks(node)
 
 	avg1 = (node.loopBrethren[1].cycle.px, node.loopBrethren[1].cycle.py)		
 	moveCycle(node.loopBrethren[0].cycle, 3, 7/12, 1, False, node.cycle.px, node.cycle.py)
@@ -368,7 +368,7 @@ if __name__ == "__main__":
 		
 	# botright violet
 	node = node.links[2].next
-	## showLinks(node)
+	showLinks(node)
 	
 	avg0 = (node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
 	moveCycle(node.loopBrethren[0].cycle, 3,  3/12, 11, False, node.cycle.px, node.cycle.py)
@@ -381,7 +381,7 @@ if __name__ == "__main__":
 	
 	# botright red
 	node = node.links[1].next
-	## showLinks(node)
+	showLinks(node)
 	
 	avg0 = (node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
 	avg2 = (node.loopBrethren[2].cycle.px, node.loopBrethren[2].cycle.py)	
@@ -399,7 +399,7 @@ if __name__ == "__main__":
 	
 	# botright orange
 	node = node.links[1].next
-	## showLinks(node)
+	showLinks(node)
 	
 	avg0 = (node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
 	avg1 = (node.loopBrethren[1].cycle.px, node.loopBrethren[1].cycle.py)
@@ -417,7 +417,7 @@ if __name__ == "__main__":
 	
 	# botright yellow
 	node = node.links[1].next
-	## showLinks(node)
+	showLinks(node)
 	
 	moveCycle(node.loopBrethren[0].cycle, 3, 9/12, 9, False, node.cycle.px, node.cycle.py)
 	avg = (node.loopBrethren[1].cycle.px, node.loopBrethren[1].cycle.py)
@@ -433,7 +433,7 @@ if __name__ == "__main__":
 		
 	# topright red
 	node = node.links[2].next
-	## showLinks(node)
+	showLinks(node)
 	
 	avg0 = (node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
 	avg2 = (node.loopBrethren[2].cycle.px, node.loopBrethren[2].cycle.py)
@@ -451,7 +451,7 @@ if __name__ == "__main__":
 			
 	# topright orange
 	node = node.links[1].next
-	## showLinks(node)
+	showLinks(node)
 	
 	avg0 = (node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
 	avg2 = (node.loopBrethren[2].cycle.px, node.loopBrethren[2].cycle.py)
@@ -469,7 +469,7 @@ if __name__ == "__main__":
 	
 	# topright yellow
 	node = node.links[1].next
-	## showLinks(node)
+	showLinks(node)
 	
 	avg0 = (node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
 	avg1 = (node.loopBrethren[1].cycle.px, node.loopBrethren[1].cycle.py)
@@ -487,7 +487,7 @@ if __name__ == "__main__":
 	
 	# topright green
 	node = node.links[1].next
-	## showLinks(node)
+	showLinks(node)
 
 	avg0 = (node.loopBrethren[1].cycle.px, node.loopBrethren[1].cycle.py)	
 	moveCycle(node.loopBrethren[0].cycle, 3, 11/12, 3, False, node.cycle.px, node.cycle.py)
