@@ -39,91 +39,14 @@ if __name__ == "__main__":
 				m.showLinksOfTypes.append(1)
 				m = m.links[1].next
 									
-																					
-	def isStar5Availabled(node):
-		for nln in node.loop.nodes:
-			if nln.cycle.moved:
-				return False
-			curr = nln.links[1].next	
-			if curr.loopBrethren[0].cycle.moved:
-				return False
-			if curr.loopBrethren[1].cycle.moved:
-				return False
-			if curr.loopBrethren[2].cycle.moved:
-				return False
-		return True
 							
 	#move nodes away from canvas center	
 	for n in diagram.nodes:
 		n.px /= 4
 		n.py /= 4
-		
 	
-	# place starter in center
-	
-	'''
-	# 5by6 [~][!]
-	node = diagram.nodeByAddress['00005']
-	#diagram.extendLoop(node.loop)
-	showLinks(node)
-	for i,nln in enumerate(node.loop.nodes):
-		moveCycle(nln.cycle, 1, i/5, 1+i*12/5)#, True)
-		curr = nln.links[1].next
-		showLinks(curr)	
-		moveCycle(curr.loopBrethren[0].cycle, 2, (i*4+1)/20, 0)#, True)
-		moveCycle(curr.loopBrethren[1].cycle, 3, (i*4+2)/20, 0)#, True)
-		moveCycle(curr.loopBrethren[2].cycle, 2, (i*4+3)/20, 0)#, True)
 		
-	#'''				
-	''' # [!] search… failed
-	
-	pp = 0
-	
-	def mk(lvl=0, path=""):
-		global pp
-		
-		if lvl >= 5:
-			show(diagram)
-			diagram.measure()
-			input()
-		
-		if lvl is 6:
-			return True
 				
-		cc = 0
-		for node in diagram.nodes:
-			alt = path+" "+str(cc)+"/"+str(len(diagram.nodes))
-			if pp % 100000 == 0:
-				print("["+str(lvl)+"] " + alt + " | testing " + str(node))
-			pp += 1
-			if isStar5Availabled(node):
-				#print("["+str(lvl)+"] starring " + str(node))				
-				# place starter in center
-				#diagram.extendLoop(node.loop)
-				#showLinks(node)
-				for i,nln in enumerate(node.loop.nodes):
-					moveCycle(nln.cycle, 1, i/5, 1+i*12/5, True)
-					curr = nln.links[1].next
-					#showLinks(curr)	
-					moveCycle(curr.loopBrethren[0].cycle, 2, (i*4+1)/20, 0, True)
-					moveCycle(curr.loopBrethren[1].cycle, 3, (i*4+2)/20, 0, True)
-					moveCycle(curr.loopBrethren[2].cycle, 2, (i*4+3)/20, 0, True)
-					
-				if mk(lvl+1, alt):
-					return True
-				
-				#diagram.collapseLoop(node.loop)
-				for i,nln in enumerate(node.loop.nodes):
-					nln.cycle.moved = False
-					curr = nln.links[1].next
-					curr.loopBrethren[0].cycle.moved = False
-					curr.loopBrethren[1].cycle.moved = False
-					curr.loopBrethren[2].cycle.moved = False
-			cc += 1									
-	mk()			
-			
-											
-	#''' 
 	# 6by5 [~][!]
 	
 	# place starter in center
@@ -196,7 +119,7 @@ if __name__ == "__main__":
 	
 	# top yellow
 	node = node.links[1].next
-	showLinks(node)
+	## showLinks(node)
 	
 	moveCycle(node.loopBrethren[0].cycle, 3, 9/12,  1, False, node.cycle.px, node.cycle.py)
 	moveCycle(node.loopBrethren[1].cycle, 1, 5/12, -5, False, node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
@@ -204,7 +127,7 @@ if __name__ == "__main__":
 		
 	# top green
 	node = node.links[1].next
-	showLinks(node)
+	## showLinks(node)
 	
 	moveCycle(node.loopBrethren[0].cycle, 3, 11/12, 11, False, node.cycle.px, node.cycle.py)
 	moveCycle(node.loopBrethren[1].cycle, 1,  7/12, -5, False, node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
@@ -231,7 +154,7 @@ if __name__ == "__main__":
 	
 	# topleft green
 	node = node.links[1].next
-	showLinks(node)
+	## showLinks(node)
 	
 	moveCycle(node.loopBrethren[0].cycle, 3, 11/12, 11, False, node.cycle.px, node.cycle.py)
 	moveCycle(node.loopBrethren[1].cycle, 1,  7/12, -5, False, node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
@@ -239,7 +162,7 @@ if __name__ == "__main__":
 
 	# topleft blue
 	node = node.links[1].next
-	showLinks(node)
+	## showLinks(node)
 	
 	moveCycle(node.loopBrethren[0].cycle, 3, 1/12, 3, False, node.cycle.px, node.cycle.py)
 	moveCycle(node.loopBrethren[1].cycle, 1, 9/12, 1, False, node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
@@ -271,7 +194,7 @@ if __name__ == "__main__":
 	
 	# botleft blue
 	node = node.links[1].next
-	showLinks(node)
+	## showLinks(node)
 	
 	moveCycle(node.loopBrethren[0].cycle, 3, 1/12, 3, False, node.cycle.px, node.cycle.py)
 	moveCycle(node.loopBrethren[1].cycle, 1, 9/12, 1, False, node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
@@ -279,7 +202,7 @@ if __name__ == "__main__":
 	
 	# botleft violet
 	node = node.links[1].next
-	showLinks(node)
+	## showLinks(node)
 	
 	avg0 = (node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
 	avg1 = (node.loopBrethren[1].cycle.px, node.loopBrethren[1].cycle.py)
@@ -321,7 +244,7 @@ if __name__ == "__main__":
 	
 	# bot violet
 	node = node.links[1].next
-	showLinks(node)
+	## showLinks(node)
 	
 	avg0 = (node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
 	moveCycle(node.loopBrethren[0].cycle, 3,  3/12, 1, False, node.cycle.px, node.cycle.py)
@@ -334,7 +257,7 @@ if __name__ == "__main__":
 	
 	# bot red
 	node = node.links[1].next
-	showLinks(node)
+	## showLinks(node)
 	
 	avg0 = (node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
 	avg1 = (node.loopBrethren[1].cycle.px, node.loopBrethren[1].cycle.py)
@@ -381,7 +304,7 @@ if __name__ == "__main__":
 	
 	# botright red
 	node = node.links[1].next
-	showLinks(node)
+	## showLinks(node)
 	
 	avg0 = (node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
 	avg2 = (node.loopBrethren[2].cycle.px, node.loopBrethren[2].cycle.py)	
@@ -399,7 +322,7 @@ if __name__ == "__main__":
 	
 	# botright orange
 	node = node.links[1].next
-	showLinks(node)
+	## showLinks(node)
 	
 	avg0 = (node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
 	avg1 = (node.loopBrethren[1].cycle.px, node.loopBrethren[1].cycle.py)
@@ -451,7 +374,7 @@ if __name__ == "__main__":
 			
 	# topright orange
 	node = node.links[1].next
-	showLinks(node)
+	## showLinks(node)
 	
 	avg0 = (node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
 	avg2 = (node.loopBrethren[2].cycle.px, node.loopBrethren[2].cycle.py)
@@ -469,7 +392,7 @@ if __name__ == "__main__":
 	
 	# topright yellow
 	node = node.links[1].next
-	showLinks(node)
+	## showLinks(node)
 	
 	avg0 = (node.loopBrethren[0].cycle.px, node.loopBrethren[0].cycle.py)
 	avg1 = (node.loopBrethren[1].cycle.px, node.loopBrethren[1].cycle.py)

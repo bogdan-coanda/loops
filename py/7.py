@@ -21,12 +21,7 @@ def run():
 	
 	def extendAddress(address):
 		node = diagram.nodeByAddress[address]
-		assert diagram.extendLoop(
-			sorted(node.loop.nodes, key = lambda n: n.looped).pop()
-			if not node.looped and len([n for n in node.loop.nodes if n.looped]) is not 0
-			else node)
-		for nln in node.loop.nodes:
-			nln.color = 𝒞(nln)
+		assert diagram.extendLoop(node.loop)
 		return node.loop
 				
 	extendAddress("123040")

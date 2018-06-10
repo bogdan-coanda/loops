@@ -95,7 +95,7 @@ def 𝒞(node):
 			return 'red'
 			
 
-def ℓ(diagram, node, forceNormal=False):	
+def ℓ(diagram, node, forceNormal=True):	
 	return colors.normal(node.ktype) if node.address[-1] is '0' or forceNormal else colors.light(node.ktype)
 					
 																
@@ -177,7 +177,8 @@ def show(diagram):
 				oval.line_width = 0.2
 				oval.set_line_dash([1,0])
 			else:
-				oval.line_width = 0.2
+				ui.set_color('gray')
+				oval.line_width = 0.1
 				oval.set_line_dash([1,0])
 			oval.stroke()			
 			
@@ -196,6 +197,14 @@ def show(diagram):
 						ui.set_color(ℓ(diagram, node, True))
 						circle.line_width = 1
 						circle.stroke()
+					else:
+						line = ui.Path()
+						line.move_to(node.px, node.py)
+						line.line_to(nextLink.next.px, nextLink.next.py)
+						line.line_width = nextLink.type * 0.25
+						ui.set_color('red' if nextLink.type is 1 else 'green')
+						line.line_cap_style = ui.LINE_CAP_ROUND
+						line.stroke()									
 			
 			nc += 1
 			
@@ -206,7 +215,7 @@ def show(diagram):
 		
 		
 def show9(diagram):
-	assert False, "stale code"
+	#assert False, "stale code"
 	with ui.ImageContext(diagram.W, diagram.H) as ctx:
 	
 		print("show()")
@@ -261,21 +270,21 @@ def show9(diagram):
 			ui.fill_rect(node.px - RR/2, node.py - RR/2, RR, RR)
 			
 
-			
-			if node.chainID is not None or node.showLinkOfType is not None:
-				nextLink = node.nextLink if node.chainID is not None else node.links[node.showLinkOfType]
-				line = ui.Path()
-				line.move_to(node.px, node.py)				
-				line.line_to(nextLink.next.px, nextLink.next.py)
-				line.line_width = nextLink.type * 0.25
-				if nextLink.type == 1:					
-					ui.set_color('red')
-				elif nextLink.type == 2:
-					ui.set_color('#0066ff')
-				elif nextLink.type == 3:
-					ui.set_color('#008800')
-				line.line_cap_style = ui.LINE_CAP_ROUND
-				line.stroke()				
+			if node.chainID is not None or len(node.showLinksOfTypes) is not 0:
+				for nextLink in set(chain([node.nextLink], [node.links[t] for t in node.showLinksOfTypes]) if node.chainID is not None else [node.links[t] for t in node.showLinksOfTypes]):
+					if nextLink.type is 2:
+						line = ui.Path()
+						line.move_to(node.px, node.py)
+						line.line_to(nextLink.next.px, nextLink.next.py)
+						line.line_width = nextLink.type * 0.25
+						ui.set_color(ℓ(diagram, node, True))
+						line.line_cap_style = ui.LINE_CAP_ROUND
+						line.stroke()			
+						
+						circle = ui.Path.oval(node.px - 1.5*RR/2, node.py - 1.5*RR/2, 1.5*RR, 1.5*RR)
+						ui.set_color(ℓ(diagram, node, True))
+						circle.line_width = 1
+						circle.stroke()
 			
 			nc += 1
 			
