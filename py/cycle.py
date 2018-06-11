@@ -15,3 +15,11 @@ class Cycle (object):
 		
 	def __repr__(self):
 		return "⟨cycle:"+str(self.index)+"@"+self.address+"|"+str(self.available_loops_count)+"⟩"
+		
+		
+	def availabled_node(self):
+		for node in self.nodes:
+			if node.loop.availabled and not node.loop.seen:
+				return node
+		return None
+				

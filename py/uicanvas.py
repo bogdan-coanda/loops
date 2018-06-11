@@ -121,17 +121,6 @@ def loadS(sol):
 		d.extendLoop(n)
 	return d
 
-
-def counts(diagram):
-	chains = []
-	loopedCount = 0
-							
-	for node in diagram.nodes:
-		if node.chainID is not None:
-			loopedCount += 1
-			if node.chainID not in chains:
-				chains.append(node.chainID)
-	return (len(chains), loopedCount)
 				
 def show(diagram):
 	if diagram.spClass == 9:

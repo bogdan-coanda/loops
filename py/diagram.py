@@ -612,13 +612,23 @@ class Diagram (object):
 		loop = choice(exs)
 		### print("[extend] collapse: " + str(loop))
 		return self.collapseLoop(loop)
-				
+
+								
 	def measure(self):
-		cc, lc = counts(self)
+		chains = []
+		loopedCount = 0
+								
+		for node in self.nodes:
+			if node.chainID is not None:
+				loopedCount += 1
+				if node.chainID not in chains:
+					chains.append(node.chainID)
+				
 		avs = [l for l in self.loops if l.availabled]
 		
-		print("[measure] " + str(len(avs))+":"+str(len(self.rx_singles))+":"+str(len(self.rx_unreachables)) + " | chain count: " + str(cc) + " | looped: " + str(lc) + "/" + str(len(self.nodes)) + " | remaining: " + str(len(self.nodes) - lc))		
-		return (cc, lc)
+		print("[measure] " + str(len(avs))+":"+str(len(self.rx_singles))+":"+str(len(self.rx_unreachables)) + " | chain count: " + str(len(chains)) + " | looped: " + str(loopedCount) + "/" + str(len(self.nodes)) + " | remaining: " + str(len(self.nodes) - loopedCount))		
+		
+		return (loopedCount, chains, avs)
 			
 mkfound = 0
 

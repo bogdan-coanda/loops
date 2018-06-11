@@ -21,12 +21,8 @@ def jk(diagram, lvl = 0, state = [], last_extended_node = None):
 #	if diagram.jkcc > 10000:
 #		return
 
-	if len(diagram.mx_singles) > 0:
+	if len(diagram.rx_singles) > 0:
 		availables = [sorted(diagram.mx_singles, key = cmp_to_key(lambda x, y: 0 if x.perm == y.perm else (1 if x.perm > y.perm else -1)))[0]]
-		is_normal = False
-
-	elif len(diagram.mx_sparks) > 0:
-		availables = [sorted(diagram.mx_sparks, key = cmp_to_key(lambda x, y: 0 if x.perm == y.perm else (1 if x.perm > y.perm else -1)))[0]]
 		is_normal = False
 
 	else:
@@ -104,8 +100,8 @@ def jk(diagram, lvl = 0, state = [], last_extended_node = None):
 
 def jkprintstate(diagram, lvl, state):
 	print()
-	print("[state] jk: " + str(diagram.jkcc) + " | lvl: " + str(lvl) + " | » " + sstr(state, diagram))
-	print("[drawn] looped: " + str(diagram.rx_looped_count) + " | availables: " + str(len(diagram.drawn.availables)) + " | singles: " + str(len(diagram.mx_singles)) + " | sparks: " + str(len(diagram.mx_sparks)) + " | unreachables: " + str(len(diagram.mx_unreachable_cycles)) + " | chains: " + " ".join([str(ch) for ch in diagram.drawn.chains]) + " | connected chains: " + " ".join([str(a) + "+" + str(b) for a, b in diagram.connectedChainPairs if a < b]))# + " | chain starters: " + " ".join([str(node) for node in diagram.chainStarters]))					
+	print("[state] jk: " + str(diagram.jkcc) + " | lvl: " + str(lvl) + " | » " + sstr(state, diagram))	
+	print("[drawn] looped: " + str(diagram.rx_looped_count) + " | availables: " + str(len([l for l in diagram.loops if l.availabled])) + " | singles: " + str(len(diagram.rx_singles)) + " | unreachables: " + str(len(diagram.rx_unreachables)))					
 
 
 def jkprintsol(diagram):
