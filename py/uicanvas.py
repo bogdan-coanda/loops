@@ -12,8 +12,8 @@ class colors (object):
 	green 			= '#0d0'
 	lightgreen 	= '#bfb'
 	
-	yellow			= '#ff0'
-	lightyellow	= '#ffb'
+	yellow			= '#dd0'
+	lightyellow	= '#ff9'
 	
 	orange			= '#f90'
 	lightorange	= '#feb'
@@ -25,7 +25,7 @@ class colors (object):
 	lightviolet	= '#fdf'
 	
 	indigo			= '#808'
-	lightindigo	= '#ece'
+	lightindigo	= '#cac'
 	
 	def normal(index):
 		if index is 0:
@@ -98,6 +98,9 @@ def 𝒞(node):
 def ℓ(diagram, node, forceNormal=True):	
 	return colors.normal(node.ktype) if node.address[-1] is '0' or forceNormal else colors.light(node.ktype)
 					
+def lc(diagram, cycle):
+	return colors.light(cycle.chainMarker)
+	
 																
 def loadE(extender):
 	from diagram import Diagram
@@ -131,8 +134,15 @@ def show(diagram):
 		ui.set_color('white')
 		ui.fill_rect(0, 0, diagram.W, diagram.H)
 
+		HD = 32
+		for cycle in diagram.cycles:
+			if cycle.chainMarker is not None:
+				oval = ui.Path.oval(cycle.px - HD/2, cycle.py - HD/2, HD, HD)
+				ui.set_color(lc(diagram, cycle))
+				oval.fill()
+
 		chainColors = { }	
-		loopedCount = 0
+		diagram.sh_looped_count = 0
 							
 		nc = 0
 		
@@ -144,7 +154,7 @@ def show(diagram):
 			oval = ui.Path.oval(node.px - RR/2, node.py - RR/2, RR, RR)
 
 			if node.chainID is not None:
-				loopedCount += 1
+				diagram.sh_looped_count += 1
 				if node.chainID not in chainColors:
 					chainColors[node.chainID] = 'white' if node.chainID == diagram.startNode.chainID else hls_to_rgb(random(), 0.5, 1)
 				ui.set_color(chainColors[node.chainID])
@@ -195,12 +205,29 @@ def show(diagram):
 						line.line_cap_style = ui.LINE_CAP_ROUND
 						line.stroke()									
 			
-			nc += 1
+			nc += 1			
+		
+		
+		for i,node in enumerate(diagram.pointers):
+			oval = ui.Path.oval(node.cycle.px - HD/2, node.cycle.py - HD/2, HD, HD)
+			oval.line_width = 2
+			if i % 2 is not 0:
+				oval.set_line_dash([1,1.05])
+			ui.set_color('black')
+			oval.stroke()
+			
+			oval = ui.Path.oval(node.px - RR, node.py - RR, 2*RR, 2*RR)
+			oval.line_width = 1
+			if i % 2 is not 0:
+				oval.set_line_dash([1,1.05])
+			ui.set_color('black')
+			oval.stroke()			
+			
 			
 		img = ctx.get_image()
 		img.show()
-		print("[show] chain count: " + str(len(chainColors)) + " | looped: " + str(loopedCount) + "/" + str(len(diagram.nodes)) + " | remaining: " + str(len(diagram.nodes) - loopedCount))
-		return (len(chainColors), loopedCount)
+		print("[show] chain count: " + str(len(chainColors)) + " | looped: " + str(diagram.sh_looped_count) + "/" + str(len(diagram.nodes)) + " | remaining: " + str(len(diagram.nodes) - diagram.sh_looped_count))
+		return (len(chainColors), diagram.sh_looped_count)
 		
 		
 def show9(diagram):
@@ -213,7 +240,7 @@ def show9(diagram):
 		ui.fill_rect(0, 0, diagram.W, diagram.H)
 
 		chainColors = { }	
-		loopedCount = 0
+		diagram.sh_looped_count = 0
 							
 		nc = 0
 		
@@ -250,7 +277,7 @@ def show9(diagram):
 												
 			
 			if node.chainID is not None:
-				loopedCount += 1
+				diagram.sh_looped_count += 1
 				if node.chainID not in chainColors:
 					chainColors[node.chainID] = 'white' if node.chainID == diagram.startNode.chainID else hls_to_rgb(random(), 0.5, 1)
 				ui.set_color(chainColors[node.chainID])
@@ -279,8 +306,8 @@ def show9(diagram):
 			
 		img = ctx.get_image()
 		img.show()
-		print("[show] chain count: " + str(len(chainColors)) + " | looped: " + str(loopedCount) + "/" + str(len(diagram.nodes)) + " | remaining: " + str(len(diagram.nodes) - loopedCount))
-		return (len(chainColors), loopedCount)
+		print("[show] chain count: " + str(len(chainColors)) + " | looped: " + str(diagram.sh_looped_count) + "/" + str(len(diagram.nodes)) + " | remaining: " + str(len(diagram.nodes) - diagram.sh_looped_count))
+		return (len(chainColors), diagram.sh_looped_count)
 		
 		
 def run():

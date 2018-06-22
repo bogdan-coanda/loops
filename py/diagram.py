@@ -32,7 +32,7 @@ class Diagram (object):
 			
 		self.arrowCount = [0, 0, 0]
 		self.jkcc = 0	
-		self.rx_looped_count = 0
+		self.sh_looped_count = 0
 		
 		# interesting cycles
 		self.rx_unreachables = set()
@@ -49,6 +49,10 @@ class Diagram (object):
 		
 		# runtime
 		self.chosenLoop = None
+		
+		# subsets
+		self.pointers = []
+		
 
 				
 	def generateGraph(self):
@@ -238,6 +242,7 @@ class Diagram (object):
 					node = appendPath(node, type)
 					
 				node.cycle.chained_by_count = 1 # generically chained by kernel
+				node.cycle.isKernel = True
 				for k in range(self.k1cc):
 					node.chainID = self.chainAutoInc
 					node = appendPath(node, 1)
@@ -508,6 +513,7 @@ class Diagram (object):
 
 
 	def forceUnavailable(self, loops):
+		#print("[forceUnavailable] loops: " + str(loops))
 		for loop in loops:
 			#assert loop.availabled
 			loop.availabled = False
