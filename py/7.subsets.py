@@ -326,8 +326,44 @@ if __name__ == "__main__":
 	# step 7 #
 	
 	jmp(4); adv(6); 
-	jmp(5)
+	jmp(5); adv(2);
+	extend()
 	chk()
+	
+	jmp(4); adv(6); 
+	jmp(5); adv(2);
+	jmp(2); adv(6);
+	extend()
+	chk()
+	
+	jmp(4); adv(6); 
+	jmp(5); adv(2);
+	jmp(3); adv(5);
+	extend()
+	chk()
+	
+	jmp(4); adv(6); 
+	jmp(5); adv(2);
+	jmp(4); adv(4);
+	extend()
+	chk()
+	
+	jmp(4); adv(6); 
+	jmp(5); adv(2);
+	jmp(5); adv(3);
+	extend()
+	chk()
+	#'''
+	# step 8 #
+	'''
+	jmp(4); adv(6); 
+	jmp(5); adv(2);
+	jmp(0); adv(1);
+	jmp(4); adv(5);
+	extend()
+	chk()
+	#'''
+	
 	
 	show(diagram)
 	diagram.measure()
