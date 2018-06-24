@@ -167,7 +167,7 @@ if __name__ == "__main__":
 	chk()
 							
 	# step 0 #
-	
+	'''
 	jmp(0); adv(5); extend()
 	chk()	
 	jmp(0); adv(5); 
@@ -273,18 +273,8 @@ if __name__ == "__main__":
 		nodes[i].cycle.chainMarker = m																																									
 	adv(4); extend()																																				
 	chk()
-	
+
 	# step 5 #
-	'''
-	jmp(0); adv(5); 
-	jmp(0); adv(6);
-	jmp(3); adv(5);
-	jmp(5); adv(5);
-	jmp(3); adv(6);
-	jmp(1); adv(6);
-	#extend()
-	chk()
-	#'''
 	
 	jmp(1); adv(4); 
 	jmp(0); adv(6);
@@ -353,18 +343,44 @@ if __name__ == "__main__":
 	jmp(5); adv(3);
 	extend()
 	chk()
-	#'''
+
 	# step 8 #
-	'''
-	jmp(4); adv(6); 
-	jmp(5); adv(2);
-	jmp(0); adv(1);
-	jmp(4); adv(5);
+	
+	def road8():
+		jmp(0); adv(5); 
+		jmp(0); adv(6);
+		jmp(3); adv(5);
+		jmp(5); adv(5);
+		jmp(1); adv(1);
+		jmp(0); adv(3);
+		
+	road8()
+	for i,m in enumerate([6, 5, 4, 3, 2, 1]):
+		nodes[i].cycle.chainMarker = m																																										
 	extend()
 	chk()
-	#'''
+
+	road8()
+	jmp(0); adv(4);
+	extend()
+	chk()
 	
-	
+	road8()
+	jmp(1); adv(3);
+	extend()
+	chk()
+
+	road8()
+	jmp(2); adv(2);
+	extend()
+	chk()
+
+	road8()
+	jmp(5); adv(6);
+	extend()
+	chk()					
+	#'''					
+					
 	show(diagram)
 	diagram.measure()
 	
