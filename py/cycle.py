@@ -25,4 +25,8 @@ class Cycle (object):
 			if node.loop.availabled and not node.loop.seen:
 				return node
 		return None
+		
+	
+	def chk(self):
+		assert len([n for n in self.nodes if n.loop.availabled and not n.loop.seen]) is self.available_loops_count
 				

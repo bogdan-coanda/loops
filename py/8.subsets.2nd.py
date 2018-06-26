@@ -114,6 +114,8 @@ if __name__ == "__main__":
 		
 		
 	def chk():	
+		for cycle in diagram.cycles:
+			cycle.chk()		
 		#print("[chk]")
 		global nodes
 		_p = diagram.pointers
@@ -133,7 +135,11 @@ if __name__ == "__main__":
 							avcc += 1
 					if avcc is not 0 and avcc is not len(nodes):
 						uncc += 1
-						diagram.forceUnavailable([node.loop for node in nodes])
+						for cycle in diagram.cycles:
+							cycle.chk()
+						diagram.forceUnavailable([node.loop for node in nodes if node.loop.availabled])
+						for cycle in diagram.cycles:
+							cycle.chk()						
 					if avcc is not 0:
 						chkcc += 1
 			else:
@@ -146,7 +152,11 @@ if __name__ == "__main__":
 							avcc += 1
 					if avcc is not 0 and avcc is not len(nodes):
 						uncc += 1
-						diagram.forceUnavailable([node.loop for node in nodes])
+						for cycle in diagram.cycles:
+							cycle.chk()
+						diagram.forceUnavailable([node.loop for node in nodes if node.loop.availabled])
+						for cycle in diagram.cycles:
+							cycle.chk()
 					if avcc is not 0:
 						chkcc += 1				
 					nxt()				
@@ -155,6 +165,8 @@ if __name__ == "__main__":
 		#print("[chk] cc: " + str(chkcc))
 		if uncc > 0:
 			print("[chk] unavailabled " + str(uncc) + " nodes")
+		for cycle in diagram.cycles:
+			cycle.chk()
 
 
 	def recolor():
