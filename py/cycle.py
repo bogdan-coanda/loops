@@ -6,7 +6,7 @@ class Cycle (object):
 		self.index = index
 		self.address = address
 		self.nodes = set() # late init
-		self.available_loops_count = 0 # late init
+		self.available_loops_count = 0 # late init # [~] need to debug as it's broken…
 		self.px = px
 		self.py = py
 		self.chained_by_count = 0

@@ -165,7 +165,7 @@ if __name__ == "__main__":
 		#print("[chk] cc: " + str(chkcc))
 
 	chk()
-							
+											
 	# step 0 #
 	'''
 	jmp(0); adv(5); extend()
