@@ -114,8 +114,8 @@ if __name__ == "__main__":
 		
 		
 	def chk():	
-		for cycle in diagram.cycles:
-			cycle.chk()		
+		#for cycle in diagram.cycles:
+			#cycle.chk()		
 		#print("[chk]")
 		global nodes
 		_p = diagram.pointers
@@ -135,11 +135,11 @@ if __name__ == "__main__":
 							avcc += 1
 					if avcc is not 0 and avcc is not len(nodes):
 						uncc += 1
-						for cycle in diagram.cycles:
-							cycle.chk()
+						#for cycle in diagram.cycles:
+							#cycle.chk()
 						diagram.forceUnavailable([node.loop for node in nodes if node.loop.availabled])
-						for cycle in diagram.cycles:
-							cycle.chk()						
+						#for cycle in diagram.cycles:
+							#cycle.chk()						
 					if avcc is not 0:
 						chkcc += 1
 			else:
@@ -152,11 +152,11 @@ if __name__ == "__main__":
 							avcc += 1
 					if avcc is not 0 and avcc is not len(nodes):
 						uncc += 1
-						for cycle in diagram.cycles:
-							cycle.chk()
+						#for cycle in diagram.cycles:
+							#cycle.chk()
 						diagram.forceUnavailable([node.loop for node in nodes if node.loop.availabled])
-						for cycle in diagram.cycles:
-							cycle.chk()
+						#for cycle in diagram.cycles:
+							#cycle.chk()
 					if avcc is not 0:
 						chkcc += 1				
 					nxt()				
@@ -165,8 +165,8 @@ if __name__ == "__main__":
 		#print("[chk] cc: " + str(chkcc))
 		if uncc > 0:
 			print("[chk] unavailabled " + str(uncc) + " nodes")
-		for cycle in diagram.cycles:
-			cycle.chk()
+		#for cycle in diagram.cycles:
+			#cycle.chk()
 
 
 	def recolor():
@@ -330,26 +330,103 @@ if __name__ == "__main__":
 
 	# ~~~ step 11 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''		
 	print("~~~ step 11 ~~~")				
-			
+	
 	def sx11():				
 		sx8(); adv(2); 
 		
-	sx11(); jmp(1); adv(4); jmp(0); adv(1); extend()
-	sx11(); jmp(2);	adv(3); jmp(0); adv(1); extend()
-	sx11(); jmp(3); adv(2); jmp(0); adv(1); extend()
-	sx11(); jmp(4); adv(1); jmp(0); adv(1); extend()
-
+	def sx11j1():	
+		sx11(); jmp(1); adv(4); jmp(0); adv(1); 
+		
+	sx11j1(); extend()
+	sx11j1(); jmp(0); adv(6); extend()
+	sx11j1(); jmp(4); adv(2); extend()
+	
+	def sx11j2():	
+		sx11(); jmp(2);	adv(3); jmp(0); adv(1); 
+		
+	sx11j2(); extend()
+	sx11j2(); jmp(0); adv(6); extend()
+	sx11j2(); jmp(4); adv(2); extend()
+		
+	def sx11j3():	
+		sx11(); jmp(3); adv(2); jmp(0); adv(1); 
+		
+	sx11j3(); extend()
+	sx11j3(); jmp(0); adv(6); extend()
+	sx11j3(); jmp(4); adv(2); extend()
+		
+	def sx11j4():	
+		sx11(); jmp(4); adv(1); jmp(0); adv(1); 
+	
+	sx11j4(); extend()
+	sx11j4(); jmp(0); adv(6); extend()
+	sx11j4(); jmp(4); adv(2); extend()
+	
 	# ~~~ step 12 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''		
 	print("~~~ step 12 ~~~")				
 
 	def sx12():
 		sx10(); adv(1); 		
+	
+	def sx12j0():	
+		sx12(); jmp(0); adv(2); jmp(2); adv(1); 
 		
-	sx12(); jmp(0); adv(2); jmp(2); adv(1); extend()
-	sx12(); jmp(1); adv(1); jmp(2); adv(1); extend()
-							
+	sx12j0(); extend()
+	sx12j0(); jmp(0); adv(6); extend()
+	sx12j0(); jmp(4); adv(2); extend()
+		
+	def sx12j1():
+		sx12(); jmp(1); adv(1); jmp(2); adv(1); 
+		
+	sx12j1(); extend()
+	sx12j1(); jmp(0); adv(6); extend()
+	sx12j1(); jmp(4); adv(2); extend()
+																										
+	# ~~~ ~~~~ ~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''							
+	print("~~~ step Ω ~~~")
+	
+	def Ω():
+		sx11j2(); adv(1); jmp(0); adv(6);
+		
+	Ω(); extend()
+	Ω(); jmp(1); adv(3); extend()
+	Ω(); jmp(1); adv(3); jmp(0); adv(1); jmp(0); adv(1);  extend()
+	sx3(); jmp(5); adv(4); jmp(0); adv(1); jmp(3); adv(3); extend()
+	
+	Ω(); jmp(1); adv(3); jmp(5); adv(3); jmp(1); adv(7); extend() # 2/2
+
+	Ω(); jmp(1); adv(3); jmp(2); adv(6); extend() # 1/2
+	Ω(); jmp(1); adv(3); jmp(5); adv(6); jmp(5); adv(1); extend() # F
+	Ω(); jmp(1); adv(3); jmp(5); adv(6); jmp(5); adv(1); jmp(1); adv(3); jmp(4); adv(4); extend() # F
+	
+	Ω(); jmp(1); adv(3); jmp(4); adv(4); jmp(0); adv(1); extend() # 1/2
+	sx3j1(); jmp(1); adv(5); extend() # F
+	sx3j0(); jmp(1); adv(5); extend() # F
+	Ω(); jmp(1); adv(3); jmp(5); adv(6); jmp(5); adv(1); jmp(2); adv(2); jmp(4); adv(4); extend() # F
+	sx1(); jmp(4); adv(4); #extend() # F
+	#sx1(); jmp(5); adv(3); extend() # F:1100527
+	#sx3(); jmp(5); adv(4); jmp(0); adv(1); jmp(2); adv(4); extend() # F:1010437
+	#Ω(); jmp(1); adv(3); jmp(5); adv(6); jmp(5); adv(1); jmp(2); adv(2); jmp(3); adv(5); extend() # F:1103524
+	#Ω(); jmp(1); adv(3); jmp(5); adv(6); jmp(5); adv(1); jmp(2); adv(2); jmp(2); adv(6); extend() # F:1103515
+	#Ω(); jmp(1); adv(3); jmp(5); adv(6); jmp(5); adv(1); jmp(2); adv(2); jmp(5); adv(3); extend() # F:1103542
+	#sx12j0(); jmp(2); adv(4); extend() # F:0201137
+	#sx11j3(); jmp(1); adv(5); extend() # F:1202127
+	#Ω(); jmp(1); adv(3); jmp(5); adv(3); jmp(3); adv(4); extend() # F:1233413
+	#Ω(); jmp(1); adv(3); jmp(5); adv(3); jmp(4); adv(3); extend() # F:1233422
+	#Ω(); jmp(1); adv(3); jmp(4); adv(4); jmp(2); adv(5); extend() # F:1232504 # Dd:65.35%(26352/40320)
+	
+	print("[nodes] " + str(nodes))
+	
+	#for k in range(diagram.spClass):
+		#adv(1)
+		#for i,node in enumerate(nodes):
+			#for nln in node.loop.nodes:
+				#if nln.address.startswith('1234'):
+					#print("... @ k: " + str(k) + " i: " + str(i))
+	
 	# ~~~ ~~~~ ~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''							
 	
 	show(diagram)
 	diagram.measure()
+	print(sorted(diagram.rx_singles, key = lambda c: c.address))
 	
