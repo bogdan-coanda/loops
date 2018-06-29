@@ -182,13 +182,41 @@ if __name__ == "__main__":
 							rc += 1
 							curr.cycle.chainMarker = CM
 						curr = curr.nextLink.next
-			if rc > 0:
-				print("[recolor] recolored " + str(rc) + " nodes")
+			#if rc > 0:
+				#print("[recolor] recolored " + str(rc) + " nodes")
 			diagram.forceUnavailable(set([loop for loop in diagram.loops if loop.availabled and len(set([node.cycle.chainMarker for node in loop.nodes if node.cycle.chainMarker is not None])) > 1]))
 			if rc > 0:
 				chk()
 				recolor()
+
+	# ~~~ walk ~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''							
+	print("~~~ walk ~ ~~~")
+	
+	wq = [list(nodes)]
+	while len(wq) > 0:
+		
+		t = wq.pop()
+		for node in t:
+			node.tuple = t
 			
+		nodes = list(t)
+		adv(1)
+		if nodes[0].tuple is None:
+			wq.append(list(nodes))
+
+		nodes = list(t)
+		jmp(0)
+		if nodes[0].tuple is None:
+			wq.append(list(nodes))
+
+	assert len([n for n in diagram.nodes if n.tuple is None]) is 0
+
+	def sew(address):
+		global nodes
+		tuple = list(diagram.nodeByAddress[address].tuple)
+		nodes = tuple
+		diagram.pointers = tuple
+								
 	# ~~~ ~~~~ ~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ # '''
 
 	chk()
@@ -196,25 +224,54 @@ if __name__ == "__main__":
 	# ~~~ step 0 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ # '''
 	print("~~~ step 0 ~~~")
 	
-	jmp(0); adv(5); extend()
-	jmp(1); adv(4); extend()
-	jmp(2); adv(3); extend()
-	jmp(3); adv(2); extend()
+	def sxj0a5():
+		jmp(0); adv(5);
+
+	def sxj1a4():
+		jmp(1); adv(4);
+		
+	def sxj2a3():
+		jmp(2); adv(3);
+		
+	def sxj3a2():
+		jmp(3); adv(2);
+																								
+	sxj0a5(); extend()
+	sxj1a4(); extend()
+	sxj2a3(); extend()
+	sxj3a2(); extend()
 
 	# ~~~ step 1 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''
 	print("~~~ step 1 ~~~")
 	
-	def sx1():
-		jmp(0); adv(5); jmp(0);	adv(6);
+	def sxj0a5j0a6():
+		sxj0a5(); jmp(0);	adv(6);
 		
-	sx1(); extend()
+	sxj0a5j0a6(); extend()
+	
+	# ~~~ step 7 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''		
+	print("~~~ step 2 ~~~")
+	
+	def sx7():
+		jmp(4); adv(1);
+	
+	def sxj4a3():	
+		jmp(4); adv(3);			
+
+	sxj4a3(); extend()
+
+	#sx7(); jmp(0); adv(1); extend()
+	#sx7(); jmp(2); adv(6); extend()
+	#sx7(); jmp(3); adv(5); extend()
+	#sx7(); jmp(4); adv(4); extend()
+	#sx7(); jmp(5); adv(3); extend()
 	
 	# ~~~ step 2 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''
 	print("~~~ step 2 ~~~")
-	
+	'''
 	def sx2():
 		sx1(); jmp(0); adv(1);
-			
+	
 	sx2(); jmp(0); adv(2); extend()
 	sx2(); jmp(1); adv(1); extend()
 	sx2(); jmp(3); adv(6); extend()
@@ -222,19 +279,19 @@ if __name__ == "__main__":
 
 	# ~~~ step 3 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ # '''
 	print("~~~ step 3 ~~~")
-	
+	'''
 	def sx3():
 		sx2(); jmp(4); adv(5);
 
 	def sx3j0():
 		sx3(); jmp(0); adv(2); jmp(0); adv(1); 
-						
-	sx3j0(); extend()
-	sx3j0(); jmp(0); adv(6); extend()
-	sx3j0(); jmp(4); adv(2); extend()
 
 	def sx3j1():
 		sx3(); jmp(1); adv(1); jmp(0); adv(1);
+	
+	sx3j0(); extend()
+	sx3j0(); jmp(0); adv(6); extend()
+	sx3j0(); jmp(4); adv(2); extend()
 	
 	sx3j1(); extend()
 	sx3j1(); jmp(0); adv(6); extend()
@@ -244,16 +301,16 @@ if __name__ == "__main__":
 
 	# ~~~ step 4 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''
 	print("~~~ step 4 ~~~")
-	
+	'''
 	def sx4():
 		sx3(); jmp(4); adv(7); jmp(4); adv(1);
-		
+	
 	sx4(); jmp(0); adv(5); extend();
 	sx4(); jmp(1); adv(4); extend();
 
 	# ~~~ step 5 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''
 	print("~~~ step 5 ~~~")
-	
+	'''
 	def sx5():
 		sx4(); jmp(0); adv(5); 
 		
@@ -273,7 +330,7 @@ if __name__ == "__main__":
 
 	# ~~~ step 6 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''
 	print("~~~ step 6 ~~~")
-	
+	'''	
 	sx4(); adv(1); extend()
 	sx4(); jmp(1); adv(6); extend()
 	sx4(); jmp(2); adv(5); extend()	
@@ -288,22 +345,9 @@ if __name__ == "__main__":
 	sx6mid(); jmp(0); adv(3); extend()
 	sx6mid(); jmp(1); adv(2); extend()
 					
-	# ~~~ step 7 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''		
-	print("~~~ step 7 ~~~")
-	
-	def sx7():
-		jmp(4); adv(1);
-		
-	sx7(); adv(2); extend()
-	sx7(); jmp(0); adv(1); extend()
-	sx7(); jmp(2); adv(6); extend()
-	sx7(); jmp(3); adv(5); extend()
-	sx7(); jmp(4); adv(4); extend()
-	sx7(); jmp(5); adv(3); extend()
-	
 	# ~~~ step 8 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''		
 	print("~~~ step 8 ~~~")
-	
+	'''
 	def sx8():
 		sx7(); adv(2); jmp(2); adv(1); jmp(3); adv(5);
 		
@@ -313,7 +357,7 @@ if __name__ == "__main__":
 
 	# ~~~ step 9 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''		
 	print("~~~ step 9 ~~~")			
-	
+	'''
 	sx8(); adv(2); extend()
 	sx8(); jmp(3); adv(5); extend()
 	sx8(); jmp(4); adv(4); extend()
@@ -321,7 +365,7 @@ if __name__ == "__main__":
 	
 	# ~~~ step 10 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''		
 	print("~~~ step 10 ~~~")				
-	
+	'''
 	def sx10():
 		sx8(); jmp(1); adv(1); jmp(2);
 	
@@ -330,7 +374,7 @@ if __name__ == "__main__":
 
 	# ~~~ step 11 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''		
 	print("~~~ step 11 ~~~")				
-	
+	'''
 	def sx11():				
 		sx8(); adv(2); 
 		
@@ -364,7 +408,7 @@ if __name__ == "__main__":
 	
 	# ~~~ step 12 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''		
 	print("~~~ step 12 ~~~")				
-
+	'''
 	def sx12():
 		sx10(); adv(1); 		
 	
@@ -382,29 +426,119 @@ if __name__ == "__main__":
 	sx12j1(); jmp(0); adv(6); extend()
 	sx12j1(); jmp(4); adv(2); extend()
 																										
-	# ~~~ ~~~~ ~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''							
+	# ~~~ step Ω ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''							
 	print("~~~ step Ω ~~~")
+	'''
+	sew('1234033'); extend() # bars
+	sew('1214042'); extend() # 1/2
+	sew('1214012'); extend() # 1/2
+	sew('1214033'); extend() # 1/2
+	sew('0030266'); extend() # 1/2
+	sew('0001157'); extend() # 2/2
+	sew('1100567'); extend() # F
+	#sew('0001247'); extend() # 2/2
+	#sew('0030205'); extend() # 2/2
+	#sew('0001167'); extend() # 2/2
+	#sew('0001105'); extend() # 2/2
+	#sew('0001114'); extend() # 2/2
+	#sew('1233467'); extend() # F
+	#sew('1233327'); extend() # F
+	#sew('1223402'); extend() # F
+	#sew('1232467'); extend() # F
+	#sew('1223402'); extend() # F
 	
+	#sew('1234037'); jmp(6); adv(2); #extend() # connector
+	#sew('1214047'); extend() # 2/2
+	#sew('1214137'); extend() # 2/2
+	#sew('1232565'); extend() # 2/2
+	#sew('1113533'); extend() # 2/2
+	#sew('1113233'); extend() # 2/2
+	#sew('1113224'); extend() # 2/2
+	#sew('1113436'); extend() # 2/2
+	#sew('1232417'); extend() # 2/2
+	#sew('1113155'); extend() # 2/2
+	#sew('1232417'); extend() # 2/2
+	
+	#sew('1214036'); extend() # 2/2
+	#sew('1022536'); extend() # 2/2
+	#sew('1022237'); extend() # 2/2
+	#sew('1022357'); extend() # 2/2
+	#sew('1022037'); extend() # 2/2
+	#sew('1022514'); extend() # 2/2
+	
+	#sew('1022026'); extend() # 2/2
+	#sew('1022541'); extend() # 2/2
+	#sew('1232450'); extend() # F
+	
+	
+	#sew('1233447'); extend() # 2/2
+	#sew('1233327'); extend() # 2/2
+	#sew('1100547'); extend() # F
+	#sew('1233316'); extend() # 2/2
+	
+	#sew('1022030'); extend() # 2/2
+	#sew('1233325'); extend() # 2/2	
+	#sew('1100547'); extend() # F
+	#sew('1233335'); extend() # 2/2
+	#sew('1233316'); extend() # 2/2
+	
+	#sew('1233416'); extend() # 2/2
+	#sew('1232566'); extend() # 2/2
+	#sew('1232407'); extend() # 2/2
+	#sew('1113342'); extend() # F
+	#sew('1113115'); extend() # F
+	#sew('1113242'); extend() # F
+	#sew('1113233'); extend() # F
+	
+	# ~~~ ~~~~ ~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''							
+	'''
 	def Ω():
 		sx11j2(); adv(1); jmp(0); adv(6);
 		
 	Ω(); extend()
-	Ω(); jmp(1); adv(3); extend()
-	Ω(); jmp(1); adv(3); jmp(0); adv(1); jmp(0); adv(1);  extend()
-	sx3(); jmp(5); adv(4); jmp(0); adv(1); jmp(3); adv(3); extend()
+	Ω(); jmp(5); adv(4); extend() # S
 	
-	Ω(); jmp(1); adv(3); jmp(5); adv(3); jmp(1); adv(7); extend() # 2/2
-
-	Ω(); jmp(1); adv(3); jmp(2); adv(6); extend() # 1/2
-	Ω(); jmp(1); adv(3); jmp(5); adv(6); jmp(5); adv(1); extend() # F
-	Ω(); jmp(1); adv(3); jmp(5); adv(6); jmp(5); adv(1); jmp(1); adv(3); jmp(4); adv(4); extend() # F
+	Ω(); jmp(5); adv(4); jmp(3); adv(1); jmp(4); adv(6); extend() # 1/2:1232561
+	Ω(); jmp(5); adv(4); jmp(3); adv(1); jmp(4); adv(6); jmp(0); adv(1); jmp(3); adv(7); extend() # 2/2:111353
+	Ω(); jmp(5); adv(4); jmp(3); adv(1); jmp(4); adv(6); jmp(0); adv(1); jmp(3); adv(4); jmp(2); adv(1); jmp(2); extend() # 1/2:111323
+	Ω(); jmp(5); adv(4); jmp(3); adv(1); jmp(4); adv(6); jmp(0); adv(1); jmp(3); adv(4); jmp(4); adv(6); extend() # 1/2:111311
 	
-	Ω(); jmp(1); adv(3); jmp(4); adv(4); jmp(0); adv(1); extend() # 1/2
-	sx3j1(); jmp(1); adv(5); extend() # F
-	sx3j0(); jmp(1); adv(5); extend() # F
-	Ω(); jmp(1); adv(3); jmp(5); adv(6); jmp(5); adv(1); jmp(2); adv(2); jmp(4); adv(4); extend() # F
-	sx1(); jmp(4); adv(4); #extend() # F
+	#Ω(); jmp(5); adv(4); jmp(3); adv(1); jmp(4); adv(6); jmp(0); adv(1); jmp(3); adv(4); jmp(2); adv(1); jmp(2); adv(7); extend() # 2/2:1113233
+	#Ω(); jmp(1); adv(3); jmp(5); adv(3); jmp(1); adv(6); extend() # F:123346
+	#Ω(); jmp(1); adv(3); jmp(2); adv(6); jmp(1); adv(7); extend() # F:123241
+	
+	#Ω(); jmp(5); adv(4); jmp(3); adv(1); jmp(4); adv(6); jmp(0); adv(1); jmp(3); adv(4); jmp(2); adv(1); jmp(3); adv(6); extend() # 2/2:1113224
+	#Ω(); jmp(5); adv(4); jmp(3); adv(1); jmp(4); adv(6); jmp(0); adv(1); jmp(3); adv(4); jmp(0); adv(3); jmp(0); adv(4); extend() # 2/2:1113436
+	#Ω(); jmp(5); adv(4); jmp(3); adv(1); jmp(4); adv(6); jmp(0); adv(1); jmp(3); adv(4); jmp(4); adv(6); jmp(2); adv(4); extend() # 2/2:1113151
+	#Ω(); jmp(5); adv(4); jmp(3); adv(1); jmp(4); adv(6); jmp(0); adv(1); jmp(3); adv(4); jmp(4); adv(6); jmp(2); adv(2); jmp(2); adv(3); jmp(5); adv(3); extend() # 1/2:1202166
+		
+	#Ω(); jmp(1); adv(3); jmp(0); adv(1); extend() # 2/2:1233325/7
 	#sx1(); jmp(5); adv(3); extend() # F:1100527
+	#Ω(); jmp(1); adv(3); jmp(2); adv(6); jmp(1); adv(7); extend() # 2/2:1232417/0
+		
+	#Ω(); jmp(1); adv(3); jmp(0); adv(1); jmp(0); adv(1); extend() # F:1233316
+	#sx3(); jmp(5); adv(4); jmp(0); adv(1); jmp(3); adv(3); extend() # F:1010527
+	
+	#Ω(); jmp(1); adv(3); jmp(5); adv(3); jmp(1); adv(7); extend() # 2/2:1233466
+
+	#Ω(); jmp(1); adv(3); jmp(2); adv(6); jmp(1); adv(1); extend() # 2/2:1232437:1232416
+	#Ω(); jmp(1); adv(3); jmp(2); adv(6); jmp(0); adv(5); extend() # F:1232422
+	
+	
+	#Ω(); jmp(1); adv(3); jmp(5); adv(6); jmp(5); adv(1); extend() # F:1233352
+	#Ω(); jmp(1); adv(3); jmp(5); adv(6); jmp(5); adv(1); jmp(1); adv(3); jmp(4); adv(4); extend() # F:1112533
+	
+	#Ω(); jmp(1); adv(3); jmp(4); adv(4); jmp(0); adv(7); extend() # 2/2:123255 # 54.28%(21888/40320)
+	#Ω(); jmp(1); adv(3); jmp(4); adv(4); jmp(1); adv(6); extend() # F:1232565
+	#sx3j1(); jmp(1); adv(5); extend() # F:1211127
+	#sx3j0(); jmp(1); adv(5); extend() # F:1210227
+	#sx11j4(); jmp(2); adv(4); extend() # F:1201137
+	#sx11j4(); jmp(1); adv(5); extend() # F:1201227
+	##Ω(); jmp(1); adv(3); jmp(5); adv(3); jmp(3); adv(4); # extend() # F:1233413
+	#Ω(); jmp(1); adv(3); jmp(5); adv(3); jmp(4); adv(3); extend() # F:1233422
+		
+	#Ω(); jmp(1); adv(3); jmp(5); adv(6); jmp(5); adv(1); jmp(2); adv(2); jmp(4); adv(4); extend() # F:1103533
+	#sx1(); jmp(4); adv(4); extend() # F:1100437	
 	#sx3(); jmp(5); adv(4); jmp(0); adv(1); jmp(2); adv(4); extend() # F:1010437
 	#Ω(); jmp(1); adv(3); jmp(5); adv(6); jmp(5); adv(1); jmp(2); adv(2); jmp(3); adv(5); extend() # F:1103524
 	#Ω(); jmp(1); adv(3); jmp(5); adv(6); jmp(5); adv(1); jmp(2); adv(2); jmp(2); adv(6); extend() # F:1103515
@@ -428,5 +562,8 @@ if __name__ == "__main__":
 	
 	show(diagram)
 	diagram.measure()
-	print(sorted(diagram.rx_singles, key = lambda c: c.address))
+	singles = sorted(diagram.rx_singles, key = lambda c: c.address)
+	print(singles)
+	if len(singles) > 0:
+		print([n for n in singles[-1].nodes if n.loop.availabled])
 	

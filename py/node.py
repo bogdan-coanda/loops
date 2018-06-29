@@ -1,6 +1,6 @@
 class Node (object):
 	
-	__slots__ = ['perm', 'index', 'cycleIndex', 'address', 'nextLink', 'prevLink', 'loopBrethren', 'chainID', 'px', 'py', 'loop', 'links', 'prevs', 'cycle', 'cycleBrethren', 'ktype', 'showLinksOfTypes']
+	__slots__ = ['perm', 'index', 'cycleIndex', 'address', 'nextLink', 'prevLink', 'loopBrethren', 'chainID', 'px', 'py', 'loop', 'links', 'prevs', 'cycle', 'cycleBrethren', 'ktype', 'showLinksOfTypes', 'tuple']
 	
 	def __init__(self, perm, index, cycleIndex, address, px, py):
 		self.perm = perm
@@ -36,6 +36,7 @@ class Node (object):
 				self.ktype = q
 
 		self.showLinksOfTypes = []
+		self.tuple = None
 		
 																		
 	def __repr__(self):
