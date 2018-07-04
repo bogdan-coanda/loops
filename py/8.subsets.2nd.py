@@ -106,6 +106,11 @@ if __name__ == "__main__":
 		print("[extend:"+str(ex)+"] "+str(sorted(groupby([node.ktype for node in nodes], G = lambda g: len(g)).items())))
 		for i,node in enumerate(nodes):
 			#print("[ext] "+str(i)+": "+str(node))
+			if node.cycle.chainMarker is None:
+				cms = [nln for nln in node.loopBrethren if nln.cycle.chainMarker is not None]
+				if len(cms) > 0:
+					print("[cms]")
+					node = cms[0]
 			assert diagram.extendLoop(node.loop), "failed to extend " + str(node) + " @ " + str(i)
 			for nln in node.loopBrethren:
 				#print("[ext] nln: "+str(node))
@@ -220,6 +225,13 @@ if __name__ == "__main__":
 		tuple = list(diagram.nodeByAddress[address].tuple)
 		nodes = tuple
 		diagram.pointers = tuple
+								
+	def single():
+		wc = 0; 
+		while len(diagram.rx_singles) > 0 and len(diagram.rx_unreachables) is 0:
+			wc += 1; sew(sorted(diagram.rx_singles, key = lambda c: c.address)[-1].availabled_node().address); extend() # F
+		print('[singling] count: ' + str(wc))								
+		return wc
 								
 	# ~~~ ~~~~ ~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ # '''
 
@@ -341,47 +353,127 @@ if __name__ == "__main__":
 	# ~~~ step Ω ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''							
 	print("~~~ step Ω ~~~")
 	
-	'''
-2: ⟨cycle:191@000432|2⟩ | 0004323: ['0004234'] | 0004327: ['0004347']
-8: ⟨cycle:683@003114|2⟩ | 0031147: ['0031127'] | 0031143: ['0031232']
-14: ⟨cycle:1892@021002|2⟩ | 0210027: ['0210047'] | 0210023: ['0210534']
-18: ⟨cycle:2550@100042|2⟩ | 1000427: ['1000447'] | 1000423: ['1000334']
-23: ⟨cycle:3399@110054|2⟩ | 1100547: ['1100527'] | 1100543: ['1100032']
-0: ⟨cycle:54@000115|2⟩ | 0001157: ['0001137'] | 0001153: []
-3: ⟨cycle:197@000441|2⟩ | 0004417: ['0004437'] | 0004413: []
-4: ⟨cycle:242@001044|2⟩ | 0010444: [] | 0010446: ['1110445']
-5: ⟨cycle:345@001312|2⟩ | 0013120: ['0223121'] | 0013122: []
-6: ⟨cycle:529@002234|2⟩ | 0022346: ['0023245'] | 0022344: []
-7: ⟨cycle:677@003105|2⟩ | 0031053: [] | 0031057: ['0031037']
-9: ⟨cycle:812@003420|2⟩ | 0034200: [] | 0034203: ['0031500']
-10: ⟨cycle:839@003456|2⟩ | 0034563: ['0004566'] | 0034566: []
-11: ⟨cycle:856@010022|2⟩ | 0100222: [] | 0100220: ['0104321']
-12: ⟨cycle:1691@020014|2⟩ | 0200146: ['0231145'] | 0200144: []
-13: ⟨cycle:1752@020142|2⟩ | 0201422: [] | 0201420: ['1201421']
-15: ⟨cycle:1898@021011|2⟩ | 0210113: [] | 0210117: ['0210137']
-19: ⟨cycle:2556@100051|2⟩ | 1000513: [] | 1000517: ['1000537']
-20: ⟨cycle:2604@100200|2⟩ | 1002003: ['0001000'] | 1002000: []
-21: ⟨cycle:2631@100236|2⟩ | 1002363: ['1000066'] | 1002366: []
-22: ⟨cycle:3393@110045|2⟩ | 1100453: [] | 1100457: ['1100437']
-26: ⟨cycle:4633@122016|2⟩ | 1220163: ['0210266'] | 1220166: []
-27: ⟨cycle:4648@122040|2⟩ | 1220400: [] | 1220403: ['1100300']
-16: ⟨cycle:2300@022444|2⟩ | 0224440: [] | 0224444: []
-17: ⟨cycle:2466@023342|2⟩ | 0233422: [] | 0233426: []
-24: ⟨cycle:3747@111412|2⟩ | 1114126: [] | 1114122: []
-25: ⟨cycle:4379@120414|2⟩ | 1204140: [] | 1204144: []
-28: ⟨cycle:4895@123132|2⟩ | 1231322: [] | 1231326: []
-29: ⟨cycle:4932@123224|2⟩ | 1232240: [] | 1232244: []
-30: ⟨cycle:5001@123403|2⟩ | 1234033: [] | 1234037: []
-31: ⟨cycle:5008@123413|2⟩ | 1234133: [] | 1234137: []
-32: ⟨cycle:5015@123423|2⟩ | 1234237: [] | 1234233: []
-33: ⟨cycle:5022@123433|2⟩ | 1234333: [] | 1234337: []
-34: ⟨cycle:5029@123443|2⟩ | 1234437: [] | 1234433: []
-35: ⟨cycle:5036@123453|2⟩ | 1234537: [] | 1234533: []	
-	'''
+	def dualKey(chain):
+		cycle, ((base1, avs1), (base2, avs2)) = chain
+		return (-(len(avs1)+len(avs2)), abs(len(avs1)-len(avs2)), len(avs2)-len(avs1))
+			
+	def monoKey(chain):
+		cycle, ((base1, avs1), (base2, avs2)) = chain
+		return -len(avs1)
+			
+	def choose():
+		twos = sorted([cycle for cycle in diagram.cycles if cycle.available_loops_count == 2 and cycle.chained_by_count == 0], key = lambda c: c.address)		
+		avnodes = [(cycle, sorted([cn for cn in cycle.nodes if cn.loop.availabled], key = lambda c: c.address)) for cycle in twos]
+		chained = [(avnodes[0], [(node.address,[bro.address for bro in node.loopBrethren if bro.chainID is not None]) for node in avnodes[1]]) for avnodes in avnodes]
+		bothSided = [(cycle, ((base1, avs1), (base2, avs2))) for cycle, ((base1, avs1), (base2, avs2)) in chained if len(avs1) is not 0 and len(avs2) is not 0]				
+		
+		if len(bothSided) is not 0:	
+			sortedBoths = sorted(bothSided, key = dualKey)
+			chosen = sortedBoths[0]												
+		else:
+			sortedSingles = sorted(chained, key = monoKey)
+			chosen = sortedSingles[0]													
+				
+		cycle, ((base1, avs1), (base2, avs2)) = chosen			
+		print("[choose] " + str(cycle) + " | " + str(base1) + ":" + str(avs1) + " " + str(base2) + ":" + str(avs2))
+		return chosen	
+		
+	# lvl 1 § 1: ⟨cycle:60@000124|2⟩ | 0001243: ['0001332'] | 0001247: ['0001227']
+	sew('0001332'); extend() # 1/2 
+
+	# lvl 2 § 4: ⟨cycle:189@000430|2⟩ | 0004300: ['0214301'] | 0004304: []
+	sew('0214301'); extend() # 1/2
 	
-	# 1: ⟨cycle:60@000124|2⟩ | 0001243: ['0001332'] | 0001247: ['0001227']
-	#sew('0001332'); extend() # 1/2 # type:2/4/6 (yellow/red/indigo)
-	sew('0001227'); extend() # 2/2 # type:0 (blue)
+	# lvl 3
+	sew('1100453'); extend() # F
+	
+	# lvl 4 § 9: ⟨cycle:724@003213|2⟩ | 0032136: ['0001135'] | 0032137: ['0032157']
+	sew('0001135'); extend() # 1/2
+	
+	# lvl 5 § 16: ⟨cycle:1957@021134|2⟩ | 0211345: ['0210444'] | 0211347: ['0211337']
+	sew('0210444'); extend() # 1/2
+	
+	# lvl 6 § 23: ⟨cycle:3279@103303|2⟩ | 1033031: ['1032132', '1032043'] | 1033037: []
+	sew('1032132'); extend() # 1/2
+	
+	# lvl 7 § 26: ⟨cycle:1951@021125|2⟩ | 0211254: ['0210355'] | 0211255: ['0210354']
+	sew('0210354'); extend(); single() # 2/2 (sg:0)
+	
+	# lvl 8 § 16: ⟨cycle:736@003231|2⟩ | 0032316: ['0001404'] | 0032317: ['0032337']
+	sew('0032337'); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose() # 2/2
+		
+	# lvl 9 § [singling] count: 0 [choose] ⟨cycle:74@000144|2⟩ | 0001440:['0032352'] 0001445:['1101446']
+	sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+				
+	# lvl 11 § [singling] count: 1 [choose] ⟨cycle:745@003243|2⟩ | 0032433:['0032342'] 0032437:['0032427']
+	sew(avs1[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+	
+	# lvl 12 § [singling] count: 0 [choose] ⟨cycle:75@000145|2⟩ | 0001454:['1101455', '1002352'] 0001455:['1101454']
+	sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+	
+	# lvl 13 § [singling] count: 0 [choose] ⟨cycle:208@000455|2⟩ | 0004550:['0034563', '0004566'] 0004554:['1004555']
+	sew(avs1[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+	
+	# lvl 16 § [singling] count: 2 [choose] ⟨cycle:831@003445|2⟩ | 0034452:['0234555', '0034541'] 0034454:['0030353']
+	sew(avs2[0]); extend(); single(); #cycle, ((base1, avs1), (base2, avs2)) = choose()
+	
+	def judge(chosen):
+		cycle, ((base1, avs1), (base2, avs2)) = chosen
+		
+		if len(diagram.rx_unreachables) is not 0:
+			return
+		
+		if len(avs1) is 0:
+			avs1 = [base1]
+		if len(avs2) is 0:
+			avs2 = [base2]
+			
+		
+	
+	judge(choose())
+	
+	# lvl 20 § [singling] count: 3 [choose] ⟨cycle:88@000204|2⟩ | 0002040:['0001141', '0001052'] 0002043:['0002132']
+	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+	
+	# lvl 21 § [singling] count: 0 [choose] ⟨cycle:2449@023316|2⟩ | 0233162:['0023163', '0202161'] 0233166:['0233150']
+	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+			
+	# lvl 19 § [singling] count: 2 [choose] ⟨cycle:1936@021104|2⟩ | 0211040:['0210141', '1210053'] 0211041:['0210140']
+	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+	
+	# lvl 22 § [singling] count: 2 [choose] ⟨cycle:1640@013402|2⟩ | 0134025:['0103026', '0121012'] 0134027:['0134037', '0134047']
+	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+	
+	# lvl 23 § [singling] count: 0 [choose] ⟨cycle:748@003246|2⟩ | 0032461:['0031562', '1031563'] 0032466:['0001465']
+	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+		
+	# lvl 30 § [singling] count: 6 [choose] ⟨cycle:1349@012205|2⟩ | 0122051:['0122142', '0122324', '0122560'] 0122057:['0122067']
+	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+					
+	# lvl 25 § [singling] count: 1 [choose] ⟨cycle:752@003253|2⟩ | 0032532:['0032443', '0031544'] 0032537:['0032517', '0032527']
+	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+	
+	# lvl 27 § [singling] count: 1 [choose] ⟨cycle:1383@012254|2⟩ | 0122540:['0031553', '1031554'] 0122543:['0120246', '0120230']
+	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+	
+	# lvl 34 § [singling] count: 1 [choose] ⟨cycle:1358@012220|2⟩ | 0122203:['0124005', '0120401'] 0122206:['0122260', '0122351']
+	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+	
+	# lvl 32 § [singling] count: 0 [choose] ⟨cycle:773@003323|2⟩ | 0033232:['0033143', '0024231'] 0033237:['0033257']
+	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()  
+	
+	# lvl 34 § [singling] count: 1 [choose] ⟨cycle:1358@012220|2⟩ | 0122203:['0124005', '0120401'] 0122206:['0122260', '0122351']
+	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+
+	# lvl 32 § [singling] count: 0 [choose] ⟨cycle:1519@013110|2⟩ | 0131101:['0032103', '0031204'] 0131105:['0131016', '0131000']
+	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+	
+	# lvl 26
+	#sew('1224327'); extend() # F
+	
+	# lvl 27
+	#sew('1224440'); extend() # F - dead
+	
 	
 	'''
 	sew('1234037'); extend() # 1/2		
@@ -553,20 +645,9 @@ if __name__ == "__main__":
 	# ~~~ ~~~~ ~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''							
 	print("~~~ ~~~~ ~ ~~~")	
 
-	show(diagram)
+	#show(diagram)
 	diagram.measure()
-	
-	twos = sorted([cycle for cycle in diagram.cycles if cycle.available_loops_count == 2 and cycle.chained_by_count == 0], key = lambda c: c.address)
-	print("[twos] len: " + str(len(twos)) + "\n" + str(twos))
-	
-	for i,cycle in enumerate(twos):
-		avnodes = sorted([cn for cn in cycle.nodes if cn.loop.availabled], key = lambda c: c.address)
-		line = ""
-		for node in avnodes:
-			chainedbros = [bro.address for bro in node.loopBrethren if bro.chainID is not None]
-			line += " | " + node.address + ": " + str(chainedbros)			
-		print(str(i) + ": " + str(cycle) + line)
-	
+		
 	singles = sorted(diagram.rx_singles, key = lambda c: c.address)
 	print("[singles] len: " + str(len(singles)) + "\n" + str(singles))	
 	if len(singles) > 0:
