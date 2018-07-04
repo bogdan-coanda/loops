@@ -3,7 +3,7 @@ from uicanvas import *
 from itertools import chain
 							
 	
-if __name__ == "__main__":
+def handle(binary=[]):
 	
 	diagram = Diagram(8)
 	
@@ -101,9 +101,9 @@ if __name__ == "__main__":
 										
 	ex = 0
 										
-	def extend():		
-		global ex
-		print("[extend:"+str(ex)+"] "+str(sorted(groupby([node.ktype for node in nodes], G = lambda g: len(g)).items())))
+	def extend(key=""):		
+		nonlocal ex
+		print("["+key+"][extend:"+str(ex)+"]["+str(nodes[0])+"]"+str(sorted(groupby([node.ktype for node in nodes], G = lambda g: len(g)).items())))
 		for i,node in enumerate(nodes):
 			#print("[ext] "+str(i)+": "+str(node))
 			if node.cycle.chainMarker is None:
@@ -126,7 +126,7 @@ if __name__ == "__main__":
 		#for cycle in diagram.cycles:
 			#cycle.chk()		
 		#print("[chk]")
-		global nodes
+		nonlocal  nodes
 		_p = diagram.pointers
 		nodes = list(bases)
 		chkcc = 0
@@ -221,7 +221,7 @@ if __name__ == "__main__":
 	assert len([n for n in diagram.nodes if n.tuple is None]) is 0
 
 	def sew(address):
-		global nodes
+		nonlocal nodes
 		tuple = list(diagram.nodeByAddress[address].tuple)
 		nodes = tuple
 		diagram.pointers = tuple
@@ -394,262 +394,77 @@ if __name__ == "__main__":
 	sew('0210444'); extend() # 1/2
 	
 	# lvl 6 § 23: ⟨cycle:3279@103303|2⟩ | 1033031: ['1032132', '1032043'] | 1033037: []
-	sew('1032132'); extend() # 1/2
+	sew('1033037'); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose() # 2/2
 	
 	# lvl 7 § 26: ⟨cycle:1951@021125|2⟩ | 0211254: ['0210355'] | 0211255: ['0210354']
-	sew('0210354'); extend(); single() # 2/2 (sg:0)
+	#sew('0210354'); extend(); single() # 2/2 (sg:0)
 	
 	# lvl 8 § 16: ⟨cycle:736@003231|2⟩ | 0032316: ['0001404'] | 0032317: ['0032337']
-	sew('0032337'); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose() # 2/2
+	#sew('0032337'); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose() # 2/2
 		
 	# lvl 9 § [singling] count: 0 [choose] ⟨cycle:74@000144|2⟩ | 0001440:['0032352'] 0001445:['1101446']
-	sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
 				
 	# lvl 11 § [singling] count: 1 [choose] ⟨cycle:745@003243|2⟩ | 0032433:['0032342'] 0032437:['0032427']
-	sew(avs1[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
 	
 	# lvl 12 § [singling] count: 0 [choose] ⟨cycle:75@000145|2⟩ | 0001454:['1101455', '1002352'] 0001455:['1101454']
-	sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
 	
 	# lvl 13 § [singling] count: 0 [choose] ⟨cycle:208@000455|2⟩ | 0004550:['0034563', '0004566'] 0004554:['1004555']
-	sew(avs1[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
 	
 	# lvl 16 § [singling] count: 2 [choose] ⟨cycle:831@003445|2⟩ | 0034452:['0234555', '0034541'] 0034454:['0030353']
-	sew(avs2[0]); extend(); single(); #cycle, ((base1, avs1), (base2, avs2)) = choose()
+	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+
+	for choice in binary:
+		if choice is 0:
+			address = avs1[0] if len(avs1) is not 0 else base1
+		else:
+			address = avs2[0] if len(avs2) is not 0 else base2
+		
+		try:
+			sew(address); extend("".join([str(x) for x in binary])); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
+		except Exception as e:
+			return (diagram, (cycle, ((base1, avs1), (base2, avs2))), str(e))
+			
+	print("~~~ ~~~~ ~ ~~~")	
+	return (diagram, (cycle, ((base1, avs1), (base2, avs2))), None)
 	
-	def judge(chosen):
-		cycle, ((base1, avs1), (base2, avs2)) = chosen
+	
+if __name__ == "__main__":
 		
-		if len(diagram.rx_unreachables) is not 0:
+	output = []
+		
+	def judge(binary=[]):
+		try:
+			
+			diagram, (cycle, ((base1, avs1), (base2, avs2))), broken = handle(binary)
+			if len(diagram.rx_unreachables) is not 0 or broken:
+				loopedCount, chains, avs = diagram.measure()
+				outstr = "[judge] ["+str(loopedCount)+"/"+str(len(diagram.nodes))+"] " + "".join([str(x) for x in binary]) + " | " + str(broken)
+				output.append(outstr)
+				input(outstr)
+				return
+				
+		except Exception as e:
+			print(e)
+			input()
 			return
-		
+					
 		if len(avs1) is 0:
 			avs1 = [base1]
+		
+		judge(binary + [0])	
+				
 		if len(avs2) is 0:
 			avs2 = [base2]
-			
-		
-	
-	judge(choose())
-	
-	# lvl 20 § [singling] count: 3 [choose] ⟨cycle:88@000204|2⟩ | 0002040:['0001141', '0001052'] 0002043:['0002132']
-	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
-	
-	# lvl 21 § [singling] count: 0 [choose] ⟨cycle:2449@023316|2⟩ | 0233162:['0023163', '0202161'] 0233166:['0233150']
-	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
-			
-	# lvl 19 § [singling] count: 2 [choose] ⟨cycle:1936@021104|2⟩ | 0211040:['0210141', '1210053'] 0211041:['0210140']
-	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
-	
-	# lvl 22 § [singling] count: 2 [choose] ⟨cycle:1640@013402|2⟩ | 0134025:['0103026', '0121012'] 0134027:['0134037', '0134047']
-	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
-	
-	# lvl 23 § [singling] count: 0 [choose] ⟨cycle:748@003246|2⟩ | 0032461:['0031562', '1031563'] 0032466:['0001465']
-	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
-		
-	# lvl 30 § [singling] count: 6 [choose] ⟨cycle:1349@012205|2⟩ | 0122051:['0122142', '0122324', '0122560'] 0122057:['0122067']
-	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
-					
-	# lvl 25 § [singling] count: 1 [choose] ⟨cycle:752@003253|2⟩ | 0032532:['0032443', '0031544'] 0032537:['0032517', '0032527']
-	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
-	
-	# lvl 27 § [singling] count: 1 [choose] ⟨cycle:1383@012254|2⟩ | 0122540:['0031553', '1031554'] 0122543:['0120246', '0120230']
-	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
-	
-	# lvl 34 § [singling] count: 1 [choose] ⟨cycle:1358@012220|2⟩ | 0122203:['0124005', '0120401'] 0122206:['0122260', '0122351']
-	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
-	
-	# lvl 32 § [singling] count: 0 [choose] ⟨cycle:773@003323|2⟩ | 0033232:['0033143', '0024231'] 0033237:['0033257']
-	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()  
-	
-	# lvl 34 § [singling] count: 1 [choose] ⟨cycle:1358@012220|2⟩ | 0122203:['0124005', '0120401'] 0122206:['0122260', '0122351']
-	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
-
-	# lvl 32 § [singling] count: 0 [choose] ⟨cycle:1519@013110|2⟩ | 0131101:['0032103', '0031204'] 0131105:['0131016', '0131000']
-	#sew(avs2[0]); extend(); single(); cycle, ((base1, avs1), (base2, avs2)) = choose()
-	
-	# lvl 26
-	#sew('1224327'); extend() # F
-	
-	# lvl 27
-	#sew('1224440'); extend() # F - dead
-	
-	
-	'''
-	sew('1234037'); extend() # 1/2		
-	sew('0001153'); extend() # 1/2
-	sew('0001243'); extend() # 1/2
-	sew('0001262'); extend() # 1/2
-	sew('0001440'); extend() # 1/2
-	sew('0010444'); extend() # 1/2
-	sew('0014111'); extend() # 1/2
-	sew('0014123'); extend() # 1/2
-	sew('0032136'); extend() # 1/2
-	sew('0032310'); extend() # 1/2
-	sew('0001411'); extend() # 1/2
-	sew('0032143'); extend() # 1/2
-	sew('0023136'); extend() # 1/2
-	sew('0023153'); extend() # 1/2
-	sew('1224237'); extend() # F
-	sew('1122137'); extend() # F
-	sew('1122046'); extend() # F
-	sew('1220452'); extend() # F
-	sew('1113117'); extend() # F
-	sew('1100531'); extend() # F
-	sew('1223437'); extend() # F
-	sew('1214427'); extend() # F
-	sew('1210332'); extend() # F
-	sew('1223540'); extend() # F
-	sew('1223246'); extend() # F
-	sew('1122344'); extend() # F
-	sew('1122326'); extend() # F
-	sew('1122216'); extend() # F
-	'''
-	'''
-	sew('1234037'); extend() # 1/2
-	sew('1232240'); extend() # 1/2
-	sew('1220400'); extend() # 1/2
-	sew('1200311'); extend() # 1/2
-	sew('1200232'); extend() # 1/2
-	sew('1100543'); extend() # 1/2
-	sew('1224235'); extend() # 1/2
-	sew('1210530'); extend() # 1/2
-	sew('1224021'); extend() # 1/2
-	sew('1210512'); extend() # 1/2
-	sew('1224055'); extend() # 1/2
-	sew('1202250'); extend() # 1/2
-	sew('1201350'); extend() # 1/2
-	sew('1201341'); extend() # 1/2
-	sew('1122042'); extend() # 1/2
-	sew('1210350'); extend() # 1/2
-	sew('1224201'); extend() # 1/2
-	sew('1210341'); extend() # 1/2
-	sew('1210521'); extend() # 1/2
-	sew('1122307'); extend() # F
-	sew('1210454'); extend() # 2/2
-	sew('1220452'); extend() # 1/2
-	sew('1210335'); extend() # 2/2
-	sew('1214442'); extend() # F
-	sew('1214524'); extend() # F
-	sew('1232416'); extend() # F
-	sew('1223416'); extend() # F
-	sew('1104226'); extend() # F # 18480/40320
-	'''
-	'''
-	def sx7():
-		jmp(4); adv(1);
-		
-	sx7(); jmp(2); adv(6); extend()
-	sx7(); jmp(3); adv(5); extend()
-	
-	def sx2():
-		sxj0a5j0a6(); jmp(0); adv(1);
-			
-	sx2(); jmp(0); adv(2); extend()			
-	sx2(); jmp(3); adv(6); extend()
-	sx2(); jmp(4); adv(5); extend()
-	
-	def sx3():
-		sx2(); jmp(4); adv(5);
-
-	def sx3j0():
-		sx3(); jmp(0); adv(2); jmp(0); adv(1); 
-
-	def sx3j1():
-		sx3(); jmp(1); adv(1); jmp(0); adv(1);
-			
-	sx3j0(); extend()
-	sx3j0(); jmp(0); adv(6); extend()
-	sx3j0(); jmp(4); adv(2); extend()
-	
-	sx3j1(); extend()
-	sx3j1(); jmp(0); adv(6); extend()
-	sx3j1(); jmp(4); adv(2); extend()
-			
-	def sx4():
-		sx3(); jmp(4); adv(7); jmp(4); adv(1);
-	
-	#sx4(); jmp(1); adv(4); extend();
-			
-	def sx5():
-		sx4(); jmp(0); adv(5); 
-		
-	def sx5j1():
-		sx5(); jmp(1); adv(1); jmp(3); adv(1); 
-
-	def sx5j3():
-		sx5(); jmp(3); adv(6); jmp(4); adv(1);
-
-	sx5j1(); extend()
-	sx5j1(); jmp(0); adv(6); extend()
-	sx5j1(); jmp(4); adv(2); extend()	
-	
-	def sx6mid():
-		sx3(); jmp(4); adv(7); jmp(0); adv(5)		
-													
-	sx4(); jmp(1); adv(6); extend()
-	sx4(); jmp(2); adv(5); extend()	
-	sx4(); jmp(4); adv(3); extend()	
-	sx4(); jmp(5); adv(2); extend()
-			
-	sx6mid(); adv(4); extend()	
-	sx6mid(); jmp(1); adv(2); extend()
-						
-	def sx8():
-		sx7(); adv(2); jmp(2); adv(1); jmp(3); adv(5);
-		
-	sx8(); jmp(1); adv(2); extend()	
-	sx8(); jmp(3); adv(5); extend()
-		
-	def sx10():
-		sx8(); jmp(1); adv(1); jmp(2);
-		
-	sx10(); adv(1); extend()
-		
-	def sx11():				
-		sx8(); adv(2); 
-		
-	def sx11j1():	
-		sx11(); jmp(1); adv(4); jmp(0); adv(1); 
-		
-	def sx11j2():	
-		sx11(); jmp(2);	adv(3); jmp(0); adv(1); 
 				
-	def sx11j3():	
-		sx11(); jmp(3); adv(2); jmp(0); adv(1); 
-
-	def sx11j4():	
-		sx11(); jmp(4); adv(1); jmp(0); adv(1); 
-			
-	sx11j3(); extend()
-	sx11j3(); jmp(0); adv(6); extend()
-	sx11j3(); jmp(4); adv(2); extend()		
+		judge(binary + [1])	
 	
-	sx11j4(); extend()
-	sx11j4(); jmp(0); adv(6); extend()
-	sx11j4(); jmp(4); adv(2); extend()
-		
-	def sx12():
-		sx10(); adv(1); 		
+	judge([int(i) for i in "001"])
 	
-	def sx12j0():	
-		sx12(); jmp(0); adv(2); jmp(2); adv(1); 
-
-	def sx12j1():
-		sx12(); jmp(1); adv(1); jmp(2); adv(1); 
-						
-	sx12j1(); extend()
-	sx12j1(); jmp(0); adv(6); extend()
-	sx12j1(); jmp(4); adv(2); extend()
-																										
-	# ~~~ ~~~~ ~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''							
-	print("~~~ ~~~~ ~ ~~~")	
-
-	#show(diagram)
-	diagram.measure()
-		
-	singles = sorted(diagram.rx_singles, key = lambda c: c.address)
-	print("[singles] len: " + str(len(singles)) + "\n" + str(singles))	
-	if len(singles) > 0:
-		print([n for n in singles[-1].nodes if n.loop.availabled])
+	print("~~~ ~~~~ ~~~~ ~~~")	
+	print("\n".join(output))
+	print("~~~ ~~~~ ~~~~ ~~~")	
 	
