@@ -135,8 +135,8 @@ class Diagram (object):
 		
 		nc = 0
 		for node in self.nodes:
-			if nc % 10000 is 0:
-				print("[links] " + str(nc) + "/" + str(len(self.nodes)))
+			#if nc % 10000 is 0:
+				#print("[links] " + str(nc) + "/" + str(len(self.nodes)))
 			for type in range(1, self.spClass):
 				next = self.nodeByPerm[DX(type, node.perm)]
 				link = Link(type, node, next)
