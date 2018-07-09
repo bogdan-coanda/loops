@@ -59,6 +59,32 @@ if __name__ == "__main__":
 			
 	unlooped_cycle_count, grouped_cycles_by_av = measure()
 	
-	diagram.pointers = [node]
+	# ~~~ walk ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''							
+	print("~~~ walk ~ ~~~")
+	
+	nodes = [diagram.nodeByAddress['000001'], diagram.nodeByAddress['000354'])]
+	
+	wq = [list(nodes)]
+	while len(wq) > 0:
+		
+		t = wq.pop()
+		for node in t:
+			node.tuple = t
+			
+		nodes = list(t)
+		adv(1)
+		if nodes[0].tuple is None:
+			wq.append(list(nodes))
+
+		nodes = list(t)
+		jmp(0)
+		if nodes[0].tuple is None:
+			wq.append(list(nodes))
+
+	assert len([n for n in diagram.nodes if n.tuple is None]) is 0
+	
+	# ~~~ ~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''							
+		
+	diagram.pointers = diagram.nodeByAddress['000001'].tuple
 	show(diagram)
 	
