@@ -15,7 +15,7 @@ if __name__ == "__main__":
 		print("cycle av counts: " + str([(k, len(v)) for k,v in grouped_cycles_by_av]))			
 		return (unlooped_cycle_count, grouped_cycles_by_av)
 
-	node = None
+	node = diagram.nodeByAddress['00000']
 	
 	def extend(address):
 		global node
@@ -25,49 +25,51 @@ if __name__ == "__main__":
 	# ~~~ ~~~~ ~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''							
 													
 	unlooped_cycle_count, grouped_cycles_by_av = measure()
-	
+		
 	# binders
-	#extend('00001')
-	#extend('00143')
-	#extend('00201')
-	#extend('00343')
+	#extend('00001') # red(4)    | Ι: @2 ~ blue(α) | II: @1 ~ blue(β)
+	#extend('00143') # yellow(2) | Ι: @2 ~ orange(3):3
+	#extend('00201') # yellow(2) | I: @4 ~ purple(5):3
+	extend('00343') # red(4)    | I: @4 ~ blue(β) | ΙI: @3 ~ blue(α)
 				
 	# islands
 	# I.
-	extend('10105')
-	extend('10305')
-	extend('10204')
-	#'''	
-	'''# II.
-	extend('11005')
-	extend('11205')
-	extend('11104')
-	#'''
-	'''# III.
-	extend('01105')
-	extend('01305')
-	extend('01204')	
-	#'''
-	'''# IV.
-	extend('02005')
-	extend('02205')
-	extend('02104')
-	#'''	
+	extend('10105') # blue(α)
+	extend('10305') # blue(β)
+	extend('10204') # green(1)
+	# » orange(3) » red(4) » purple(5)
+	# II.
+	extend('11005') # blue(β)
+	extend('11205') # blue(α)
+	extend('11104') # green(1)
+	# » purple(5) » red(4) » orange(3)
+	# III.
+	# extend('01105')
+	# extend('01305')
+	# extend('01204')	
+	# » orange(3) » yellow(2) » purple(5)
+	# IV.
+	# extend('02005')
+	# extend('02205')
+	# extend('02104')
+	# » purple(5) » yellow(2) » orange(3)
 	
-	extend('10020') # I.   | » x
-	#extend('11310') # II.  | » x
-	#extend('10011') # III. | » x
-	#extend('11333') # IV.  | » x
+	# [cycle] » blue(0) » green(1) » yellow(2) » orange(3) » red(4) » purple(5)
 	
-	extend('01211') # I.   | » y
-	#extend('01220') # II.	| » y
-	#extend('10233') # III. | » y
-	#extend('10210') # IV.  | » y
+	extend('10020') # I.   | » x | orange
+	#extend('11310') # II.  | » x | purple
+	#extend('10011') # III. | » x | orange
+	#extend('11333') # IV.  | » x | purple
 	
-	extend('11301') # I.   | » z
-	#extend('10043') # II.	| » z	
-	#extend('11342') # III. | » z
-	#extend('10002') # IV.  | » z	
+	#extend('01211') # I.   | » y | red
+	#extend('01220') # II.  | » y | red
+	#extend('10233') # III. | » y | yellow
+	#extend('10210') # IV.  | » y | yellow
+	
+	#extend('11301') # I.   | » z | purple
+	#extend('10043') # II.	| » z	| orange
+	#extend('11342') # III. | » z | purple
+	#extend('10002') # IV.  | » z | orange
 
 					
 	'''
