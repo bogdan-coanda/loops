@@ -1,6 +1,6 @@
 class Loop (object):
 	
-	__slots__ = ['index', 'nodes', 'availabled', 'extended', 'seen', '_root', '_type', '_pseudo', 'head', 'utype']
+	__slots__ = ['index', 'nodes', 'availabled', 'extended', 'seen', '_root', '_type', '_pseudo', '_psnode', 'head', 'utype']
 	
 	def __init__(self, index):
 		self.index = index
@@ -13,6 +13,7 @@ class Loop (object):
 		self._pseudo = None # cache for pseudo()
 		self.head = None # first node from sorted nodes list
 		self.utype = None
+		self._psnode = None
 
 		
 	def root(self):
@@ -43,7 +44,13 @@ class Loop (object):
 		if self._pseudo is None:
 			self._pseudo = min([n.address for n in self.nodes])
 		return self._pseudo
- 
+
+
+	def psnode(self):
+		if self._psnode is None:
+			self._psnode = sorted(self.nodes, key = lambda n: n.address)[0]
+		return self._psnode		
+
 		
 	def __repr__(self):
 		return '⟨loop:'+self.root()+'|'+':'.join([n.address[len(self._root):] for n in self.nodes])+'⟩'

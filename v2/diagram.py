@@ -125,6 +125,82 @@ class Diagram (object):
 		#assert len(gn_all) == len(self.perms)		
 		
 		
+	def reorder(self, startPerm):
+		
+		self.nodeByReaddress = {}
+		
+		gn_address = [0] * (self.spClass-1)
+		gn_perm = startPerm
+		gn_next = gn_perm
+		gn_cc = 0
+		
+		DM = 32
+		RH = 8
+
+		if self.spClass is 8:
+			xydelta = [
+				(0, DM*(self.spClass-2)*(self.spClass-1)), 
+				(DM*((self.spClass-3)*(self.spClass-2)-1), 0), 
+				(DM*(self.spClass-1), 0), 
+				(0, DM*(self.spClass)), 
+				(DM, 0), 
+				(0, DM), 
+				(0, 0)]				
+		elif self.spClass is 7:
+			xydelta = [
+				(DM*((self.spClass-3)*(self.spClass-2)-1), 0), 
+				(DM*(self.spClass-1), 0), 
+				(0, DM*self.spClass), 
+				(DM, 0), 
+				(0, DM), 
+				(0, 0)]
+		elif self.spClass is 6:
+			xydelta = [
+				(0, DM*self.spClass), 
+				(DM*(self.spClass-1), 0), 
+				(DM, 0), 
+				(0, DM), 
+				(0, 0)]
+		
+		def genNode(lvl = 2, qx = DM, qy = DM):
+			nonlocal gn_address, gn_perm, gn_next, gn_cc
+			
+			if lvl == self.spClass + 1:				
+				gn_perm = gn_next
+				qLast = gn_address[-1]
+				dx = math.floor(RH*math.cos((2*qLast - (self.spClass-1)) * math.pi / self.spClass))
+				dy = math.floor(RH*math.sin((2*qLast - (self.spClass-1)) * math.pi / self.spClass))				
+				
+				node = self.nodeByPerm[gn_perm]
+				node.readdress = "".join([str(a) for a in gn_address])
+				node.px = qx+dx
+				node.py = qy+dy
+				self.nodeByReaddress[node.readdress] = node
+
+				cycle = node.cycle
+				cycle.address = "".join([str(a) for a in gn_address[:-1]])
+				cycle.px = qx
+				cycle.py = qy
+				
+				gn_next = D1(gn_perm)
+				return
+			
+			'''	
+			if lvl == self.spClass:
+			'''	
+			for q in range(0, lvl):
+				gn_address[lvl - 2] = q
+				genNode(lvl + 1, qx + q * xydelta[lvl-2][0], qy + q * xydelta[lvl-2][1])
+				gn_next = DX(self.spClass - lvl + 1, gn_perm)
+
+			if lvl == self.spClass:
+				gn_cc += 1
+																	
+		genNode()
+		print("reordered nodes")
+		#assert len(gn_all) == len(self.perms)		
+				
+		
 	def generateLinks(self):
 		
 		self.links = [[]] * (self.spClass)
@@ -324,6 +400,12 @@ class Diagram (object):
 
 		# for ALL walked nodes, try make unavailable									
 		self.tryMakeUnavailable(walked)
+
+		# [~] short-circuit around empty unreachable cycles				
+		if len([cycle for cycle in self.cycles if cycle.chained_by_count is 0 and cycle.available_loops_count is 0]) is not 0:
+			#print("[short-circuit]")
+			self.collapseLoop(loop)
+			return False
 				
 		# extendLoop succeded
 		return True
@@ -390,4 +472,72 @@ class Diagram (object):
 		
 		# collapseLoop succeded
 		return True				
-																										
+
+	### ~~~ pointers ~~~ ###																																																				
+	
+	def walk(self, nodes): # generate tuples
+		def jmp(bid):
+			for i in range(len(nodes)):
+				if i % 2 == 0:
+					nodes[i] = nodes[i].loopBrethren[bid]
+				else:
+					nodes[i] = nodes[i].loopBrethren[-1-bid]
+			self.pointers = nodes				
+			#print("[jmp]", nodes[0])
+				
+		def adv(cid):
+			for i in range(len(nodes)):
+				if i % 2 == 0:
+					for _ in range(cid):
+						nodes[i] = nodes[i].links[1].next
+				else:
+					for _ in range(cid):
+						nodes[i] = nodes[i].prevs[1].node
+			self.pointers = nodes					
+			#print("[adv] cid: "+str(cid))
+					
+		self.tuples = []
+		wq = [list(nodes)]
+		while len(wq) > 0:
+			
+			t = wq.pop()
+			for node in t:
+				node.tuple = t
+				self.tuples.append(t)
+				
+			nodes = list(t)
+			adv(1)
+			if nodes[0].tuple is None:
+				wq.append(list(nodes))
+	
+			nodes = list(t)
+			jmp(0)
+			if nodes[0].tuple is None:
+				wq.append(list(nodes))
+	
+		assert len([n for n in self.nodes if n.tuple is None]) is 0																																																				
+		
+	
+	def pointToAddressTuple(self, address):
+		self.pointers = list(self.nodeByAddress[address].tuple)
+
+				
+	def jmp(self, bid):
+		for i in range(len(self.pointers)):
+			if i % 2 == 0:
+				self.pointers[i] = self.pointers[i].loopBrethren[bid]
+			else:
+				self.pointers[i] = self.pointers[i].loopBrethren[-1-bid]
+		#print("[jmp]", nodes[0])
+
+						
+	def adv(self, cid):
+		for i in range(len(self.pointers)):
+			if i % 2 == 0:
+				for _ in range(cid):
+					self.pointers[i] = self.pointers[i].links[1].next
+			else:
+				for _ in range(cid):
+					self.pointers[i] = self.pointers[i].prevs[1].node
+		#print("[adv] cid: "+str(cid))		
+		

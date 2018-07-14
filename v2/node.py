@@ -1,12 +1,13 @@
 class Node (object):
 	
-	__slots__ = ['perm', 'index', 'cycleIndex', 'address', 'nextLink', 'prevLink', 'loopBrethren', 'chainID', 'px', 'py', 'loop', 'links', 'prevs', 'cycle', 'cycleBrethren', 'ktype', 'showLinksOfTypes', 'tuple']
+	__slots__ = ['perm', 'index', 'cycleIndex', 'address', 'nextLink', 'prevLink', 'loopBrethren', 'chainID', 'px', 'py', 'loop', 'links', 'prevs', 'cycle', 'cycleBrethren', 'ktype', 'showLinksOfTypes', 'tuple', 'readdress']
 	
 	def __init__(self, perm, index, cycleIndex, address, px, py):
 		self.perm = perm
 		self.index = index
 		self.cycleIndex = cycleIndex
 		self.address = address
+		self.readdress = None
 		
 		self.nextLink = None
 		self.prevLink = None
