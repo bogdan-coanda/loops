@@ -143,8 +143,8 @@ if __name__ == "__main__":
 				input("~~~~~~~~~~~~~~~~~~")
 				return
 			else:
-				show(diagram)
-				input("No avloops")
+				#show(diagram)
+				#input("No avloops")
 				return
 	
 		if lvl is 27 or unlooped_cycle_count is 0:
