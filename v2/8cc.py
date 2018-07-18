@@ -68,17 +68,131 @@ if __name__ == "__main__":
 	for pairs in pairsperboxcount:
 		print("len: " + str(len(pairs)))
 		
+	for pairsindex, pairs in enumerate(pairsperboxcount):
+		for pair in pairs:
+			boxes = pair.split(':')
+			for box in boxes:
+				print(str(pairsindex) + " | " + box)
+				boxcycles = sorted([cycle for cycle in diagram.cycles if cycle.address.startswith(box)], key = lambda c: c.address)
+				mincycle = boxcycles[0]
+				maxcycle = boxcycles[-1]
+				diagram.draw_boxes.append((pairsindex, mincycle.px, mincycle.py, maxcycle.px - mincycle.px, maxcycle.py - mincycle.py))
+		
+		
+	def mkbox_blue_0(boxaddr):	
+		pointTo(boxaddr+'000'); extendPointers()
+		pointTo(boxaddr+'025'); extendPointers()
+		pointTo(boxaddr+'034'); extendPointers()
+		
+		pointTo(boxaddr+'125'); extendPointers()
+		pointTo(boxaddr+'134'); extendPointers()
+		
+	def mkbox_blue_1(boxaddr):			
+		pointTo(boxaddr+'100'); extendPointers()
+		pointTo(boxaddr+'125'); extendPointers()
+		pointTo(boxaddr+'134'); extendPointers()
+		
+		pointTo(boxaddr+'025'); extendPointers()
+		pointTo(boxaddr+'034'); extendPointers()
+				
+																										
+	def mkbox_green_0(boxaddr):
+		pointTo(boxaddr+'000'); extendPointers()
+		pointTo(boxaddr+'025'); extendPointers()
+		pointTo(boxaddr+'034'); extendPointers()
+		pointTo(boxaddr+'043'); extendPointers()
+		pointTo(boxaddr+'052'); extendPointers()
+		pointTo(boxaddr+'061'); extendPointers()
+		
+		pointTo(boxaddr+'125'); extendPointers()
+		pointTo(boxaddr+'134'); extendPointers()
+		pointTo(boxaddr+'143'); extendPointers()
+		pointTo(boxaddr+'152'); extendPointers()
+			
+	def mkbox_green_1(boxaddr):
+		pointTo(boxaddr+'100'); extendPointers()
+		pointTo(boxaddr+'125'); extendPointers()
+		pointTo(boxaddr+'134'); extendPointers()
+		pointTo(boxaddr+'143'); extendPointers()
+		pointTo(boxaddr+'152'); extendPointers()
+		pointTo(boxaddr+'161'); extendPointers()
+		
+		pointTo(boxaddr+'025'); extendPointers()
+		pointTo(boxaddr+'034'); extendPointers()
+		pointTo(boxaddr+'043'); extendPointers()
+		pointTo(boxaddr+'052'); extendPointers()
+		
+						
+	def mkbox_yellow_0(boxaddr):
+		# [~][!] missing mids
+		pointTo(boxaddr+'000'); extendPointers()
+		pointTo(boxaddr+'025'); extendPointers()
+		pointTo(boxaddr+'034'); extendPointers()
+		pointTo(boxaddr+'200'); extendPointers()
+		pointTo(boxaddr+'225'); extendPointers()
+		pointTo(boxaddr+'234'); extendPointers()
+		pointTo(boxaddr+'400'); extendPointers()
+		pointTo(boxaddr+'425'); extendPointers()
+		pointTo(boxaddr+'434'); extendPointers()
+		
+		pointTo(boxaddr+'125'); extendPointers()
+		pointTo(boxaddr+'134'); extendPointers()
+		pointTo(boxaddr+'325'); extendPointers()
+		pointTo(boxaddr+'334'); extendPointers()
+		pointTo(boxaddr+'525'); extendPointers()
+		pointTo(boxaddr+'534'); extendPointers()
+						
+	def mkbox_yellow_1(boxaddr):
+		# [~][!] missing mids
+		pointTo(boxaddr+'100'); extendPointers()
+		pointTo(boxaddr+'125'); extendPointers()
+		pointTo(boxaddr+'134'); extendPointers()
+		pointTo(boxaddr+'300'); extendPointers()
+		pointTo(boxaddr+'325'); extendPointers()
+		pointTo(boxaddr+'334'); extendPointers()
+		pointTo(boxaddr+'500'); extendPointers()
+		pointTo(boxaddr+'525'); extendPointers()
+		pointTo(boxaddr+'534'); extendPointers()
+		
+		pointTo(boxaddr+'025'); extendPointers()
+		pointTo(boxaddr+'034'); extendPointers()
+		pointTo(boxaddr+'225'); extendPointers()
+		pointTo(boxaddr+'234'); extendPointers()
+		pointTo(boxaddr+'425'); extendPointers()
+		pointTo(boxaddr+'434'); extendPointers()
+		
+				
+	# ~~~ ~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''
+		
+
+	#mkbox_blue_1('1234')
+			
+	#unwant()
+	
+	# green top-left
+	#mkbox_green_1('0020')
+	
+	# green bottom-right
+	#mkbox_green_1('1214')
+		
+	# yellow top-left'est
+	#mkbox_yellow_1('0014')
+
+	# yellow top-left'ish
+	#mkbox_yellow_1('0034')
+																	
+	# yellow top-middle
+	#mkbox_yellow_1('0130')
+
+	# yellow bot-middle
+	#mkbox_yellow_0('1104')
+	
 	# ~~~ ~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''
 	
-	pointTo('1234505'); extendPointers()
-	pointTo('1234514'); extendPointers()
-	pointTo('1234523'); extendPointers()
-	
-	pointTo('1234125'); extendPointers()
-	pointTo('1234134'); extendPointers()
-	
-	unwant()
-	
+	pointTo(H001.address); extendPointers()
+	#extend(H001.address)
+																					
+	'''
 	pointTo('0134406'); extendPointers()
 	pointTo('0134007'); extendPointers()
 	pointTo('0134107'); extendPointers()

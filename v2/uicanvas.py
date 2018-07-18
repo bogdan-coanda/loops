@@ -66,12 +66,25 @@ def ℓ(diagram, node, forceNormal=True):
 	return colors.normal(node.ktype) if node.address[-1] is '0' or forceNormal else colors.light(node.ktype)
 	
 	
+def lc(diagram, cycle):
+	return colors.normal(cycle.marker)
+		
+	
 def show(diagram):
 	with ui.ImageContext(diagram.W, diagram.H) as ctx:
 	
 		ui.set_color('white')
 		ui.fill_rect(0, 0, diagram.W, diagram.H)
 
+		HB = 24
+		#print("[show] boxes: " + str(len(diagram.draw_boxes)))
+		for boxtype, boxpx, boxpy, boxw, boxh in diagram.draw_boxes:
+			rect = ui.Path.rect(boxpx - HB/2 - 1*boxtype, boxpy - HB/2 - 1*boxtype, boxw + HB + 2*boxtype, boxh + HB + 2*boxtype)
+			#print("[show] rect:", boxpx, boxpy, boxw, boxh)
+			ui.set_color(colors.light(boxtype))
+			rect.line_width = 6
+			rect.stroke()
+			
 		HD = 32
 		for cycle in diagram.cycles:
 			if cycle.marker is not None:
@@ -149,14 +162,14 @@ def show(diagram):
 		for i,node in enumerate(diagram.pointers):
 			oval = ui.Path.oval(node.cycle.px - HD/2, node.cycle.py - HD/2, HD, HD)
 			oval.line_width = 2
-			if i % 2 is not 0:
+			if diagram.isMonoWalked is False and i % 2 is not 0:
 				oval.set_line_dash([1,1.05])
 			ui.set_color('black')
 			oval.stroke()
 			
 			oval = ui.Path.oval(node.px - RR, node.py - RR, 2*RR, 2*RR)
 			oval.line_width = 1
-			if i % 2 is not 0:
+			if diagram.isMonoWalked is False and i % 2 is not 0:
 				oval.set_line_dash([1,1.05])
 			ui.set_color('black')
 			oval.stroke()			
@@ -164,5 +177,5 @@ def show(diagram):
 			
 		img = ctx.get_image()
 		img.show()
-		print("[show] chain count: " + str(len(chainColors)) + " | looped: " + str(diagram.sh_looped_count) + "/" + str(len(diagram.nodes)) + " | remaining: " + str(len(diagram.nodes) - diagram.sh_looped_count))
+		print("[show] chain count: " + str(len(chainColors)) + " | looped: " + str(diagram.sh_looped_count) + "/" + str(len(diagram.nodes)) + " (" + "{0:.2f}".format(diagram.sh_looped_count*100.0/len(diagram.nodes)) + "%)" + " | remaining: " + str(len(diagram.nodes) - diagram.sh_looped_count))
 		return (len(chainColors), diagram.sh_looped_count)

@@ -50,7 +50,11 @@ class Loop (object):
 		if self._psnode is None:
 			self._psnode = sorted(self.nodes, key = lambda n: n.address)[0]
 		return self._psnode		
-
+		
+	
+	def chnode(self):
+		chnodes = [node for node in self.nodes if node.chainID is not None]
+		return chnodes[0] if len(chnodes) is not 0 else list(self.nodes)[0]
 		
 	def __repr__(self):
 		return '⟨loop:'+self.root()+'|'+':'.join([n.address[len(self._root):] for n in self.nodes])+'⟩'

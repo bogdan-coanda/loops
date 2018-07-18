@@ -27,6 +27,8 @@ class Diagram (object):
 				
 		# subsets
 		self.pointers = []
+		self.draw_boxes = []
+		self.isMonoWalked = False
 		
 		
 	def generateGraph(self):
@@ -50,6 +52,7 @@ class Diagram (object):
 		self.cycles = []
 		self.nodeByPerm = {}
 		self.nodeByAddress = {}
+		self.cycleByAddress = {}
 		
 		gn_address = [0] * (self.spClass-1)
 		gn_perm = self.perms[0]
@@ -106,8 +109,11 @@ class Diagram (object):
 				return
 				
 			if lvl == self.spClass:
-				self.cycles.append(Cycle(gn_cc, "".join([str(a) for a in gn_address[:-1]]), qx, qy))
-				self.cycles[-1].available_loops_count = self.spClass
+				cycle = Cycle(gn_cc, "".join([str(a) for a in gn_address[:-1]]), qx, qy)				
+				cycle.available_loops_count = self.spClass
+				self.cycles.append(cycle)
+				self.cycleByAddress[cycle.address] = cycle
+				 
 				
 			for q in range(0, lvl):
 				gn_address[lvl - 2] = q
@@ -341,7 +347,7 @@ class Diagram (object):
 		return True
 		
 
-	def extendLoop(self, loop):
+	def extendLoop(self, loop, shouldShort=True):
 
 		# assert/return false if not we can't or already did extend		
 		if loop.availabled is False or loop.extended is True:
@@ -402,7 +408,7 @@ class Diagram (object):
 		self.tryMakeUnavailable(walked)
 
 		# [~] short-circuit around empty unreachable cycles				
-		if len([cycle for cycle in self.cycles if cycle.chained_by_count is 0 and cycle.available_loops_count is 0]) is not 0:
+		if shouldShort and len([cycle for cycle in self.cycles if cycle.chained_by_count is 0 and cycle.available_loops_count is 0]) is not 0:
 			#print("[short-circuit]")
 			self.collapseLoop(loop)
 			return False
@@ -475,7 +481,7 @@ class Diagram (object):
 
 	### ~~~ pointers ~~~ ###																																																				
 	
-	def walk(self, nodes): # generate tuples
+	def dualwalk(self, nodes): # generate alternating directional tuples
 		def jmp(bid):
 			for i in range(len(nodes)):
 				if i % 2 == 0:
@@ -517,14 +523,45 @@ class Diagram (object):
 	
 		assert len([n for n in self.nodes if n.tuple is None]) is 0																																																				
 		
+	def monowalk(self, nodes): # generate unidirectional tuple
+		def jmp(bid):
+			for i in range(len(nodes)):
+				nodes[i] = nodes[i].loopBrethren[bid]
+		def adv(cid):
+			for i in range(len(nodes)):
+				for _ in range(cid):
+					nodes[i] = nodes[i].links[1].next
+					
+		self.tuples = []
+		wq = [list(nodes)]
+		while len(wq) > 0:
+			
+			t = wq.pop()
+			for node in t:
+				node.tuple = t
+				self.tuples.append(t)
+				
+			nodes = list(t)
+			adv(1)
+			if nodes[0].tuple is None:
+				wq.append(list(nodes))
 	
+			nodes = list(t)
+			jmp(0)
+			if nodes[0].tuple is None:
+				wq.append(list(nodes))
+				
+		self.isMonoWalked = True
+		assert len([n for n in self.nodes if n.tuple is None]) is 0																																																				
+			
+			
 	def pointToAddressTuple(self, address):
 		self.pointers = list(self.nodeByAddress[address].tuple)
 
 				
 	def jmp(self, bid):
 		for i in range(len(self.pointers)):
-			if i % 2 == 0:
+			if self.isMonoWalked or i % 2 == 0:
 				self.pointers[i] = self.pointers[i].loopBrethren[bid]
 			else:
 				self.pointers[i] = self.pointers[i].loopBrethren[-1-bid]
@@ -533,7 +570,7 @@ class Diagram (object):
 						
 	def adv(self, cid):
 		for i in range(len(self.pointers)):
-			if i % 2 == 0:
+			if self.isMonoWalked or i % 2 == 0:
 				for _ in range(cid):
 					self.pointers[i] = self.pointers[i].links[1].next
 			else:
