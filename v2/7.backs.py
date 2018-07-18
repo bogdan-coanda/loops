@@ -130,15 +130,33 @@ if __name__ == "__main__":
 	
 	# ~~~ ~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''
 		
+	skipped = 0
+		
 	def backbytuple(lvl = 0, road = []):
-		print("[lvl:"+str(lvl)+"] road: " + " ".join([str(pair[0])+"/"+str(pair[1]) for pair in road]))
+		global  skipped
+		if len(road) > lvl:
+			tuple = diagram.nodeByAddress[road[lvl]].tuple
+			for tuplenode in tuple:
+				diagram.extendLoop(tuplenode.loop)
+			for n in tuple:
+				if len([bro for bro in n.loopBrethren if bro.cycle.marker is not None]) is 0:
+					for bro in n.loopBrethren:
+						bro.cycle.marker = n.cycle.marker				
+			backbytuple(lvl+1, road)				
+			for i in range(len(tuple))[::-1]:
+				assert diagram.collapseLoop(tuple[i].loop)		
+	
+		road = road[:lvl]			
+			
+		print("[lvl:"+str(lvl)+"] road: " + " ".join([str(pair[0])+"/"+str(pair[1]) if len(pair) is 3 else "["+str(index)+"]" for index,pair in enumerate(road)]))
+		print("[lvl:"+str(lvl)+"] addr: " + " ".join([pair[2].address if len(pair) is 3 else pair for pair in road]))
 		
 		unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, chains_count = measure()		
 	
 		if available_loops_count is 0:
 			if unlooped_cycle_count is 0 and chains_count is 1:
 				show(diagram)
-				print("[lvl:"+str(lvl)+"] FOUND | road: " + " ".join([str(pair[0])+"/"+str(pair[1]) for pair in road]))
+				print("[lvl:"+str(lvl)+"] FOUND | road: " + " ".join([str(pair[0])+"/"+str(pair[1]) if len(pair) is 2 else pair for pair in road]))
 				print("[lvl:"+str(lvl)+"] FOUND:\n" + "\n".join([str(pair[2]) for pair in road]))
 				input("~~~~~~~~~~~~~~~~~~")
 				return
@@ -148,10 +166,18 @@ if __name__ == "__main__":
 				return
 	
 		if lvl is 27 or unlooped_cycle_count is 0:
-			show(diagram)
-			input("Intermediate")
-			#backbyloop(lvl, road)			
-			return
+			if len([loop for loop in diagram.loops if loop.availabled and loop.hasKernelNodes()]) > 0:
+				diagram.pointers = [loop.psnode() for loop in diagram.loops if loop.availabled]			
+				show(diagram)
+				input("Intermediate")
+				#backbyloop(lvl, road)			
+				return
+			else:
+				print("[skipping:"+str(skipped)+"]")
+				if skipped % 10 is 0:
+					input("...")
+				skipped += 1
+				return 
 							
 		cycle = sorted(grouped_cycles_by_av[0][1], key = lambda c: c.address)[0]
 		#print("[lvl:"+str(lvl)+"] selecting: " + str(cycle))
@@ -175,13 +201,12 @@ if __name__ == "__main__":
 				else:
 					break
 										
-			if len(road) > lvl:
-				if road[lvl][0] is nodeindex:
-					backbytuple(lvl+1, road)
-					road = road[:lvl]
-			else:
-				if excc is len(tuple):
-					backbytuple(lvl+1, road+[(nodeindex, len(avnodes), node)])
+			if excc is len(tuple):
+				for n in tuple:
+					if len([bro for bro in n.loopBrethren if bro.cycle.marker is not None]) is 0:
+						for bro in n.loopBrethren:
+							bro.cycle.marker = n.cycle.marker
+				backbytuple(lvl+1, road+[(nodeindex, len(avnodes), node)])
 
 			for i in range(excc-1, -1, -1):
 				assert diagram.collapseLoop(tuple[i].loop)
@@ -200,12 +225,84 @@ if __name__ == "__main__":
 			
 	# ~~~ ~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''
 		
-	unwant()
-	backbytuple(0, [(0, 5), (0, 4), (0, 4), (1, 3), (0, 7), (1, 5), (1, 4), (1, 5), (0, 3), (4, 5), (1, 5)])	
+	markCycle('12300', 3)
+	markCycle('12310', 4)
+	markCycle('12320', 5)
+	markCycle('12330', 1)
+	markCycle('12340', 2)
+			
+	#unwant()
 	
+	backbytuple(0, [
+		'123005',
+		'123011',
+		'122214',
+		'122314',
+		'122321',
+		'122402',
+		'121204',
+		'112005',
+		'113313',	
+	
+		'120410',
+		'001005',
+		'001113',		
+		'001020',
+		'010414',
+		'010000',
+		'011006',
+		'003030',
+		'002005',
+		
+		'113020',
+		'122023',
+		'120131',
+		'100040',
+		'100454',
+		'122144',
+		'122054'
+	])
+	
+	'''
+	pointTo('123005'); jtm(); extendPointers();
+	pointTo('123011'); jtm(); extendPointers();
+	pointTo('122214'); jtm(); extendPointers();
+	pointTo('122314'); jtm(); extendPointers();
+	pointTo('122321'); jtm(); extendPointers();	
+	pointTo('122402'); jtm(); extendPointers();	
+	pointTo('121204'); jtm(); extendPointers();
+	pointTo('112005'); jtm(); extendPointers();
+	pointTo('113313'); jtm(); extendPointers();
 
+	pointTo('120410'); jtm(); extendPointers();
+	pointTo('001005'); jtm(); extendPointers();
+	pointTo('001113'); jtm(); extendPointers();
+	pointTo('001020'); jtm(); extendPointers();
+	pointTo('010414'); jtm(); extendPointers();
+	pointTo('010000'); jtm(); extendPointers();
+	pointTo('011006'); jtm(); extendPointers();
+	pointTo('003030'); jtm(); extendPointers();
+	pointTo('002005'); jtm(); extendPointers();
+	
+	pointTo('113020'); jtm(); extendPointers();
+	pointTo('122023'); jtm(); extendPointers();
+	pointTo('120131'); jtm(); extendPointers();
+	pointTo('100040'); jtm(); extendPointers();
+	pointTo('100454'); jtm(); extendPointers();
+	pointTo('122144'); jtm(); extendPointers();
+	pointTo('122054'); jtm(); extendPointers();
+	
+	#loop = diagram.nodeByAddress['000101'].loop
+	#diagram.extendLoop(loop, False)
+	#diagram.pointers = loop.nodes
+	
+	#pointTo('122001'); jtm(); extendPointers();
+	#pointTo('100332'); jtm(); extendPointers();
+	
 	# ~~~ ~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''
 	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, chains_count = measure()	
+	#diagram.pointers += [cycle.avnode() for cycle in grouped_cycles_by_av[0][1]]
+	diagram.pointers = [loop.psnode() for loop in diagram.loops if loop.availabled]
 	show(diagram); 
 	
 	# [(cycle, len([node for node in cycle.nodes if node.loop.availabled]), len([node for node in cycle.nodes if node.loop.availabled and len([n for n in node.loop.nodes if n.chainID is not None]) > 0])) for cycle in [cycle for cycle in diagram.cycles if cycle.chained_by_count is 0 and len([node for node in cycle.nodes if node.loop.availabled and len([n for n in node.loop.nodes if n.chainID is not None]) > 0]) is 1]]
