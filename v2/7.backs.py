@@ -175,8 +175,13 @@ if __name__ == "__main__":
 				else:
 					break
 										
-			if excc is len(tuple):
-				backbytuple(lvl+1, road+[(nodeindex, len(avnodes), node)])
+			if len(road) > lvl:
+				if road[lvl][0] is nodeindex:
+					backbytuple(lvl+1, road)
+					road = road[:lvl]
+			else:
+				if excc is len(tuple):
+					backbytuple(lvl+1, road+[(nodeindex, len(avnodes), node)])
 
 			for i in range(excc-1, -1, -1):
 				assert diagram.collapseLoop(tuple[i].loop)
@@ -196,7 +201,7 @@ if __name__ == "__main__":
 	# ~~~ ~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''
 		
 	unwant()
-	backbytuple()	
+	backbytuple(0, [(0, 5), (0, 4), (0, 4), (0, 3), (2, 3), (2, 3), (2, 5), (1, 5), (0, 4), (3, 4), (0, 3), (2, 3), (2, 3), (0, 5), (0, 3)])	
 	
 
 	# ~~~ ~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''
