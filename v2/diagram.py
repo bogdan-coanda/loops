@@ -409,7 +409,7 @@ class Diagram (object):
 
 		# [~] short-circuit around empty unreachable cycles				
 		if shouldShort and len([cycle for cycle in self.cycles if cycle.chained_by_count is 0 and cycle.available_loops_count is 0]) is not 0:
-			#print("[short-circuit]")
+			print("[short-circuit]")
 			self.collapseLoop(loop)
 			return False
 				
