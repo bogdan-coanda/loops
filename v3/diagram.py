@@ -566,6 +566,19 @@ if __name__ == "__main__":
 		if avnodes is None:
 			show(diagram)
 			input("Found no avnodes")
+			
+			# clean markers
+			for cycle in diagram.cycles:
+				cycle.chain.marker = cycle.marker = None
+				
+			# reactivate loops
+			for loop in diagram.loops:
+				if not loop.availabled and diagram.checkAvailability(loop):
+					diagram.setLoopAvailabled(loop)
+				
+			show(diagram)
+			input("Cleaned and Reactivated")
+				
 			return True
 					
 		if grouped_cycles_by_av[0][0][0] is 0:
