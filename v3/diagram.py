@@ -229,7 +229,8 @@ class Diagram (object):
 	### ~~~ extensions ~~~ ###	
 				
 		
-	def extendLoop(self, loop):
+	def extendLoop(self, loop):		
+		#print("[extend] loop: " + str(loop))
 
 		# assert/return false if not we can't or already did extend		
 		if loop.availabled is False or loop.extended is True:
@@ -250,13 +251,21 @@ class Diagram (object):
 		
 		for node in loop.nodes:
 			assert not node.links[1].next.loop.availabled and not node.prevs[1].node.loop.availabled, "broken extension neighbours!!!"
-		#assert len([node for node in loop.nodes if node.links[1].next.loop.availabled or node.prevs[1].node.loop.availabled]) is 0, "broken extension neighbours!!!"		
-		return (loop, new_chain, affected_loops, affected_chains, affected_cycles)
+			
+		for lp in self.loops:
+			if lp.availabled:
+				assert len(set([node.cycle.chain.marker for node in lp.nodes if node.cycle.chain and node.cycle.chain.marker])) <= 1, "broken loops!!!"
+				
+		assert len([node for node in loop.nodes if node.links[1].next.loop.availabled or node.prevs[1].node.loop.availabled]) is 0, "broken extension neighbours!!!"		
+		loop.extension_result = (new_chain, affected_loops, affected_chains, affected_cycles)
+
+		return True
 		
 								
-	def collapseBack(self, loop, new_chain, affected_loops, affected_chains, affected_cycles):
-		
-		self.breakChain(new_chain, affected_loops, affected_chains, affected_cycles)
+	def collapseBack(self, loop):	
+		#print("[collapse] loop: " + str(loop))				
+		self.breakChain(*(loop.extension_result))
+		loop.extension_result = None
 		loop.extended = False
 																
 	
@@ -300,26 +309,16 @@ class Diagram (object):
 			
 			# check marker			
 			if old_chain.marker:
-				assert new_chain.marker is None or new_chain.marker is old_chain.marker
+				assert new_chain.marker is None or new_chain.marker is old_chain.marker, "broken availabled loops!!!"
 				new_chain.marker = old_chain.marker
 				
 			# move cycles to new chain
 			for cycle in old_chain.cycles:
 				cycle.chain = new_chain
 				new_chain.cycles.append(cycle)
-							
-			# move/remember loops
-			for loop in old_chain.loops:
-				if loop.availabled:
-					if not self.checkAvailability(loop):
-						# remember erased loop
-						self.setLoopUnavailabled(loop)
-						affected_loops.append(loop)
-					else:
-						# move still available loop to new chain
-						new_chain.loops.append(loop)
-			
+										
 			# kill chain
+			#print("[makeChain] removing: " + str(old_chain))
 			self.chains.remove(old_chain)			
 			
 		# for every other unlooped cycle
@@ -334,7 +333,21 @@ class Diagram (object):
 			cycle.chain = new_chain
 			new_chain.cycles.append(cycle)
 
-			# move/remember loops
+		# move/remember loops												
+		# for each old chain
+		for old_chain in affected_chains:												
+			for loop in old_chain.loops:
+				if loop.availabled:
+					if not self.checkAvailability(loop):
+						# remember erased loop
+						self.setLoopUnavailabled(loop)
+						affected_loops.append(loop)
+					else:
+						# move still available loop to new chain
+						new_chain.loops.append(loop)
+						
+		# for every other unlooped cycle
+		for cycle in affected_cycles:
 			for node in cycle.nodes:
 				loop = node.loop
 				if loop.availabled:
@@ -345,22 +358,25 @@ class Diagram (object):
 					else:
 						# move still available loop to new chain
 						new_chain.loops.append(loop)
-												
+																																					
 		# a new chain is born
+		#print("[makeChain] adding: " + str(new_chain))
 		self.chains.add(new_chain)
 		return (new_chain, affected_loops)
 		
 		
 	def breakChain(self, new_chain, affected_loops, affected_chains, affected_cycles):
+		#print("[breakChain] removing: " + str(new_chain))
 		self.chains.remove(new_chain)
 		for chain in affected_chains:
+			#print("[breakChain] adding: " + str(chain))
 			self.chains.add(chain)
-			for cycle in affected_cycles:
+			for cycle in chain.cycles:
 				cycle.chain = chain
 		for cycle in affected_cycles:
 			cycle.chain = None
 		for loop in affected_loops:
-			self.setLoopAvailabled(affected_loops)
+			self.setLoopAvailabled(loop)
 					
 					
 	### ~~~ pointers ~~~ ###																																																				
@@ -472,7 +488,8 @@ class Diagram (object):
 if __name__ == "__main__":
 	
 	diagram = Diagram(7)
-
+	road = []
+	
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 	def measure():
@@ -480,17 +497,25 @@ if __name__ == "__main__":
 		grouped_cycles_by_av = sorted(groupby([c for c in diagram.cycles if c.chain is None], 
 			K = lambda c: (c.available_loops_count, -len([node for node in c.nodes if node.loop.availabled and len([n for n in node.loop.nodes if n.cycle.chain is not None]) > 0]))
 		).items())
-		available_loops_count = len([loop for loop in diagram.loops if loop.availabled])
-		print("--- measure ---")
-		print("unlooped cycles: " + str(unlooped_cycle_count))
-		print("cycle av counts: " + str([((k, q), len(v)) for (k,q),v in grouped_cycles_by_av]))			
-		print("cycles[" + str(grouped_cycles_by_av[0][0]) + "]: " + str(grouped_cycles_by_av[0][1]))		
-		print("available loops: " + str(available_loops_count) + "/" + str(len(diagram.loops)) + " | chains: " + str(len(diagram.chains)))
-		print("---------------")
-		return (unlooped_cycle_count, grouped_cycles_by_av, available_loops_count)
+		avcycle = grouped_cycles_by_av[0][1][0] if len(grouped_cycles_by_av) else None
+		avnodes = sorted([node for node in avcycle.nodes if node.loop.availabled], key = lambda node: (-len([n for n in node.loop.nodes if n.cycle.chain is not None]), node.address)) if avcycle else None
+		available_loops_count = len([loop for loop in diagram.loops if loop.availabled])	
+		# print("--- measure ---")
+		# print("unlooped cycles: " + str(unlooped_cycle_count))
+		# print("cycle av counts: " + str([((k, q), len(v)) for (k,q),v in grouped_cycles_by_av]))			
+		# print("cycles[" + str(grouped_cycles_by_av[0][0]) + "]: " + str(grouped_cycles_by_av[0][1]))		
+		# print("avnodes[:"+str(len(avnodes))+"]: " + str(avnodes))
+		# print("available loops: " + str(available_loops_count) + "/" + str(len(diagram.loops)) + " | chains: " + str(len(diagram.chains)))
+		# print("---------------")
+		return (unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes)
+								
+	def choose(index):
+		road.append((index, len(avnodes)))
+		print("[road] " + " ".join([str(k)+'/'+str(n) for k,n in road]))
+		diagram.pointers = list(avnodes[index].tuple);
 								
 	def extendPointers():
-		for node in diagram.pointers:
+		for i,node in enumerate(diagram.pointers):
 			assert diagram.extendLoop(node.loop)								
 								
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
@@ -523,15 +548,145 @@ if __name__ == "__main__":
 		if loop.hasKernelNodes() and loop.availabled:
 			diagram.setLoopUnavailabled(loop)
 
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count = measure()	
-	
-	avcycle = grouped_cycles_by_av[0][1][0]
-	avnodes = sorted([node for node in avcycle.nodes if node.loop.availabled], key = lambda node: (-len([n for n in node.loop.nodes if n.cycle.chain is not None]), node.address))
-	print(avnodes)
-	
-	diagram.pointers = list(avnodes[0].tuple)
-	extendPointers()
-	
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-	show(diagram)
+	
+	bcc = -1
+	
+	def back(lvl = 0, road = []):
+		global bcc
+		bcc += 1
+			
+		print("[lvl:"+str(lvl)+"§"+str(bcc)+"] road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]))
+		#print("[lvl:"+str(lvl)+"] addr: " + " ".join([node.address for _,_,node in road]))		
+	
+		# measure	
+		unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
 		
+		# checks
+		if avnodes is None:
+			show(diagram)
+			input("Found no avnodes")
+			return True
+					
+		if grouped_cycles_by_av[0][0][0] is 0:
+			return
+					
+		if unlooped_cycle_count is 0 or available_loops_count is 0:
+			show(diagram)
+			input("Found Something | unlooped:" + str(unlooped_cycle_count) + " | avloops: " + str(available_loops_count))
+				
+		# choose
+		lvl_seen = []
+		for avindex in range(len(avnodes)):
+			tuple = avnodes[avindex].tuple				
+			#diagram.pointers = list(tuple);
+								
+			# extend
+			excc = 0
+			for tindex, node in enumerate(tuple):				
+				if diagram.extendLoop(node.loop):
+					excc += 1
+				else:
+					break
+
+			# carry on
+			if excc is len(tuple):
+				if back(lvl+1, road+[(avindex, len(avnodes), avnodes[avindex])]):
+					return True
+	
+			# revert
+			for tindex in range(excc)[::-1]:
+				diagram.collapseBack(tuple[tindex].loop)
+
+			# remember
+			for node in tuple:
+				if node.loop.availabled:
+					lvl_seen.append(node.loop)
+					node.loop.seen = True
+					diagram.setLoopUnavailabled(node.loop)
+
+		# forget
+		for loop in lvl_seen:
+			diagram.setLoopAvailabled(loop)
+			loop.seen = False
+			
+		return False
+			
+	back()
+
+	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+	'''
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(0); extendPointers()
+	
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(0); extendPointers()
+
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(0); extendPointers()
+									
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(1); extendPointers()									
+
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(0); extendPointers()
+
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(0); extendPointers()
+
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(0); extendPointers()
+
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(0); extendPointers()
+
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(1); extendPointers()
+	
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(1); extendPointers()
+	
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(1); extendPointers()
+
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(0); extendPointers()
+		
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(1); extendPointers()
+	
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(1); extendPointers()
+	'#''
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(1); extendPointers()
+	
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(1); extendPointers()
+	
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(0); extendPointers()
+	
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(0); extendPointers()
+	
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(1); extendPointers()
+	
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(0); extendPointers()
+
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(0); extendPointers()
+
+	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+	choose(0); extendPointers()
+			
+	#for i,node in enumerate(diagram.pointers):
+		#show(diagram)
+		#input(i)
+		#assert diagram.extendLoop(node.loop)
+									
+	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ # '''
+	show(diagram)
+	print("[road] " + " ".join([str(k)+'/'+str(n) for k,n in road]))		

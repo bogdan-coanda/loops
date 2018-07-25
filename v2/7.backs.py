@@ -256,7 +256,7 @@ if __name__ == "__main__":
 											
 				if excc is len(tuple):
 					for n in tuple:
-						if len([bro for bro in n.loopBrethren if bro.cycle.marker is not None]) isq 0:
+						if len([bro for bro in n.loopBrethren if bro.cycle.marker is not None]) is 0:
 							for bro in n.loopBrethren:
 								bro.cycle.marker = n.cycle.marker
 								lvl_colored.append(bro.cycle)

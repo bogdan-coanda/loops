@@ -1,6 +1,6 @@
 class Loop (object):
 	
-	__slots__ = ['index', 'nodes', 'availabled', 'extended', '_root', 'head']
+	__slots__ = ['index', 'nodes', 'availabled', 'extended', '_root', 'head', 'extension_result', 'seen']
 	
 	def __init__(self, index):
 		self.index = index
@@ -9,7 +9,9 @@ class Loop (object):
 		self.extended = False
 		self._root = None # cache for root()
 		self.head = None # first node from sorted nodes list
-
+		self.extension_result = None
+		self.seen = False # should only be used by search methods and not by internal checks
+		
 		
 	def root(self):
 		if self._root is not None:

@@ -1,0 +1,173 @@
+generated nodes | WxH: 1184x896
+generated links
+generated loops
+[makeChain] adding: ⟨chain:0|30/110§None⟩
+generated kernel
+generated mono tuples
+[makeChain] adding: ⟨chain:1|1/7§1⟩
+[makeChain] adding: ⟨chain:2|1/5§2⟩
+[makeChain] adding: ⟨chain:3|1/5§3⟩
+[makeChain] adding: ⟨chain:4|1/4§4⟩
+[makeChain] adding: ⟨chain:5|1/4§5⟩
+[makeChain] adding: ⟨chain:6|1/7§2⟩
+[makeChain] adding: ⟨chain:7|1/5§3⟩
+[makeChain] adding: ⟨chain:8|1/5§4⟩
+[makeChain] adding: ⟨chain:9|1/4§5⟩
+[makeChain] adding: ⟨chain:10|1/4§1⟩
+[makeChain] adding: ⟨chain:11|1/7§3⟩
+[makeChain] adding: ⟨chain:12|1/5§4⟩
+[makeChain] adding: ⟨chain:13|1/5§5⟩
+[makeChain] adding: ⟨chain:14|1/4§1⟩
+[makeChain] adding: ⟨chain:15|1/4§2⟩
+[makeChain] adding: ⟨chain:16|1/7§4⟩
+[makeChain] adding: ⟨chain:17|1/5§5⟩
+[makeChain] adding: ⟨chain:18|1/5§1⟩
+[makeChain] adding: ⟨chain:19|1/4§2⟩
+[makeChain] adding: ⟨chain:20|1/4§3⟩
+[makeChain] adding: ⟨chain:21|1/7§5⟩
+[makeChain] adding: ⟨chain:22|1/5§1⟩
+[makeChain] adding: ⟨chain:23|1/5§2⟩
+[makeChain] adding: ⟨chain:24|1/4§3⟩
+[makeChain] adding: ⟨chain:25|1/4§4⟩
+[lvl:0] road: 
+[lvl:0] addr: 
+[makeChain] removing: ⟨chain:9|1/4§5⟩
+[makeChain] adding: ⟨chain:26|6/22§5⟩
+[makeChain] removing: ⟨chain:14|1/4§1⟩
+[makeChain] adding: ⟨chain:27|6/22§1⟩
+[makeChain] removing: ⟨chain:19|1/4§2⟩
+[makeChain] adding: ⟨chain:28|6/22§2⟩
+[makeChain] removing: ⟨chain:24|1/4§3⟩
+[makeChain] adding: ⟨chain:29|6/22§3⟩
+[makeChain] removing: ⟨chain:4|1/4§4⟩
+[makeChain] adding: ⟨chain:30|6/22§4⟩
+[lvl:1] road: 0/4
+[lvl:1] addr: 001224
+[makeChain] removing: ⟨chain:21|1/7§5⟩
+[makeChain] removing: ⟨chain:5|1/4§5⟩
+[makeChain] adding: ⟨chain:31|6/16§5⟩
+[makeChain] removing: ⟨chain:1|1/7§1⟩
+[makeChain] removing: ⟨chain:10|1/4§1⟩
+[makeChain] adding: ⟨chain:32|6/16§1⟩
+[makeChain] removing: ⟨chain:6|1/7§2⟩
+[makeChain] removing: ⟨chain:15|1/4§2⟩
+[makeChain] adding: ⟨chain:33|6/16§2⟩
+[makeChain] removing: ⟨chain:11|1/7§3⟩
+[makeChain] removing: ⟨chain:20|1/4§3⟩
+[makeChain] adding: ⟨chain:34|6/16§3⟩
+[makeChain] removing: ⟨chain:16|1/7§4⟩
+[makeChain] removing: ⟨chain:25|1/4§4⟩
+[makeChain] adding: ⟨chain:35|6/15§4⟩
+[lvl:2] road: 0/4 0/4
+[lvl:2] addr: 001224 001215
+[makeChain] adding: ⟨chain:36|6/26§None⟩
+[makeChain] adding: ⟨chain:37|6/26§None⟩
+[makeChain] adding: ⟨chain:38|6/26§None⟩
+[makeChain] adding: ⟨chain:39|6/26§None⟩
+[makeChain] adding: ⟨chain:40|6/26§None⟩
+[lvl:3] road: 0/4 0/4 0/3
+[lvl:3] addr: 001224 001215 001353
+[makeChain] removing: ⟨chain:37|6/26§None⟩
+[makeChain] removing: ⟨chain:38|6/26§None⟩
+[makeChain] adding: ⟨chain:41|16/49§None⟩
+[makeChain] removing: ⟨chain:41|16/49§None⟩
+[makeChain] removing: ⟨chain:39|6/26§None⟩
+[makeChain] adding: ⟨chain:42|26/72§None⟩
+[makeChain] removing: ⟨chain:42|26/72§None⟩
+[makeChain] removing: ⟨chain:40|6/26§None⟩
+[makeChain] adding: ⟨chain:43|36/93§None⟩
+[makeChain] removing: ⟨chain:43|36/93§None⟩
+[makeChain] removing: ⟨chain:36|6/26§None⟩
+[makeChain] adding: ⟨chain:44|46/110§None⟩
+[breakChain] removing: ⟨chain:44|46/110§None⟩
+[breakChain] adding: ⟨chain:43|36/93§None⟩
+[breakChain] adding: ⟨chain:36|6/26§None⟩
+[breakChain] removing: ⟨chain:43|36/93§None⟩
+[breakChain] adding: ⟨chain:42|26/72§None⟩
+[breakChain] adding: ⟨chain:40|6/26§None⟩
+[breakChain] removing: ⟨chain:42|26/72§None⟩
+[breakChain] adding: ⟨chain:41|16/49§None⟩
+[breakChain] adding: ⟨chain:39|6/26§None⟩
+[breakChain] removing: ⟨chain:41|16/49§None⟩
+[breakChain] adding: ⟨chain:37|6/26§None⟩
+[breakChain] adding: ⟨chain:38|6/26§None⟩
+[makeChain] removing: ⟨chain:31|6/16§5⟩
+[makeChain] adding: ⟨chain:45|11/20§5⟩
+[makeChain] removing: ⟨chain:32|6/16§1⟩
+[makeChain] adding: ⟨chain:46|11/20§1⟩
+[makeChain] removing: ⟨chain:33|6/16§2⟩
+[makeChain] adding: ⟨chain:47|11/20§2⟩
+[makeChain] removing: ⟨chain:34|6/16§3⟩
+[makeChain] adding: ⟨chain:48|11/20§3⟩
+[makeChain] removing: ⟨chain:35|6/15§4⟩
+[makeChain] adding: ⟨chain:49|11/20§4⟩
+[lvl:4] road: 0/4 0/4 0/3 1/4
+[lvl:4] addr: 001224 001215 001353 001250
+[makeChain] removing: ⟨chain:45|11/20§5⟩
+[makeChain] adding: ⟨chain:50|16/31§5⟩
+[makeChain] removing: ⟨chain:46|11/20§1⟩
+[makeChain] adding: ⟨chain:51|16/31§1⟩
+[makeChain] removing: ⟨chain:47|11/20§2⟩
+[makeChain] adding: ⟨chain:52|16/31§2⟩
+[makeChain] removing: ⟨chain:48|11/20§3⟩
+[makeChain] adding: ⟨chain:53|16/31§3⟩
+[makeChain] removing: ⟨chain:49|11/20§4⟩
+[makeChain] adding: ⟨chain:54|16/31§4⟩
+[lvl:5] road: 0/4 0/4 0/3 1/4 0/3
+[lvl:5] addr: 001224 001215 001353 001250 002450
+[makeChain] adding: ⟨chain:55|6/21§None⟩
+[makeChain] adding: ⟨chain:56|6/21§None⟩
+[makeChain] adding: ⟨chain:57|6/21§None⟩
+[makeChain] adding: ⟨chain:58|6/21§None⟩
+[makeChain] adding: ⟨chain:59|6/21§None⟩
+[lvl:6] road: 0/4 0/4 0/3 1/4 0/3 0/2
+[lvl:6] addr: 001224 001215 001353 001250 002450 001443
+[makeChain] removing: ⟨chain:50|16/31§5⟩
+[makeChain] adding: ⟨chain:60|21/40§5⟩
+[makeChain] removing: ⟨chain:51|16/31§1⟩
+[makeChain] adding: ⟨chain:61|21/40§1⟩
+[makeChain] removing: ⟨chain:52|16/31§2⟩
+[makeChain] adding: ⟨chain:62|21/38§2⟩
+[makeChain] removing: ⟨chain:53|16/31§3⟩
+[makeChain] adding: ⟨chain:63|21/38§3⟩
+[makeChain] removing: ⟨chain:54|16/31§4⟩
+[makeChain] adding: ⟨chain:64|21/38§4⟩
+[lvl:7] road: 0/4 0/4 0/3 1/4 0/3 0/2 0/3
+[lvl:7] addr: 001224 001215 001353 001250 002450 001443 001124
+[makeChain] removing: ⟨chain:64|21/38§4⟩
+[makeChain] adding: ⟨chain:65|26/41§4⟩
+[makeChain] removing: ⟨chain:60|21/40§5⟩
+[makeChain] adding: ⟨chain:66|26/39§5⟩
+[makeChain] removing: ⟨chain:61|21/40§1⟩
+[makeChain] adding: ⟨chain:67|26/33§1⟩
+[makeChain] removing: ⟨chain:62|21/38§2⟩
+[makeChain] adding: ⟨chain:68|26/31§2⟩
+[makeChain] removing: ⟨chain:63|21/38§3⟩
+[makeChain] adding: ⟨chain:69|26/31§3⟩
+[lvl:8] road: 0/4 0/4 0/3 1/4 0/3 0/2 0/3 0/2
+[lvl:8] addr: 001224 001215 001353 001250 002450 001443 001124 112005
+[makeChain] removing: ⟨chain:65|26/41§4⟩
+[makeChain] adding: ⟨chain:70|31/40§4⟩
+[makeChain] removing: ⟨chain:66|26/39§5⟩
+[makeChain] adding: ⟨chain:71|31/40§5⟩
+[makeChain] removing: ⟨chain:67|26/33§1⟩
+[makeChain] adding: ⟨chain:72|31/39§1⟩
+[makeChain] removing: ⟨chain:68|26/31§2⟩
+[makeChain] adding: ⟨chain:73|31/37§2⟩
+[makeChain] removing: ⟨chain:69|26/31§3⟩
+[makeChain] adding: ⟨chain:74|31/37§3⟩
+[lvl:9] road: 0/4 0/4 0/3 1/4 0/3 0/2 0/3 0/2 0/2
+[lvl:9] addr: 001224 001215 001353 001250 002450 001443 001124 112005 001452
+[makeChain] removing: ⟨chain:73|31/37§2⟩
+[makeChain] adding: ⟨chain:75|36/37§2⟩
+[makeChain] removing: ⟨chain:74|31/37§3⟩
+[makeChain] adding: ⟨chain:76|36/37§3⟩
+[makeChain] removing: ⟨chain:70|31/40§4⟩
+[makeChain] adding: ⟨chain:77|36/35§4⟩
+[makeChain] removing: ⟨chain:71|31/40§5⟩
+[makeChain] adding: ⟨chain:78|36/33§5⟩
+[makeChain] removing: ⟨chain:72|31/39§1⟩
+[makeChain] adding: ⟨chain:79|36/33§1⟩
+[lvl:10] road: 0/4 0/4 0/3 1/4 0/3 0/2 0/3 0/2 0/2 0/2
+[lvl:10] addr: 001224 001215 001353 001250 002450 001443 001124 112005 001452 002302
+[makeChain] removing: ⟨chain:44|46/110§None⟩
