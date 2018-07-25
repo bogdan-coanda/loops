@@ -254,7 +254,8 @@ class Diagram (object):
 			
 		for lp in self.loops:
 			if lp.availabled:
-				assert len(set([node.cycle.chain.marker for node in lp.nodes if node.cycle.chain and node.cycle.chain.marker])) <= 1, "broken loops!!!"
+				assert len(set([node.cycle.chain.marker for node in lp.nodes if node.cycle.chain and node.cycle.chain.marker])) <= 1, "broken marked loops!!!"
+				#assert self.checkAvailability(lp), "broken checked loops"
 				
 		assert len([node for node in loop.nodes if node.links[1].next.loop.availabled or node.prevs[1].node.loop.availabled]) is 0, "broken extension neighbours!!!"		
 		loop.extension_result = (new_chain, affected_loops, affected_chains, affected_cycles)
@@ -556,7 +557,8 @@ if __name__ == "__main__":
 		global bcc
 		bcc += 1
 			
-		print("[lvl:"+str(lvl)+"§"+str(bcc)+"] road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]))
+		if bcc % 100 is 0:
+			print("[lvl:"+str(lvl)+"§"+str(bcc)+"] road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]))
 		#print("[lvl:"+str(lvl)+"] addr: " + " ".join([node.address for _,_,node in road]))		
 	
 		# measure	
@@ -564,21 +566,96 @@ if __name__ == "__main__":
 		
 		# checks
 		if avnodes is None:
-			show(diagram)
-			input("Found no avnodes")
+			#show(diagram)
+			print("[lvl:"+str(lvl)+"§"+str(bcc)+"] road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]))			
+			print("Found no avnodes")
 			
 			# clean markers
 			for cycle in diagram.cycles:
 				cycle.chain.marker = cycle.marker = None
 				
 			# reactivate loops
+			reactivated_count = 0
 			for loop in diagram.loops:
 				if not loop.availabled and diagram.checkAvailability(loop):
+					reactivated_count += 1
 					diagram.setLoopAvailabled(loop)
 				
+			#show(diagram)
+			print("Reactivated " + str(reactivated_count) + " loops.")
+
+			# extend I
+			diagram.extendLoop(diagram.nodeByAddress['000001'].loop)
+
+			#show(diagram)
+			print("Extended @ 000001")
+
+			deactivated_count = 0
+			for loop in diagram.loops:
+				if loop.availabled:
+					if not diagram.checkAvailability(loop):
+						deactivated_count += 1
+						diagram.setLoopUnavailabled(loop)
+
+			#show(diagram)
+			avloops = [loop for loop in diagram.loops if loop.availabled]			
+			print("Deactivated " + str(deactivated_count) + " loops | still availabled: " + str(len(avloops)))
+
+			# extend II
+			diagram.extendLoop(diagram.nodeByAddress['000201'].loop)
+			
+			#show(diagram)
+			print("Extended @ 000201")
+
+			deactivated_count = 0
+			for loop in diagram.loops:
+				if loop.availabled:
+					if not diagram.checkAvailability(loop):
+						deactivated_count += 1
+						diagram.setLoopUnavailabled(loop)
+
+			#show(diagram)
+			avloops = [loop for loop in diagram.loops if loop.availabled]
+			print("Deactivated " + str(deactivated_count) + " loops | still availabled: " + str(len(avloops)))
+			print(avloops)
+
+			# extend III
+			diagram.extendLoop(diagram.nodeByAddress['003001'].loop)
+
+			#show(diagram)
+			print("Extended @ 000201")
+
+			deactivated_count = 0
+			for loop in diagram.loops:
+				if loop.availabled:
+					if not diagram.checkAvailability(loop):
+						deactivated_count += 1
+						diagram.setLoopUnavailabled(loop)
+
+			#show(diagram)
+			avloops = [loop for loop in diagram.loops if loop.availabled]
+			print("Deactivated " + str(deactivated_count) + " loops | still availabled: " + str(len(avloops)))
+			print(avloops)
+
+			# extend IV
+			diagram.extendLoop(diagram.nodeByAddress['020022'].loop)
+			
+			#show(diagram)
+			print("Extended @ 000201")
+
+			deactivated_count = 0
+			for loop in diagram.loops:
+				if loop.availabled:
+					if not diagram.checkAvailability(loop):
+						deactivated_count += 1
+						diagram.setLoopUnavailabled(loop)
+						
 			show(diagram)
-			input("Cleaned and Reactivated")
-				
+			avloops = [loop for loop in diagram.loops if loop.availabled]
+			print("Deactivated " + str(deactivated_count) + " loops | still availabled: " + str(len(avloops)))
+			input(avloops)
+			
+			
 			return True
 					
 		if grouped_cycles_by_av[0][0][0] is 0:
