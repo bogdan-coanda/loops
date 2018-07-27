@@ -57,7 +57,7 @@ class Loop (object):
 		return chnodes[0] if len(chnodes) is not 0 else list(self.nodes)[0]
 		
 	def __repr__(self):
-		return '⟨loop:'+self.root()+'|'+':'.join([n.address[len(self._root):] for n in self.nodes])+'⟩'
+		return '⟨loop:'+self.root()+'|'+':'.join([n.address[len(self._root):] for n in self.nodes])+'|'+('Av' if self.availabled else '')+('Ex' if self.extended else '')+'⟩'
 		
 
 	def __lt__(self, other):

@@ -32,6 +32,5 @@ class Loop (object):
 			
 		
 	def __repr__(self):
-		return '⟨loop:'+self.root()+'|'+':'.join([n.address[len(self._root):] for n in self.nodes])+'⟩'		
-
+		return '⟨loop:'+self.root()+'|'+':'.join([n.address[len(self._root):] for n in self.nodes])+'|'+('Av' if self.availabled else '')+('Ex' if self.extended else '')+'⟩'
 		
