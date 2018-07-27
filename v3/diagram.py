@@ -563,11 +563,12 @@ if __name__ == "__main__":
 		avloops = [loop for loop in diagram.loops if loop.availabled]
 		if len(diagram.chains) < min:
 			min = len(diagram.chains)
+			diagram.pointers = list(itertools.chain(*[l.nodes for l in avloops]))
 			show(diagram)
 			input("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"} | Ongoing | min: " + str(min) + " chains reached | avloops: " + str(len(avloops)))
 						
-		if bcc % 100 is 0:
-			print("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"} | avloops: " + str(len(avloops)) + " | road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]) + " | chains: " + str(len(diagram.chains)))
+		if bcc % 1000 is 0:
+			print("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"} | chains: " + str(len(diagram.chains)) + " | avloops: " + str(len(avloops)) + " | road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
 		#print("{lvl:"+str(lvl)+"} addr: " + " ".join([node.address for _,_,node in road]) + " | " + " ".join([loop.head.address for _,_,loop in path]))							
 							
 		# checks
@@ -581,6 +582,14 @@ if __name__ == "__main__":
 				return True
 			else:
 				return False
+						
+		# check if not enough loops to connect all the chains
+		if len(avloops) < (len(diagram.chains) - 1) / 5:
+			return False
+
+		# check if any chains are unreachable
+		if len([chain for chain in diagram.chains if len(chain.loops) is 0]) > 0:
+			return False
 						
 		# choose
 		lvl_seen = []
