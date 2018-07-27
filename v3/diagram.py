@@ -232,7 +232,10 @@ class Diagram (object):
 		
 	def extendLoop(self, loop):		
 		#print("[extend] loop: " + str(loop))
-
+			
+		##assert set(list(itertools.chain(*[chain.avloops for chain in diagram.chains]))) == set([loop for loop in diagram.loops if loop.availabled and len([node for node in loop.nodes if node.cycle.chain])])
+		#assert set(list(itertools.chain(*[chain.loops for chain in diagram.chains]))) == set([loop for loop in diagram.loops if loop.availabled and len([node for node in loop if node.cycle.chain)])
+			
 		# assert/return false if not we can't or already did extend		
 		if loop.availabled is False or loop.extended is True:
 			return False
@@ -261,6 +264,8 @@ class Diagram (object):
 		#assert len([node for node in loop.nodes if node.links[1].next.loop.availabled or node.prevs[1].node.loop.availabled]) is 0, "broken extension neighbours!!!"		
 		loop.extension_result = (new_chain, affected_loops, affected_chains, affected_cycles)
 
+		##assert set(list(itertools.chain(*[chain.avloops for chain in diagram.chains]))) == set([loop for loop in diagram.loops if loop.availabled and len([n for n in loop.nodes if n.cycle.chain])])
+		
 		return True
 		
 								
@@ -289,6 +294,8 @@ class Diagram (object):
 		for node in loop.nodes:
 			cycle = node.cycle
 			cycle.available_loops_count += 1		
+			if cycle.chain: # [~] massively unsafe!!!
+				cycle.chain.avloops.add(loop)
 		
 		
 	def setLoopUnavailabled(self, loop):
@@ -296,7 +303,9 @@ class Diagram (object):
 		loop.availabled = False
 		for node in loop.nodes:
 			cycle = node.cycle
-			cycle.available_loops_count -= 1		
+			cycle.available_loops_count -= 1
+			if cycle.chain and loop in cycle.chain.avloops:
+				cycle.chain.avloops.remove(loop)
 																		
 																											
 	def makeChain(self, affected_chains, affected_cycles):
@@ -307,7 +316,7 @@ class Diagram (object):
 		affected_loops = []
 		
 		# for each old chain
-		for old_chain in affected_chains:
+		for index, old_chain in enumerate(affected_chains):
 			
 			# check marker			
 			if old_chain.marker:
@@ -338,7 +347,7 @@ class Diagram (object):
 		# move/remember loops												
 		# for each old chain
 		for old_chain in affected_chains:												
-			for loop in old_chain.loops:
+			for loop in old_chain.avloops:
 				if loop.availabled:
 					if not self.checkAvailability(loop):
 						# remember erased loop
@@ -346,7 +355,7 @@ class Diagram (object):
 						affected_loops.append(loop)
 					else:
 						# move still available loop to new chain
-						new_chain.loops.append(loop)
+						new_chain.avloops.add(loop)
 						
 		# for every other unlooped cycle
 		for cycle in affected_cycles:
@@ -359,7 +368,7 @@ class Diagram (object):
 						affected_loops.append(loop)
 					else:
 						# move still available loop to new chain
-						new_chain.loops.append(loop)
+						new_chain.avloops.add(loop)
 																																					
 		# a new chain is born
 		#print("[makeChain] adding: " + str(new_chain))
@@ -521,13 +530,15 @@ if __name__ == "__main__":
 			assert diagram.extendLoop(node.loop)								
 								
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-				
+
+	print(" | " + str((len(set(list(itertools.chain(*[chain.avloops for chain in diagram.chains])))), len(set([loop for loop in diagram.loops if loop.availabled and len([node for node in loop.nodes if node.cycle.chain])])))))
+									
 	diagram.pointers = list(diagram.bases)
 	
 	for i,n in enumerate(diagram.nodeByAddress['000001'].loopBrethren):
 		n.cycle.marker = ((i+0)%5)+1 # 1+colormap[0][i] # 
 		diagram.makeChain([], [n.cycle])
-	
+		
 	for i,n in enumerate(diagram.nodeByAddress['000101'].loopBrethren):
 		n.cycle.marker = ((i+1)%5)+1 # 1+colormap[1][i] # 
 		diagram.makeChain([], [n.cycle])
@@ -545,11 +556,22 @@ if __name__ == "__main__":
 		diagram.makeChain([], [n.cycle])
 
 	#unlooped_cycle_count, grouped_cycles_by_av, available_loops_count = measure()
-							
+
+	print(" | " + str((len(set(list(itertools.chain(*[chain.avloops for chain in diagram.chains])))), len(set([loop for loop in diagram.loops if loop.availabled and len([node for node in loop.nodes if node.cycle.chain])])))))
+				
+	processed_loops = []						
 	for loop in diagram.loops:
 		if loop.hasKernelNodes() and loop.availabled:
+			
+			processed_loops.append(loop)
 			diagram.setLoopUnavailabled(loop)
+			
+			for chain in diagram.chains:
+				if loop in chain.avloops:
+					chain.avloops.remove(loop)
 
+	print("processed " + str(len(processed_loops)) + " loops | " + str((len(set(list(itertools.chain(*[chain.avloops for chain in diagram.chains])))), len(set([loop for loop in diagram.loops if loop.availabled and len([node for node in loop.nodes if node.cycle.chain])])))))
+	
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 		
 	bcc = -1
@@ -579,6 +601,10 @@ if __name__ == "__main__":
 			#input("Found no avloops")
 			
 			if len(diagram.chains) is 1:
+				show(diagram)
+				print("{lvl:"+str(lvl)+"§"+str(bcc)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
+				print("{lvl:"+str(lvl)+"§"+str(bcc)+"} addr: " + " ".join([node.address for _,_,node in road]) + " | " + " ".join([loop.head.address for _,_,loop in path]))
+				input("Found a solution")
 				return True
 			else:
 				return False
@@ -588,12 +614,14 @@ if __name__ == "__main__":
 			return False
 
 		# check if any chains are unreachable
-		if len([chain for chain in diagram.chains if len(chain.loops) is 0]) > 0:
+		if len([chain for chain in diagram.chains if len(chain.avloops) is 0]) > 0:
 			return False
 						
 		# choose
+		chloops = list(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops)
+		
 		lvl_seen = []
-		for avindex, avloop in enumerate(avloops):
+		for chindex, chloop in enumerate(chloops):
 			
 			#diagram.pointers = list(avloop.nodes)					
 			#show(diagram)
@@ -601,7 +629,8 @@ if __name__ == "__main__":
 			#input("{lvl:"+str(lvl)+"} choosing " + str(avloop) + " | " + str(avindex) + "/" + str(len(avloops)))
 			
 			# extend
-			if diagram.extendLoop(avloop):
+			##assert len(set([n.cycle.chain for n in chloop.nodes if n.cycle.chain])) is len([n.cycle.chain for n in chloop.nodes if n.cycle.chain])
+			if diagram.extendLoop(chloop):
 				
 				# deactivate loops (hack needed because the chain.loops shortcut used in makeChain is broken while next'ing)
 				deactivated_loops = []
@@ -615,7 +644,7 @@ if __name__ == "__main__":
 				#print("{lvl:"+str(lvl)+"} | » avloop: " + str(avloop) + " | .availabled: " + str(avloop.availabled) + " | .extended: " + str(avloop.extended))
 				
 				# carry on
-				if next(lvl+1, road, path+[(avindex, len(avloops), avloop)]):
+				if next(lvl+1, road, path+[(chindex, len(chloops), chloop)]):
 					return True
 	
 				# reactivate loops
@@ -625,12 +654,12 @@ if __name__ == "__main__":
 				# revert
 				#print("{lvl:"+str(lvl)+"} | « avloop: " + str(avloop) + " | .availabled: " + str(avloop.availabled) + " | .extended: " + str(avloop.extended))
 				#print("{lvl:"+str(lvl)+"} | « .extension_result: " + str('\n'.join([str(x) for x in avloop.extension_result])))
-				diagram.collapseBack(avloop)
+				diagram.collapseBack(chloop)
 
 			# remember
-			lvl_seen.append(avloop)
-			avloop.seen = True
-			diagram.setLoopUnavailabled(avloop)
+			lvl_seen.append(chloop)
+			chloop.seen = True
+			diagram.setLoopUnavailabled(chloop)
 
 		# forget
 		for loop in lvl_seen:
@@ -668,24 +697,26 @@ if __name__ == "__main__":
 				if cycle.marker:
 					cycle_markers.append((cycle, cycle.marker))
 					cycle.marker = None
-				
+			
+			##assert set(list(itertools.chain(*[chain.avloops for chain in diagram.chains]))) == set([loop for loop in diagram.loops if loop.availabled and len([n for n in loop.nodes if n.cycle.chain])])
+						
 			# reactivate loops
 			reactivated_loops = []
 			for loop in diagram.loops:
 				if not loop.availabled and diagram.checkAvailability(loop):
 					reactivated_loops.append(loop)
 					diagram.setLoopAvailabled(loop)
-					for node in loop.nodes:
-						if node.cycle.chain:
-							node.cycle.chain.loops.append(loop) # add back to chain.loops shortcut
+					# for node in loop.nodes:
+					# 	if node.cycle.chain:
+					# 		node.cycle.chain.loops.append(loop) # add back to chain.loops shortcut
 			avloops = [loop for loop in diagram.loops if loop.availabled]
 			diagram.pointers = list(itertools.chain(*[l.nodes for l in avloops]))
 				
-			min = len(diagram.chains)
+			#min = len(diagram.chains)
 			ncc += 1
 			
-			show(diagram)
-			input("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"} | Reactivating " + str(len(reactivated_loops)) + " loops | chains: " + str(len(diagram.chains)) + " | avloops: " + str(len(avloops)))						
+			#show(diagram)
+			print("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"} | Reactivating " + str(len(reactivated_loops)) + " loops | chains: " + str(len(diagram.chains)) + " | avloops: " + str(len(avloops)))						
 			
 			# push forward
 			if next(lvl, road):
