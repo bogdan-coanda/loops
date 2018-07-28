@@ -577,9 +577,10 @@ if __name__ == "__main__":
 	bcc = -1
 	ncc = -1
 	min = len(diagram.loops) + 1
+	fcc = 0
 	
 	def next(lvl, road, path = []):
-		global bcc, ncc, min
+		global bcc, ncc, min, fcc
 		bcc += 1
 		
 		chloops = list(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops)
@@ -601,11 +602,12 @@ if __name__ == "__main__":
 			#input("Found no chloops")
 			
 			if len(diagram.chains) is 1:
+				fcc += 1
 				show(diagram)
 				print("{lvl:"+str(lvl)+"§"+str(bcc)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
 				print("{lvl:"+str(lvl)+"§"+str(bcc)+"} addr: " + " ".join([node.address for _,_,node in road]) + " | " + " ".join([loop.head.address for _,_,loop in path]))
-				input("Found a solution")
-				return True
+				input("Found solution #"+str(fcc))
+				return False
 			else:
 				return False
 						
