@@ -618,7 +618,7 @@ if __name__ == "__main__":
 					SP += curr.perm[-nextLink.type:]
 				for node in diagram.nodes:
 					assert node.perm in SP
-				input(SP)
+				input("len:"+str(len(SP)) + "\n" + SP)
 				return False
 			else:
 				return False
