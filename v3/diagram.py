@@ -9,6 +9,7 @@ from uicanvas import show
 import itertools
 import math
 from time import time
+from fivebyfives import 𝓖5
 
 
 class Diagram (object):
@@ -540,7 +541,7 @@ if __name__ == "__main__":
 	#'''
 	for k, base in enumerate(diagram.bases):
 		for i,n in enumerate(base.loopBrethren):
-			n.cycle.marker = ((i+k)%(diagram.spClass-2))+1 # 1+colormap[0][i] # 
+			n.cycle.marker = 1+list(𝓖5())[0][k][i] # ((i+k)%(diagram.spClass-2))+1  # 
 			diagram.makeChain([], [n.cycle])
 	'''
 	for i,n in enumerate(diagram.nodeByAddress['000001'].loopBrethren):
@@ -562,7 +563,7 @@ if __name__ == "__main__":
 	for i,n in enumerate(diagram.nodeByAddress['000401'].loopBrethren):
 		n.cycle.marker = ((i+4)%5)+1 # 1+colormap[4][i] # 	
 		diagram.makeChain([], [n.cycle])
-
+	'''
 	#unlooped_cycle_count, grouped_cycles_by_av, available_loops_count = measure()
 	
 	print(" | " + str((len(set(list(itertools.chain(*[chain.avloops for chain in diagram.chains])))), len(set([loop for loop in diagram.loops if loop.availabled and len([node for node in loop.nodes if node.cycle.chain])])))))
@@ -596,9 +597,9 @@ if __name__ == "__main__":
 		chloops = list(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops)
 		if len(diagram.chains) < min:
 			min = len(diagram.chains)
-			#diagram.pointers = list(itertools.chain(*[l.nodes for l in chloops]))
-			#show(diagram)
-			#input("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} | Ongoing | min: " + str(min) + " chains reached | chloops: " + str(len(chloops)))
+			diagram.pointers = list(itertools.chain(*[l.nodes for l in chloops]))
+			show(diagram)
+			input("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} | Ongoing | min: " + str(min) + " chains reached | chloops: " + str(len(chloops)))
 						
 		if bcc % 1000 is 0:
 			print("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} | chains: " + str(len(diagram.chains)) + " | chloops: " + str(len(chloops)) + " | road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
