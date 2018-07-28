@@ -582,23 +582,23 @@ if __name__ == "__main__":
 		global bcc, ncc, min
 		bcc += 1
 		
-		avloops = [loop for loop in diagram.loops if loop.availabled]
+		chloops = list(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops)
 		if len(diagram.chains) < min:
 			min = len(diagram.chains)
-			diagram.pointers = list(itertools.chain(*[l.nodes for l in avloops]))
+			diagram.pointers = list(itertools.chain(*[l.nodes for l in chloops]))
 			show(diagram)
-			input("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"} | Ongoing | min: " + str(min) + " chains reached | avloops: " + str(len(avloops)))
+			input("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"} | Ongoing | min: " + str(min) + " chains reached | chloops: " + str(len(chloops)))
 						
 		if bcc % 1000 is 0:
-			print("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"} | chains: " + str(len(diagram.chains)) + " | avloops: " + str(len(avloops)) + " | road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
+			print("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"} | chains: " + str(len(diagram.chains)) + " | chloops: " + str(len(chloops)) + " | road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
 		#print("{lvl:"+str(lvl)+"} addr: " + " ".join([node.address for _,_,node in road]) + " | " + " ".join([loop.head.address for _,_,loop in path]))							
 							
 		# checks
-		if len(avloops) is 0:
+		if len(chloops) is 0:
 			#show(diagram)
 			#print("{lvl:"+str(lvl)+"§"+str(bcc)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
 			#print("{lvl:"+str(lvl)+"§"+str(bcc)+"} addr: " + " ".join([node.address for _,_,node in road]) + " | " + " ".join([loop.head.address for _,_,loop in path]))
-			#input("Found no avloops")
+			#input("Found no chloops")
 			
 			if len(diagram.chains) is 1:
 				show(diagram)
@@ -610,15 +610,15 @@ if __name__ == "__main__":
 				return False
 						
 		# check if not enough loops to connect all the chains
-		if len(avloops) < (len(diagram.chains) - 1) / 5:
-			return False
+		#if len(avloops) < (len(diagram.chains) - 1) / 5:
+			#return False
 
 		# check if any chains are unreachable
-		if len([chain for chain in diagram.chains if len(chain.avloops) is 0]) > 0:
-			return False
+		#if len([chain for chain in diagram.chains if len(chain.avloops) is 0]) > 0:
+			#return False
 						
 		# choose
-		chloops = list(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops)
+		#chloops = list(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops)
 		
 		lvl_seen = []
 		for chindex, chloop in enumerate(chloops):
@@ -709,14 +709,14 @@ if __name__ == "__main__":
 					# for node in loop.nodes:
 					# 	if node.cycle.chain:
 					# 		node.cycle.chain.loops.append(loop) # add back to chain.loops shortcut
-			avloops = [loop for loop in diagram.loops if loop.availabled]
-			diagram.pointers = list(itertools.chain(*[l.nodes for l in avloops]))
+			#avloops = [loop for loop in diagram.loops if loop.availabled]
+			#diagram.pointers = list(itertools.chain(*[l.nodes for l in avloops]))
 				
 			#min = len(diagram.chains)
 			ncc += 1
 			
 			#show(diagram)
-			print("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"} | Reactivating " + str(len(reactivated_loops)) + " loops | chains: " + str(len(diagram.chains)) + " | avloops: " + str(len(avloops)))						
+			print("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"} | Reactivating " + str(len(reactivated_loops)) + " loops | chains: " + str(len(diagram.chains)))						
 			
 			# push forward
 			if next(lvl, road):
