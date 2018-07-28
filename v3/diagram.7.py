@@ -525,7 +525,7 @@ if __name__ == "__main__":
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 			
 	def next(lvl, road, path = []):
-		global bcc, ncc, min, fcc
+		global bcc, ncc, min, fcc, sols_superperms
 		bcc += 1
 		
 		# measure
@@ -548,11 +548,6 @@ if __name__ == "__main__":
 			#input("Found no chloops")
 			
 			if len(diagram.chains) is 1:
-				fcc += 1
-				show(diagram)
-				print("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
-				print("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} addr: " + " ".join([node.address for _,_,node in road]) + " | " + " ".join([loop.head.address for _,_,loop in path]))
-				input("⟨"+str(gcc)+"⟩ Found solution #"+str(fcc))
 				curr = diagram.startNode
 				SP = curr.perm
 				while True:
@@ -563,7 +558,29 @@ if __name__ == "__main__":
 					SP += curr.perm[-nextLink.type:]
 				for node in diagram.nodes:
 					assert node.perm in SP
-				input("len:"+str(len(SP)) + "\n" + SP)
+					
+				dup = None
+				if SP in sols_superperms:
+					dup = sols_superperms.index(SP)
+				else:
+					sols_superperms.append(SP)
+					
+				with open("sols."+str(diagram.spClass)+".log", 'a') as log:
+					log.write("["+str(gcc)+"] Found solution #"+str(fcc)+"\n")				
+					log.write("["+str(gcc)+"]{lvl:"+str(lvl)+"@"+str(bcc)+"@"+tstr(time() - startTime)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path])+"\n")
+					log.write("["+str(gcc)+"]{lvl:"+str(lvl)+"@"+str(bcc)+"@"+tstr(time() - startTime)+"} addr: " + " ".join([node.address for _,_,node in road]) + " | " + " ".join([loop.head.address for _,_,loop in path])+"\n")
+					if dup is None:
+						log.write(SP+"\n\n")
+					else:
+						log.write("duplicate of " + str(dup)+"\n\n")
+									
+				fcc += 1
+				###show(diagram)
+				print("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
+				print("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} addr: " + " ".join([node.address for _,_,node in road]) + " | " + " ".join([loop.head.address for _,_,loop in path]))
+				###input("⟨"+str(gcc)+"⟩ Found solution #"+str(fcc))					
+				###input("len:"+str(len(SP)) + "\n" + SP)
+				
 				return False
 			else:
 				return False
@@ -742,6 +759,7 @@ if __name__ == "__main__":
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 											
 	startTime = time()
+	sols_superperms = []
 			
 	for gcc, g in enumerate(𝓖5()):
 
@@ -752,9 +770,9 @@ if __name__ == "__main__":
 				n.cycle.marker = 1+g[k][i]
 				diagram.makeChain([], [n.cycle])
 				
-		diagram.pointers = list(diagram.bases)
-		show(diagram)
-		input("⟨"+str(gcc)+"⟩ starting")
+		###diagram.pointers = list(diagram.bases)
+		###show(diagram)
+		###input("⟨"+str(gcc)+"⟩ starting")
 						
 		'''
 		for i,n in enumerate(diagram.nodeByAddress['000001'].loopBrethren):
