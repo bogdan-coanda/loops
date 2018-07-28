@@ -212,7 +212,10 @@ class Diagram (object):
 			#print("[gen:kernel] node: " + str(node) + " | last bro: " + str(node.loopBrethren[-1]))		
 			node.loopBrethren[-1].nextLink = node.loopBrethren[-1].nextLink.next.prevLink = node.loopBrethren[-1].links[3]
 			node = node.loopBrethren[-1].nextLink.next.prevs[1].node
-			bases.append(node)
+			if self.spClass % 2 is 1 or len(bases) % 2 is 1:
+				bases.append(node.links[1].next.links[1].next)
+			else:
+				bases.append(node.loopBrethren[-1].prevs[1].node.prevs[1].node)
 			#print("[gen:kernel] next node: " + str(node))		
 																
 			if node is self.startNode.prevs[1].node:
@@ -534,6 +537,12 @@ if __name__ == "__main__":
 									
 	diagram.pointers = list(diagram.bases)
 	
+	#'''
+	for k, base in enumerate(diagram.bases):
+		for i,n in enumerate(base.loopBrethren):
+			n.cycle.marker = ((i+k)%(diagram.spClass-2))+1 # 1+colormap[0][i] # 
+			diagram.makeChain([], [n.cycle])
+	'''
 	for i,n in enumerate(diagram.nodeByAddress['000001'].loopBrethren):
 		n.cycle.marker = ((i+0)%5)+1 # 1+colormap[0][i] # 
 		diagram.makeChain([], [n.cycle])
@@ -555,7 +564,7 @@ if __name__ == "__main__":
 		diagram.makeChain([], [n.cycle])
 
 	#unlooped_cycle_count, grouped_cycles_by_av, available_loops_count = measure()
-
+	
 	print(" | " + str((len(set(list(itertools.chain(*[chain.avloops for chain in diagram.chains])))), len(set([loop for loop in diagram.loops if loop.availabled and len([node for node in loop.nodes if node.cycle.chain])])))))
 				
 	processed_loops = []						
