@@ -502,10 +502,7 @@ class Diagram (object):
 
 
 if __name__ == "__main__":
-	
-	diagram = Diagram(7)
-	road = []
-	
+		
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 	def measure():
@@ -521,74 +518,12 @@ if __name__ == "__main__":
 		# print("avnodes[:"+str(len(avnodes))+"]: " + str(avnodes))
 		# print("available loops: " + str(available_loops_count) + "/" + str(len(diagram.loops)) + " | chains: " + str(len(diagram.chains)))
 		# print("---------------")
-		return (grouped_cycles_by_av, avnodes)
-								
-	def choose(index):
-		road.append((index, len(avnodes)))
-		print("[road] " + " ".join([str(k)+'/'+str(n) for k,n in road]))
-		diagram.pointers = list(avnodes[index].tuple);
-								
-	def extendPointers():
-		for i,node in enumerate(diagram.pointers):
-			assert diagram.extendLoop(node.loop)								
+		return (grouped_cycles_by_av, avnodes)								
 								
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
-	print(" | " + str((len(set(list(itertools.chain(*[chain.avloops for chain in diagram.chains])))), len(set([loop for loop in diagram.loops if loop.availabled and len([node for node in loop.nodes if node.cycle.chain])])))))
-									
-	diagram.pointers = list(diagram.bases)
-	
-	#'''
-	for k, base in enumerate(diagram.bases):
-		for i,n in enumerate(base.loopBrethren):
-			n.cycle.marker = 1+list(𝓖5())[0][k][i] # ((i+k)%(diagram.spClass-2))+1  # 
-			diagram.makeChain([], [n.cycle])
-	'''
-	for i,n in enumerate(diagram.nodeByAddress['000001'].loopBrethren):
-		n.cycle.marker = ((i+0)%5)+1 # 1+colormap[0][i] # 
-		diagram.makeChain([], [n.cycle])
-		
-	for i,n in enumerate(diagram.nodeByAddress['000101'].loopBrethren):
-		n.cycle.marker = ((i+1)%5)+1 # 1+colormap[1][i] # 
-		diagram.makeChain([], [n.cycle])
-
-	for i,n in enumerate(diagram.nodeByAddress['000201'].loopBrethren):
-		n.cycle.marker = ((i+2)%5)+1 # 1+colormap[2][i] # 
-		diagram.makeChain([], [n.cycle])
-		
-	for i,n in enumerate(diagram.nodeByAddress['000301'].loopBrethren):
-		n.cycle.marker = ((i+3)%5)+1 # 1+colormap[3][i] # 
-		diagram.makeChain([], [n.cycle])
-		
-	for i,n in enumerate(diagram.nodeByAddress['000401'].loopBrethren):
-		n.cycle.marker = ((i+4)%5)+1 # 1+colormap[4][i] # 	
-		diagram.makeChain([], [n.cycle])
-	'''
-	#unlooped_cycle_count, grouped_cycles_by_av, available_loops_count = measure()
-	
-	print(" | " + str((len(set(list(itertools.chain(*[chain.avloops for chain in diagram.chains])))), len(set([loop for loop in diagram.loops if loop.availabled and len([node for node in loop.nodes if node.cycle.chain])])))))
-				
-	processed_loops = []						
-	for loop in diagram.loops:
-		if loop.hasKernelNodes() and loop.availabled:
-			
-			processed_loops.append(loop)
-			diagram.setLoopUnavailabled(loop)
-			
-			for chain in diagram.chains:
-				if loop in chain.avloops:
-					chain.avloops.remove(loop)
-
-	print("processed " + str(len(processed_loops)) + " loops | " + str((len(set(list(itertools.chain(*[chain.avloops for chain in diagram.chains])))), len(set([loop for loop in diagram.loops if loop.availabled and len([node for node in loop.nodes if node.cycle.chain])])))))
-	
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-		
-	bcc = -1
-	ncc = -1
-	min = len(diagram.loops) + 1
-	fcc = 0
-	startTime = time()
-	
+			
 	def next(lvl, road, path = []):
 		global bcc, ncc, min, fcc
 		bcc += 1
@@ -597,12 +532,12 @@ if __name__ == "__main__":
 		chloops = list(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops)
 		if len(diagram.chains) < min:
 			min = len(diagram.chains)
-			diagram.pointers = list(itertools.chain(*[l.nodes for l in chloops]))
-			show(diagram)
-			input("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} | Ongoing | min: " + str(min) + " chains reached | chloops: " + str(len(chloops)))
-						
+			# diagram.pointers = list(itertools.chain(*[l.nodes for l in chloops]))
+			# show(diagram)
+			# input("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} | Ongoing | min: " + str(min) + " chains reached | chloops: " + str(len(chloops)))
+	
 		if bcc % 1000 is 0:
-			print("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} | chains: " + str(len(diagram.chains)) + " | chloops: " + str(len(chloops)) + " | road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
+			print("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} | chains: " + str(len(diagram.chains)) + " | chloops: " + str(len(chloops)) + " | road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
 		#print("{lvl:"+str(lvl)+"} addr: " + " ".join([node.address for _,_,node in road]) + " | " + " ".join([loop.head.address for _,_,loop in path]))							
 							
 		# checks
@@ -615,9 +550,9 @@ if __name__ == "__main__":
 			if len(diagram.chains) is 1:
 				fcc += 1
 				show(diagram)
-				print("{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
-				print("{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} addr: " + " ".join([node.address for _,_,node in road]) + " | " + " ".join([loop.head.address for _,_,loop in path]))
-				input("Found solution #"+str(fcc))
+				print("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
+				print("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} addr: " + " ".join([node.address for _,_,node in road]) + " | " + " ".join([loop.head.address for _,_,loop in path]))
+				input("⟨"+str(gcc)+"⟩ Found solution #"+str(fcc))
 				curr = diagram.startNode
 				SP = curr.perm
 				while True:
@@ -699,7 +634,7 @@ if __name__ == "__main__":
 		bcc += 1
 			
 		if bcc % 100 is 0:
-			print("[lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"] road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]))
+			print("⟨"+str(gcc)+"⟩[lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"] road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]))
 		#print("[lvl:"+str(lvl)+"] addr: " + " ".join([node.address for _,_,node in road]))		
 	
 		# measure	
@@ -713,8 +648,7 @@ if __name__ == "__main__":
 		# checks
 		if avnodes is None:
 			#show(diagram)
-			print("[lvl:"+str(lvl)+"§"+str(bcc)+"] road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]))			
-			print("Found no avnodes")
+			print("⟨"+str(gcc)+"⟩[lvl:"+str(lvl)+"§"+str(bcc)+"] road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]))			
 			
 			# unmark chains&cycles
 			chain_markers = []
@@ -746,7 +680,7 @@ if __name__ == "__main__":
 			ncc += 1
 			
 			#show(diagram)
-			print("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"} | Reactivating " + str(len(reactivated_loops)) + " loops | chains: " + str(len(diagram.chains)))						
+			print("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"} | Reactivating " + str(len(reactivated_loops)) + " loops | chains: " + str(len(diagram.chains)))						
 			
 			# push forward
 			if next(lvl, road):
@@ -805,10 +739,66 @@ if __name__ == "__main__":
 			
 		return False
 			
-	back()
-
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+											
+	startTime = time()
+			
+	for gcc, g in enumerate(𝓖5()):
+
+		diagram = Diagram(7)
+		
+		for k, base in enumerate(diagram.bases):
+			for i,n in enumerate(base.loopBrethren):
+				n.cycle.marker = 1+g[k][i]
+				diagram.makeChain([], [n.cycle])
+				
+		diagram.pointers = list(diagram.bases)
+		show(diagram)
+		input("⟨"+str(gcc)+"⟩ starting")
+						
+		'''
+		for i,n in enumerate(diagram.nodeByAddress['000001'].loopBrethren):
+			n.cycle.marker = ((i+0)%5)+1 # 1+colormap[0][i] # 
+			diagram.makeChain([], [n.cycle])
+			
+		for i,n in enumerate(diagram.nodeByAddress['000101'].loopBrethren):
+			n.cycle.marker = ((i+1)%5)+1 # 1+colormap[1][i] # 
+			diagram.makeChain([], [n.cycle])
+	
+		for i,n in enumerate(diagram.nodeByAddress['000201'].loopBrethren):
+			n.cycle.marker = ((i+2)%5)+1 # 1+colormap[2][i] # 
+			diagram.makeChain([], [n.cycle])
+			
+		for i,n in enumerate(diagram.nodeByAddress['000301'].loopBrethren):
+			n.cycle.marker = ((i+3)%5)+1 # 1+colormap[3][i] # 
+			diagram.makeChain([], [n.cycle])
+			
+		for i,n in enumerate(diagram.nodeByAddress['000401'].loopBrethren):
+			n.cycle.marker = ((i+4)%5)+1 # 1+colormap[4][i] # 	
+			diagram.makeChain([], [n.cycle])
+		'''
+						
+		processed_loops = []						
+		for loop in diagram.loops:
+			if loop.hasKernelNodes() and loop.availabled:
+				
+				processed_loops.append(loop)
+				diagram.setLoopUnavailabled(loop)
+				
+				for chain in diagram.chains:
+					if loop in chain.avloops:
+						chain.avloops.remove(loop)
+	
+		print("⟨"+str(gcc)+"⟩ processed " + str(len(processed_loops)) + " loops | " + str((len(set(list(itertools.chain(*[chain.avloops for chain in diagram.chains])))), len(set([loop for loop in diagram.loops if loop.availabled and len([node for node in loop.nodes if node.cycle.chain])])))))
+		
+		bcc = -1
+		ncc = -1
+		min = len(diagram.loops) + 1
+		fcc = 0
+	
+		back()
+		
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ # '''
 	
 	show(diagram)
-	print("[road] " + " ".join([str(k)+'/'+str(n) for k,n in road]))		
+	print("done.")
