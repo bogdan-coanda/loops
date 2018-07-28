@@ -635,12 +635,13 @@ if __name__ == "__main__":
 			if diagram.extendLoop(chloop):
 				
 				# deactivate loops (hack needed because the chain.loops shortcut used in makeChain is broken while next'ing)
-				deactivated_loops = []
-				for loop in diagram.loops:
-					if loop.availabled:
-						if not diagram.checkAvailability(loop):
-							deactivated_loops.append(loop)
-							diagram.setLoopUnavailabled(loop)
+				# deactivated_loops = []
+				# for loop in diagram.loops:
+				# 	if loop.availabled:
+				# 		if not diagram.checkAvailability(loop):
+				# 			deactivated_loops.append(loop)
+				# 			diagram.setLoopUnavailabled(loop)
+				# assert len(deactivated_loops) is 0
 				#print("Deactivated " + str(len(deactivated_loops)) + " loops")			
 		
 				#print("{lvl:"+str(lvl)+"} | » avloop: " + str(avloop) + " | .availabled: " + str(avloop.availabled) + " | .extended: " + str(avloop.extended))
@@ -650,8 +651,8 @@ if __name__ == "__main__":
 					return True
 	
 				# reactivate loops
-				for loop in deactivated_loops:
-					diagram.setLoopAvailabled(loop)
+				# for loop in deactivated_loops:
+				# 	diagram.setLoopAvailabled(loop)
 	
 				# revert
 				#print("{lvl:"+str(lvl)+"} | « avloop: " + str(avloop) + " | .availabled: " + str(avloop.availabled) + " | .extended: " + str(avloop.extended))
