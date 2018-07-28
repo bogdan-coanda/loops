@@ -608,6 +608,17 @@ if __name__ == "__main__":
 				print("{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
 				print("{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} addr: " + " ".join([node.address for _,_,node in road]) + " | " + " ".join([loop.head.address for _,_,loop in path]))
 				input("Found solution #"+str(fcc))
+				curr = diagram.startNode
+				SP = curr.perm
+				while True:
+					nextLink = curr.nextLink if curr.nextLink else (curr.links[2] if curr.loop.extended else curr.links[1])	
+					curr = nextLink.next
+					if curr is diagram.startNode:
+						break
+					SP += curr.perm[-nextLink.type:]
+				for node in diagram.nodes:
+					assert node.perm in SP
+				input(SP)
 				return False
 			else:
 				return False
