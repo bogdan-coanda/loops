@@ -1,3 +1,5 @@
+from math import floor
+
 def id(x): return x
 
 def groupby(L, K = id, V = id, G = id, S = id):
@@ -8,3 +10,6 @@ def groupby(L, K = id, V = id, G = id, S = id):
 			r[k] = []
 		r[k].append(V(e))
 	return S({ k:G(g) for k,g in r.items() })
+	
+def tstr(s):
+	return "" + str(int(floor(s / 60))) + "m" + str(int(floor(s)) % 60) + "s." + str(int(s * 1000) % 1000)

@@ -1,5 +1,5 @@
 from superperms import *
-from groupby import *
+from common import *
 from cycle import Cycle
 from node import Node
 from link import Link
@@ -8,6 +8,7 @@ from chain import Chain
 from uicanvas import show
 import itertools
 import math
+from time import time
 
 
 class Diagram (object):
@@ -504,13 +505,11 @@ if __name__ == "__main__":
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 	def measure():
-		unlooped_cycle_count = len([c for c in diagram.cycles if c.chain is None])
 		grouped_cycles_by_av = sorted(groupby([c for c in diagram.cycles if c.chain is None], 
 			K = lambda c: (c.available_loops_count, -len([node for node in c.nodes if node.loop.availabled and len([n for n in node.loop.nodes if n.cycle.chain is not None]) > 0]))
 		).items())
 		avcycle = grouped_cycles_by_av[0][1][0] if len(grouped_cycles_by_av) else None
 		avnodes = sorted([node for node in avcycle.nodes if node.loop.availabled], key = lambda node: (-len([n for n in node.loop.nodes if n.cycle.chain is not None]), node.address)) if avcycle else None
-		available_loops_count = len([loop for loop in diagram.loops if loop.availabled])	
 		# print("--- measure ---")
 		# print("unlooped cycles: " + str(unlooped_cycle_count))
 		# print("cycle av counts: " + str([((k, q), len(v)) for (k,q),v in grouped_cycles_by_av]))			
@@ -518,7 +517,7 @@ if __name__ == "__main__":
 		# print("avnodes[:"+str(len(avnodes))+"]: " + str(avnodes))
 		# print("available loops: " + str(available_loops_count) + "/" + str(len(diagram.loops)) + " | chains: " + str(len(diagram.chains)))
 		# print("---------------")
-		return (unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes)
+		return (grouped_cycles_by_av, avnodes)
 								
 	def choose(index):
 		road.append((index, len(avnodes)))
@@ -578,20 +577,22 @@ if __name__ == "__main__":
 	ncc = -1
 	min = len(diagram.loops) + 1
 	fcc = 0
+	startTime = time()
 	
 	def next(lvl, road, path = []):
 		global bcc, ncc, min, fcc
 		bcc += 1
 		
+		# measure
 		chloops = list(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops)
 		if len(diagram.chains) < min:
 			min = len(diagram.chains)
-			diagram.pointers = list(itertools.chain(*[l.nodes for l in chloops]))
-			show(diagram)
-			input("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"} | Ongoing | min: " + str(min) + " chains reached | chloops: " + str(len(chloops)))
+			#diagram.pointers = list(itertools.chain(*[l.nodes for l in chloops]))
+			#show(diagram)
+			#input("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} | Ongoing | min: " + str(min) + " chains reached | chloops: " + str(len(chloops)))
 						
 		if bcc % 1000 is 0:
-			print("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"} | chains: " + str(len(diagram.chains)) + " | chloops: " + str(len(chloops)) + " | road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
+			print("{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} | chains: " + str(len(diagram.chains)) + " | chloops: " + str(len(chloops)) + " | road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
 		#print("{lvl:"+str(lvl)+"} addr: " + " ".join([node.address for _,_,node in road]) + " | " + " ".join([loop.head.address for _,_,loop in path]))							
 							
 		# checks
@@ -604,8 +605,8 @@ if __name__ == "__main__":
 			if len(diagram.chains) is 1:
 				fcc += 1
 				show(diagram)
-				print("{lvl:"+str(lvl)+"§"+str(bcc)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
-				print("{lvl:"+str(lvl)+"§"+str(bcc)+"} addr: " + " ".join([node.address for _,_,node in road]) + " | " + " ".join([loop.head.address for _,_,loop in path]))
+				print("{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
+				print("{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} addr: " + " ".join([node.address for _,_,node in road]) + " | " + " ".join([loop.head.address for _,_,loop in path]))
 				input("Found solution #"+str(fcc))
 				return False
 			else:
@@ -677,11 +678,16 @@ if __name__ == "__main__":
 		bcc += 1
 			
 		if bcc % 100 is 0:
-			print("[lvl:"+str(lvl)+"§"+str(bcc)+"] road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]))
+			print("[lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"] road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]))
 		#print("[lvl:"+str(lvl)+"] addr: " + " ".join([node.address for _,_,node in road]))		
 	
 		# measure	
-		unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
+		#grouped_cycles_by_av, avnodes = measure()	
+		grouped_cycles_by_av = sorted(groupby([c for c in diagram.cycles if c.chain is None], 
+			K = lambda c: (c.available_loops_count, -len([node for node in c.nodes if node.loop.availabled and len([n for n in node.loop.nodes if n.cycle.chain is not None]) > 0]))
+		).items())
+		avcycle = grouped_cycles_by_av[0][1][0] if len(grouped_cycles_by_av) else None
+		avnodes = sorted([node for node in avcycle.nodes if node.loop.availabled], key = lambda node: (-len([n for n in node.loop.nodes if n.cycle.chain is not None]), node.address)) if avcycle else None
 		
 		# checks
 		if avnodes is None:
@@ -737,13 +743,10 @@ if __name__ == "__main__":
 					
 			return False
 					
+		# check if we have unchainable cycles
 		if grouped_cycles_by_av[0][0][0] is 0:
 			return False
-					
-		if unlooped_cycle_count is 0 or available_loops_count is 0:
-			show(diagram)
-			input("Found Something | unlooped:" + str(unlooped_cycle_count) + " | avloops: " + str(available_loops_count))
-				
+									
 		# choose
 		lvl_seen = []
 		for avindex in range(len(avnodes)):
@@ -784,78 +787,7 @@ if __name__ == "__main__":
 	back()
 
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-	'''
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(0); extendPointers()
-	
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(0); extendPointers()
-
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(0); extendPointers()
-									
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(1); extendPointers()									
-
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(0); extendPointers()
-
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(0); extendPointers()
-
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(0); extendPointers()
-
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(0); extendPointers()
-
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(1); extendPointers()
-	
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(1); extendPointers()
-	
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(1); extendPointers()
-
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(0); extendPointers()
-		
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(1); extendPointers()
-	
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(1); extendPointers()
-	'#''
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(1); extendPointers()
-	
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(1); extendPointers()
-	
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(0); extendPointers()
-	
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(0); extendPointers()
-	
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(1); extendPointers()
-	
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(0); extendPointers()
-
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(0); extendPointers()
-
-	unlooped_cycle_count, grouped_cycles_by_av, available_loops_count, avnodes = measure()	
-	choose(0); extendPointers()
-			
-	#for i,node in enumerate(diagram.pointers):
-		#show(diagram)
-		#input(i)
-		#assert diagram.extendLoop(node.loop)
-									
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ # '''
+	
 	show(diagram)
 	print("[road] " + " ".join([str(k)+'/'+str(n) for k,n in road]))		
