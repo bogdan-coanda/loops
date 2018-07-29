@@ -529,7 +529,7 @@ if __name__ == "__main__":
 		bcc += 1
 		
 		# measure
-		chloops = list(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops)
+		chloops = sorted(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops, key = lambda loop: loop.firstNode().address)
 		if len(diagram.chains) < min:
 			min = len(diagram.chains)
 			# diagram.pointers = list(itertools.chain(*[l.nodes for l in chloops]))
