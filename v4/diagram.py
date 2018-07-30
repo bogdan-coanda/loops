@@ -635,7 +635,7 @@ if __name__ == "__main__":
 
 
 	def back(lvl = 0, road = []):
-		global bcc, ncc, min, FULLY_CHAINED
+		global bcc, ncc, min, FULLY_CHAINED, min_chains
 		bcc += 1
 			
 		if bcc % 100 is 0: # or FULLY_CHAINED:
@@ -663,8 +663,16 @@ if __name__ == "__main__":
 											
 		# checks
 		if avnodes is None:
+			
 			if FULLY_CHAINED and len([chain for chain in diagram.chains if len(chain.cycles) is 1]) is not 0:
 				return False
+				
+			if len(diagram.chains) < min_chains:
+				min_chains = len(diagram.chains)	
+			
+			if len(diagram.chains) > 16:
+				return False
+				
 		#if len(chloops) is 0:
 			#show(diagram)
 			print("⟨"+str(gcc)+"⟩[lvl:"+str(lvl)+"§"+str(bcc)+"] road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]))			
@@ -779,7 +787,8 @@ if __name__ == "__main__":
 			
 	for gcc, g in enumerate(𝓖5()):
 
-		diagram = Diagram(7)
+		diagram = Diagram(7)		
+		min_chains = len(diagram.cycles)
 		
 		for k, base in enumerate(diagram.bases):
 			for i,n in enumerate(base.loopBrethren):
@@ -841,8 +850,12 @@ if __name__ == "__main__":
 	
 		back()
 		
-		show(diagram)
-		input("⟨"+str(gcc)+"⟩ done @ " + tstr(time() - startTime))
+		#show(diagram)
+		#input("⟨"+str(gcc)+"⟩ done @ " + tstr(time() - startTime) + " | min chains: " + str(min_chains))
+		
+		with open("branches."+str(diagram.spClass)+".log", 'a') as log:
+			log.write("["+str(gcc)+"] min chains reached: #"+str(min_chains)+"\n")
+		
 			
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ # '''
 	
