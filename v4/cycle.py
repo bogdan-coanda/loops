@@ -1,12 +1,11 @@
 class Cycle (object):
 	
-	__slots__ = ['index', 'address', 'nodes', 'available_loops_count', 'px', 'py', 'isKernel', 'chain', 'marker']
+	__slots__ = ['index', 'address', 'nodes', 'px', 'py', 'isKernel', 'chain', 'marker']
 	
 	def __init__(self, index, address, px, py):
 		self.index = index
 		self.address = address
 		self.nodes = set() # late init
-		self.available_loops_count = 0
 		self.px = px
 		self.py = py
 		self.isKernel = False

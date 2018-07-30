@@ -109,7 +109,7 @@ class Diagram (object):
 				
 			if lvl == self.spClass:
 				cycle = Cycle(gn_cc, "".join([str(a) for a in gn_address[:-1]]), qx, qy)				
-				cycle.available_loops_count = self.spClass
+				#cycle.available_loops_count = self.spClass
 				self.cycles.append(cycle)
 				self.cycleByAddress[cycle.address] = cycle
 				 
@@ -298,7 +298,7 @@ class Diagram (object):
 		loop.availabled = True
 		for node in loop.nodes:
 			cycle = node.cycle
-			cycle.available_loops_count += 1		
+			#cycle.available_loops_count += 1		
 			if cycle.chain: # [~] massively unsafe!!!
 				cycle.chain.avloops.add(loop)
 		
@@ -308,7 +308,7 @@ class Diagram (object):
 		loop.availabled = False
 		for node in loop.nodes:
 			cycle = node.cycle
-			cycle.available_loops_count -= 1
+			#cycle.available_loops_count -= 1
 			if cycle.chain and loop in cycle.chain.avloops:
 				cycle.chain.avloops.remove(loop)
 																		
@@ -504,21 +504,6 @@ class Diagram (object):
 if __name__ == "__main__":
 		
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
-	def measure():
-		grouped_cycles_by_av = sorted(groupby([c for c in diagram.cycles if c.chain is None], 
-			K = lambda c: (c.available_loops_count, -len([node for node in c.nodes if node.loop.availabled and len([n for n in node.loop.nodes if n.cycle.chain is not None]) > 0]))
-		).items())
-		avcycle = grouped_cycles_by_av[0][1][0] if len(grouped_cycles_by_av) else None
-		avnodes = sorted([node for node in avcycle.nodes if node.loop.availabled], key = lambda node: (-len([n for n in node.loop.nodes if n.cycle.chain is not None]), node.address)) if avcycle else None
-		# print("--- measure ---")
-		# print("unlooped cycles: " + str(unlooped_cycle_count))
-		# print("cycle av counts: " + str([((k, q), len(v)) for (k,q),v in grouped_cycles_by_av]))			
-		# print("cycles[" + str(grouped_cycles_by_av[0][0]) + "]: " + str(grouped_cycles_by_av[0][1]))		
-		# print("avnodes[:"+str(len(avnodes))+"]: " + str(avnodes))
-		# print("available loops: " + str(available_loops_count) + "/" + str(len(diagram.loops)) + " | chains: " + str(len(diagram.chains)))
-		# print("---------------")
-		return (grouped_cycles_by_av, avnodes)								
 								
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
@@ -579,11 +564,11 @@ if __name__ == "__main__":
 						log.write("duplicate of " + str(dup)+"\n\n")
 									
 				fcc += 1
-				show(diagram)
+				###show(diagram)
 				print("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
 				print("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} addr: " + " ".join([node.address for _,_,node in road]) + " | " + " ".join([loop.head.address for _,_,loop in path]))
-				input("⟨"+str(gcc)+"⟩ Found solution #"+str(fcc))					
-				input("len:"+str(len(SP)) + "\n" + SP)
+				###input("⟨"+str(gcc)+"⟩ Found solution #"+str(fcc))					
+				###input("len:"+str(len(SP)) + "\n" + SP)
 				
 				return False
 			else:
@@ -658,7 +643,6 @@ if __name__ == "__main__":
 		#print("[lvl:"+str(lvl)+"] addr: " + " ".join([node.address for _,_,node in road]))		
 	
 		# measure	
-		#grouped_cycles_by_av, avnodes = measure()	
 		if not FULLY_CHAINED:
 			grouped_cycles_by_av = sorted(groupby([c for c in diagram.cycles if c.chain is None], K = lambda c: (c.available_loops_count, -len([node for node in c.nodes if 	node.loop.availabled and len([n for n in node.loop.nodes if n.cycle.chain is not None]) > 0]))).items())
 			avcycle = grouped_cycles_by_av[0][1][0] if len(grouped_cycles_by_av) else None
@@ -857,6 +841,9 @@ if __name__ == "__main__":
 	
 		back()
 		
+		show(diagram)
+		input("⟨"+str(gcc)+"⟩ done @ " + tstr(time() - startTime))
+			
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ # '''
 	
 	show(diagram)

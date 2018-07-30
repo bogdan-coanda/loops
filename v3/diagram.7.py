@@ -579,11 +579,11 @@ if __name__ == "__main__":
 						log.write("duplicate of " + str(dup)+"\n\n")
 									
 				fcc += 1
-				show(diagram)
+				###show(diagram)
 				print("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
 				print("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} addr: " + " ".join([node.address for _,_,node in road]) + " | " + " ".join([loop.head.address for _,_,loop in path]))
-				input("⟨"+str(gcc)+"⟩ Found solution #"+str(fcc))					
-				input("len:"+str(len(SP)) + "\n" + SP)
+				###input("⟨"+str(gcc)+"⟩ Found solution #"+str(fcc))					
+				###input("len:"+str(len(SP)) + "\n" + SP)
 				
 				return False
 			else:
@@ -791,7 +791,7 @@ if __name__ == "__main__":
 											
 	startTime = time()
 	sols_superperms = []
-	FULLY_CHAINED = True
+	FULLY_CHAINED = False
 			
 	for gcc, g in enumerate(𝓖5()):
 
@@ -856,6 +856,9 @@ if __name__ == "__main__":
 		fcc = 0
 	
 		back()
+		
+		show(diagram)
+		input("⟨"+str(gcc)+"⟩ done @ " + tstr(time() - startTime))
 		
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ # '''
 	
