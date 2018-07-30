@@ -530,11 +530,14 @@ if __name__ == "__main__":
 		
 		# measure
 		chloops = sorted(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops, key = lambda loop: loop.firstNode().address)
+		#diagram.pointers = list(itertools.chain(*[l.nodes for l in chloops]))
+		#show(diagram); input("[next] chloops")
+			
 		if len(diagram.chains) < min:
 			min = len(diagram.chains)
 			# diagram.pointers = list(itertools.chain(*[l.nodes for l in chloops]))
 			# show(diagram)
-			# input("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} | Ongoing | min: " + str(min) + " chains reached | chloops: " + str(len(chloops)))
+			# input("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} | Ongoing | min: " + str(min) + " chains reached | chloops: " + str(len(chloops))))
 	
 		if bcc % 1000 is 0:
 			print("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(ncc)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} | chains: " + str(len(diagram.chains)) + " | chloops: " + str(len(chloops)) + " | road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
@@ -575,11 +578,11 @@ if __name__ == "__main__":
 						log.write("duplicate of " + str(dup)+"\n\n")
 									
 				fcc += 1
-				###show(diagram)
+				show(diagram)
 				print("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
 				print("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} addr: " + " ".join([node.address for _,_,node in road]) + " | " + " ".join([loop.head.address for _,_,loop in path]))
-				###input("⟨"+str(gcc)+"⟩ Found solution #"+str(fcc))					
-				###input("len:"+str(len(SP)) + "\n" + SP)
+				input("⟨"+str(gcc)+"⟩ Found solution #"+str(fcc))					
+				input("len:"+str(len(SP)) + "\n" + SP)
 				
 				return False
 			else:
@@ -599,8 +602,8 @@ if __name__ == "__main__":
 		lvl_seen = []
 		for chindex, chloop in enumerate(chloops):
 			
-			#diagram.pointers = list(avloop.nodes)					
-			#show(diagram)
+			#diagram.pointers = list(chloop.nodes)					
+			#show(diagram); input("[next] chloops["+str(chindex)+"] = " + str(chloop))
 			#print("{lvl:"+str(lvl)+"} | avloop: " + str(avloop) + " | .availabled: " + str(avloop.availabled) + " | .extended: " + str(avloop.extended))
 			#input("{lvl:"+str(lvl)+"} choosing " + str(avloop) + " | " + str(avindex) + "/" + str(len(avloops)))
 			
@@ -647,25 +650,37 @@ if __name__ == "__main__":
 
 
 	def back(lvl = 0, road = []):
-		global bcc, ncc, min
+		global bcc, ncc, min, FULLY_CHAINED
 		bcc += 1
 			
-		if bcc % 100 is 0:
+		if bcc % 100 is 0 or FULLY_CHAINED:
 			print("⟨"+str(gcc)+"⟩[lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"] road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]))
 		#print("[lvl:"+str(lvl)+"] addr: " + " ".join([node.address for _,_,node in road]))		
 	
 		# measure	
 		#grouped_cycles_by_av, avnodes = measure()	
-		grouped_cycles_by_av = sorted(groupby([c for c in diagram.cycles if c.chain is None], 
-			K = lambda c: (c.available_loops_count, -len([node for node in c.nodes if node.loop.availabled and len([n for n in node.loop.nodes if n.cycle.chain is not None]) > 0]))
-		).items())
-		avcycle = grouped_cycles_by_av[0][1][0] if len(grouped_cycles_by_av) else None
-		avnodes = sorted([node for node in avcycle.nodes if node.loop.availabled], key = lambda node: (-len([n for n in node.loop.nodes if n.cycle.chain is not None]), node.address)) if avcycle else None
-		
+		if not FULLY_CHAINED:
+			grouped_cycles_by_av = sorted(groupby([c for c in diagram.cycles if c.chain is None], K = lambda c: (c.available_loops_count, -len([node for node in c.nodes if 	node.loop.availabled and len([n for n in node.loop.nodes if n.cycle.chain is not None]) > 0]))).items())
+			avcycle = grouped_cycles_by_av[0][1][0] if len(grouped_cycles_by_av) else None
+			avnodes = sorted([node for node in avcycle.nodes if node.loop.availabled], key = lambda node: (-len([n for n in node.loop.nodes if n.cycle.chain is not None]), node.address)) if avcycle else None
+		else:
+			min_chain = sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0]
+			chloops = sorted(min_chain.avloops, key = lambda loop: loop.firstNode().address)
+			avnodes = sorted([[node for node in loop.nodes if node.cycle.chain is min_chain][0] for loop in chloops], key = lambda node: node.address)
+
+		#diagram.pointers = avnodes
+		#show(diagram); input("avnodes")
+											
 		# checks
-		if avnodes is None:
+		if avnodes is None or (FULLY_CHAINED and len(avnodes) is 0):
+			if FULLY_CHAINED and len([chain for chain in diagram.chains if len(chain.cycles) is 1]) is not 0:
+				return False
+		#if len(chloops) is 0:
 			#show(diagram)
 			print("⟨"+str(gcc)+"⟩[lvl:"+str(lvl)+"§"+str(bcc)+"] road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]))			
+			
+			if FULLY_CHAINED:
+				diagram.chains.add(diagram.startNode.cycle.chain)
 			
 			# unmark chains&cycles
 			chain_markers = []
@@ -713,18 +728,25 @@ if __name__ == "__main__":
 			for cycle, marker in cycle_markers:
 				cycle.marker = marker
 					
+			if FULLY_CHAINED:
+				diagram.chains.remove(diagram.startNode.cycle.chain)
+					
 			return False
 					
 		# check if we have unchainable cycles
-		if grouped_cycles_by_av[0][0][0] is 0:
+		if not FULLY_CHAINED and grouped_cycles_by_av[0][0][0] is 0:
 			return False
 									
 		# choose
 		lvl_seen = []
-		for avindex in range(len(avnodes)):
-			tuple = avnodes[avindex].tuple				
-			#diagram.pointers = list(tuple);
-								
+		for avindex, avnode in enumerate(avnodes):
+			tuple = avnode.tuple
+		#for chindex, chloop in enumerate(chloops):			
+			#tuple = chloop.firstNode().tuple				
+										
+			# diagram.pointers = [avnode]
+			# show(diagram); input("avnodes["+str(avindex)+"] = "+str(avnode))
+	
 			# extend
 			excc = 0
 			for tindex, node in enumerate(tuple):				
@@ -735,7 +757,8 @@ if __name__ == "__main__":
 
 			# carry on
 			if excc is len(tuple):
-				if back(lvl+1, road+[(avindex, len(avnodes), avnodes[avindex])]):
+				if back(lvl+1, road+[(avindex, len(avnodes), avnode)]):				
+				#if back(lvl+1, road+[(chindex, len(chloops), chloop.firstNode())]):
 					return True
 	
 			# revert
@@ -760,6 +783,7 @@ if __name__ == "__main__":
 											
 	startTime = time()
 	sols_superperms = []
+	FULLY_CHAINED = False
 			
 	for gcc, g in enumerate(𝓖5()):
 
@@ -769,10 +793,19 @@ if __name__ == "__main__":
 			for i,n in enumerate(base.loopBrethren):
 				n.cycle.marker = 1+g[k][i]
 				diagram.makeChain([], [n.cycle])
+			
+		# every cycle has its own chain at start
+		if FULLY_CHAINED:
+			for cycle in diagram.cycles:
+				if cycle.chain is None:
+					diagram.makeChain([], [cycle])		
+		
+			startChain = diagram.startNode.cycle.chain
+			diagram.chains.remove(startChain)
 				
 		###diagram.pointers = list(diagram.bases)
-		###show(diagram)
-		###input("⟨"+str(gcc)+"⟩ starting")
+		#show(diagram)
+		#input("⟨"+str(gcc)+"⟩ starting")
 						
 		'''
 		for i,n in enumerate(diagram.nodeByAddress['000001'].loopBrethren):
