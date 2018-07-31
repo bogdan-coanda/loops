@@ -214,7 +214,7 @@ class Diagram (object):
 			node.loopBrethren[-1].nextLink = node.loopBrethren[-1].nextLink.next.prevLink = node.loopBrethren[-1].links[3]
 			node = node.loopBrethren[-1].nextLink.next.prevs[1].node
 			if self.spClass % 2 is 1 or len(bases) % 2 is 1:
-				bases.append(node.links[1].next.links[1].next)
+				bases.append(node.links[1].next.links[1].next.links[1].next)
 			else:
 				bases.append(node.loopBrethren[-1].prevs[1].node.prevs[1].node)
 			#print("[gen:kernel] next node: " + str(node))		
@@ -670,7 +670,7 @@ if __name__ == "__main__":
 			if len(diagram.chains) < min_chains:
 				min_chains = len(diagram.chains)	
 			
-			if len(diagram.chains) > 16:
+			if len(diagram.chains) > 160:
 				return False
 				
 		#if len(chloops) is 0:
@@ -804,9 +804,9 @@ if __name__ == "__main__":
 			startChain = diagram.startNode.cycle.chain
 			diagram.chains.remove(startChain)
 				
-		###diagram.pointers = list(diagram.bases)
-		#show(diagram)
-		#input("⟨"+str(gcc)+"⟩ starting")
+		diagram.pointers = list(diagram.bases)
+		show(diagram)
+		input("⟨"+str(gcc)+"⟩ starting")
 						
 		'''
 		for i,n in enumerate(diagram.nodeByAddress['000001'].loopBrethren):
@@ -853,8 +853,8 @@ if __name__ == "__main__":
 		#show(diagram)
 		#input("⟨"+str(gcc)+"⟩ done @ " + tstr(time() - startTime) + " | min chains: " + str(min_chains))
 		
-		with open("branches."+str(diagram.spClass)+".log", 'a') as log:
-			log.write("["+str(gcc)+"] min chains reached: #"+str(min_chains)+"\n")
+		#with open("branches."+str(diagram.spClass)+".log", 'a') as log:
+			#log.write("["+str(gcc)+"] min chains reached: #"+str(min_chains)+"\n")
 		
 			
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ # '''

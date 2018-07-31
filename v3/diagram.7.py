@@ -214,7 +214,7 @@ class Diagram (object):
 			node.loopBrethren[-1].nextLink = node.loopBrethren[-1].nextLink.next.prevLink = node.loopBrethren[-1].links[3]
 			node = node.loopBrethren[-1].nextLink.next.prevs[1].node
 			if self.spClass % 2 is 1 or len(bases) % 2 is 1:
-				bases.append(node.links[1].next.links[1].next)
+				bases.append(node.links[1].next.links[1].next.links[1].next)
 			else:
 				bases.append(node.loopBrethren[-1].prevs[1].node.prevs[1].node)
 			#print("[gen:kernel] next node: " + str(node))		
@@ -579,11 +579,11 @@ if __name__ == "__main__":
 						log.write("duplicate of " + str(dup)+"\n\n")
 									
 				fcc += 1
-				###show(diagram)
+				show(diagram)
 				print("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
 				print("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} addr: " + " ".join([node.address for _,_,node in road]) + " | " + " ".join([loop.head.address for _,_,loop in path]))
-				###input("⟨"+str(gcc)+"⟩ Found solution #"+str(fcc))					
-				###input("len:"+str(len(SP)) + "\n" + SP)
+				input("⟨"+str(gcc)+"⟩ Found solution #"+str(fcc))					
+				input("len:"+str(len(SP)) + "\n" + SP)
 				
 				return False
 			else:
