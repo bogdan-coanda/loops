@@ -1,4 +1,6 @@
 from math import floor
+from PIL import Image
+import io
 
 def id(x): return x
 
@@ -13,3 +15,9 @@ def groupby(L, K = id, V = id, G = id, S = id):
 	
 def tstr(s):
 	return "" + str(int(floor(s / 60))) + "m" + str(int(floor(s)) % 60) + "s." + str(int(s * 1000) % 1000)
+	
+def ui2pil(ui_img):
+	png_data = ui_img.to_png()
+	return Image.open(io.BytesIO(png_data))
+	
+

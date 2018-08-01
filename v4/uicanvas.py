@@ -70,7 +70,7 @@ def lc(diagram, cycle, marker):
 	return colors.normal(marker)
 		
 	
-def show(diagram):
+def draw(diagram):
 	with ui.ImageContext(diagram.W, diagram.H) as ctx:
 	
 		ui.set_color('white')
@@ -180,6 +180,13 @@ def show(diagram):
 			
 			
 		img = ctx.get_image()
-		img.show()
+		#img.show()
 		print("[show] chain count: " + str(len(chainColors)) + " | looped: " + str(diagram.sh_looped_count) + "/" + str(len(diagram.nodes)) + " (" + "{0:.2f}".format(diagram.sh_looped_count*100.0/len(diagram.nodes)) + "%)" + " | remaining: " + str(len(diagram.nodes) - diagram.sh_looped_count))
-		return (len(chainColors), diagram.sh_looped_count)
+		return img
+		
+def show(diagram):
+	img = draw(diagram)
+	img.show()
+	return img
+	
+	
