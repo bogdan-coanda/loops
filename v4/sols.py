@@ -31,6 +31,12 @@ addrs = [
 from images2gif import writeGif
 import console
 
+save_index = 0
+def save(img, name):
+	if save_index > 137:
+		with open('frames/'+name+'.png', 'wb') as f:
+			f.write(img.to_png())
+
 if __name__ == "__main__":
 	
 	diagram = Diagram(7)
@@ -55,19 +61,43 @@ if __name__ == "__main__":
 		5: 5, 6: 9, 7: 8, 8: 7, 9: 6,
 		10: 14, 11: 10, 12: 12, 13: 11, 14: 13,
 		15: 18, 16: 16, 17: 17, 18: 19, 19: 15
-	}
+	}	
 	
-	for addr_index in range(5, 10):
+	for addr_index in [5]:
 		index = which[addr_index]
 		addr = addrs[index]
 		
 		halves = addr.split(' | ')
-		tuple_addrs = halves[0].split(' ') 
-		next_addrs = halves[1].split(' ')
+		tuple_addrs = sorted(halves[0].split(' '))
+		next_addrs = sorted(halves[1].split(' '))
 		
-		print("#" + str(index) + ": " + str(len(tuple_addrs)) + " | " + str(len(next_addrs)))
-
 		𝒟 = Diagram(7)
+				
+		all_nodes = []
+		tuple_nodes = []
+		next_nodes = []
+		kernel_node = None
+		for tuple_addr in tuple_addrs:
+			for node in 𝒟.nodeByAddress[tuple_addr].tuple:
+				curr = node.loop.firstNode()
+				all_nodes.append(curr)
+				tuple_nodes.append(curr)
+		for next_addr in next_addrs:
+			curr = 𝒟.nodeByAddress[next_addr].loop.firstNode()
+			if curr.loop.hasKernelNodes():
+				kernel_node = curr			
+			all_nodes.append(curr)
+			next_nodes.append(curr)
+		all_nodes = sorted(all_nodes, key = lambda n: n.address)
+		tuple_nodes = sorted(tuple_nodes, key = lambda n: n.address)
+		next_nodes = sorted(next_nodes, key = lambda n: n.address)				
+		
+		for node in next_nodes:
+			if len([n for n in node.tuple if n in next_nodes]) is not 1:
+				print(str(node) + " | partial tuple " + str(len([n for n in node.tuple if n in next_nodes])))
+										
+		print("#" + str(index) + ": " + str(len(tuple_addrs)) + " | " + str(len(next_addrs)) + " | knode: " + str(kernel_node))
+
 		
 		if index < 5:
 			𝒟.pointers = 𝒟.nodeByAddress['000053'].tuple
@@ -77,17 +107,93 @@ if __name__ == "__main__":
 			𝒟.pointers = 𝒟.nodeByAddress['000002'].tuple	
 		else: # < 20:
 			𝒟.pointers = 𝒟.nodeByAddress['000053'].tuple
+			
+		show(𝒟); input("[started] tuples remaining: " + str(len(tuple_addrs)) + " | chains: " + str(len(𝒟.chains)))
+		#images.append(ui2pil(draw(𝒟)))
+		#save(draw(𝒟), "frame."+"{:0>3}".format(save_index)); save_index += 1
 									
-		images.append(ui2pil(draw(𝒟)))
-									
+		colormaps = list(𝓖5())
+		colormapindex = 0		
+		for k, base in enumerate(𝒟.bases):
+			for i,n in enumerate(base.loopBrethren):
+				n.cycle.marker = 1+colormaps[colormapindex][k][i]
+				𝒟.makeChain([], [n.cycle])
+				
+		show(𝒟); input("[colored] tuples remaining: " + str(len(tuple_addrs)) + " | chains: " + str(len(𝒟.chains)))
+		#images.append(ui2pil(draw(𝒟)))
+		#save(draw(𝒟), "frame."+"{:0>3}".format(save_index)); save_index += 1													
+
+		foundMarker = True
+		while foundMarker and len(tuple_addrs):
+			foundMarker = False
+			for tuple_addr in tuple_addrs:
+				if len([n for n in 𝒟.nodeByAddress[tuple_addr].tuple[0].loop.nodes if n.cycle.chain and n.cycle.chain.marker]):
+					#𝒟.pointers = [[n for n in node.loop.nodes if n.cycle.chain and n.cycle.chain.marker][0] for node in 𝒟.nodeByAddress[tuple_addr].tuple]
+					#show(𝒟); input("[foundMarker:pointed] tuples remaining: " + str(len(tuple_addrs)) + " | chains: " + str(len(𝒟.chains)))
+					for node in 𝒟.nodeByAddress[tuple_addr].tuple:
+						assert 𝒟.extendLoop(node.loop)
+					foundMarker = True
+					tuple_addrs.remove(tuple_addr)
+					#show(𝒟); input("[foundMarker:extended] tuples remaining: " + str(len(tuple_addrs)) + " | chains: " + str(len(𝒟.chains)))
+					continue
+					
+					
+		# unmark chains&cycles
+		chain_markers = []
+		for chain in 𝒟.chains:
+			if chain.marker:
+				chain_markers.append((chain, chain.marker))
+				chain.marker = None
+		cycle_markers = []
+		for cycle in 𝒟.cycles:
+			if cycle.marker:
+				cycle_markers.append((cycle, cycle.marker))
+				cycle.marker = None
+
+		# reactivate loops
+		reactivated_loops = []
+		for loop in 𝒟.loops:
+			if not loop.availabled and 𝒟.checkAvailability(loop):
+				reactivated_loops.append(loop)
+				𝒟.setLoopAvailabled(loop)
+													
+		show(𝒟); input("[uncolored] tuples remaining: " + str(len(tuple_addrs)) + " | chains: " + str(len(𝒟.chains)))			
+		
+		𝒟.pointers = next_nodes
+		show(𝒟); input("[nexts] all: " + str(len(𝒟.pointers)))			
+		
+		𝒟.pointers = [node for node in next_nodes if len([n for n in node.loop.nodes if n.cycle.chain])]
+		show(𝒟); input("[nexts] chained: " + str(len(𝒟.pointers)))
+
+		𝒟.pointers = [node for node in next_nodes if len([n for n in node.loop.nodes if n.cycle.chain]) is 1]
+		show(𝒟); input("[nexts] extending: " + str(len(𝒟.pointers)))
+
+		𝒟.pointers = [node for node in next_nodes if len([n for n in node.loop.nodes if n.cycle.chain]) > 1]
+		show(𝒟); input("[nexts] breaking markers: " + str(len(𝒟.pointers)) + " | " + " ".join([str(len([n for n in node.loop.nodes if n.cycle.chain])) for node in 𝒟.pointers]))
+														
+		'''					
+		while len(nodes) > 0:
+			for node in nodes:
+				#print(str(node) + " | " + str(len([nln for nln in node.loop.nodes if node.cycle.chain is not None])))
+				if len([nln for nln in node.loop.nodes if nln.cycle.chain is not None]):
+					#print(node)
+					assert 𝒟.extendLoop(node.loop)
+					nodes.remove(node)
+					save(draw(𝒟), "frame."+"{:0>3}".format(save_index)); save_index += 1
+		'''
+							
+		'''
 		for tuple_addr in tuple_addrs:
 			for node in 𝒟.nodeByAddress[tuple_addr].tuple:
 				assert 𝒟.extendLoop(node.loop)
-			images.append(ui2pil(draw(𝒟)))
+			#images.append(ui2pil(draw(𝒟)))
+			save(draw(𝒟), "frame."+"{:0>3}".format(save_index)); save_index += 1
 				
 		for next_addr in next_addrs:
 			assert 𝒟.extendLoop(𝒟.nodeByAddress[next_addr].loop)
-			images.append(ui2pil(draw(𝒟)))
+			#images.append(ui2pil(draw(𝒟)))
+			save(draw(𝒟), "frame."+"{:0>3}".format(save_index)); save_index += 1
+		'''
 		
 		assert len(𝒟.chains) is 1, "!!!incomplete!!!"
 		
@@ -98,5 +204,5 @@ if __name__ == "__main__":
 		#images.append(ui2pil(img))
 		print("@" + str(index) + " | done")
 		
-		writeGif('02.gif', images, 0.8)
-		console.quicklook('02.gif')
+		#writeGif('02.gif', images, 0.8)
+		#console.quicklook('02.gif')
