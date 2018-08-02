@@ -564,11 +564,11 @@ if __name__ == "__main__":
 						log.write("duplicate of " + str(dup)+"\n\n")
 									
 				fcc += 1
-				###show(diagram)
+				show(diagram)
 				print("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
 				print("⟨"+str(gcc)+"⟩{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} addr: " + " ".join([node.address for _,_,node in road]) + " | " + " ".join([loop.head.address for _,_,loop in path]))
-				###input("⟨"+str(gcc)+"⟩ Found solution #"+str(fcc))					
-				###input("len:"+str(len(SP)) + "\n" + SP)
+				input("⟨"+str(gcc)+"⟩ Found solution #"+str(fcc))					
+				input("len:"+str(len(SP)) + "\n" + SP)
 				
 				return False
 			else:
@@ -638,7 +638,7 @@ if __name__ == "__main__":
 		global bcc, ncc, min, FULLY_CHAINED, min_chains
 		bcc += 1
 			
-		if bcc % 100 is 0: # or FULLY_CHAINED:
+		if bcc % 1000 is 0: # or FULLY_CHAINED:
 			print("⟨"+str(gcc)+"⟩[lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"] road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in road]))
 		#print("[lvl:"+str(lvl)+"] addr: " + " ".join([node.address for _,_,node in road]))		
 	
@@ -670,7 +670,7 @@ if __name__ == "__main__":
 			if len(diagram.chains) < min_chains:
 				min_chains = len(diagram.chains)	
 			
-			if len(diagram.chains) > 160:
+			if len(diagram.chains) > 16:
 				return False
 				
 		#if len(chloops) is 0:
@@ -804,9 +804,9 @@ if __name__ == "__main__":
 			startChain = diagram.startNode.cycle.chain
 			diagram.chains.remove(startChain)
 				
-		diagram.pointers = list(diagram.bases)
-		show(diagram)
-		input("⟨"+str(gcc)+"⟩ starting")
+		#diagram.pointers = list(diagram.bases)
+		#show(diagram)
+		#input("⟨"+str(gcc)+"⟩ starting")
 						
 		'''
 		for i,n in enumerate(diagram.nodeByAddress['000001'].loopBrethren):
@@ -853,8 +853,8 @@ if __name__ == "__main__":
 		#show(diagram)
 		#input("⟨"+str(gcc)+"⟩ done @ " + tstr(time() - startTime) + " | min chains: " + str(min_chains))
 		
-		#with open("branches."+str(diagram.spClass)+".log", 'a') as log:
-			#log.write("["+str(gcc)+"] min chains reached: #"+str(min_chains)+"\n")
+		with open("branches."+str(diagram.spClass)+".k02.log", 'a') as log:
+			log.write("["+str(gcc)+"] min chains reached: #"+str(min_chains)+"\n")
 		
 			
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ # '''
