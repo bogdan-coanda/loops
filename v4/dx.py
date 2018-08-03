@@ -46,6 +46,19 @@ if __name__ == "__main__":
 	diagram.pointers = diagram.nodeByAddress['110010'].loop.nodes
 	'''
 	
+	#diagram.extendLoop(diagram.nodeByAddress['001126'].loop)
+	#diagram.extendLoop(diagram.nodeByAddress['021006'].loop)
+	
+	#diagram.extendLoop(diagram.nodeByAddress['022001'].loop)
+	
+	ext('103400')
+	diagram.extendLoop(diagram.nodeByAddress['103424'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['103433'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['103442'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['103451'].loop)
+	
+	#diagram.extendLoop(diagram.nodeByAddress['013022'].loop)
+	
 	grouped_cycles_by_av = sorted(groupby([c for c in diagram.cycles if c.chain is None], K = lambda c: (len([node for node in c.nodes if node.loop.availabled]), -len([node for node in c.nodes if node.loop.availabled and len([n for n in node.loop.nodes if n.cycle.chain is not None]) > 0]))).items())
 	avcycle = grouped_cycles_by_av[0][1][0] if len(grouped_cycles_by_av) else None
 	avnodes = sorted([node for node in avcycle.nodes if node.loop.availabled], key = lambda node: (-len([n for n in node.loop.nodes if n.cycle.chain is not None]), node.address)) if avcycle else None
