@@ -214,7 +214,7 @@ class Diagram (object):
 			node.loopBrethren[-1].nextLink = node.loopBrethren[-1].nextLink.next.prevLink = node.loopBrethren[-1].links[3]
 			node = node.loopBrethren[-1].nextLink.next.prevs[1].node
 			if self.spClass % 2 is 1 or len(bases) % 2 is 1:
-				bases.append(node.links[1].next.links[1].next.links[1].next)
+				bases.append(node.links[1].next.links[1].next.links[1].next.links[1].next)
 			else:
 				bases.append(node.loopBrethren[-1].prevs[1].node.prevs[1].node)
 			#print("[gen:kernel] next node: " + str(node))		
@@ -784,8 +784,16 @@ if __name__ == "__main__":
 	startTime = time()
 	sols_superperms = []
 	FULLY_CHAINED = True
+
+	diagram = Diagram(7)								
+	diagram.pointers = list(diagram.bases)
+	show(diagram)
+	input("starting | " + str(sorted(diagram.bases, key = lambda n: n.address)[0]))
 			
 	for gcc, g in enumerate(𝓖5()):
+
+		if gcc < 503:
+			continue
 
 		diagram = Diagram(7)		
 		min_chains = len(diagram.cycles)
@@ -803,10 +811,6 @@ if __name__ == "__main__":
 		
 			startChain = diagram.startNode.cycle.chain
 			diagram.chains.remove(startChain)
-				
-		#diagram.pointers = list(diagram.bases)
-		#show(diagram)
-		#input("⟨"+str(gcc)+"⟩ starting")
 						
 		'''
 		for i,n in enumerate(diagram.nodeByAddress['000001'].loopBrethren):
@@ -853,7 +857,7 @@ if __name__ == "__main__":
 		#show(diagram)
 		#input("⟨"+str(gcc)+"⟩ done @ " + tstr(time() - startTime) + " | min chains: " + str(min_chains))
 		
-		with open("branches."+str(diagram.spClass)+".k02.log", 'a') as log:
+		with open("branches."+str(diagram.spClass)+".k03.log", 'a') as log:
 			log.write("["+str(gcc)+"] min chains reached: #"+str(min_chains)+"\n")
 		
 			

@@ -66,7 +66,7 @@ if __name__ == "__main__":
 	
 	bases = [H001, K143, H201, K343]
 	
-	diagram.walk(bases)
+	#diagram.walk(bases)
 	
 	#node = diagram.nodeByAddress['00000']
 
