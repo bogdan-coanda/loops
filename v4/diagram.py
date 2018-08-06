@@ -15,21 +15,25 @@ from fivebyfives import 𝓖5
 class Diagram (object):
 	
 	
-	def __init__(self, N):
+	def __init__(self, N, withKernel=True):
 		self.spClass = N
 		
 		self.generateGraph()
 																	
 		self.startPerm = self.perms[0]	
 		self.startNode = self.nodeByPerm[self.startPerm]									
-																	
-		self.bases = self.generateKernel()
+		
+		self.chainAutoInc = -1
+
+		if withKernel:
+			self.bases = self.generateKernel()
 		
 		# subsets		
 		self.pointers = []
 		self.draw_boxes = []
 		
-		self.walk()
+		if withKernel:
+			self.walk()
 									
 		
 	def generateGraph(self):
@@ -87,7 +91,18 @@ class Diagram (object):
 				(DM, 0), 
 				(0, DM), 
 				(0, 0)]
-		
+		elif self.spClass is 5:
+			xydelta = [
+				(DM*(self.spClass-1), 0), 
+				(DM, 0), 
+				(0, DM), 
+				(0, 0)]				
+		elif self.spClass is 4:
+			xydelta = [
+				(DM, 0), 
+				(0, DM), 
+				(0, 0)]				
+						
 		def genNode(lvl = 2, qx = DM, qy = DM):
 			nonlocal gn_address, gn_perm, gn_next, gn_cc, gn_qq, gn_all
 			
@@ -423,7 +438,7 @@ class Diagram (object):
 			Diagram.adv = adv
 			
 			# do the actual walking
-			self.dualWalk()
+			self.dualwalk()
 		
 		else: # self.spClass % 2 is 1
 			
@@ -443,6 +458,8 @@ class Diagram (object):
 			
 			# do the actual walking			
 			self.monowalk()
+			
+		self.pointers = None
 
 
 	def dualwalk(self): # generate alternating directional tuples
@@ -498,6 +515,24 @@ class Diagram (object):
 	def pointToAddressTuple(self, address):
 		self.pointers = list(self.nodeByAddress[address].tuple)
 
+
+	def superperm(self, start_addr, end_addr):
+		curr = self.nodeByAddress[start_addr]
+		SP = curr.perm
+		#print("SP: " + str(SP))		
+		while True:
+			nextLink = curr.nextLink if curr.nextLink else (curr.links[2] if curr.loop.extended else curr.links[1])	
+			curr = nextLink.next
+			if curr.address == start_addr:
+				break
+			SP += curr.perm[-nextLink.type:]
+			if curr.address == end_addr:
+				curr.nextLink = Link(0, curr, self.nodeByAddress[start_addr])
+				break
+		#print("SP: " + str(SP))
+		return SP
+		#for node in self.nodes:
+			#assert node.perm in SP
 
 
 
