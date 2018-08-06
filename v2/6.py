@@ -66,7 +66,7 @@ if __name__ == "__main__":
 	
 	bases = [H001, K143, H201, K343]
 	
-	diagram.walk(bases)
+	#diagram.walk(bases)
 	
 	#node = diagram.nodeByAddress['00000']
 
@@ -115,8 +115,8 @@ if __name__ == "__main__":
 	# » purple(5) » yellow(2) » orange(3)
 	
 	#extend('11310') # I.   | » x | purple
-	extend('10020') # II.  | » x | orange	
-	extend('10011') # III. | » x | orange
+	#extend('10020') # II.  | » x | orange	
+	#extend('10011') # III. | » x | orange
 	#extend('11333') # IV.  | » x | purple
 	
 	#extend('01220') # I.   | » y | red
@@ -124,11 +124,11 @@ if __name__ == "__main__":
 	#extend('10233') # III. | » y | yellow
 	#extend('10210') # IV.  | » y | yellow
 	
-	extend('10043') # I.   | » z | orange
+	#extend('10043') # I.   | » z | orange
 	#extend('11301') # II.  | » z | purple	
 	#extend('11342') # III. | » z | purple
-	extend('10002') # IV.  | » z | orange
-	
+	#extend('10002') # IV.  | » z | orange
+#	
 	diagram.pointers = list(H001.loop.nodes)
 	
 	# ~~~ ~~~~ ~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''							

@@ -20,7 +20,7 @@ class Cycle (object):
 		
 				
 	def __repr__(self):
-		return "⟨cycle:"+str(self.index)+"@"+self.address+"|"+str(self.available_loops_count)+"§"+str(self.chain)+"⟩"
+		return "⟨cycle:"+str(self.index)+"@"+self.address+"§"+str(self.chain)+"⟩"
 		
 		
 	def __lt__(self, other):

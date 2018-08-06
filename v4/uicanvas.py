@@ -109,7 +109,7 @@ def draw(diagram):
 			if node.cycle.chain is not None:
 				diagram.sh_looped_count += 1
 				if node.cycle.chain.id not in chainColors:
-					chainColors[node.cycle.chain.id] = 'white' if node.cycle.chain.id == diagram.startNode.cycle.chain.id else hls_to_rgb(random(), 0.5, 1)
+					chainColors[node.cycle.chain.id] = 'white' if node.cycle.chain.id == (0 if diagram.startNode.cycle.chain is None else diagram.startNode.cycle.chain.id) else hls_to_rgb(random(), 0.5, 1)
 				ui.set_color(chainColors[node.cycle.chain.id])
 			else:
 				ui.set_color('white')
@@ -181,7 +181,7 @@ def draw(diagram):
 			
 		img = ctx.get_image()
 		#img.show()
-		print("[show] chain count: " + str(len(chainColors)) + " | looped: " + str(diagram.sh_looped_count) + "/" + str(len(diagram.nodes)) + " (" + "{0:.2f}".format(diagram.sh_looped_count*100.0/len(diagram.nodes)) + "%)" + " | remaining: " + str(len(diagram.nodes) - diagram.sh_looped_count))
+		print("[show] chain count: " + str(len(diagram.chains)) + " | looped: " + str(diagram.sh_looped_count) + "/" + str(len(diagram.nodes)) + " (" + "{0:.2f}".format(diagram.sh_looped_count*100.0/len(diagram.nodes)) + "%)" + " | remaining: " + str(len(diagram.nodes) - diagram.sh_looped_count))
 		return img
 		
 def show(diagram):
