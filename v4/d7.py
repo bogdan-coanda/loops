@@ -103,48 +103,33 @@ def next(lvl=0, path = []):
 if __name__ == "__main__":
 	
 	diagram = Diagram(7)#, withKernel=False)
-	
-	'''
-	diagram.makeChain([], [diagram.cycleByAddress['0100']])
-	diagram.extendLoop(diagram.nodeByAddress['01005'].loop)
-	diagram.makeChain([], [diagram.cycleByAddress['0110']])
-	diagram.extendLoop(diagram.nodeByAddress['01105'].loop)
-	diagram.makeChain([], [diagram.cycleByAddress['0120']])
-	diagram.extendLoop(diagram.nodeByAddress['01205'].loop)
-	diagram.makeChain([], [diagram.cycleByAddress['0130']])
-	diagram.extendLoop(diagram.nodeByAddress['01305'].loop)
-	
-	diagram.nodeByAddress['01045'].nextLink = diagram.nodeByAddress['01045'].links[3]
-	diagram.nodeByAddress['01145'].nextLink = diagram.nodeByAddress['01145'].links[3]
-	diagram.nodeByAddress['01245'].nextLink = diagram.nodeByAddress['01245'].links[3]
-	diagram.nodeByAddress['01345'].nextLink = diagram.nodeByAddress['01345'].links[3]
 
-	diagram.makeChain([diagram.cycleByAddress[addr].chain for addr in ['0100', '0110', '0120', '0130']], [])	
+	for head in ['001', '002', '003']:
+								
+		diagram.makeChain([], [diagram.cycleByAddress[head+'00']])
+		diagram.extendLoop(diagram.nodeByAddress[head+'006'].loop)
+		diagram.makeChain([], [diagram.cycleByAddress[head+'10']])
+		diagram.extendLoop(diagram.nodeByAddress[head+'106'].loop)
+		diagram.makeChain([], [diagram.cycleByAddress[head+'20']])
+		diagram.extendLoop(diagram.nodeByAddress[head+'206'].loop)
+		diagram.makeChain([], [diagram.cycleByAddress[head+'30']])
+		diagram.extendLoop(diagram.nodeByAddress[head+'306'].loop)
+		diagram.makeChain([], [diagram.cycleByAddress[head+'40']])
+		diagram.extendLoop(diagram.nodeByAddress[head+'406'].loop)	
+		
+		diagram.nodeByAddress[head+'056'].nextLink = diagram.nodeByAddress[head+'056'].links[3]
+		diagram.nodeByAddress[head+'156'].nextLink = diagram.nodeByAddress[head+'156'].links[3]
+		diagram.nodeByAddress[head+'256'].nextLink = diagram.nodeByAddress[head+'256'].links[3]
+		diagram.nodeByAddress[head+'356'].nextLink = diagram.nodeByAddress[head+'356'].links[3]
+		diagram.nodeByAddress[head+'456'].nextLink = diagram.nodeByAddress[head+'456'].links[3]
+		
+	diagram.nodeByAddress['000456'].nextLink = Link(4, diagram.nodeByAddress['000456'], diagram.nodeByAddress['001000'])
+	diagram.nodeByAddress['001456'].nextLink = Link(4, diagram.nodeByAddress['001456'], diagram.nodeByAddress['002000'])
+	diagram.nodeByAddress['002456'].nextLink = Link(4, diagram.nodeByAddress['002456'], diagram.nodeByAddress['003000'])
+	diagram.nodeByAddress['003456'].nextLink = Link(4, diagram.nodeByAddress['003456'], diagram.nodeByAddress['000000'])
 	
-	
-	
-	diagram.makeChain([], [diagram.cycleByAddress['0200']])
-	diagram.extendLoop(diagram.nodeByAddress['02005'].loop)
-	diagram.makeChain([], [diagram.cycleByAddress['0210']])
-	diagram.extendLoop(diagram.nodeByAddress['02105'].loop)
-	diagram.makeChain([], [diagram.cycleByAddress['0220']])
-	diagram.extendLoop(diagram.nodeByAddress['02205'].loop)
-	diagram.makeChain([], [diagram.cycleByAddress['0230']])
-	diagram.extendLoop(diagram.nodeByAddress['02305'].loop)
-	
-	diagram.nodeByAddress['02045'].nextLink = diagram.nodeByAddress['02045'].links[3]
-	diagram.nodeByAddress['02145'].nextLink = diagram.nodeByAddress['02145'].links[3]
-	diagram.nodeByAddress['02245'].nextLink = diagram.nodeByAddress['02245'].links[3]
-	diagram.nodeByAddress['02345'].nextLink = diagram.nodeByAddress['02345'].links[3]
+	diagram.makeChain(list(diagram.chains), [])		
 
-	diagram.makeChain([diagram.cycleByAddress[addr].chain for addr in ['0200', '0210', '0220', '0230']], [])
-	
-	diagram.nodeByAddress['00345'].nextLink = Link(4, diagram.nodeByAddress['00345'], diagram.nodeByAddress['01000'])
-	diagram.nodeByAddress['01345'].nextLink = Link(4, diagram.nodeByAddress['01345'], diagram.nodeByAddress['02000'])
-	diagram.nodeByAddress['02345'].nextLink = Link(4, diagram.nodeByAddress['02345'], diagram.nodeByAddress['00000'])
-	
-	diagram.makeChain(list(diagram.chains), []) #'''
-	'''
 	# every cycle has its own chain at start
 	for cycle in diagram.cycles:
 		if cycle.chain is None:
@@ -157,7 +142,6 @@ if __name__ == "__main__":
 	fcc = 0
 		
 	next()
-	'''
 
 	show(diagram)
 	
