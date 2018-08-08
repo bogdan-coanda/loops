@@ -141,7 +141,7 @@ class Diagram (object):
 		max([node.px for node in self.nodes])
 		self.W = max([cycle.px for cycle in self.cycles]) + DM
 		self.H = max([cycle.py for cycle in self.cycles]) + DM		
-		print("generated nodes | WxH: " + str(self.W) + "x" + str(self.H))
+		#print("generated nodes | WxH: " + str(self.W) + "x" + str(self.H))
 		#assert len(gn_all) == len(self.perms)		
 		
 		
@@ -165,7 +165,7 @@ class Diagram (object):
 				self.links[type].append(link)
 			nc += 1
 			
-		print("generated links")
+		#print("generated links")
 		
 				
 	def generateLoops(self):
@@ -207,7 +207,7 @@ class Diagram (object):
 					lnindex = loopNodes.index(ln)
 					ln.loopBrethren = loopNodes[lnindex+1:] + loopNodes[:lnindex]
 
-		print("generated loops")								
+		#print("generated loops")								
 				
 	
 	def generateKernel(self):
@@ -243,7 +243,7 @@ class Diagram (object):
 		#for base in bases:
 			#assert len([node for node in base.loop.nodes if node.links[1].next.loop.availabled or node.prevs[1].node.loop.availabled]) is 0, "broken extension neighbours!!!"		
 			
-		print("generated kernel")			
+		#print("generated kernel")			
 		return [bases[-1]] + bases[:-1]
 		
 
