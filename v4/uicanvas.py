@@ -181,7 +181,7 @@ def draw(diagram):
 			
 		img = ctx.get_image()
 		#img.show()
-		print("[show] chain count: " + str(len(diagram.chains)) + " | looped: " + str(diagram.sh_looped_count) + "/" + str(len(diagram.nodes)) + " (" + "{0:.2f}".format(diagram.sh_looped_count*100.0/len(diagram.nodes)) + "%)" + " | remaining: " + str(len(diagram.nodes) - diagram.sh_looped_count))
+		print("[show] chain count: " + str(len([c for c in diagram.chains if len(c.cycles) > 1])) + " | looped: " + str(diagram.sh_looped_count) + "/" + str(len(diagram.nodes)) + " (" + "{0:.2f}".format(diagram.sh_looped_count*100.0/len(diagram.nodes)) + "%)" + " | remaining: " + str(len(diagram.nodes) - diagram.sh_looped_count))
 		return img
 		
 def show(diagram):

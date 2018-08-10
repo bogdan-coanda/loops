@@ -102,7 +102,7 @@ def next(lvl=0, path = []):
 	
 if __name__ == "__main__":
 	
-	diagram = Diagram(7)#, withKernel=False)
+	diagram = Diagram(7)#, isDualWalkType=True, bases=[''])
 
 	for head in ['001', '002', '003']:
 								
@@ -134,6 +134,29 @@ if __name__ == "__main__":
 	for cycle in diagram.cycles:
 		if cycle.chain is None:
 			diagram.makeChain([], [cycle])		
+					
+	
+	diagram.extendLoop(diagram.nodeByAddress['000001'].loop)
+	#diagram.extendLoop(diagram.nodeByAddress['100020'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['120215'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['120205'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['120105'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['120005'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['120405'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['120351'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['100040'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['100106'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['100206'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['100306'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['100406'].loop)
+	
+	diagram.extendLoop(diagram.nodeByAddress['003002'].loop)
+	#diagram.extendLoop(diagram.nodeByAddress['112020'].loop)
+	#diagram.extendLoop(diagram.nodeByAddress['112040'].loop)
+	
+	
+	show(diagram)	
+	input("partial")
 					
 					
 	startTime = time()

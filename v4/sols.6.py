@@ -60,6 +60,12 @@ def poex(diagram, addrs):
 	diagram.pointers = nodes
 			
 
+def jmp(x):
+	diagram.jmp(x); show(diagram); input("[jmp] » "+str(x))
+	
+def adv(x):
+	diagram.adv(x); show(diagram); input("[adv] » "+str(x))
+	
 
 if __name__ == "__main__":
 	
@@ -68,7 +74,7 @@ if __name__ == "__main__":
 		
 	print(len(lines))
 
-	diagram = Diagram(6)
+	diagram = Diagram(6, isDualWalkType=True, baseAddresses=['02302', '00001'])
 					
 	sols = []
 	for id in range(36):
@@ -83,107 +89,123 @@ if __name__ == "__main__":
 	#'''
 		
 	patch(diagram)
+		
+	diagram.extendLoop(diagram.nodeByAddress['00001'].loop) # α
+	diagram.extendLoop(diagram.nodeByAddress['01033'].loop) # β
+	diagram.extendLoop(diagram.nodeByAddress['02302'].loop) # γ
 	
-	diagram.extendLoop(diagram.nodeByAddress['00001'].loop)
-	diagram.extendLoop(diagram.nodeByAddress['02302'].loop)
-	diagram.extendLoop(diagram.nodeByAddress['01033'].loop)
-
-	#poex(diagram, '11005 11105 11205 11305'.split(' '))
-	#poex(diagram, '10012 10022 10003'.split(' '))
-	#poex(diagram, '10012 10022 10031'.split(' '))
-	#poex(diagram, '10111 12105 10201'.split(' '))
-	#poex(diagram, '10111 12105 12005'.split(' '))
-	#poex(diagram, '10105 12022 11031'.split(' '))
-	#poex(diagram, '10105 12022 11005'.split(' '))
+	diagram.pointers = [n for n in diagram.nodes if n.tuple[0] is n.tuple[1]]; show(diagram); input("singled tuples after patch")
+	show(diagram)
 	
-	#show(diagram)
-	#input('[xxx]')
-
-	'''	
-	diagram.extendLoop(diagram.nodeByAddress['10012'].loop) # - |	
-	diagram.extendLoop(diagram.nodeByAddress['10022'].loop) # - | 
-	diagram.extendLoop(diagram.nodeByAddress['11305'].loop) # - |	BC:s ⋂ F:t	
-	diagram.extendLoop(diagram.nodeByAddress['12305'].loop) # - |	BC:s ⋂ D:t
+	diagram.pointers = list(diagram.bases); show(diagram); input("bases")
+	#diagram.pointers = list(diagram.nodeByAddress['00001'].tuple); show(diagram); input("pointed @ α")
+	#diagram.pointers = list(diagram.nodeByAddress['01033'].tuple); show(diagram); input("pointed @ β")
+	#diagram.pointers = list(diagram.nodeByAddress['02302'].tuple); show(diagram); input("pointed @ γ")
 	
-	#diagram.extendLoop(diagram.nodeByAddress['10143'].loop) # - |
-	#diagram.extendLoop(diagram.nodeByAddress['10233'].loop) # - |
-	#diagram.extendLoop(diagram.nodeByAddress['11013'].loop) # - |
-	#diagram.extendLoop(diagram.nodeByAddress['12004'].loop) # - |
+	# ~~~~~~~ #
+	# sides:
+	#jmp(2); adv(3)
+	# mid:
+	#jmp(0); adv(1); # ⇒
+	#jmp(2); adv(2); # or
+	#jmp(0); adv(3);
+	# ~~~!~~~ #
+	# sides:
+	#jmp(3); adv(3) # or
+	#jmp(3); adv(2)	
+	# mid:
+	#jmp(0); adv(1); # ⇒
+	#jmp(1); adv(3); # or
+	#jmp(1); adv(2);						
+	# ~~~~~~~ #	
+	
+				
+	# ~~~ baseAddresses=['00001', '01033'] ~~~ # α|β, mid:γ
+	#''' 	
+	#diagram.extendLoop(diagram.nodeByAddress['10012'].loop) # - | α » 2:3 |
+	#diagram.extendLoop(diagram.nodeByAddress['10022'].loop) # - | β « 2:3 |
+	#diagram.extendLoop(diagram.nodeByAddress['11305'].loop) # - | γ « 0:1 | BC:s ⋂ F:t	
+	#diagram.extendLoop(diagram.nodeByAddress['12305'].loop) # - | γ » 0:1 | BC:s ⋂ D:t       
+	
+	#diagram.extendLoop(diagram.nodeByAddress['10143'].loop) # - | γ « 0:1 « 0:3 |
+	#diagram.extendLoop(diagram.nodeByAddress['10233'].loop) # - | γ » 0:1 « 2:2 |
+	#diagram.extendLoop(diagram.nodeByAddress['11013'].loop) # - | γ « 0:1 « 2:2 |
+	#diagram.extendLoop(diagram.nodeByAddress['12004'].loop) # - | γ » 0:1 « 0:3 |
 	#'''
 	''' sol B|#0 | sol: 00001 01033 02302 | 10012 10022 : 10143 10233 11013 11305 12004 12305 | 10003 : 10030 10120 10210
-	diagram.extendLoop(diagram.nodeByAddress['10003'].loop) # x | 
-	diagram.extendLoop(diagram.nodeByAddress['10030'].loop) # x | B:t ⋂ EF:s
+	diagram.extendLoop(diagram.nodeByAddress['10003'].loop) # x | α !» 3:2 |
+	diagram.extendLoop(diagram.nodeByAddress['10030'].loop) # x | β !« 3:3 | B:t ⋂ EF:s
 	
-	#diagram.extendLoop(diagram.nodeByAddress['10120'].loop) # x | -- B:t ⋂ AD:s
-	#diagram.extendLoop(diagram.nodeByAddress['10210'].loop) # x | -- B:t ⋂ A:t
+	diagram.extendLoop(diagram.nodeByAddress['10120'].loop) # x | γ « 0:1 !« 1:2 | -- B:t ⋂ AD:s
+	diagram.extendLoop(diagram.nodeByAddress['10210'].loop) # x | γ » 0:1 !» 1:3 | -- B:t ⋂ A:t
 	#'''
 	''' sol C|#1 | sol: 00001 01033 02302 | 10012 10022 : 10143 10233 11013 11305 12004 12305 | 10031 : 10004 11022 12013
-	diagram.extendLoop(diagram.nodeByAddress['10031'].loop) # x | 
-	diagram.extendLoop(diagram.nodeByAddress['10004'].loop) # x |	C:t ⋂ AD:s
+	diagram.extendLoop(diagram.nodeByAddress['10031'].loop) # x | β !« 3:2 |
+	diagram.extendLoop(diagram.nodeByAddress['10004'].loop) # x | α !» 3:3 |	C:t ⋂ AD:s
 	
-	#diagram.extendLoop(diagram.nodeByAddress['11022'].loop) # x | -- C:t ⋂ E:t	
-	#diagram.extendLoop(diagram.nodeByAddress['12013'].loop) # x | -- C:t ⋂ EF:s
+	diagram.extendLoop(diagram.nodeByAddress['11022'].loop) # x | γ « 0:1 !« 1:3 | -- C:t ⋂ E:t	
+	diagram.extendLoop(diagram.nodeByAddress['12013'].loop) # x | γ » 0:1 !» 1:2 | -- C:t ⋂ EF:s
 	#'''
 	
-	
-	''' 
-	diagram.extendLoop(diagram.nodeByAddress['10111'].loop) # - |
-	diagram.extendLoop(diagram.nodeByAddress['12105'].loop) # - |	
-	diagram.extendLoop(diagram.nodeByAddress['10004'].loop) # - | AD:s ⋂ C:t
-	diagram.extendLoop(diagram.nodeByAddress['11004'].loop) # - |	AD:s ⋂ E:t
+	# ~~~ baseAddresses=['01033', '02302'] ~~~ # β|γ, mid:α
+	#''' 
+	#diagram.extendLoop(diagram.nodeByAddress['10111'].loop) # - | γ « 2:3 |
+	#diagram.extendLoop(diagram.nodeByAddress['12105'].loop) # - | β » 2:3 |
+	#diagram.extendLoop(diagram.nodeByAddress['10004'].loop) # - | α « 0:1 | AD:s ⋂ C:t
+	#diagram.extendLoop(diagram.nodeByAddress['11004'].loop) # - | α » 0:1 |	AD:s ⋂ E:t
 
-	#diagram.extendLoop(diagram.nodeByAddress['10120'].loop) # - |
-	#diagram.extendLoop(diagram.nodeByAddress['10143'].loop) # - |
-	#diagram.extendLoop(diagram.nodeByAddress['10305'].loop) # - |				
-	#diagram.extendLoop(diagram.nodeByAddress['11205'].loop) # - |
+	#diagram.extendLoop(diagram.nodeByAddress['10120'].loop) # - | α « 0:1 « 2:2 |
+	#diagram.extendLoop(diagram.nodeByAddress['10143'].loop) # - | α » 0:1 » 0:3 |
+	#diagram.extendLoop(diagram.nodeByAddress['10305'].loop) # - | α « 0:1 « 0:3 |
+	#diagram.extendLoop(diagram.nodeByAddress['11205'].loop) # - | α » 0:1 » 2:2 |
 	#'''
-	''' sol A|#2 | sol: 00001 01033 02302 | 10111 12105 : 10004 10120 10143 10305 11004 11205 | 10201 : 10210 10233 10242
-	diagram.extendLoop(diagram.nodeByAddress['10201'].loop) # x | 
-	diagram.extendLoop(diagram.nodeByAddress['10242'].loop) # x |	A:t ⋂ EF:s
+	#''' sol A|#2 | sol: 00001 01033 02302 | 10111 12105 : 10004 10120 10143 10305 11004 11205 | 10201 : 10210 10233 10242
+	#diagram.extendLoop(diagram.nodeByAddress['10201'].loop) # x | γ !« 3:2 |
+	#diagram.extendLoop(diagram.nodeByAddress['10242'].loop) # x | β !» 3:3 | A:t ⋂ EF:s
 	
-	#diagram.extendLoop(diagram.nodeByAddress['10210'].loop) # x |
-	#diagram.extendLoop(diagram.nodeByAddress['10233'].loop) # x |
+	#diagram.extendLoop(diagram.nodeByAddress['10210'].loop) # x | α « 0:1 !« 1:3 |
+	#diagram.extendLoop(diagram.nodeByAddress['10233'].loop) # x | α » 0:1 !» 1:2 |
 	#'''	
-	''' sol D|#3 | sol: 00001 01033 02302 | 10111 12105 : 10004 10120 10143 10305 11004 11205 | 12005 : 10205 11105 12305
-	diagram.extendLoop(diagram.nodeByAddress['12005'].loop) # x |	
-	diagram.extendLoop(diagram.nodeByAddress['12305'].loop) # x | D:t ⋂ BC:s
+	#''' sol D|#3 | sol: 00001 01033 02302 | 10111 12105 : 10004 10120 10143 10305 11004 11205 | 12005 : 10205 11105 12305
+	#diagram.extendLoop(diagram.nodeByAddress['12005'].loop) # x | β !» 3:2 |
+	#diagram.extendLoop(diagram.nodeByAddress['12305'].loop) # x | γ !« 3:3 | D:t ⋂ BC:s
 	
-	#diagram.extendLoop(diagram.nodeByAddress['10205'].loop) # x |
-	#diagram.extendLoop(diagram.nodeByAddress['11105'].loop) # x |	
+	#diagram.extendLoop(diagram.nodeByAddress['10205'].loop) # x | α « 0:1 !« 1:2 |
+	#diagram.extendLoop(diagram.nodeByAddress['11105'].loop) # x | α » 0:1 !» 1:3 |
 	#'''					
 	
-	
-	'''
-	diagram.extendLoop(diagram.nodeByAddress['10105'].loop) # - | 
-	diagram.extendLoop(diagram.nodeByAddress['12022'].loop) # - |		
-	diagram.extendLoop(diagram.nodeByAddress['10030'].loop) # - | EF:s ⋂ B:t
-	diagram.extendLoop(diagram.nodeByAddress['10242'].loop) # - | EF:s ⋂ A:t
-	
-	#diagram.extendLoop(diagram.nodeByAddress['10205'].loop) # - |
-	#diagram.extendLoop(diagram.nodeByAddress['10305'].loop) # - |
-	#diagram.extendLoop(diagram.nodeByAddress['12004'].loop) # - |	
-	#diagram.extendLoop(diagram.nodeByAddress['12013'].loop) # - |		
+	# ~~~~~~ baseAddresses=['02302', '00001'] ~~~~~~ # sides:γ|α, mid:β
 	#'''
-	''' sol E|#4 | sol: 00001 01033 02302 | 10105 12022 : 10030 10205 10242 10305 12004 12013 | 11031 : 11004 11013 11022 	
-	diagram.extendLoop(diagram.nodeByAddress['11031'].loop) # x |
-	diagram.extendLoop(diagram.nodeByAddress['11004'].loop) # x | E:t ⋂ AD:s
-		
-	#diagram.extendLoop(diagram.nodeByAddress['11013'].loop) # x | 
-	#diagram.extendLoop(diagram.nodeByAddress['11022'].loop) # x |
+	#diagram.extendLoop(diagram.nodeByAddress['10105'].loop) # - | α « 2:3 |
+	#diagram.extendLoop(diagram.nodeByAddress['12022'].loop) # - | γ » 2:3 |
+	#diagram.extendLoop(diagram.nodeByAddress['10030'].loop) # - | β » 0:1 | » 0:1 | EF:s ⋂ B:t
+	#diagram.extendLoop(diagram.nodeByAddress['10242'].loop) # - | β « 0:1 | « 0:1 | EF:s ⋂ A:t
+	
+	#diagram.extendLoop(diagram.nodeByAddress['10205'].loop) # - | β « 0:1 « 2:2 |
+	#diagram.extendLoop(diagram.nodeByAddress['10305'].loop) # - | β » 0:1 » 0:3 |
+	#diagram.extendLoop(diagram.nodeByAddress['12004'].loop) # - | β « 0:1 « 0:3 |
+	#diagram.extendLoop(diagram.nodeByAddress['12013'].loop) # - | β » 0:1 » 2:2 |
 	#'''
-	''' sol F|#5 | sol: 00001 01033 02302 | 10105 12022 : 10030 10205 10242 10305 12004 12013 |  11005 : 11105 11205 11305
-	diagram.extendLoop(diagram.nodeByAddress['11005'].loop) # x | 
-	diagram.extendLoop(diagram.nodeByAddress['11305'].loop) # x | F:t ⋂ BC:s
+	#''' sol E|#4 | sol: 00001 01033 02302 | 10105 12022 : 10030 10205 10242 10305 12004 12013 | 11031 : 11004 11013 11022 	
+	#diagram.extendLoop(diagram.nodeByAddress['11031'].loop) # x | γ !» 3:2 |
+	#diagram.extendLoop(diagram.nodeByAddress['11004'].loop) # x | α !« 3:3 | E:t ⋂ AD:s
 		
-	#diagram.extendLoop(diagram.nodeByAddress['11105'].loop) # x |
-	#diagram.extendLoop(diagram.nodeByAddress['11205'].loop) # x |
+	#diagram.extendLoop(diagram.nodeByAddress['11013'].loop) # x | β « 0:1 !« 1:2 |
+	#diagram.extendLoop(diagram.nodeByAddress['11022'].loop) # x | β » 0:1 !» 1:3 |
+	#'''
+	#''' sol F|#5 | sol: 00001 01033 02302 | 10105 12022 : 10030 10205 10242 10305 12004 12013 |  11005 : 11105 11205 11305
+	#diagram.extendLoop(diagram.nodeByAddress['11005'].loop) # x | α !« 3:2 |
+	#diagram.extendLoop(diagram.nodeByAddress['11305'].loop) # x | γ !» 3:3 | F:t ⋂ BC:s
+		
+	#diagram.extendLoop(diagram.nodeByAddress['11105'].loop) # x | β « 0:1 !« 1:3 |
+	#diagram.extendLoop(diagram.nodeByAddress['11205'].loop) # x | β » 0:1 !» 1:2 |
 	#'''
 					
-	min_chain = sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0]
-	chloops = sorted(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops, key = lambda loop: loop.firstNode().address)
+	#min_chain = sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0]
+	#chloops = sorted(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops, key = lambda loop: loop.firstNode().address)
 	#diagram.pointers = itertools.chain(*[loop.nodes for loop in chloops]) if len(chloops) else [cycle.avnode() for cycle in min_chain.cycles]
 	show(diagram)
-	input("chloops: " + str(chloops))
+	#input("chloops: " + str(chloops))
 	
 	'''
 	BC:s ⋂ A:t = { 10233 }
@@ -207,6 +229,7 @@ if __name__ == "__main__":
 	C:t ⋂ E:t = { 11022 }
 	'''		
 		
+	'''
 	for id, sol in enumerate(sols[0:6]):
 		
 		𝒟 = Diagram(6)		
@@ -219,5 +242,6 @@ if __name__ == "__main__":
 		𝒟.pointers = [node for node in 𝒟.nodes if node.loop.availabled and node.cycle.chain and len(node.cycle.chain.cycles) is 1]
 		show(𝒟)
 		input("#" + str(id) + " | sol: " + str(" ".join(sol)))		
+	#'''
 
 

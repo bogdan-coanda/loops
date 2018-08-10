@@ -15,7 +15,8 @@ from fivebyfives import 𝓖5
 class Diagram (object):
 	
 	
-	def __init__(self, N, withKernel=True):
+	def __init__(self, N, withKernel=True, isDualWalkType=None, baseAddresses=None):
+		
 		self.spClass = N
 		
 		self.generateGraph()
@@ -25,14 +26,17 @@ class Diagram (object):
 		
 		self.chainAutoInc = -1
 
-		if withKernel:
-			self.bases = self.generateKernel()
-		
+		self.isDualkWalkType = isDualWalkType or (self.spClass % 2 is 0)
+
 		# subsets		
 		self.pointers = []
 		self.draw_boxes = []
 		
 		if withKernel:
+			self.bases = self.generateKernel()
+			if baseAddresses:
+				self.bases = [self.nodeByAddress[addr] for addr in baseAddresses]
+			#self.pointers = self.bases; show(self); input("generated kernel")
 			self.walk()
 									
 		
@@ -228,8 +232,8 @@ class Diagram (object):
 			#print("[gen:kernel] node: " + str(node) + " | last bro: " + str(node.loopBrethren[-1]))		
 			node.loopBrethren[-1].nextLink = node.loopBrethren[-1].nextLink.next.prevLink = node.loopBrethren[-1].links[3]
 			node = node.loopBrethren[-1].nextLink.next.prevs[1].node
-			if self.spClass % 2 is 1 or len(bases) % 2 is 1:
-				bases.append(node.links[1].next.links[1].next.links[1].next.links[1].next)
+			if not self.isDualkWalkType or len(bases) % 2 is 1:
+				bases.append(node.links[1].next.links[1].next)
 			else:
 				bases.append(node.loopBrethren[-1].prevs[1].node.prevs[1].node)
 			#print("[gen:kernel] next node: " + str(node))		
@@ -414,7 +418,7 @@ class Diagram (object):
 	
 
 	def walk(self):
-		if self.spClass % 2 is 0:
+		if self.isDualkWalkType: # self.spClass % 2 is 0:
 			
 			# define alternating movement methods
 			
@@ -438,7 +442,7 @@ class Diagram (object):
 			Diagram.adv = adv
 			
 			# do the actual walking
-			self.dualwalk()
+			self._walk()
 		
 		else: # self.spClass % 2 is 1
 			
@@ -457,59 +461,89 @@ class Diagram (object):
 			Diagram.adv = adv
 			
 			# do the actual walking			
-			self.monowalk()
-			
+			self._walk()
+					
 		self.pointers = None
-
-
-	def dualwalk(self): # generate alternating directional tuples
+		
+		
+	def _walk(self): # generate unidirectional tuple
 					
 		self.tuples = []
+		
 		wq = [list(self.bases)]
 		while len(wq) > 0:
 			
 			t = wq.pop()
 			for node in t:
 				node.tuple = t
-				self.tuples.append(t)
-				
+							
 			self.pointers = list(t)
-			self.adv(1)
+			self.adv(0)
 			if self.pointers[0].tuple is None:
 				wq.append(list(self.pointers))
+				if self.isDualkWalkType:
+					# swap even/odd pathways
+					for i in range(0,len(self.pointers), 2):
+						self.pointers[i+1], self.pointers[i] = self.pointers[i:i+2]
+						wq.append(list(self.pointers))
 	
 			self.pointers = list(t)
 			self.jmp(0)
 			if self.pointers[0].tuple is None:
 				wq.append(list(self.pointers))
-	
-		#assert len([n for n in self.nodes if n.tuple is None]) is 0																																																				
-		print("generated dual tuples")
+				if self.isDualkWalkType:
+					# swap even/odd pathways
+					for i in range(0,len(self.pointers), 2):
+						self.pointers[i+1], self.pointers[i] = self.pointers[i:i+2]
+						wq.append(list(self.pointers))
+								
+		if len([n for n in self.nodes if n.tuple is None]) is not 0:
+			self.pointers = [n for n in self.nodes if n.tuple is None]; show(self); input("[_walk] broken")								
+		assert len([n for n in self.nodes if n.tuple is None]) is 0
+		#print("[_walk] generated tuples")								
+		#self.pointers = [n for n in self.nodes if n.tuple[0] is n.tuple[1]]; show(self); input("[_walk] same")								
 		
-		
-	def monowalk(self): # generate unidirectional tuple
+						
+	def ___walk(self): # generate unidirectional tuple
 					
 		self.tuples = []
-		wq = [list(self.bases)]
+		node_adv_tuples = {}
+		node_jmp_tuples = {}
+		adv_tuples = []
+		jmp_tuples = []
+		
+		wq = [(True, list(self.bases))]
 		while len(wq) > 0:
 			
-			t = wq.pop()
+			isAdv,t = wq.pop()
 			for node in t:
-				node.tuple = t
-				self.tuples.append(t)
+				if isAdv:
+					node_adv_tuples[node] = t
+					adv_tuples.append(t)
+				else:
+					node_jmp_tuples[node] = t
+					jmp_tuples.append(t)					
 				
 			self.pointers = list(t)
-			self.adv(1)
-			if self.pointers[0].tuple is None:
-				wq.append(list(self.pointers))
+			self.adv(0)
+			if self.pointers[0] not in node_adv_tuples:
+				wq.append((True, list(self.pointers)))
 	
 			self.pointers = list(t)
 			self.jmp(0)
-			if self.pointers[0].tuple is None:
-				wq.append(list(self.pointers))
-				
-		#assert len([n for n in self.nodes if n.tuple is None]) is 0
-		print("generated mono tuples")								
+			if self.pointers[0] not in node_jmp_tuples:
+				wq.append((False, list(self.pointers)))
+
+		assert all([n in node_adv_tuples or n in node_jmp_tuples for n in self.nodes])
+		assert all(["".join([n.address for n in sorted(node_adv_tuples[n], key = lambda n: n.address)]) == "".join([n.address for n in sorted(node_jmp_tuples[n], key = lambda n: n.address)]) for n in self.nodes if n in node_adv_tuples and n in node_jmp_tuples])
+		
+		self.tuples = adv_tuples
+		for node in self.nodes:
+			node.tuple = node_adv_tuples[node] if node in node_adv_tuples else node_jmp_tuples[node]
+
+		#self.pointers = itertools.chain(*[n.loop.nodes for n in self.nodes if n.tuple is None]); show(self); input("[_walk] walked")								
+		assert len([n for n in self.nodes if n.tuple is None]) is 0
+		#print("[_walk] generated tuples")								
 			
 			
 	def pointToAddressTuple(self, address):
