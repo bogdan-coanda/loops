@@ -95,7 +95,6 @@ if __name__ == "__main__":
 	diagram.extendLoop(diagram.nodeByAddress['02302'].loop) # γ
 	
 	diagram.pointers = [n for n in diagram.nodes if n.tuple[0] is n.tuple[1]]; show(diagram); input("singled tuples after patch")
-	show(diagram)
 	
 	diagram.pointers = list(diagram.bases); show(diagram); input("bases")
 	#diagram.pointers = list(diagram.nodeByAddress['00001'].tuple); show(diagram); input("pointed @ α")
@@ -176,15 +175,15 @@ if __name__ == "__main__":
 	
 	# ~~~~~~ baseAddresses=['02302', '00001'] ~~~~~~ # sides:γ|α, mid:β
 	#'''
-	#diagram.extendLoop(diagram.nodeByAddress['10105'].loop) # - | α « 2:3 |
-	#diagram.extendLoop(diagram.nodeByAddress['12022'].loop) # - | γ » 2:3 |
-	#diagram.extendLoop(diagram.nodeByAddress['10030'].loop) # - | β » 0:1 | » 0:1 | EF:s ⋂ B:t
-	#diagram.extendLoop(diagram.nodeByAddress['10242'].loop) # - | β « 0:1 | « 0:1 | EF:s ⋂ A:t
+	diagram.extendLoop(diagram.nodeByAddress['10105'].loop) # - | α « 2:3 |
+	diagram.extendLoop(diagram.nodeByAddress['12022'].loop) # - | γ » 2:3 |
+	diagram.extendLoop(diagram.nodeByAddress['10030'].loop) # - | β » 0:1 | » 0:1 | EF:s ⋂ B:t
+	diagram.extendLoop(diagram.nodeByAddress['10242'].loop) # - | β « 0:1 | « 0:1 | EF:s ⋂ A:t
 	
-	#diagram.extendLoop(diagram.nodeByAddress['10205'].loop) # - | β « 0:1 « 2:2 |
-	#diagram.extendLoop(diagram.nodeByAddress['10305'].loop) # - | β » 0:1 » 0:3 |
-	#diagram.extendLoop(diagram.nodeByAddress['12004'].loop) # - | β « 0:1 « 0:3 |
-	#diagram.extendLoop(diagram.nodeByAddress['12013'].loop) # - | β » 0:1 » 2:2 |
+	diagram.extendLoop(diagram.nodeByAddress['10205'].loop) # - | β « 0:1 « 2:2 |
+	diagram.extendLoop(diagram.nodeByAddress['10305'].loop) # - | β » 0:1 » 0:3 |
+	diagram.extendLoop(diagram.nodeByAddress['12004'].loop) # - | β « 0:1 « 0:3 |
+	diagram.extendLoop(diagram.nodeByAddress['12013'].loop) # - | β » 0:1 » 2:2 |
 	#'''
 	#''' sol E|#4 | sol: 00001 01033 02302 | 10105 12022 : 10030 10205 10242 10305 12004 12013 | 11031 : 11004 11013 11022 	
 	#diagram.extendLoop(diagram.nodeByAddress['11031'].loop) # x | γ !» 3:2 |
