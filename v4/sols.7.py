@@ -77,7 +77,7 @@ def next(lvl=0, path = []):
 	# measure
 	chloops = sorted(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops, key = lambda loop: loop.firstNode().address)
 		
-	if bcc % 1000 is 0:
+	if bcc % 10000 is 0:
 		print("{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} | chains: " + str(len(diagram.chains)) + " | chloops: " + str(len(chloops)) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
 	#print("{lvl:"+str(lvl)+"} addr: " + " ".join([loop.head.address for _,_,loop in path]))
 						
@@ -115,7 +115,7 @@ def next(lvl=0, path = []):
 			print("len:"+str(len(SP)) + "\n" + SP)
 			input("Found solution #"+str(fcc))								
 			
-			return True
+			return False
 		else:
 			return False
 					
