@@ -52,11 +52,11 @@ def next(lvl=0, path = []):
 					log.write("duplicate of " + str(dup)+"\n\n")
 								
 			fcc += 1
-			# show(diagram)
-			# print("{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
-			# print("{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} addr: " + " ".join([loop.head.address for _,_,loop in path]))
-			#print("len:"+str(len(SP)) + "\n" + SP)
-			# input("Found solution #"+str(fcc))								
+			show(diagram)
+			print("{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
+			print("{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} addr: " + " ".join([loop.head.address for _,_,loop in path]))
+			print("len:"+str(len(SP)) + "\n" + SP)
+			input("Found solution #"+str(fcc))								
 			
 			return False
 		else:
@@ -118,32 +118,7 @@ if __name__ == "__main__":
 	diagram.nodeByAddress['01145'].nextLink = diagram.nodeByAddress['01145'].links[3]
 	diagram.nodeByAddress['01245'].nextLink = diagram.nodeByAddress['01245'].links[3]
 	diagram.nodeByAddress['01345'].nextLink = diagram.nodeByAddress['01345'].links[3]
-
-	diagram.makeChain([diagram.cycleByAddress[addr].chain for addr in ['0100', '0110', '0120', '0130']], [])	
-	
-	
-	'''
-	diagram.makeChain([], [diagram.cycleByAddress['0200']])
-	diagram.extendLoop(diagram.nodeByAddress['02005'].loop)
-	diagram.makeChain([], [diagram.cycleByAddress['0210']])
-	diagram.extendLoop(diagram.nodeByAddress['02105'].loop)
-	diagram.makeChain([], [diagram.cycleByAddress['0220']])
-	diagram.extendLoop(diagram.nodeByAddress['02205'].loop)
-	diagram.makeChain([], [diagram.cycleByAddress['0230']])
-	diagram.extendLoop(diagram.nodeByAddress['02305'].loop)
-	
-	diagram.nodeByAddress['02045'].nextLink = diagram.nodeByAddress['02045'].links[3]
-	diagram.nodeByAddress['02145'].nextLink = diagram.nodeByAddress['02145'].links[3]
-	diagram.nodeByAddress['02245'].nextLink = diagram.nodeByAddress['02245'].links[3]
-	diagram.nodeByAddress['02345'].nextLink = diagram.nodeByAddress['02345'].links[3]
-
-	diagram.makeChain([diagram.cycleByAddress[addr].chain for addr in ['0200', '0210', '0220', '0230']], [])
-	
-	diagram.nodeByAddress['00345'].nextLink = Link(4, diagram.nodeByAddress['00345'], diagram.nodeByAddress['01000'])
-	diagram.nodeByAddress['01345'].nextLink = Link(4, diagram.nodeByAddress['01345'], diagram.nodeByAddress['02000'])
-	diagram.nodeByAddress['02345'].nextLink = Link(4, diagram.nodeByAddress['02345'], diagram.nodeByAddress['00000'])	
-	'''
-	
+			
 	diagram.nodeByAddress['00345'].nextLink = Link(4, diagram.nodeByAddress['00345'], diagram.nodeByAddress['01000'])
 	diagram.nodeByAddress['01345'].nextLink = Link(4, diagram.nodeByAddress['01345'], diagram.nodeByAddress['00000'])
 	
