@@ -61,7 +61,7 @@ def extendColumn(column_addr, key):
 			j = 4
 		
 def extendGreen(blue_column_addr):
-	extendAddress(blue_column_addr+'06')
+	# extendAddress(blue_column_addr+'06')
 	extendAddress(blue_column_addr+'14')
 	extendAddress(blue_column_addr+'23')
 	extendAddress(blue_column_addr+'32')
@@ -166,10 +166,10 @@ if __name__ == "__main__":
 	#diagram.pointers = [n for n in diagram.nodes if n.tuple[0] is n.tuple[1]]; show(diagram); input("singled tuples after patch")
 					
 	# ⟨010⟩ #
-	extendAddress('010040')
-	extendAddress('010130')
-	extendAddress('010220')
-	extendAddress('010310')
+	# extendAddress('010040')
+	# extendAddress('010130')
+	# extendAddress('010220')
+	# extendAddress('010310')
 
 	# ⟨01⟩ #		
 	extendGreen('0113')
@@ -177,10 +177,10 @@ if __name__ == "__main__":
 	extendGreen('0131')
 	
 	# ⟨020⟩ #
-	extendAddress('020040')
-	extendAddress('020130')
-	extendAddress('020220')
-	extendAddress('020310')
+	# extendAddress('020040')
+	# extendAddress('020130')
+	# extendAddress('020220')
+	# extendAddress('020310')
 
 	# ⟨02⟩ #				
 	extendGreen('0213')
@@ -188,11 +188,23 @@ if __name__ == "__main__":
 	extendGreen('0231')
 			
 	# ⟨100⟩ #
-	extendAddress('100040')
-	extendAddress('100130')
-	extendAddress('100220')
-	extendAddress('100310')
+	# extendAddress('100020')
+	# extendAddress('100110')
+	# extendAddress('100200')
+	# extendAddress('100340')
 
+	# ⟨100⟩ #
+	# extendAddress('100030')
+	# extendAddress('100120')
+	# extendAddress('100210')
+	# extendAddress('100300')
+	
+	# ⟨100⟩ #
+	# extendAddress('100040')
+	# extendAddress('100130')
+	# extendAddress('100220')
+	# extendAddress('100310')
+	
 	# ⟨10⟩ #		
 	extendGreen('1013')
 	extendGreen('1022')
@@ -205,9 +217,9 @@ if __name__ == "__main__":
 	# extendAddress('110310')
 
 	# ⟨11⟩ #		
-	# extendGreen('1113')
-	# extendGreen('1122')
-	# extendGreen('1131')
+	extendGreen('1113')
+	extendGreen('1122')
+	extendGreen('1131')
 	
 	# ⟨120⟩ #
 	# extendAddress('120040')
@@ -216,9 +228,9 @@ if __name__ == "__main__":
 	# extendAddress('120310')
 
 	# ⟨12⟩ #				
-	# extendGreen('1213')
-	# extendGreen('1222')
-	# extendGreen('1231')
+	extendGreen('1213')
+	extendGreen('1222')
+	extendGreen('1231')
 
 	show(diagram)	
 	input("partial")

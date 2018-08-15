@@ -184,7 +184,7 @@ if __name__ == "__main__":
 		for b in range(3):
 			for c in range(4):
 				addr = str(a)+str(b)+str(c)
-				if addr != '000' and addr != '001':
+				if addr != '000' and addr != '123':
 					extendYellowColumn(addr)
 
 	show(diagram)	
