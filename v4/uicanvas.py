@@ -2,6 +2,7 @@ import ui
 from itertools import chain
 from colorsys import hls_to_rgb
 from random import random
+from node import *
 
 
 class colors (object):
@@ -163,20 +164,24 @@ def draw(diagram):
 			nc += 1			
 		
 		
-		for i,node in enumerate(diagram.pointers if diagram.pointers else []):
-			oval = ui.Path.oval(node.cycle.px - HD/2, node.cycle.py - HD/2, HD, HD)
+		for i,node_or_cycle in enumerate(diagram.pointers if diagram.pointers else []):
+			if isinstance(node_or_cycle, Node):
+				oval = ui.Path.oval(node_or_cycle.cycle.px - HD/2, node_or_cycle.cycle.py - HD/2, HD, HD)
+			else:
+				oval = ui.Path.oval(node_or_cycle.px - HD/2, node_or_cycle.py - HD/2, HD, HD)
 			oval.line_width = 2
 			if diagram.spClass % 2 is 0 and i % 2 is not 0:
 				oval.set_line_dash([1,1.05])
 			ui.set_color('black')
 			oval.stroke()
 			
-			oval = ui.Path.oval(node.px - RR, node.py - RR, 2*RR, 2*RR)
-			oval.line_width = 1
-			if diagram.spClass % 2 is 0 and i % 2 is not 0:
-				oval.set_line_dash([1,1.05])
-			ui.set_color('black')
-			oval.stroke()			
+			if isinstance(node_or_cycle, Node):
+				oval = ui.Path.oval(node_or_cycle.px - RR, node_or_cycle.py - RR, 2*RR, 2*RR)
+				oval.line_width = 1
+				if diagram.spClass % 2 is 0 and i % 2 is not 0:
+					oval.set_line_dash([1,1.05])
+				ui.set_color('black')
+				oval.stroke()			
 			
 			
 		img = ctx.get_image()

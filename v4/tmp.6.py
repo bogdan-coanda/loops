@@ -43,48 +43,73 @@ def extendColumn(column_addr, key):
 			i += 2
 			j = diagram.spClass - 3
 
-def extendGreen(column_addr):
-	for i in range(diagram.spClass-2):
-		extendAddress(column_addr+str(i)+str(4-i))
 									
 			
 if __name__ == "__main__":
 	
-	diagram = Diagram(6, withKernel=False)
-	#patch(diagram)
+	diagram = Diagram(6)#, withKernel=False)
+	patch(diagram)
+
+	extendAddress('10044')
+	extendAddress('10134')
+	extendAddress('10224')
+	extendAddress('10314')
+
+	#±# extendAddress('12044')
+	extendAddress('12134')
+	extendAddress('12224')
+	extendAddress('12314')		
+	extendAddress('10241')
 	
-	extendColumn('000', 1)
-	extendColumn('000', 3)
-	extendColumn('003', 3)
-	extendColumn('110', 0)
+	# extendAddress('10140')
+	# extendAddress('11213')
+	# extendAddress('12113')
 	
-	#extendColumn('100', 3)
-	#extendColumn('101', 2)
-	#extendAddress('01302')
+	# extendAddress('11025')
+	# extendAddress('12035')		
+	
+	# extendAddress('11312')
+	
+	extendAddress('11130')
+	
+	diagram.pointers = diagram.nodeByAddress['12044'].loop.nodes; show(diagram); input('missing yellow');
+	
+	
+	# extendAddress('10231')
+	# extendAddress('11213')						
+	# extendAddress('12113')
+	# 
+	# 
+	# extendAddress('11144')
+	# extendAddress('11223')	
+	# 
+	# extendAddress('10241')
+	# 
+	# extendAddress('11005')
+	# extendAddress('12035')
 		
-	#extendAddress('10224')
-	#extendAddress('10233')
-	#extendAddress('11103')
-	#extendAddress('12004')
-	#extendAddress('12013')
-	# extendGreen('121')
-	# 
-	# extendAddress('10105')
-	# extendAddress('10205')
-	# extendAddress('11105')
-	# extendAddress('11305')
+	diagram.pointers = []
 	
-	#extendGreen('121')
+	nodes = [cycle.avnode() if len([n for n in cycle.nodes if n.loop.availabled]) is 1 else cycle for cycle in diagram.cycles if cycle.chain is None and len([n for n in cycle.nodes if n.loop.availabled]) < 2]
+	if len(nodes):
+		diagram.pointers += list(nodes)
 	
-	#extendAddress('00001')
-	#extendAddress('01343')
+	chain = sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0]
+	print(chain, len(chain.avloops))
+	if len(chain.avloops) is 1:
+		diagram.pointers += [[n for n in loop.nodes if n.cycle.chain is chain][0] for loop in chain.avloops]
+	elif len(chain.avloops) is 0:
+		diagram.pointers += [cycle.avnode() if len([n for n in cycle.nodes if n.loop.availabled]) is 1 else cycle for cycle in chain.cycles]
 	
-	# 
-	# extendColumn('100', 2)
-	# extendColumn('101', 1)
-	# extendColumn('122', 0)
-	# extendColumn('121', 1)
-	# extendColumn('010', 0)
-	
-	diagram.pointers = [cycle.avnode() for cycle in diagram.cycles if cycle.chain is None and len([n for n in cycle.nodes if n.loop.availabled]) < 2]
+	if len(diagram.pointers) is 0:
+		diagram.pointers = sorted([cycle for cycle in diagram.cycles if cycle.chain is None], key = lambda cycle: (len([n for n in cycle.nodes if n.loop.availabled]), cycle.address))[0:1]
+
+	# cy0 = [node.cycle for node in diagram.nodeByAddress['10231'].loop.nodes]
+	# cy1 = [node.cycle for node in diagram.nodeByAddress['11213'].loop.nodes]
+	# cy2 = [node.cycle for node in diagram.nodeByAddress['12113'].loop.nodes]
+	# pairs = [(loop, set([node.cycle for node in loop.nodes])) for loop in diagram.loops]
+	# loops = [loop for loop,set in pairs if len(set.intersection(cy0)) and len(set.intersection(cy1)) and len(set.intersection(cy2))]
+	# for il,loop in enumerate(loops):
+	# 	diagram.pointers = loop.nodes; show(diagram); input("#"+str(il))
+			
 	show(diagram)

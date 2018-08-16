@@ -47,49 +47,227 @@ def extendColumn(column_addr, key):
 			i += 2
 			j = diagram.spClass - 3
 
-def extendGreen(column_addr):
-	for i in range(diagram.spClass-2):
-		extendAddress(column_addr+str(i)+str(4-i))
-									
+
+def next(lvl=0, path = []):
+	global bcc, fcc, sols_superperms
+	bcc += 1
+	
+	# measure
+	chloops = sorted(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops, key = lambda loop: loop.firstNode().address)
+		
+	if bcc % 10000 is 0:
+		print("{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} | chains: " + str(len(diagram.chains)) + " | chloops: " + str(len(chloops)) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
+	#print("{lvl:"+str(lvl)+"} addr: " + " ".join([loop.head.address for _,_,loop in path]))
+						
+	# checks
+	if len(chloops) is 0:
+		#show(diagram)
+		#print("{lvl:"+str(lvl)+"§"+str(bcc)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
+		#print("{lvl:"+str(lvl)+"§"+str(bcc)+"} addr: " + " ".join([loop.head.address for _,_,loop in path]))
+		#input("Found no chloops")
+		
+		if len(diagram.chains) is 1:# and len([c for c in diagram.cycles if not c.chain]) is 0:
+			SP = diagram.superperm('000000', '000000')
+			for node in diagram.nodes:
+				assert node.perm in SP	
+							
+			dup = None
+			if SP in sols_superperms:
+				dup = sols_superperms.index(SP)
+			else:
+				sols_superperms.append(SP)
+				
+			with open("sols."+str(diagram.spClass)+".log", 'a') as log:
+				log.write("Found solution #"+str(fcc)+"\n")				
+				log.write("{lvl:"+str(lvl)+"@"+str(bcc)+"@"+tstr(time() - startTime)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in path])+"\n")
+				log.write("{lvl:"+str(lvl)+"@"+str(bcc)+"@"+tstr(time() - startTime)+"} addr: " + " ".join([loop.head.address for _,_,loop in path])+"\n")
+				if dup is None:
+					log.write(SP+"\n\n")
+				else:
+					log.write("duplicate of " + str(dup)+"\n\n")
+								
+			fcc += 1
+			show(diagram)
+			print("{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} road: " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
+			print("{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} addr: " + " ".join([loop.head.address for _,_,loop in path]))
+			print("len:"+str(len(SP)) + "\n" + SP)
+			input("Found solution #"+str(fcc))								
+			
+			return False
+		else:
+			return False
+					
+	# check if not enough loops to connect all the chains
+	#if len(avloops) < (len(diagram.chains) - 1) / 5:
+		#return False
+
+	# check if any chains are unreachable
+	#if len([chain for chain in diagram.chains if len(chain.avloops) is 0]) > 0:
+		#return False
+					
+	# choose
+	#chloops = list(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops)
+	
+	lvl_seen = []
+	for chindex, chloop in enumerate(chloops):
+				
+		# extend
+		if diagram.extendLoop(chloop):
+							
+			# carry on
+			if next(lvl+1, path+[(chindex, len(chloops), chloop)]):
+				return True
+
+			# revert
+			diagram.collapseBack(chloop)
+
+		# remember
+		lvl_seen.append(chloop)
+		chloop.seen = True
+		diagram.setLoopUnavailabled(chloop)
+
+	# forget
+	for loop in lvl_seen:
+		diagram.setLoopAvailabled(loop)
+		loop.seen = False
+					
+	return False			
+	
+																																					
 			
 if __name__ == "__main__":
 	
-	diagram = Diagram(7, withKernel=False)
-	#patch(diagram)
+	diagram = Diagram(7)#, withKernel=False)
+	patch(diagram)
+
+	# ⟨02⟩ 
+	extendAddress('020040')
+	extendAddress('020130')
+	extendAddress('020220')
+	extendAddress('020310')
+	extendAddress('020400')
+
+	#±# extendAddress('023040')
+	extendAddress('023130')
+	extendAddress('023220')
+	extendAddress('023310')
+	extendAddress('023400')
 	
-	extendColumn('0000', 1)
-	extendColumn('1001', 0)
-	extendColumn('1002', 2)
-	extendColumn('1002', 0)
-	extendColumn('1003', 0)
-	
-	#extendColumn('100', 3)
-	#extendColumn('101', 2)
-	#extendAddress('01302')
+	extendAddress('020351') # 0/3
+	extendAddress('020341')
+	extendAddress('020332')	
+	extendAddress('023205')
+	extendAddress('023305')
+	extendAddress('022305')
+	extendAddress('022405')
+	extendAddress('021405')
+	extendAddress('021005')	
 		
-	#extendAddress('10224')
-	#extendAddress('10233')
-	#extendAddress('11103')
-	#extendAddress('12004')
-	#extendAddress('12013')
-	# extendGreen('121')
-	# 
-	# extendAddress('10105')
-	# extendAddress('10205')
-	# extendAddress('11105')
-	# extendAddress('11305')
+	extendAddress('023046')
+	extendAddress('021255')	# 0/2
+	extendAddress('022155')
 	
-	#extendGreen('121')
+	extendAddress('021015')	# 1/2
+	extendAddress('021333')	# 0/3
 	
-	#extendAddress('00001')
-	#extendAddress('01343')
+	extendAddress('022322')	# 0/3
+	extendAddress('022411')	# 0/2
 	
-	# 
-	# extendColumn('100', 2)
-	# extendColumn('101', 1)
-	# extendColumn('122', 0)
-	# extendColumn('121', 1)
-	# extendColumn('010', 0)
+	extendAddress('010142')	# 0/2
 	
-	diagram.pointers = [cycle.avnode() for cycle in diagram.cycles if cycle.chain is None and len([n for n in cycle.nodes if n.loop.availabled]) < 2]
+	extendAddress('013040')
+	extendAddress('013130')
+	extendAddress('013220')
+	extendAddress('013310')
+	extendAddress('013400')
+
+	extendAddress('012040')
+	extendAddress('012130')
+	extendAddress('012220')
+	extendAddress('012310')
+	extendAddress('012400')
+
+	extendAddress('013105')
+	extendAddress('013205')
+
+	extendAddress('012205')
+	extendAddress('012305')
+	
+	extendAddress('010105')
+	extendAddress('010405')
+	
+	extendAddress('010001') # 0/2
+	extendAddress('010006') # 1/2
+	
+	extendAddress('011324') # 0/2
+	extendAddress('011441')
+	
+	extendAddress('020330')	# !
+	extendAddress('011405')
+	extendAddress('011231')
+	extendAddress('011006') # 1/2
+	#extendAddress('011052') # 0/2
+	
+	# every cycle has its own chain at start
+	for cycle in diagram.cycles:
+		if cycle.chain is None:
+			diagram.makeChain([], [cycle])		
+	startTime = time()
+	sols_superperms = []
+	bcc = -1
+	fcc = 0
+	
+	next()
+	
+	#diagram.pointers = diagram.nodeByAddress['023040'].loop.nodes; show(diagram); input('missing yellow');
+					
+	''' # ⟨10⟩ 
+	extendAddress('100040')
+	extendAddress('100130')
+	extendAddress('100220')
+	extendAddress('100310')
+	extendAddress('100400')
+
+	#±# extendAddress('103040')
+	extendAddress('103130')
+	extendAddress('103220')
+	extendAddress('103310')
+	extendAddress('103400')
+	
+	extendAddress('100351') # 0/3
+	extendAddress('100341')
+	extendAddress('100332')	
+	extendAddress('103205')
+	extendAddress('103305')
+	extendAddress('102305')
+	extendAddress('102405')
+	extendAddress('101405')
+	extendAddress('101005')
+	
+	extendAddress('102231')
+	extendAddress('101331')
+	extendAddress('101151')
+	extendAddress('102155')
+			
+	diagram.pointers = diagram.nodeByAddress['103040'].loop.nodes; show(diagram); input('missing yellow');
+	'''
+	
+	
+	diagram.pointers = []
+	
+		
+	nodes = [cycle.avnode() if len([n for n in cycle.nodes if n.loop.availabled]) is 1 else cycle for cycle in diagram.cycles if cycle.chain is None and len([n for n in cycle.nodes if n.loop.availabled]) < 2]
+	if len(nodes):
+		diagram.pointers += list(nodes)
+	
+	chain = sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0]
+	print(chain, len(chain.avloops))
+	if len(chain.avloops) is 1:
+		diagram.pointers += [[n for n in loop.nodes if n.cycle.chain is chain][0] for loop in chain.avloops]
+	elif len(chain.avloops) is 0:
+		diagram.pointers += [cycle.avnode() if len([n for n in cycle.nodes if n.loop.availabled]) is 1 else cycle for cycle in chain.cycles]
+	
+	if len(diagram.pointers) is 0:
+		diagram.pointers = sorted([cycle for cycle in diagram.cycles if cycle.chain is None], key = lambda cycle: (len([n for n in cycle.nodes if n.loop.availabled]), cycle.address))[0:1]
+		
 	show(diagram)
