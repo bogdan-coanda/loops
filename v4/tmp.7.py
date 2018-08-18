@@ -5,7 +5,7 @@ import itertools
 
 def patch(diagram):
 	
-	for head in ['001', '002', '003']:
+	for head in ['001', '002']:#, '003']:
 								
 		diagram.makeChain([], [diagram.cycleByAddress[head+'00']])
 		diagram.extendLoop(diagram.nodeByAddress[head+'006'].loop)
@@ -22,12 +22,12 @@ def patch(diagram):
 		diagram.nodeByAddress[head+'156'].nextLink = diagram.nodeByAddress[head+'156'].links[3]
 		diagram.nodeByAddress[head+'256'].nextLink = diagram.nodeByAddress[head+'256'].links[3]
 		diagram.nodeByAddress[head+'356'].nextLink = diagram.nodeByAddress[head+'356'].links[3]
-		diagram.nodeByAddress[head+'456'].nextLink = diagram.nodeByAddress[head+'456'].links[3]
+		#diagram.nodeByAddress[head+'456'].nextLink = diagram.nodeByAddress[head+'456'].links[3]
 		
 	diagram.nodeByAddress['000456'].nextLink = Link(4, diagram.nodeByAddress['000456'], diagram.nodeByAddress['001000'])
 	diagram.nodeByAddress['001456'].nextLink = Link(4, diagram.nodeByAddress['001456'], diagram.nodeByAddress['002000'])
-	diagram.nodeByAddress['002456'].nextLink = Link(4, diagram.nodeByAddress['002456'], diagram.nodeByAddress['003000'])
-	diagram.nodeByAddress['003456'].nextLink = Link(4, diagram.nodeByAddress['003456'], diagram.nodeByAddress['000000'])
+	diagram.nodeByAddress['002456'].nextLink = Link(4, diagram.nodeByAddress['002456'], diagram.nodeByAddress['000000'])
+	#diagram.nodeByAddress['003456'].nextLink = Link(4, diagram.nodeByAddress['003456'], diagram.nodeByAddress['000000'])
 	
 	diagram.makeChain(list(diagram.chains), [])		
 	
@@ -140,121 +140,41 @@ if __name__ == "__main__":
 	diagram = Diagram(7)#, withKernel=False)
 	patch(diagram)
 
-	# ⟨02⟩ 
-	extendAddress('020040')
-	extendAddress('020130')
-	extendAddress('020220')
-	extendAddress('020310')
-	extendAddress('020400')
-
-	#±# extendAddress('023040')
-	extendAddress('023130')
-	extendAddress('023220')
-	extendAddress('023310')
-	extendAddress('023400')
 	
-	extendAddress('020351') # 0/3
-	extendAddress('020341')
-	extendAddress('020332')	
-	extendAddress('023205')
-	extendAddress('023305')
-	extendAddress('022305')
-	extendAddress('022405')
-	extendAddress('021405')
-	extendAddress('021005')	
+	extendAddress('003050')
+	extendAddress('003150')
+	extendAddress('003250')
+	extendAddress('003350')
+	extendAddress('003450')
+
+	extendColumn('0034', 2)
+	extendColumn('0134', 0)
+	extendColumn('0131', 3)
+	extendColumn('0132', 2)
+	
+	extendAddress('010206')
+	extendAddress('011106')
+	extendAddress('012006')
+
+	extendAddress('020106')	
+	extendAddress('021006')	
+	
+	extendAddress('000002')
+	extendAddress('003353')
+	
+	extendColumn('0200', 4)
+	
+	extendColumn('0202', 2)
+	extendColumn('0203', 1)
 		
-	extendAddress('023046')
-	extendAddress('021255')	# 0/2
-	extendAddress('022155')
+	#extendAddress('010203') # 0/7
 	
-	extendAddress('021015')	# 1/2
-	extendAddress('021333')	# 0/3
-	
-	extendAddress('022322')	# 0/3
-	extendAddress('022411')	# 0/2
-	
-	extendAddress('010142')	# 0/2
-	
-	extendAddress('013040')
-	extendAddress('013130')
-	extendAddress('013220')
-	extendAddress('013310')
-	extendAddress('013400')
-
-	extendAddress('012040')
-	extendAddress('012130')
-	extendAddress('012220')
-	extendAddress('012310')
-	extendAddress('012400')
-
-	extendAddress('013105')
-	extendAddress('013205')
-
-	extendAddress('012205')
-	extendAddress('012305')
-	
-	extendAddress('010105')
-	extendAddress('010405')
-	
-	extendAddress('010001') # 0/2
-	extendAddress('010006') # 1/2
-	
-	extendAddress('011324') # 0/2
-	extendAddress('011441')
-	
-	extendAddress('020330')	# !
-	extendAddress('011405')
-	extendAddress('011231')
-	extendAddress('011006') # 1/2
-	#extendAddress('011052') # 0/2
-	
-	# every cycle has its own chain at start
-	for cycle in diagram.cycles:
-		if cycle.chain is None:
-			diagram.makeChain([], [cycle])		
-	startTime = time()
-	sols_superperms = []
-	bcc = -1
-	fcc = 0
-	
-	next()
-	
-	#diagram.pointers = diagram.nodeByAddress['023040'].loop.nodes; show(diagram); input('missing yellow');
-					
-	''' # ⟨10⟩ 
-	extendAddress('100040')
-	extendAddress('100130')
-	extendAddress('100220')
-	extendAddress('100310')
-	extendAddress('100400')
-
-	#±# extendAddress('103040')
-	extendAddress('103130')
-	extendAddress('103220')
-	extendAddress('103310')
-	extendAddress('103400')
-	
-	extendAddress('100351') # 0/3
-	extendAddress('100341')
-	extendAddress('100332')	
-	extendAddress('103205')
-	extendAddress('103305')
-	extendAddress('102305')
-	extendAddress('102405')
-	extendAddress('101405')
-	extendAddress('101005')
-	
-	extendAddress('102231')
-	extendAddress('101331')
-	extendAddress('101151')
-	extendAddress('102155')
-			
-	diagram.pointers = diagram.nodeByAddress['103040'].loop.nodes; show(diagram); input('missing yellow');
-	'''
-	
+	#extendAddress('013130')
+	#extendAddress('013220')
+		
 	
 	diagram.pointers = []
-	
+	#diagram.pointers = diagram.nodeByAddress['103202'].loop.nodes
 		
 	nodes = [cycle.avnode() if len([n for n in cycle.nodes if n.loop.availabled]) is 1 else cycle for cycle in diagram.cycles if cycle.chain is None and len([n for n in cycle.nodes if n.loop.availabled]) < 2]
 	if len(nodes):
@@ -271,3 +191,19 @@ if __name__ == "__main__":
 		diagram.pointers = sorted([cycle for cycle in diagram.cycles if cycle.chain is None], key = lambda cycle: (len([n for n in cycle.nodes if n.loop.availabled]), cycle.address))[0:1]
 		
 	show(diagram)
+	input('partial')
+	
+	# every cycle has its own chain at start
+	for cycle in diagram.cycles:
+		if cycle.chain is None:
+			diagram.makeChain([], [cycle])		
+	startTime = time()
+	sols_superperms = []
+	bcc = -1
+	fcc = 0
+	
+	next()
+	
+	show(diagram)
+	input('done.')
+	

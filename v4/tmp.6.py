@@ -47,9 +47,28 @@ def extendColumn(column_addr, key):
 			
 if __name__ == "__main__":
 	
-	diagram = Diagram(6)#, withKernel=False)
-	patch(diagram)
+	diagram = Diagram(6, withKernel=False)
+	#patch(diagram)
+	
 
+	extendAddress('00020')
+	# extendAddress('02130')
+	# extendAddress('00330')
+	# extendAddress('01230')
+
+	#extendAddress('02120')	
+	# extendAddress('00030')
+	# extendAddress('11030')
+	# extendAddress('02030')
+
+	diagram.pointers = diagram.nodeByAddress['00030'].loop.nodes
+	
+	diagram.pointers = list(itertools.chain(diagram.nodeByAddress['00034'].loop.nodes, diagram.nodeByAddress['00043'].loop.nodes, diagram.nodeByAddress['00344'].loop.nodes, diagram.nodeByAddress['01244'].loop.nodes))
+	
+	diagram.pointers = [diagram.nodeByAddress[addr] for addr in ['00030', '11030', '02030', '02120']]
+	#diagram.pointers = [diagram.nodeByAddress[addr] for addr in ['00020', '02130', '00330', '01230']]
+		
+	'''
 	extendAddress('10044')
 	extendAddress('10134')
 	extendAddress('10224')
@@ -60,7 +79,7 @@ if __name__ == "__main__":
 	extendAddress('12224')
 	extendAddress('12314')		
 	extendAddress('10241')
-	
+	'''
 	# extendAddress('10140')
 	# extendAddress('11213')
 	# extendAddress('12113')
@@ -70,9 +89,9 @@ if __name__ == "__main__":
 	
 	# extendAddress('11312')
 	
-	extendAddress('11130')
+	#extendAddress('11130')
 	
-	diagram.pointers = diagram.nodeByAddress['12044'].loop.nodes; show(diagram); input('missing yellow');
+	#diagram.pointers = diagram.nodeByAddress['12044'].loop.nodes; show(diagram); input('missing yellow');
 	
 	
 	# extendAddress('10231')
@@ -88,13 +107,13 @@ if __name__ == "__main__":
 	# extendAddress('11005')
 	# extendAddress('12035')
 		
-	diagram.pointers = []
+	#diagram.pointers = []
 	
 	nodes = [cycle.avnode() if len([n for n in cycle.nodes if n.loop.availabled]) is 1 else cycle for cycle in diagram.cycles if cycle.chain is None and len([n for n in cycle.nodes if n.loop.availabled]) < 2]
 	if len(nodes):
 		diagram.pointers += list(nodes)
 	
-	chain = sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0]
+	chain = sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0] if len(diagram.chains) else Chain(-99)
 	print(chain, len(chain.avloops))
 	if len(chain.avloops) is 1:
 		diagram.pointers += [[n for n in loop.nodes if n.cycle.chain is chain][0] for loop in chain.avloops]

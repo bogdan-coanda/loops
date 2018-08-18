@@ -94,9 +94,9 @@ if __name__ == "__main__":
 	diagram.extendLoop(diagram.nodeByAddress['01033'].loop) # β
 	diagram.extendLoop(diagram.nodeByAddress['02302'].loop) # γ
 	
-	diagram.pointers = [n for n in diagram.nodes if n.tuple[0] is n.tuple[1]]; show(diagram); input("singled tuples after patch")
+	#diagram.pointers = [n for n in diagram.nodes if n.tuple[0] is n.tuple[1]]; show(diagram); input("singled tuples after patch")
 	
-	diagram.pointers = list(diagram.bases); show(diagram); input("bases")
+	#diagram.pointers = list(diagram.bases); show(diagram); input("bases")
 	#diagram.pointers = list(diagram.nodeByAddress['00001'].tuple); show(diagram); input("pointed @ α")
 	#diagram.pointers = list(diagram.nodeByAddress['01033'].tuple); show(diagram); input("pointed @ β")
 	#diagram.pointers = list(diagram.nodeByAddress['02302'].tuple); show(diagram); input("pointed @ γ")
@@ -203,7 +203,7 @@ if __name__ == "__main__":
 	#min_chain = sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0]
 	#chloops = sorted(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops, key = lambda loop: loop.firstNode().address)
 	#diagram.pointers = itertools.chain(*[loop.nodes for loop in chloops]) if len(chloops) else [cycle.avnode() for cycle in min_chain.cycles]
-	show(diagram)
+	#show(diagram)
 	#input("chloops: " + str(chloops))
 	
 	'''
@@ -228,7 +228,86 @@ if __name__ == "__main__":
 	C:t ⋂ E:t = { 11022 }
 	'''		
 		
-	'''
+	#'''
+
+	# ~~~ sol⟨0⟩ ~~~ # 
+	𝒟 = Diagram(6)		
+	patch(𝒟)	
+	
+	for addr in sols[0]:
+		#if addr[0] == '1':
+		loop = 𝒟.nodeByAddress[addr].loop
+		if len(set(['10030', '10120', '10210', '10300']).intersection([node.address for node in loop.nodes])) is 0:
+			𝒟.extendLoop(𝒟.nodeByAddress[addr].loop)		
+		
+	show(𝒟)
+	input("#0 | trimmed sol")			
+	
+	# ~~~ sol⟨1⟩ ~~~ # 
+	𝒟 = Diagram(6)		
+	patch(𝒟)	
+	
+	for addr in sols[1]:
+		#if addr[0] == '1':
+		loop = 𝒟.nodeByAddress[addr].loop
+		if len(set(['10040', '10340', '11240', '12140']).intersection([node.address for node in loop.nodes])) is 0:
+			𝒟.extendLoop(𝒟.nodeByAddress[addr].loop)		
+		
+	show(𝒟)
+	input("#1 | trimmed sol")			
+
+	# ~~~ sol⟨2⟩ ~~~ # 
+	𝒟 = Diagram(6)		
+	patch(𝒟)	
+	
+	for addr in sols[2]:
+		#if addr[0] == '1':
+		loop = 𝒟.nodeByAddress[addr].loop
+		if len(set(['10210', '11120', '12030', '12300']).intersection([node.address for node in loop.nodes])) is 0:
+			𝒟.extendLoop(𝒟.nodeByAddress[addr].loop)		
+		
+	show(𝒟)
+	input("#2 | trimmed sol")			
+	
+	# ~~~ sol⟨3⟩ ~~~ # 
+	𝒟 = Diagram(6)		
+	patch(𝒟)	
+	
+	for addr in sols[3]:
+		#if addr[0] == '1':
+		loop = 𝒟.nodeByAddress[addr].loop
+		if len(set(['10245', '11145', '12045', '12345']).intersection([node.address for node in loop.nodes])) is 0:
+			𝒟.extendLoop(𝒟.nodeByAddress[addr].loop)		
+		
+	show(𝒟)
+	input("#3 | trimmed sol")			
+	
+	# ~~~ sol⟨4⟩ ~~~ # 
+	𝒟 = Diagram(6)		
+	patch(𝒟)	
+	
+	for addr in sols[4]:
+		#if addr[0] == '1':
+		loop = 𝒟.nodeByAddress[addr].loop
+		if len(set(['11040', '11140', '11240', '11340']).intersection([node.address for node in loop.nodes])) is 0:
+			𝒟.extendLoop(𝒟.nodeByAddress[addr].loop)		
+		
+	show(𝒟)
+	input("#4 | trimmed sol")			
+	
+	# ~~~ sol⟨5⟩ ~~~ # 
+	𝒟 = Diagram(6)		
+	patch(𝒟)	
+	
+	for addr in sols[5]:
+		#if addr[0] == '1':
+		loop = 𝒟.nodeByAddress[addr].loop
+		if len(set(['11045', '11145', '11245', '11345']).intersection([node.address for node in loop.nodes])) is 0:
+			𝒟.extendLoop(𝒟.nodeByAddress[addr].loop)		
+		
+	show(𝒟)
+	input("#5 | trimmed sol")			
+						
 	for id, sol in enumerate(sols[0:6]):
 		
 		𝒟 = Diagram(6)		
@@ -237,10 +316,10 @@ if __name__ == "__main__":
 		for addr in sol:
 			if addr[0] == '1':
 				𝒟.extendLoop(𝒟.nodeByAddress[addr].loop)
-				
-		𝒟.pointers = [node for node in 𝒟.nodes if node.loop.availabled and node.cycle.chain and len(node.cycle.chain.cycles) is 1]
-		show(𝒟)
-		input("#" + str(id) + " | sol: " + str(" ".join(sol)))		
+						
+		if True: # 𝒟.nodeByAddress['10030'].loop.extended and not 𝒟.nodeByAddress['10120'].loop.extended and not 𝒟.nodeByAddress['10210'].loop.extended and not 𝒟.nodeByAddress['10300'].loop.extended and 𝒟.nodeByAddress['10040'].loop.extended and 𝒟.nodeByAddress['10140'].loop.extended and 𝒟.nodeByAddress['10240'].loop.extended:
+			show(𝒟)
+			input("#" + str(id) + " | sol: " + str(" ".join(sol)))		
 	#'''
 
 
