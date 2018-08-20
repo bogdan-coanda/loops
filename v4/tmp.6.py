@@ -43,92 +43,80 @@ def extendColumn(column_addr, key):
 			i += 2
 			j = diagram.spClass - 3
 
+
+def point(diagram):
+	diagram.pointers = []
+		
+	if len(diagram.chains) is 1 and len(list(diagram.chains)[0].cycles) is len(diagram.cycles):
+		return
+		
+	cycle_avlen, smallest_cycle_group = (len(diagram.cycles), [])
+	sorted_empty_cycles = sorted(groupby([cycle for cycle in diagram.cycles if cycle.chain is None], K = lambda cycle: len([n for n in cycle.nodes if n.loop.availabled])).items())
+	if len(sorted_empty_cycles):
+		cycle_avlen, smallest_cycle_group = sorted_empty_cycles[0]
+	
+	chain_avlen, smallest_chain_group = (len(diagram.cycles), [])
+	sorted_chain_groups = sorted(groupby(diagram.chains, K = lambda chain: len(chain.avloops)).items())
+	if len(sorted_chain_groups) > 0:
+		chain_avlen, smallest_chain_group	= sorted_chain_groups[0]		
+
+	min_avlen = min(cycle_avlen, chain_avlen)
+	if min_avlen == cycle_avlen:
+		diagram.pointers += [cycle.avnode() if min_avlen is not 0 else cycle for cycle in smallest_cycle_group]
+	if min_avlen == chain_avlen:
+		diagram.pointers += itertools.chain(*[[[n for n in loop.nodes if n.cycle.chain is chain][0] for loop in chain.avloops] if min_avlen is not 0 else chain.cycles for chain in smallest_chain_group])																				
 									
+def tonoavail(addr):
+	loop = diagram.nodeByAddress[addr].loop
+	loop.seen = True
+	diagram.setLoopUnavailabled(loop)
+	
+	
 			
 if __name__ == "__main__":
 	
-	diagram = Diagram(6, withKernel=False)
-	#patch(diagram)
-	
+	diagram = Diagram(6)#, withKernel=False)
+	patch(diagram)
 
-	extendAddress('00020')
-	# extendAddress('02130')
-	# extendAddress('00330')
-	# extendAddress('01230')
-
-	#extendAddress('02120')	
-	# extendAddress('00030')
-	# extendAddress('11030')
-	# extendAddress('02030')
-
-	diagram.pointers = diagram.nodeByAddress['00030'].loop.nodes
-	
-	diagram.pointers = list(itertools.chain(diagram.nodeByAddress['00034'].loop.nodes, diagram.nodeByAddress['00043'].loop.nodes, diagram.nodeByAddress['00344'].loop.nodes, diagram.nodeByAddress['01244'].loop.nodes))
-	
-	diagram.pointers = [diagram.nodeByAddress[addr] for addr in ['00030', '11030', '02030', '02120']]
-	#diagram.pointers = [diagram.nodeByAddress[addr] for addr in ['00020', '02130', '00330', '01230']]
-		
-	'''
-	extendAddress('10044')
-	extendAddress('10134')
-	extendAddress('10224')
-	extendAddress('10314')
-
-	#±# extendAddress('12044')
-	extendAddress('12134')
-	extendAddress('12224')
-	extendAddress('12314')		
-	extendAddress('10241')
-	'''
-	# extendAddress('10140')
-	# extendAddress('11213')
-	# extendAddress('12113')
-	
-	# extendAddress('11025')
-	# extendAddress('12035')		
-	
-	# extendAddress('11312')
-	
-	#extendAddress('11130')
-	
-	#diagram.pointers = diagram.nodeByAddress['12044'].loop.nodes; show(diagram); input('missing yellow');
-	
-	
-	# extendAddress('10231')
-	# extendAddress('11213')						
-	# extendAddress('12113')
-	# 
-	# 
-	# extendAddress('11144')
-	# extendAddress('11223')	
-	# 
-	# extendAddress('10241')
-	# 
-	# extendAddress('11005')
-	# extendAddress('12035')
-		
-	#diagram.pointers = []
-	
-	nodes = [cycle.avnode() if len([n for n in cycle.nodes if n.loop.availabled]) is 1 else cycle for cycle in diagram.cycles if cycle.chain is None and len([n for n in cycle.nodes if n.loop.availabled]) < 2]
-	if len(nodes):
-		diagram.pointers += list(nodes)
-	
-	chain = sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0] if len(diagram.chains) else Chain(-99)
-	print(chain, len(chain.avloops))
-	if len(chain.avloops) is 1:
-		diagram.pointers += [[n for n in loop.nodes if n.cycle.chain is chain][0] for loop in chain.avloops]
-	elif len(chain.avloops) is 0:
-		diagram.pointers += [cycle.avnode() if len([n for n in cycle.nodes if n.loop.availabled]) is 1 else cycle for cycle in chain.cycles]
-	
-	if len(diagram.pointers) is 0:
-		diagram.pointers = sorted([cycle for cycle in diagram.cycles if cycle.chain is None], key = lambda cycle: (len([n for n in cycle.nodes if n.loop.availabled]), cycle.address))[0:1]
-
-	# cy0 = [node.cycle for node in diagram.nodeByAddress['10231'].loop.nodes]
-	# cy1 = [node.cycle for node in diagram.nodeByAddress['11213'].loop.nodes]
-	# cy2 = [node.cycle for node in diagram.nodeByAddress['12113'].loop.nodes]
-	# pairs = [(loop, set([node.cycle for node in loop.nodes])) for loop in diagram.loops]
-	# loops = [loop for loop,set in pairs if len(set.intersection(cy0)) and len(set.intersection(cy1)) and len(set.intersection(cy2))]
-	# for il,loop in enumerate(loops):
-	# 	diagram.pointers = loop.nodes; show(diagram); input("#"+str(il))
+	# every cycle has its own chain at start
+	# for cycle in diagram.cycles:
+	# 	if cycle.chain is None:
+	# 		diagram.makeChain([], [cycle])		
 			
+	# extendAddress('10005')
+	extendAddress('10105')
+	extendAddress('10205')
+	extendAddress('10305')
+
+	extendAddress('11005')
+	extendAddress('11105')
+	extendAddress('11205')
+	extendAddress('11305')
+	
+	# extendAddress('12005')
+	# extendAddress('12105')
+	# extendAddress('12205')
+	# extendAddress('12305')
+	
+	# ~~~ #
+	
+	tonoavail('10005')
+	tonoavail('12005')
+	tonoavail('12105')
+	tonoavail('12205')
+	tonoavail('12305')	
+	
+	extendAddress('10014')
+	
+	extendAddress('12104')
+	extendAddress('12113')
+	extendAddress('12222')
+	
+	extendAddress('11301')
+	extendAddress('10044')
+	extendAddress('12341')
+	extendAddress('10020')
+	
+	
+	point(diagram)			
 	show(diagram)

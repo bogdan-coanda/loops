@@ -5,7 +5,7 @@ import itertools
 
 def patch(diagram):
 	
-	for head in ['001', '002']:#, '003']:
+	for head in ['001', '002', '003']:
 								
 		diagram.makeChain([], [diagram.cycleByAddress[head+'00']])
 		diagram.extendLoop(diagram.nodeByAddress[head+'006'].loop)
@@ -22,12 +22,12 @@ def patch(diagram):
 		diagram.nodeByAddress[head+'156'].nextLink = diagram.nodeByAddress[head+'156'].links[3]
 		diagram.nodeByAddress[head+'256'].nextLink = diagram.nodeByAddress[head+'256'].links[3]
 		diagram.nodeByAddress[head+'356'].nextLink = diagram.nodeByAddress[head+'356'].links[3]
-		#diagram.nodeByAddress[head+'456'].nextLink = diagram.nodeByAddress[head+'456'].links[3]
+		diagram.nodeByAddress[head+'456'].nextLink = diagram.nodeByAddress[head+'456'].links[3]
 		
 	diagram.nodeByAddress['000456'].nextLink = Link(4, diagram.nodeByAddress['000456'], diagram.nodeByAddress['001000'])
 	diagram.nodeByAddress['001456'].nextLink = Link(4, diagram.nodeByAddress['001456'], diagram.nodeByAddress['002000'])
-	diagram.nodeByAddress['002456'].nextLink = Link(4, diagram.nodeByAddress['002456'], diagram.nodeByAddress['000000'])
-	#diagram.nodeByAddress['003456'].nextLink = Link(4, diagram.nodeByAddress['003456'], diagram.nodeByAddress['000000'])
+	diagram.nodeByAddress['002456'].nextLink = Link(4, diagram.nodeByAddress['002456'], diagram.nodeByAddress['003000'])
+	diagram.nodeByAddress['003456'].nextLink = Link(4, diagram.nodeByAddress['003456'], diagram.nodeByAddress['000000'])
 	
 	diagram.makeChain(list(diagram.chains), [])		
 	
@@ -47,15 +47,43 @@ def extendColumn(column_addr, key):
 			i += 2
 			j = diagram.spClass - 3
 
+def point(diagram):
+	diagram.pointers = []
+		
+	if len(diagram.chains) is 1 and len(list(diagram.chains)[0].cycles) is len(diagram.cycles):
+		return
+		
+	cycle_avlen, smallest_cycle_group = (len(diagram.cycles), [])
+	sorted_empty_cycles = sorted(groupby([cycle for cycle in diagram.cycles if cycle.chain is None], K = lambda cycle: len([n for n in cycle.nodes if n.loop.availabled])).items())
+	if len(sorted_empty_cycles):
+		cycle_avlen, smallest_cycle_group = sorted_empty_cycles[0]
+	
+	chain_avlen, smallest_chain_group = (len(diagram.cycles), [])
+	sorted_chain_groups = sorted(groupby(diagram.chains, K = lambda chain: len(chain.avloops)).items())
+	if len(sorted_chain_groups) > 0:
+		chain_avlen, smallest_chain_group	= sorted_chain_groups[0]		
+
+	min_avlen = min(cycle_avlen, chain_avlen)
+	if min_avlen == cycle_avlen:
+		diagram.pointers += [cycle.avnode() if min_avlen is not 0 else cycle for cycle in smallest_cycle_group]
+	if min_avlen == chain_avlen:
+		diagram.pointers += itertools.chain(*[[[n for n in loop.nodes if n.cycle.chain is chain][0] for loop in chain.avloops] if min_avlen is not 0 else chain.cycles for chain in smallest_chain_group])																				
+	print("[pointing] cycle avlen: " + str(cycle_avlen) + " | chain avlen: " + str(chain_avlen))
+									
+def tonoavail(addr):
+	loop = diagram.nodeByAddress[addr].loop
+	loop.seen = True
+	diagram.setLoopUnavailabled(loop)
+	
 
 def next(lvl=0, path = []):
 	global bcc, fcc, sols_superperms
 	bcc += 1
 	
 	# measure
-	chloops = sorted(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops, key = lambda loop: loop.firstNode().address)
+	chloops = sorted(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops, key = lambda loop: (loop.firstNode().ktype, loop.firstNode().address))
 		
-	if bcc % 10000 is 0:
+	if bcc % 1000 is 0:
 		print("{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} | chains: " + str(len(diagram.chains)) + " | chloops: " + str(len(chloops)) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
 	#print("{lvl:"+str(lvl)+"} addr: " + " ".join([loop.head.address for _,_,loop in path]))
 						
@@ -140,55 +168,74 @@ if __name__ == "__main__":
 	diagram = Diagram(7)#, withKernel=False)
 	patch(diagram)
 
+	tonoavail('100006')
 	
-	extendAddress('003050')
-	extendAddress('003150')
-	extendAddress('003250')
-	extendAddress('003350')
-	extendAddress('003450')
+	tonoavail('103006')
+	tonoavail('103106')
+	tonoavail('103206')
+	tonoavail('103306')
+	tonoavail('103406')
 
-	extendColumn('0034', 2)
-	extendColumn('0134', 0)
-	extendColumn('0131', 3)
-	extendColumn('0132', 2)
+	tonoavail('122006')
+	tonoavail('122106')
+	tonoavail('122206')
+	tonoavail('122306')
+	tonoavail('122406')
 	
-	extendAddress('010206')
-	extendAddress('011106')
-	extendAddress('012006')
+	tonoavail('111006')
+	tonoavail('111106')
+	tonoavail('111206')
+	tonoavail('111306')
+	tonoavail('111406')
+	
+	tonoavail('103405')
 
-	extendAddress('020106')	
-	extendAddress('021006')	
-	
-	extendAddress('000002')
-	extendAddress('003353')
-	
-	extendColumn('0200', 4)
-	
-	extendColumn('0202', 2)
-	extendColumn('0203', 1)
+	for node in diagram.nodes:
+		if node.address.endswith('06') and node.cycle.chain is None and node.loop.availabled and not node.address.startswith('0') and not node.address.startswith('113') and not node.address.startswith('101') and not node.address.startswith('112') and not node.address.startswith('111'):
+			diagram.extendLoop(node.loop)
 		
-	#extendAddress('010203') # 0/7
+	# ~~~ #
 	
-	#extendAddress('013130')
-	#extendAddress('013220')
+	extendAddress('000001')
+	
+	extendAddress('103005')
+	extendAddress('103105')
+	extendAddress('103205')
+	extendAddress('103305')
+	
+	extendAddress('100020')
+	extendAddress('100040')
+	
+	extendAddress('103451')
+	extendAddress('103404')
+	extendAddress('103225')
+	extendAddress('103135')
+
+	# extendAddress('122005')
+	# extendAddress('122105')
+	# extendAddress('122205')
+	# extendAddress('122305')
+
+	extendAddress('122451')
+	extendAddress('122135')
+	extendAddress('122225')
+	extendAddress('122315')
+	
+	#extendAddress('111114')
+	#extendAddress('111241')
+	#extendAddress('111214')
+	#extendAddress('111232')
+	extendAddress('111451')
+	extendAddress('111404')
+	extendAddress('111225')
+	extendAddress('111135')
+
+	#extendAddress('100242')
+					
+	print(sorted(groupby(diagram.chains, K = lambda chain: len(chain.avloops), G = lambda g: len(g)).items()))
+
 		
-	
-	diagram.pointers = []
-	#diagram.pointers = diagram.nodeByAddress['103202'].loop.nodes
-		
-	nodes = [cycle.avnode() if len([n for n in cycle.nodes if n.loop.availabled]) is 1 else cycle for cycle in diagram.cycles if cycle.chain is None and len([n for n in cycle.nodes if n.loop.availabled]) < 2]
-	if len(nodes):
-		diagram.pointers += list(nodes)
-	
-	chain = sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0]
-	print(chain, len(chain.avloops))
-	if len(chain.avloops) is 1:
-		diagram.pointers += [[n for n in loop.nodes if n.cycle.chain is chain][0] for loop in chain.avloops]
-	elif len(chain.avloops) is 0:
-		diagram.pointers += [cycle.avnode() if len([n for n in cycle.nodes if n.loop.availabled]) is 1 else cycle for cycle in chain.cycles]
-	
-	if len(diagram.pointers) is 0:
-		diagram.pointers = sorted([cycle for cycle in diagram.cycles if cycle.chain is None], key = lambda cycle: (len([n for n in cycle.nodes if n.loop.availabled]), cycle.address))[0:1]
+	point(diagram)
 		
 	show(diagram)
 	input('partial')

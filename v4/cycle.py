@@ -18,6 +18,10 @@ class Cycle (object):
 		rc = [node for node in nodes if node.loop.availabled]
 		return rc[0] if len(rc) > 0 else nodes[0]
 		
+	def avnode_or_self(self):
+		nodes = sorted(self.nodes, key = lambda n: n.address)
+		rc = [node for node in nodes if node.loop.availabled]
+		return rc[0] if len(rc) > 0 else self		
 				
 	def __repr__(self):
 		return "⟨cycle:"+str(self.index)+"@"+self.address+"§"+str(self.chain)+"⟩"
