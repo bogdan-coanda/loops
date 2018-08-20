@@ -83,7 +83,7 @@ def next(lvl=0, path = []):
 	# measure
 	chloops = sorted(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops, key = lambda loop: (loop.firstNode().ktype, loop.firstNode().address))
 		
-	if bcc % 1000 is 0:
+	if bcc % 10000 is 0:
 		print("{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} | chains: " + str(len(diagram.chains)) + " | chloops: " + str(len(chloops)) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
 	#print("{lvl:"+str(lvl)+"} addr: " + " ".join([loop.head.address for _,_,loop in path]))
 						
@@ -169,7 +169,7 @@ if __name__ == "__main__":
 	patch(diagram)
 
 	tonoavail('100006')
-	
+
 	tonoavail('103006')
 	tonoavail('103106')
 	tonoavail('103206')
@@ -181,17 +181,17 @@ if __name__ == "__main__":
 	tonoavail('122206')
 	tonoavail('122306')
 	tonoavail('122406')
-	
+
 	tonoavail('111006')
 	tonoavail('111106')
 	tonoavail('111206')
 	tonoavail('111306')
 	tonoavail('111406')
-	
+
 	tonoavail('103405')
 
 	for node in diagram.nodes:
-		if node.address.endswith('06') and node.cycle.chain is None and node.loop.availabled and not node.address.startswith('0') and not node.address.startswith('113') and not node.address.startswith('101') and not node.address.startswith('112') and not node.address.startswith('111'):
+		if node.address.endswith('06') and node.cycle.chain is None and node.loop.availabled and not node.address.startswith('0') and not node.address.startswith('113') and not node.address.startswith('101') and not node.address.startswith('112') and not node.address.startswith('111') and not node.address.startswith('102'):
 			diagram.extendLoop(node.loop)
 		
 	# ~~~ #
