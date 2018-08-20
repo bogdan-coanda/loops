@@ -69,6 +69,7 @@ def point(diagram):
 	if min_avlen == chain_avlen:
 		diagram.pointers += itertools.chain(*[[[n for n in loop.nodes if n.cycle.chain is chain][0] for loop in chain.avloops] if min_avlen is not 0 else chain.cycles for chain in smallest_chain_group])																				
 	print("[pointing] cycle avlen: " + str(cycle_avlen) + " | chain avlen: " + str(chain_avlen))
+	
 									
 def tonoavail(addr):
 	loop = diagram.nodeByAddress[addr].loop
@@ -80,10 +81,38 @@ def next(lvl=0, path = []):
 	global bcc, fcc, sols_superperms
 	bcc += 1
 	
+	lvl_seen = []
+	
+	# preemptively kill all loops that would lead to empty cycles/chains
+	deadloops = 0
+	for loop in diagram.loops:
+		if loop.availabled:
+			assert diagram.extendLoop(loop)
+			
+			cycle_avlen, smallest_cycle_group = (len(diagram.cycles), [])
+			sorted_empty_cycles = sorted(groupby([cycle for cycle in diagram.cycles if cycle.chain is None], K = lambda cycle: len([n for n in cycle.nodes if n.loop.availabled])).items())
+			if len(sorted_empty_cycles):
+				cycle_avlen, smallest_cycle_group = sorted_empty_cycles[0]
+			
+			chain_avlen, smallest_chain_group = (len(diagram.cycles), [])
+			sorted_chain_groups = sorted(groupby(diagram.chains, K = lambda chain: len(chain.avloops)).items())
+			if len(sorted_chain_groups) > 0:
+				chain_avlen, smallest_chain_group	= sorted_chain_groups[0]		
+		
+			min_avlen = min(cycle_avlen, chain_avlen)						
+			diagram.collapseBack(loop)
+			if min_avlen is 0: # kill loop
+				lvl_seen.append(loop) 
+				loop.seen = True
+				diagram.setLoopUnavailabled(loop)
+				deadloops += 1				
+	#if deadloops:
+		#print("{lvl:"+str(lvl)+"§"+str(bcc)+"} dead loops: " + str(deadloops))
+	
 	# measure
 	chloops = sorted(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops, key = lambda loop: (loop.firstNode().ktype, loop.firstNode().address))
 		
-	if bcc % 10000 is 0:
+	if bcc % 100 is 0:
 		print("{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} | chains: " + str(len(diagram.chains)) + " | chloops: " + str(len(chloops)) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
 	#print("{lvl:"+str(lvl)+"} addr: " + " ".join([loop.head.address for _,_,loop in path]))
 						
@@ -121,22 +150,27 @@ def next(lvl=0, path = []):
 			print("len:"+str(len(SP)) + "\n" + SP)
 			input("Found solution #"+str(fcc))								
 			
+			# cleanup as we 'see' loops before this check
+			for loop in lvl_seen:
+				diagram.setLoopAvailabled(loop)
+				loop.seen = False
+		
 			return False
 		else:
+			# cleanup as we 'see' loops before this check
+			for loop in lvl_seen:
+				diagram.setLoopAvailabled(loop)
+				loop.seen = False
+				
 			return False
 					
 	# check if not enough loops to connect all the chains
 	#if len(avloops) < (len(diagram.chains) - 1) / 5:
 		#return False
 
-	# check if any chains are unreachable
-	#if len([chain for chain in diagram.chains if len(chain.avloops) is 0]) > 0:
-		#return False
-					
-	# choose
-	#chloops = list(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops)
 	
-	lvl_seen = []
+			
+	# run through and test available smallest chain loops
 	for chindex, chloop in enumerate(chloops):
 				
 		# extend
@@ -168,67 +202,99 @@ if __name__ == "__main__":
 	diagram = Diagram(7)#, withKernel=False)
 	patch(diagram)
 
-	tonoavail('100006')
+	# tonoavail('100006')
+	# 
+	# tonoavail('103006')
+	# tonoavail('103106')
+	# tonoavail('103206')
+	# tonoavail('103306')
+	# tonoavail('103406')
+	# 
+	# tonoavail('122006')
+	# tonoavail('122106')
+	# tonoavail('122206')
+	# tonoavail('122306')
+	# tonoavail('122406')
+	# 
+	# tonoavail('111006')
+	# tonoavail('111106')
+	# tonoavail('111206')
+	# tonoavail('111306')
+	# tonoavail('111406')
+	# 
+	# tonoavail('103405')
 
-	tonoavail('103006')
-	tonoavail('103106')
-	tonoavail('103206')
-	tonoavail('103306')
-	tonoavail('103406')
-
-	tonoavail('122006')
-	tonoavail('122106')
-	tonoavail('122206')
-	tonoavail('122306')
-	tonoavail('122406')
-
-	tonoavail('111006')
-	tonoavail('111106')
-	tonoavail('111206')
-	tonoavail('111306')
-	tonoavail('111406')
-
-	tonoavail('103405')
-
+	# for node in diagram.nodes:
+	# 	if node.address.endswith('06') and node.cycle.chain is None and node.loop.availabled and not node.address.startswith('0') and not node.address.startswith('113') and not node.address.startswith('101') and not node.address.startswith('112') and not node.address.startswith('111') and not node.address.startswith('102'):
+	# 		diagram.extendLoop(node.loop)
+		
 	for node in diagram.nodes:
-		if node.address.endswith('06') and node.cycle.chain is None and node.loop.availabled and not node.address.startswith('0') and not node.address.startswith('113') and not node.address.startswith('101') and not node.address.startswith('112') and not node.address.startswith('111') and not node.address.startswith('102'):
-			diagram.extendLoop(node.loop)
+		if (
+			node.address.startswith('101') or
+			node.address.startswith('102') #or
+#			node.address.startswith('111') #or
+			#node.address.startswith('112') #or
+			# node.address.startswith('121') or
+#			node.address.startswith('122')
+		) and node.address[-2] != '0' and node.address[-2] != '5' and node.ktype > 1 and node.loop.availabled and node.cycle.chain is None:
+			tonoavail(node.address)
+		
+	tonoavail('103405')
 		
 	# ~~~ #
 	
 	extendAddress('000001')
-	
+
+	extendAddress('100106')
+	extendAddress('100206')
+	extendAddress('100306')
+	extendAddress('100406')
+
 	extendAddress('103005')
 	extendAddress('103105')
 	extendAddress('103205')
 	extendAddress('103305')
 	
 	extendAddress('100020')
-	extendAddress('100040')
 	
-	extendAddress('103451')
-	extendAddress('103404')
-	extendAddress('103225')
-	extendAddress('103135')
+	# extendAddress('101006')
+	# extendAddress('101106')
+	# extendAddress('101206')
+	# extendAddress('101306')
+	# extendAddress('101406')
+	# 
+	# extendAddress('102006')
+	# extendAddress('102106')
+	# extendAddress('102206')
+	# extendAddress('102306')
+	# extendAddress('102406')
+		
+	# extendAddress('100020')
+	# extendAddress('100040')
+	# 
+	# extendAddress('103451')
+	# extendAddress('103404')
+	# extendAddress('103225')
+	# extendAddress('103135')
 
 	# extendAddress('122005')
 	# extendAddress('122105')
 	# extendAddress('122205')
 	# extendAddress('122305')
 
-	extendAddress('122451')
-	extendAddress('122135')
-	extendAddress('122225')
-	extendAddress('122315')
+	# extendAddress('122451')
+	# extendAddress('122135')
+	# extendAddress('122225')
+	# extendAddress('122315')
 	
 	#extendAddress('111114')
 	#extendAddress('111241')
 	#extendAddress('111214')
 	#extendAddress('111232')
-	extendAddress('111451')
-	extendAddress('111404')
-	extendAddress('111225')
-	extendAddress('111135')
+	# extendAddress('111451')
+	# extendAddress('111404')
+	# extendAddress('111225')
+	# extendAddress('111135')
 
 	#extendAddress('100242')
 					
@@ -239,7 +305,7 @@ if __name__ == "__main__":
 		
 	show(diagram)
 	input('partial')
-	
+			
 	# every cycle has its own chain at start
 	for cycle in diagram.cycles:
 		if cycle.chain is None:
