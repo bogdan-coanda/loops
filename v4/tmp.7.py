@@ -84,35 +84,35 @@ def next(lvl=0, path = []):
 	lvl_seen = []
 	
 	# preemptively kill all loops that would lead to empty cycles/chains
-	deadloops = 0
-	for loop in diagram.loops:
-		if loop.availabled:
-			assert diagram.extendLoop(loop)
-			
-			cycle_avlen, smallest_cycle_group = (len(diagram.cycles), [])
-			sorted_empty_cycles = sorted(groupby([cycle for cycle in diagram.cycles if cycle.chain is None], K = lambda cycle: len([n for n in cycle.nodes if n.loop.availabled])).items())
-			if len(sorted_empty_cycles):
-				cycle_avlen, smallest_cycle_group = sorted_empty_cycles[0]
-			
-			chain_avlen, smallest_chain_group = (len(diagram.cycles), [])
-			sorted_chain_groups = sorted(groupby(diagram.chains, K = lambda chain: len(chain.avloops)).items())
-			if len(sorted_chain_groups) > 0:
-				chain_avlen, smallest_chain_group	= sorted_chain_groups[0]		
-		
-			min_avlen = min(cycle_avlen, chain_avlen)						
-			diagram.collapseBack(loop)
-			if min_avlen is 0: # kill loop
-				lvl_seen.append(loop) 
-				loop.seen = True
-				diagram.setLoopUnavailabled(loop)
-				deadloops += 1				
+	# deadloops = 0
+	# for loop in diagram.loops:
+	# 	if loop.availabled:
+	# 		assert diagram.extendLoop(loop)
+	# 
+	# 		cycle_avlen, smallest_cycle_group = (len(diagram.cycles), [])
+	# 		sorted_empty_cycles = sorted(groupby([cycle for cycle in diagram.cycles if cycle.chain is None], K = lambda cycle: len([n for n in cycle.nodes if n.loop.availabled])).items())
+	# 		if len(sorted_empty_cycles):
+	# 			cycle_avlen, smallest_cycle_group = sorted_empty_cycles[0]
+	# 
+	# 		chain_avlen, smallest_chain_group = (len(diagram.cycles), [])
+	# 		sorted_chain_groups = sorted(groupby(diagram.chains, K = lambda chain: len(chain.avloops)).items())
+	# 		if len(sorted_chain_groups) > 0:
+	# 			chain_avlen, smallest_chain_group	= sorted_chain_groups[0]		
+	# 
+	# 		min_avlen = min(cycle_avlen, chain_avlen)						
+	# 		diagram.collapseBack(loop)
+	# 		if min_avlen is 0: # kill loop
+	# 			lvl_seen.append(loop) 
+	# 			loop.seen = True
+	# 			diagram.setLoopUnavailabled(loop)
+	# 			deadloops += 1				
 	#if deadloops:
 		#print("{lvl:"+str(lvl)+"§"+str(bcc)+"} dead loops: " + str(deadloops))
 	
 	# measure
 	chloops = sorted(sorted(diagram.chains, key = lambda chain: len(chain.avloops))[0].avloops, key = lambda loop: (loop.firstNode().ktype, loop.firstNode().address))
 		
-	if bcc % 100 is 0:
+	if bcc % 1000 is 0:
 		print("{lvl:"+str(lvl)+"§"+str(bcc)+"@"+tstr(time() - startTime)+"} | chains: " + str(len(diagram.chains)) + " | chloops: " + str(len(chloops)) + " | " + " ".join([str(k)+'/'+str(n) for k,n,_ in path]))
 	#print("{lvl:"+str(lvl)+"} addr: " + " ".join([loop.head.address for _,_,loop in path]))
 						
@@ -151,16 +151,16 @@ def next(lvl=0, path = []):
 			input("Found solution #"+str(fcc))								
 			
 			# cleanup as we 'see' loops before this check
-			for loop in lvl_seen:
-				diagram.setLoopAvailabled(loop)
-				loop.seen = False
+			# for loop in lvl_seen:
+			# 	diagram.setLoopAvailabled(loop)
+			# 	loop.seen = False
 		
 			return False
 		else:
 			# cleanup as we 'see' loops before this check
-			for loop in lvl_seen:
-				diagram.setLoopAvailabled(loop)
-				loop.seen = False
+			# for loop in lvl_seen:
+			# 	diagram.setLoopAvailabled(loop)
+			# 	loop.seen = False
 				
 			return False
 					
@@ -231,9 +231,9 @@ if __name__ == "__main__":
 	for node in diagram.nodes:
 		if (
 			node.address.startswith('101') or
-			node.address.startswith('102') #or
-#			node.address.startswith('111') #or
-			#node.address.startswith('112') #or
+			node.address.startswith('102') or
+			node.address.startswith('011') or
+			node.address.startswith('022') #or
 			# node.address.startswith('121') or
 #			node.address.startswith('122')
 		) and node.address[-2] != '0' and node.address[-2] != '5' and node.ktype > 1 and node.loop.availabled and node.cycle.chain is None:
