@@ -76,15 +76,6 @@ def draw(diagram):
 	
 		ui.set_color('white')
 		ui.fill_rect(0, 0, diagram.W, diagram.H)
-
-		HB = 24
-		#print("[show] boxes: " + str(len(diagram.draw_boxes)))
-		for boxtype, boxpx, boxpy, boxw, boxh in diagram.draw_boxes:
-			rect = ui.Path.rect(boxpx - HB/2 - 1*boxtype, boxpy - HB/2 - 1*boxtype, boxw + HB + 2*boxtype, boxh + HB + 2*boxtype)
-			#print("[show] rect:", boxpx, boxpy, boxw, boxh)
-			ui.set_color(colors.light(boxtype))
-			rect.line_width = 6
-			rect.stroke()
 			
 		HD = 32
 		for cycle in diagram.cycles:

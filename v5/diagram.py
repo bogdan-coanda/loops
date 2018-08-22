@@ -14,29 +14,22 @@ from time import time
 class Diagram (object):
 	
 	
-	def __init__(self, N, withKernel=True, isDualWalkType=None, baseAddresses=None):
+	def __init__(self, N, kernelSize=1):
 		
 		self.spClass = N
-		
+		self.kernelSize = kernelSize
+		self.chainAutoInc = -1
+				
 		self.generateGraph()
 																	
 		self.startPerm = self.perms[0]	
 		self.startNode = self.nodeByPerm[self.startPerm]									
-		
-		self.chainAutoInc = -1
-
-		self.isDualkWalkType = isDualWalkType or (self.spClass % 2 is 0)
 
 		# subsets		
 		self.pointers = []
-		self.draw_boxes = []
 		
-		if withKernel:
-			self.bases = self.generateKernel()
-			if baseAddresses:
-				self.bases = [self.nodeByAddress[addr] for addr in baseAddresses]
-			#self.pointers = self.bases; show(self); input("generated kernel")
-			self.walk()
+		if self.kernelSize > 0:
+			self.generateKernel()
 									
 		
 	def generateGraph(self):
@@ -220,35 +213,26 @@ class Diagram (object):
 		
 		node = self.startNode.prevs[1].node
 		
-		while True:
-		
-			node.loop.extended = True
-		
-			for n in node.loop.nodes:				
-				affected_cycles.append(n.cycle)
-				n.cycle.isKernel = True
+		for kern_index in range(self.kernelSize):			
+			for column_index in range(self.spClass - 2):
+			
+				print("[kernel] k: " + str(kern_index) + " | c: " + str(column_index) + " | node: " + str(node))	
+				node.loop.extended = True
+			
+				for n in node.loop.nodes:				
+					affected_cycles.append(n.cycle)
+					n.cycle.isKernel = True
 
-			#print("[gen:kernel] node: " + str(node) + " | last bro: " + str(node.loopBrethren[-1]))		
-			node.loopBrethren[-1].nextLink = node.loopBrethren[-1].nextLink.next.prevLink = node.loopBrethren[-1].links[3]
-			node = node.loopBrethren[-1].nextLink.next.prevs[1].node
-			if not self.isDualkWalkType or len(bases) % 2 is 1:
-				bases.append(node.links[1].next.links[1].next)
-			else:
-				bases.append(node.loopBrethren[-1].prevs[1].node.prevs[1].node)
-			#print("[gen:kernel] next node: " + str(node))		
-																
-			if node is self.startNode.prevs[1].node:
-				break
-			
+				# connect last bro
+				node.loopBrethren[-1].nextLink = node.loopBrethren[-1].nextLink.next.prevLink = (
+					node.loopBrethren[-1].links[3] if column_index != self.spClass - 3 else (node.loopBrethren[-1].links[4] if kern_index != self.kernelSize - 1 else Link(4, node.loopBrethren[-1], self.startNode))
+				)
+
+				node = node.loopBrethren[-1].nextLink.next.prevs[1].node																		
+																							
 		self.chainAutoInc = -1
-		new_chain, affected_loops = self.makeChain([], affected_cycles)				
-		
-		#for base in bases:
-			#assert len([node for node in base.loop.nodes if node.links[1].next.loop.availabled or node.prevs[1].node.loop.availabled]) is 0, "broken extension neighbours!!!"		
-			
-		#print("generated kernel")			
-		return [bases[-1]] + bases[:-1]
-		
+		new_chain, affected_loops = self.makeChain([], affected_cycles)
+				
 
 	### ~~~ extensions ~~~ ###	
 				
@@ -414,136 +398,7 @@ class Diagram (object):
 					
 					
 	### ~~~ pointers ~~~ ###																																																				
-	
-
-	def walk(self):
-		if self.isDualkWalkType: # self.spClass % 2 is 0:
-			
-			# define alternating movement methods
-			
-			def jmp(self, bid): # jmp(from 0 to len(loopBrethren)-1)
-				for i in range(len(self.pointers)):
-					if i % 2 == 0:
-						self.pointers[i] = self.pointers[i].loopBrethren[bid]
-					else:
-						self.pointers[i] = self.pointers[i].loopBrethren[-1-bid]				
-						
-			def adv(self, cid): # adv(0) advances once, to match jmp(0) which jumps once
-				for i in range(len(self.pointers)):
-					if i % 2 == 0:
-						for _ in range(1+cid):
-							self.pointers[i] = self.pointers[i].links[1].next
-					else:
-						for _ in range(1+cid):
-							self.pointers[i] = self.pointers[i].prevs[1].node
 				
-			Diagram.jmp = jmp
-			Diagram.adv = adv
-			
-			# do the actual walking
-			self._walk()
-		
-		else: # self.spClass % 2 is 1
-			
-			# define unidirectional movement methods
-
-			def jmp(self, bid): # jmp(from 0 to len(loopBrethren)-1)
-				for i in range(len(self.pointers)):
-					self.pointers[i] = self.pointers[i].loopBrethren[bid]
-						
-			def adv(self, cid): # adv(0) advances once, to match jmp(0) which jumps once
-				for i in range(len(self.pointers)):
-					for _ in range(1+cid):
-						self.pointers[i] = self.pointers[i].links[1].next
-							
-			Diagram.jmp = jmp
-			Diagram.adv = adv
-			
-			# do the actual walking			
-			self._walk()
-					
-		self.pointers = None
-		
-		
-	def _walk(self): # generate unidirectional tuple
-					
-		self.tuples = []
-		
-		wq = [list(self.bases)]
-		while len(wq) > 0:
-			
-			t = wq.pop()
-			for node in t:
-				node.tuple = t
-							
-			self.pointers = list(t)
-			self.adv(0)
-			if self.pointers[0].tuple is None:
-				wq.append(list(self.pointers))
-				if self.isDualkWalkType:
-					# swap even/odd pathways
-					for i in range(0,len(self.pointers), 2):
-						self.pointers[i+1], self.pointers[i] = self.pointers[i:i+2]
-						wq.append(list(self.pointers))
-	
-			self.pointers = list(t)
-			self.jmp(0)
-			if self.pointers[0].tuple is None:
-				wq.append(list(self.pointers))
-				if self.isDualkWalkType:
-					# swap even/odd pathways
-					for i in range(0,len(self.pointers), 2):
-						self.pointers[i+1], self.pointers[i] = self.pointers[i:i+2]
-						wq.append(list(self.pointers))
-								
-		if len([n for n in self.nodes if n.tuple is None]) is not 0:
-			self.pointers = [n for n in self.nodes if n.tuple is None]; show(self); input("[_walk] broken")								
-		assert len([n for n in self.nodes if n.tuple is None]) is 0
-		#print("[_walk] generated tuples")								
-		#self.pointers = [n for n in self.nodes if n.tuple[0] is n.tuple[1]]; show(self); input("[_walk] same")								
-		
-						
-	def ___walk(self): # generate unidirectional tuple
-					
-		self.tuples = []
-		node_adv_tuples = {}
-		node_jmp_tuples = {}
-		adv_tuples = []
-		jmp_tuples = []
-		
-		wq = [(True, list(self.bases))]
-		while len(wq) > 0:
-			
-			isAdv,t = wq.pop()
-			for node in t:
-				if isAdv:
-					node_adv_tuples[node] = t
-					adv_tuples.append(t)
-				else:
-					node_jmp_tuples[node] = t
-					jmp_tuples.append(t)					
-				
-			self.pointers = list(t)
-			self.adv(0)
-			if self.pointers[0] not in node_adv_tuples:
-				wq.append((True, list(self.pointers)))
-	
-			self.pointers = list(t)
-			self.jmp(0)
-			if self.pointers[0] not in node_jmp_tuples:
-				wq.append((False, list(self.pointers)))
-
-		assert all([n in node_adv_tuples or n in node_jmp_tuples for n in self.nodes])
-		assert all(["".join([n.address for n in sorted(node_adv_tuples[n], key = lambda n: n.address)]) == "".join([n.address for n in sorted(node_jmp_tuples[n], key = lambda n: n.address)]) for n in self.nodes if n in node_adv_tuples and n in node_jmp_tuples])
-		
-		self.tuples = adv_tuples
-		for node in self.nodes:
-			node.tuple = node_adv_tuples[node] if node in node_adv_tuples else node_jmp_tuples[node]
-
-		#self.pointers = itertools.chain(*[n.loop.nodes for n in self.nodes if n.tuple is None]); show(self); input("[_walk] walked")								
-		assert len([n for n in self.nodes if n.tuple is None]) is 0
-		#print("[_walk] generated tuples")								
-			
 			
 	def pointToAddressTuple(self, address):
 		self.pointers = list(self.nodeByAddress[address].tuple)
@@ -571,7 +426,6 @@ class Diagram (object):
 
 if __name__ == "__main__":
 		
-
-	diagram = Diagram(7)								
+	diagram = Diagram(7, 4)								
 	show(diagram)
 
