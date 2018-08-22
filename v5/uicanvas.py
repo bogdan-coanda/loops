@@ -98,7 +98,7 @@ def draw(diagram):
 			oval = ui.Path.oval(node.px - RR/2, node.py - RR/2, RR, RR)
 
 			# § drawing chained node color fills
-			if node.cycle.chain is not None:
+			if node.cycle.chain is not None and len(node.cycle.chain.cycles) > 1:
 				diagram.sh_looped_count += 1
 				if node.cycle.chain.id not in chainColors:
 					chainColors[node.cycle.chain.id] = 'white' if node.cycle.chain.id == (0 if diagram.startNode.cycle.chain is None else diagram.startNode.cycle.chain.id) else hls_to_rgb(random(), 0.5, 1)
@@ -108,7 +108,7 @@ def draw(diagram):
 			oval.fill()
 
 			# § drawing chained node strokes
-			if node.cycle.chain is not None and node.loop.extended:				
+			if node.cycle.chain is not None and len(node.cycle.chain.cycles) > 1 and node.loop.extended:
 				# getting personal				
 				ui.set_color(ℓ(diagram, node)) # 𝒞(node))
 				oval.line_width = 4*DH
@@ -117,7 +117,7 @@ def draw(diagram):
 				ui.set_color(ℓ(diagram, node))
 				oval.line_width = DH
 				oval.set_line_dash([1,1.05])
-			elif node.cycle.chain is not None:
+			elif node.cycle.chain is not None and len(node.cycle.chain.cycles) > 1:
 				ui.set_color('black')
 				oval.line_width = 0.2
 				oval.set_line_dash([1,0])
@@ -128,7 +128,7 @@ def draw(diagram):
 			oval.stroke()			
 			
 			# § drawing links
-			if node.cycle.chain is not None:
+			if node.cycle.chain is not None and len(node.cycle.chain.cycles) > 1:
 				nextLink = node.nextLink if node.nextLink else (node.links[2] if node.loop.extended else node.links[1])
 				if nextLink.type is 2:
 					line = ui.Path()

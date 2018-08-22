@@ -21,13 +21,29 @@ class Diagram (object):
 		self.chainAutoInc = -1
 				
 		self.generateGraph()
-																	
+																																					
 		self.startPerm = self.perms[0]	
 		self.startNode = self.nodeByPerm[self.startPerm]									
 
 		# subsets		
 		self.pointers = []
 		
+		# every cycle has its own chain at start
+		for cycle in self.cycles:
+
+			# create new chain
+			self.chainAutoInc += 1
+			new_chain = Chain(self.chainAutoInc)
+																			
+			# move cycle
+			cycle.chain = new_chain
+			new_chain.cycles.append(cycle)								
+			new_chain.avloops = set([node.loop for node in cycle.nodes])
+																																					
+			# a new chain is born
+			self.chains.add(new_chain)
+								
+				
 		if self.kernelSize > 0:
 			self.generateKernel()
 									
@@ -208,7 +224,7 @@ class Diagram (object):
 	
 	def generateKernel(self):
 				
-		affected_cycles = []
+		affected_chains = []
 		bases = []
 		
 		node = self.startNode.prevs[1].node
@@ -216,11 +232,11 @@ class Diagram (object):
 		for kern_index in range(self.kernelSize):			
 			for column_index in range(self.spClass - 2):
 			
-				print("[kernel] k: " + str(kern_index) + " | c: " + str(column_index) + " | node: " + str(node))	
+				#print("[kernel] k: " + str(kern_index) + " | c: " + str(column_index) + " | node: " + str(node))	
 				node.loop.extended = True
 			
 				for n in node.loop.nodes:				
-					affected_cycles.append(n.cycle)
+					affected_chains.append(n.cycle.chain)
 					n.cycle.isKernel = True
 
 				# connect last bro
@@ -231,7 +247,7 @@ class Diagram (object):
 				node = node.loopBrethren[-1].nextLink.next.prevs[1].node																		
 																							
 		self.chainAutoInc = -1
-		new_chain, affected_loops = self.makeChain([], affected_cycles)
+		new_chain, affected_loops = self.makeChain(affected_chains)
 				
 
 	### ~~~ extensions ~~~ ###	
@@ -250,26 +266,21 @@ class Diagram (object):
 		loop.extended = True
 						
 		affected_chains = []
-		affected_cycles = []
 		
 		for node in loop.nodes:
-			if node.cycle.chain:
-				affected_chains.append(node.cycle.chain)
-			else:
-				affected_cycles.append(node.cycle)
+			affected_chains.append(node.cycle.chain)
 		
-		new_chain, affected_loops = self.makeChain(affected_chains, affected_cycles)				
+		new_chain, affected_loops = self.makeChain(affected_chains)				
 		
 		#for node in loop.nodes:
 			#assert not node.links[1].next.loop.availabled and not node.prevs[1].node.loop.availabled, "broken extension neighbours!!!"
 			
 		#for lp in self.loops:
 			#if lp.availabled:
-				#assert len(set([node.cycle.chain.marker for node in lp.nodes if node.cycle.chain and node.cycle.chain.marker])) <= 1, "broken marked loops!!!"
 				#assert self.checkAvailability(lp), "broken checked loops"
 				
 		#assert len([node for node in loop.nodes if node.links[1].next.loop.availabled or node.prevs[1].node.loop.availabled]) is 0, "broken extension neighbours!!!"		
-		loop.extension_result = (new_chain, affected_loops, affected_chains, affected_cycles)
+		loop.extension_result = (new_chain, affected_loops, affected_chains)
 
 		##assert set(list(itertools.chain(*[chain.avloops for chain in diagram.chains]))) == set([loop for loop in diagram.loops if loop.availabled and len([n for n in loop.nodes if n.cycle.chain])])
 		
@@ -286,12 +297,11 @@ class Diagram (object):
 	def checkAvailability(self, loop):
 		for i in range(1, len(loop.nodes)):
 			ichain = loop.nodes[i].cycle.chain
-			if ichain:
-				for j in range(0, i):
-					jchain = loop.nodes[j].cycle.chain
-					# if the loop would link back to the same chain, or to a different colored (marked) chain
-					if jchain and (ichain is jchain or (ichain.marker and jchain.marker and ichain.marker is not jchain.marker)):
-						return False
+			for j in range(0, i):
+				jchain = loop.nodes[j].cycle.chain
+				# if the loop would link back to the same chain, or to a different colored (marked) chain
+				if ichain is jchain:
+					return False
 		return True
 						
 										
@@ -301,8 +311,7 @@ class Diagram (object):
 		for node in loop.nodes:
 			cycle = node.cycle
 			#cycle.available_loops_count += 1		
-			if cycle.chain: # [~] massively unsafe!!!
-				cycle.chain.avloops.add(loop)
+			cycle.chain.avloops.add(loop)
 		
 		
 	def setLoopUnavailabled(self, loop):
@@ -311,11 +320,11 @@ class Diagram (object):
 		for node in loop.nodes:
 			cycle = node.cycle
 			#cycle.available_loops_count -= 1
-			if cycle.chain and loop in cycle.chain.avloops:
+			if loop in cycle.chain.avloops: # [~] why would the loop not be here ? got removed twice ? got debugged twice over already and proven correct ?
 				cycle.chain.avloops.remove(loop)
 																		
 																											
-	def makeChain(self, affected_chains, affected_cycles):
+	def makeChain(self, affected_chains):
 
 		# create new chain
 		self.chainAutoInc += 1
@@ -324,12 +333,7 @@ class Diagram (object):
 		
 		# for each old chain
 		for index, old_chain in enumerate(affected_chains):
-			
-			# check marker			
-			if old_chain.marker:
-				#assert new_chain.marker is None or new_chain.marker is old_chain.marker, "broken availabled loops!!!"
-				new_chain.marker = old_chain.marker
-				
+							
 			# move cycles to new chain
 			for cycle in old_chain.cycles:
 				cycle.chain = new_chain
@@ -339,35 +343,10 @@ class Diagram (object):
 			#print("[makeChain] removing: " + str(old_chain))
 			self.chains.remove(old_chain)			
 			
-		# for every other unlooped cycle
-		for cycle in affected_cycles:
-
-			# check marker
-			if cycle.marker:
-				#assert new_chain.marker is None or new_chain.marker is cycle.marker
-				new_chain.marker = cycle.marker				
-										
-			# move cycle
-			cycle.chain = new_chain
-			new_chain.cycles.append(cycle)
-
 		# move/remember loops												
 		# for each old chain
 		for old_chain in affected_chains:												
 			for loop in old_chain.avloops:
-				if loop.availabled:
-					if not self.checkAvailability(loop):
-						# remember erased loop
-						self.setLoopUnavailabled(loop)
-						affected_loops.append(loop)
-					else:
-						# move still available loop to new chain
-						new_chain.avloops.add(loop)
-						
-		# for every other unlooped cycle
-		for cycle in affected_cycles:
-			for node in cycle.nodes:
-				loop = node.loop
 				if loop.availabled:
 					if not self.checkAvailability(loop):
 						# remember erased loop
@@ -383,7 +362,7 @@ class Diagram (object):
 		return (new_chain, affected_loops)
 		
 		
-	def breakChain(self, new_chain, affected_loops, affected_chains, affected_cycles):
+	def breakChain(self, new_chain, affected_loops, affected_chains):
 		#print("[breakChain] removing: " + str(new_chain))
 		self.chains.remove(new_chain)
 		for chain in affected_chains:
@@ -391,8 +370,6 @@ class Diagram (object):
 			self.chains.add(chain)
 			for cycle in chain.cycles:
 				cycle.chain = chain
-		for cycle in affected_cycles:
-			cycle.chain = None
 		for loop in affected_loops:
 			self.setLoopAvailabled(loop)
 					
@@ -427,5 +404,11 @@ class Diagram (object):
 if __name__ == "__main__":
 		
 	diagram = Diagram(7, 4)								
+	
+	diagram.extendLoop(diagram.nodeByAddress['000001'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['123001'].loop)
+	# diagram.collapseBack(diagram.nodeByAddress['123001'].loop)
+	# diagram.collapseBack(diagram.nodeByAddress['000001'].loop)
+	
 	show(diagram)
 
