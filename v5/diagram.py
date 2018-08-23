@@ -247,7 +247,7 @@ class Diagram (object):
 				node = node.loopBrethren[-1].nextLink.next.prevs[1].node																		
 																							
 		self.chainAutoInc = -1
-		new_chain, affected_loops = self.makeChain(affected_chains)
+		new_chain, affected_loops, touched_chains = self.makeChain(affected_chains)
 				
 
 	### ~~~ extensions ~~~ ###	
@@ -270,7 +270,7 @@ class Diagram (object):
 		for node in loop.nodes:
 			affected_chains.append(node.cycle.chain)
 		
-		new_chain, affected_loops = self.makeChain(affected_chains)				
+		new_chain, affected_loops, touched_chains = self.makeChain(affected_chains)				
 		
 		#for node in loop.nodes:
 			#assert not node.links[1].next.loop.availabled and not node.prevs[1].node.loop.availabled, "broken extension neighbours!!!"
@@ -280,7 +280,7 @@ class Diagram (object):
 				#assert self.checkAvailability(lp), "broken checked loops"
 				
 		#assert len([node for node in loop.nodes if node.links[1].next.loop.availabled or node.prevs[1].node.loop.availabled]) is 0, "broken extension neighbours!!!"		
-		loop.extension_result = (new_chain, affected_loops, affected_chains)
+		loop.extension_result = (new_chain, affected_loops, affected_chains, touched_chains)
 
 		##assert set(list(itertools.chain(*[chain.avloops for chain in diagram.chains]))) == set([loop for loop in diagram.loops if loop.availabled and len([n for n in loop.nodes if n.cycle.chain])])
 		
@@ -310,7 +310,6 @@ class Diagram (object):
 		loop.availabled = True
 		for node in loop.nodes:
 			cycle = node.cycle
-			#cycle.available_loops_count += 1		
 			cycle.chain.avloops.add(loop)
 		
 		
@@ -318,10 +317,8 @@ class Diagram (object):
 		#assert loop.availabled is True
 		loop.availabled = False
 		for node in loop.nodes:
-			cycle = node.cycle
-			#cycle.available_loops_count -= 1
-			if loop in cycle.chain.avloops: # [~] why would the loop not be here ? got removed twice ? got debugged twice over already and proven correct ?
-				cycle.chain.avloops.remove(loop)
+			if loop in node.cycle.chain.avloops: # [~] why would the loop not be here ? got removed twice ? got debugged twice over already and proven correct ?
+				node.cycle.chain.avloops.remove(loop)
 																		
 																											
 	def makeChain(self, affected_chains):
@@ -330,6 +327,7 @@ class Diagram (object):
 		self.chainAutoInc += 1
 		new_chain = Chain(self.chainAutoInc)
 		affected_loops = []
+		touched_chains = set(affected_chains)
 		
 		# for each old chain
 		for index, old_chain in enumerate(affected_chains):
@@ -351,6 +349,7 @@ class Diagram (object):
 					if not self.checkAvailability(loop):
 						# remember erased loop
 						self.setLoopUnavailabled(loop)
+						touched_chains.update([node.cycle.chain for node in loop.nodes])
 						affected_loops.append(loop)
 					else:
 						# move still available loop to new chain
@@ -359,10 +358,10 @@ class Diagram (object):
 		# a new chain is born
 		#print("[makeChain] adding: " + str(new_chain))
 		self.chains.add(new_chain)
-		return (new_chain, affected_loops)
+		return (new_chain, affected_loops, touched_chains)
 		
 		
-	def breakChain(self, new_chain, affected_loops, affected_chains):
+	def breakChain(self, new_chain, affected_loops, affected_chains, touched_chains): # touched_chains is unused here
 		#print("[breakChain] removing: " + str(new_chain))
 		self.chains.remove(new_chain)
 		for chain in affected_chains:
@@ -406,9 +405,21 @@ if __name__ == "__main__":
 	diagram = Diagram(7, 4)								
 	
 	diagram.extendLoop(diagram.nodeByAddress['000001'].loop)
-	diagram.extendLoop(diagram.nodeByAddress['123001'].loop)
+	#diagram.extendLoop(diagram.nodeByAddress['123001'].loop)
 	# diagram.collapseBack(diagram.nodeByAddress['123001'].loop)
 	# diagram.collapseBack(diagram.nodeByAddress['000001'].loop)
 	
 	show(diagram)
 
+	diagram.pointers = []
+	affected_nodes = list(itertools.chain(*[loop.nodes for loop in diagram.nodeByAddress['000001'].loop.extension_result[1]]))
+	for cycle in diagram.cycles:
+		if cycle.chain in diagram.nodeByAddress['000001'].loop.extension_result[3]:
+			diagram.pointers += [node for node in cycle.nodes if node in affected_nodes]
+	show(diagram)
+
+	diagram.pointers = []	
+	for cycle in diagram.cycles:
+		if cycle.chain in diagram.nodeByAddress['000001'].loop.extension_result[3]:
+			diagram.pointers.append(cycle)
+	show(diagram)	
