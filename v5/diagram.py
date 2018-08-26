@@ -46,6 +46,8 @@ class Diagram (object):
 				
 		if self.kernelSize > 0:
 			self.generateKernel()
+			
+		self.cleanexCount = 0
 									
 		
 	def generateGraph(self):
@@ -286,11 +288,90 @@ class Diagram (object):
 		
 		return True
 		
+		
+	def cleanExtension(self, extended_loop):
+			
+		self.cleanexCount += 1
+			
+		ice = 0	
+		while True:			
+			for chain in self.chains:
+				if len(chain.avloops) is 0:
+					return 
+			
+			avcount = 0
+			potentcount = 0
+			deadcount = 0
+			for loop in self.loops:
+				if loop.availabled:			
+					avcount += 1
+					
+					Δ = loop.extension_result[3].intersection(extended_loop.extension_result[3]) if loop.extension_result else []
+					hasPotential = loop.extension_result is None or len(Δ) 
+					old_extension_result = loop.extension_result or [[]]*4
+					if hasPotential:
+						potentcount += 1
+					
+					if (self.cleanexCount == 97 and avcount >= 17 and potentcount >= 11) or (self.cleanexCount == 96 and (ice == 4 or ice == 0) and self.nodeByAddress['122300'] in loop.nodes):
+
+						self.pointers = extended_loop.nodes
+						show(self)
+						input("[cleanex:"+str(ice)+"@"+str(self.cleanexCount)+"] - before | extended_loop: " + str(extended_loop))
+												
+						self.pointers = itertools.chain(*[chain.cycles for chain in extended_loop.extension_result[3]])
+						show(self)
+						input("[cleanex:"+str(ice)+"@"+str(self.cleanexCount)+"] - before | extended_loop touched chains: " + str(extended_loop))
+
+						self.pointers = itertools.chain(*[chain.cycles for chain in loop.extension_result[3]])
+						show(self)
+						input("[cleanex:"+str(ice)+"@"+str(self.cleanexCount)+"] - before | previous extension result for: " + str(loop))
+											
+						self.pointers = loop.nodes
+						show(self)
+						input("[cleanex:"+str(ice)+"@"+str(self.cleanexCount)+"] - before | will extend loop: " + str(loop))											
+
+					# 	self.pointers = self.nodeByAddress['121410'].loop.nodes
+					# 	show(self)
+					# 	input("@97 - before | will kill loop at: " + str(self.nodeByAddress['121410']))
+					# 
+					# if self.nodeByAddress['122300'] in loop.nodes:
+					# 	print('cleanex: '+str(self.cleanexCount)+" | ice: "+str(ice)+" for "+str(loop))																									
+					# 	if self.cleanexCount == 96 and ice == 4:
+					# 		show(self)
+					# 		input("@96 - before extending loop at: " + str(self.nodeByAddress['121410']))							
+																																																																																							
+					assert self.extendLoop(loop)
+					
+					if (self.cleanexCount == 97 and avcount >= 17 and potentcount >= 11) or (self.cleanexCount == 96 and ice == 4 and self.nodeByAddress['122300'] in loop.nodes):	
+						show(self)
+						input("[cleanex:"+str(ice)+"@"+str(self.cleanexCount)+"] - after extending: " + str(loop))
+						
+					valid = True
+					for touched_chain in loop.extension_result[3]:
+						if len(touched_chain.avloops) is 0:
+							valid = False
+							assert hasPotential, "no potential !?"
+							break
+					self.collapseBack(loop)
+					if not valid:
+						if self.nodeByAddress['121410'] in loop.nodes:
+							show(self)
+							input("[cleanex:"+str(ice)+"@"+str(self.cleanexCount)+"] will set unavailable: " + str(loop) + " | cc: " + str([node.cycle for node in loop.nodes]))
+						self.setLoopUnavailabled(loop)
+						deadcount += 1
+						extended_loop.extension_result[1].append(loop)
+						extended_loop.extension_result[3].update([node.cycle.chain for node in loop.nodes])
+			
+			print("[cleanex:"+str(ice)+"@"+str(self.cleanexCount)+"] tried " + str(avcount) + " available loops | with " + str(potentcount) + " potentials ("+str(potentcount*100/avcount)+"%) ⇒ " + str(deadcount) + " cleaned")
+			if deadcount is 0:
+				return
+			ice += 1
 								
+																						
 	def collapseBack(self, loop):	
 		#print("[collapse] loop: " + str(loop))				
 		self.breakChain(*(loop.extension_result))
-		loop.extension_result = None
+		#loop.extension_result = None
 		loop.extended = False
 																
 	
@@ -358,6 +439,7 @@ class Diagram (object):
 		# a new chain is born
 		#print("[makeChain] adding: " + str(new_chain))
 		self.chains.add(new_chain)
+		touched_chains.remove(new_chain)
 		return (new_chain, affected_loops, touched_chains)
 		
 		
