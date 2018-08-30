@@ -20,3 +20,18 @@ def ui2pil(ui_img):
 	png_data = ui_img.to_png()
 	return Image.open(io.BytesIO(png_data))
 	
+class ordered_set (object):
+	
+	def __init__(self):
+		self.data = []
+		
+	def add(self, obj):
+		if obj not in self.data:
+			self.data.append(obj)
+			
+	def pop(self):
+		return self.data.pop(0)
+		
+	def __len__(self):
+		return len(self.data)
+	

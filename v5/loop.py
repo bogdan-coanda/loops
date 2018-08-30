@@ -1,3 +1,5 @@
+from extension_result import *
+
 class Loop (object):
 	
 	__slots__ = ['index', 'nodes', 'availabled', 'extended', '_root', 'head', 'extension_result', 'seen', '_firstNode']
@@ -9,7 +11,7 @@ class Loop (object):
 		self.extended = False
 		self._root = None # cache for root()
 		self.head = None # first node from sorted nodes list
-		self.extension_result = None
+		self.extension_result = ExtensionResult()
 		self.seen = False # should only be used by search methods and not by internal checks
 		self._firstNode = None
 		
@@ -41,3 +43,5 @@ class Loop (object):
 	def __repr__(self):
 		return '⟨loop:'+self.root()+'|'+':'.join([n.address[len(self._root):] for n in self.nodes])+'|'+('Av' if self.availabled else '')+('Ex' if self.extended else '')+'⟩'
 		
+	def addr(self):
+		return self.nodes[0].address
