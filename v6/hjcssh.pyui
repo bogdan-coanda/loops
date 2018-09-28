@@ -1,0 +1,36 @@
+[
+  {
+    "nodes" : [
+      {
+        "nodes" : [
+
+        ],
+        "frame" : "{{45, 104}, {100, 100}}",
+        "class" : "Label",
+        "attributes" : {
+          "name" : "label1",
+          "text_color" : "RGBA(0.000000,0.000000,0.000000,1.000000)",
+          "frame" : "{{45, 104}, {150, 32}}",
+          "uuid" : "D76D73AA-AF2C-4D06-B0A6-8728139F063F",
+          "class" : "Label",
+          "alignment" : "center",
+          "text" : "129",
+          "number_of_lines" : 0,
+          "font_size" : 6,
+          "font_name" : "HelveticaNeue-MediumItalic"
+        },
+        "selected" : true
+      }
+    ],
+    "frame" : "{{0, 0}, {240, 240}}",
+    "class" : "View",
+    "attributes" : {
+      "enabled" : true,
+      "background_color" : "RGBA(1.000000,1.000000,1.000000,1.000000)",
+      "tint_color" : "RGBA(0.000000,0.478000,1.000000,1.000000)",
+      "border_color" : "RGBA(0.000000,0.000000,0.000000,1.000000)",
+      "flex" : ""
+    },
+    "selected" : false
+  }
+]
