@@ -10,20 +10,22 @@ from extension_result import ExtensionResult
 import itertools
 import math
 from time import time
+import pickle
 
 
 class Diagram (object):
 	
 	
-	def __init__(self, N, kernelSize=1):
+	def __init__(self, N, kernelSize=1, startPerm=None):
 		
 		self.spClass = N
 		self.kernelSize = kernelSize
 		self.chainAutoInc = -1
-				
-		self.generateGraph()
+		self.hasRadialCoords = False
+		
+		self.generateGraph(startPerm)
 																																					
-		self.startPerm = self.perms[0]	
+		self.startPerm = startPerm or self.perms[0]	
 		self.startNode = self.nodeByPerm[self.startPerm]									
 
 		# subsets		
@@ -51,19 +53,16 @@ class Diagram (object):
 		self.cleanexCount = 0
 									
 		
-	def generateGraph(self):
+	def generateGraph(self, startPerm):
 				
 		self.perms = ["".join([str(p) for p in perm]) for perm in Permutator(list(range(self.spClass))).results]
-		self.pids = {}
-		for i in range(len(self.perms)):
-			self.pids[self.perms[i]] = i		
 		
-		self.generateNodes()
+		self.generateNodes(startPerm)
 		self.generateLinks()
 		self.generateLoops()		
 		
 		
-	def generateNodes(self):
+	def generateNodes(self, startPerm):
 		
 		self.nodes = []
 		self.cycles = []
@@ -73,7 +72,8 @@ class Diagram (object):
 		self.chains = set()
 		
 		gn_address = [0] * (self.spClass-1)
-		gn_perm = self.perms[0]
+		gn_perm = startPerm or self.perms[0]
+		print("[generateNodes] gn_perm: ", gn_perm)
 		gn_next = gn_perm
 		gn_cc = 0
 		gn_qq = 0
@@ -155,7 +155,6 @@ class Diagram (object):
 				gn_cc += 1
 																	
 		genNode()
-		max([node.px for node in self.nodes])
 		self.W = max([cycle.px for cycle in self.cycles]) + DM
 		self.H = max([cycle.py for cycle in self.cycles]) + DM		
 		#print("generated nodes | WxH: " + str(self.W) + "x" + str(self.H))
@@ -224,15 +223,34 @@ class Diagram (object):
 					lnindex = loopNodes.index(ln)
 					ln.loopBrethren = loopNodes[lnindex+1:] + loopNodes[:lnindex]
 
-		#print("generated loops")								
-				
+		self.loopsByFirstPerm = {}		
+		for loop in self.loops:
+			# collapse ktype			
+			ks = set([node.ktype for node in loop.nodes])
+			assert len(ks) == 1
+			loop.ktype = list(ks)[0]
+			# also, memorize loops by smallest perm
+			self.loopsByFirstPerm[loop.firstPerm()] = loop
+			
+		self.loopsByKType = [[] for _ in range(self.spClass)]
+		self.loopsByKType[0] = sorted([loop for loop in self.loops if loop.ktype is 0], key = lambda loop: loop.firstAddress())
+		print("[generateLoops] ktype[0][0]: " + str(self.loopsByKType[0][0]) + " | " + str(self.loopsByKType[0][0].firstAddress()))
+		
+		for index, blue_loop in enumerate(self.loopsByKType[0]):
+			blue_loop.ktype_index = index
+			for node in blue_loop.nodes:
+				other_loop = node.links[1].next.links[1].next.prevs[2].node.loop
+				other_loop.ktype_index = index
+				assert len(self.loopsByKType[other_loop.ktype]) == index
+				self.loopsByKType[other_loop.ktype].append(other_loop)
+								
 	
 	def generateKernel(self):
 				
 		affected_chains = []
 		bases = []
 		
-		node = self.startNode.prevs[1].node
+		node = self.nodeByPerm[self.perms[0]].prevs[1].node # self.startNode.prevs[1].node
 		
 		for kern_index in range(self.kernelSize):			
 			for column_index in range(self.spClass - 2):
@@ -332,6 +350,7 @@ class Diagram (object):
 		# create new chain
 		self.chainAutoInc += 1
 		new_chain = Chain(self.chainAutoInc)
+		# print("creating new chain: " + str(new_chain))
 		affected_loops = []
 		touched_chains = set()
 		
@@ -376,6 +395,7 @@ class Diagram (object):
 		#print("[breakChain] removing: " + str(new_chain))
 		# if extension_result.new_chain.id == 33013:
 		# 	print("breaking chain: 33013")
+		# print("breaking chain: " + str(extension_result.new_chain))
 		self.chains.remove(extension_result.new_chain)
 		for chain in extension_result.affected_chains:
 			#print("[breakChain] adding: " + str(chain))
@@ -414,27 +434,85 @@ class Diagram (object):
 			#assert node.perm in SP
 
 
+	def loadExtenders(self):
+		with open('extenders.'+str(self.spClass)+".pkl", 'rb') as infile:	
+			self.extenders = list(pickle.load(infile))
+		self.extenders = [[self.nodeByPerm[perm].loop.firstAddress() for perm in extender] for extender in self.extenders]
+		print("Loaded "+str(len(self.extenders))+" extenders")		
+					
 
 if __name__ == "__main__":
-		
-	diagram = Diagram(7, 4)								
+
+	diagram = Diagram(6, 1)
+	diagram.loadExtenders()
 	
-	diagram.extendLoop(diagram.nodeByAddress['000001'].loop)
+	print("len: " + str(len(diagram.extenders[0])) + " | " + str(diagram.extenders[0]))
+	
+	for i1, l1 in enumerate(diagram.extenders):
+		for i2, l2 in enumerate(diagram.extenders):
+			if i2 > i1:
+				lx = set(l1).intersection(l2)
+				if len(lx) >= 24:
+					# print("l1: " + str(loops1))
+					# print("l2: " + str(loops2))
+					# print("lx: " + str(lx)) 
+					cloops = [diagram.nodeByAddress[addr].loop for addr in lx]
+					blue_count = len([loop for loop in cloops if loop.ktype == 0])
+					print(str(i1) + "⋂" + str(i2) + " ⇒ " + str(len(lx)) + " | blues: " + str(blue_count))
+					
+					if blue_count >= 10:
+						for loop in cloops:
+							diagram.extendLoop(loop)			
+							
+						show(diagram); input("roots")
+						aloop = diagram.nodeByAddress[list(set(l1).difference(lx))[0]].loop
+						print("trying to extend by aloop: " + str(aloop))
+						diagram.extendLoop(aloop)
+						show(diagram); input("@"+str(i1))																
+						diagram.collapseBack(aloop)
+						bloop = diagram.nodeByAddress[list(set(l2).difference(lx))[0]].loop
+						print("trying to extend by bloop: " + str(bloop))
+						diagram.extendLoop(bloop)
+						show(diagram); input("@"+str(i2))																
+						diagram.collapseBack(bloop)
+												
+						for loop in reversed(cloops):
+							diagram.collapseBack(loop)							
+							
+	
+	grex_blue = groupby(diagram.extenders, K = lambda loops: len([loop for loop in loops if loop.ktype == 0]))
+	# grex_blue_14 = groupby(grex_blue[14], K = lambda loops: str(sorted(groupby([loop.ktype for loop in loops], G = lambda g: len(g)).items())))
+	# print("\n".join(sorted([str(key)+":"+str(len(vals)) for key,vals in grex_blue_14.items()])))
+	# ks = sorted([sorted(groupby([loop.ktype for loop in loops], G = lambda g: len(g)).items()) for loops in grex_blue[14]])
+	# print("\n".join([str(k) for k in ks]))
+									
+	for index, loops in enumerate(grex_blue[14]):
+		ktypes = sorted(groupby([loop.ktype for loop in loops], G = lambda g: len(g)).items())
+		
+		for loop in loops:
+			diagram.extendLoop(loop)			
+		show(diagram); input(str(index) + " | " + str(ktypes))					
+		for loop in reversed(loops):
+			diagram.collapseBack(loop)	
+			
+	# diagram = Diagram(7, 4)								
+	# 
+	# diagram.extendLoop(diagram.nodeByAddress['000001'].loop)
 	#diagram.extendLoop(diagram.nodeByAddress['123001'].loop)
 	# diagram.collapseBack(diagram.nodeByAddress['123001'].loop)
 	# diagram.collapseBack(diagram.nodeByAddress['000001'].loop)
-	
-	show(diagram)
-
-	diagram.pointers = []
-	affected_nodes = list(itertools.chain(*[loop.nodes for loop in diagram.nodeByAddress['000001'].loop.extension_result.affected_loops]))
-	for cycle in diagram.cycles:
-		if cycle.chain in diagram.nodeByAddress['000001'].loop.extension_result.touched_chains:
-			diagram.pointers += [node for node in cycle.nodes if node in affected_nodes]
-	show(diagram)
-
-	diagram.pointers = []	
-	for cycle in diagram.cycles:
-		if cycle.chain in diagram.nodeByAddress['000001'].loop.extension_result.touched_chains:
-			diagram.pointers.append(cycle)
-	show(diagram)	
+	# 
+	# show(diagram)
+	# 
+	# diagram.pointers = []
+	# affected_nodes = list(itertools.chain(*[loop.nodes for loop in diagram.nodeByAddress['000001'].loop.extension_result.affected_loops]))
+	# for cycle in diagram.cycles:
+	# 	if cycle.chain in diagram.nodeByAddress['000001'].loop.extension_result.touched_chains:
+	# 		diagram.pointers += [node for node in cycle.nodes if node in affected_nodes]
+	# show(diagram)
+	# 
+	# diagram.pointers = []	
+	# for cycle in diagram.cycles:
+	# 	if cycle.chain in diagram.nodeByAddress['000001'].loop.extension_result.touched_chains:
+	# 		diagram.pointers.append(cycle)
+	# show(diagram)	

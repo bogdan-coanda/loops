@@ -2,7 +2,7 @@ from extension_result import *
 
 class Loop (object):
 	
-	__slots__ = ['index', 'nodes', 'availabled', 'extended', '_root', 'head', 'extension_result', 'seen', '_firstNode']
+	__slots__ = ['index', 'nodes', 'availabled', 'extended', '_root', 'head', 'extension_result', 'seen', '_firstNode', 'ktype', 'ktype_index']
 	
 	def __init__(self, index):
 		self.index = index
@@ -14,6 +14,9 @@ class Loop (object):
 		self.extension_result = ExtensionResult()
 		self.seen = False # should only be used by search methods and not by internal checks
 		self._firstNode = None
+		# @generateLoops
+		self.ktype = None
+		self.ktype_index = None
 		
 		
 	def root(self):
@@ -45,3 +48,12 @@ class Loop (object):
 		
 	def addr(self):
 		return self.nodes[0].address
+		
+	def firstPerm(self):
+		return sorted([node.perm for node in self.nodes])[0]
+		
+	def firstAddress(self):
+		return sorted([node.address for node in self.nodes])[0]
+		
+	def adjacentLoops(self):
+		return [node.links[1].next.links[1].next.prevs[2].node.loop for node in self.nodes]

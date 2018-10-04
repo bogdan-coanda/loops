@@ -9,6 +9,7 @@ import math
 
 class colors (object):
 	blue 				= '#08f'
+	lightblue		= '#8cf'
 
 	green 			= '#0d0'
 	lightgreen 	= '#6f6'
@@ -48,7 +49,7 @@ class colors (object):
 			
 	def light(index):
 		if index is 0:
-			return colors.blue
+			return colors.lightblue
 		elif index is 1:
 			return colors.lightgreen
 		elif index is 2:
@@ -68,12 +69,23 @@ class colors (object):
 def ℓ(diagram, node, forceNormal=True):	
 	return colors.normal(node.ktype) if node.address[-1] is '0' or forceNormal else colors.light(node.ktype)
 	
+def 𝒮(diagram, node):
+	if node.loop.extended:
+		return colors.normal(node.ktype)
+	elif node.prevs[2].node.loop.extended:
+		return colors.normal(node.prevs[2].node.ktype)
+	else:
+		return 'white'
+	
+	
 	
 def lc(diagram, cycle, marker):
 	return colors.normal(marker)
 	
 	
-def setCoords(diagram):	
+def setRadialCoords(diagram):	
+	
+	diagram.hasRadialCoords = True
 	
 	diagram.W *= 2
 	diagram.H *= 2
@@ -167,71 +179,69 @@ def draw(diagram):
 		ui.set_color('white')
 		ui.fill_rect(0, 0, diagram.W, diagram.H)		
 		
-		MX = diagram.W / 2
-		MY = diagram.H / 2
-		
-		ui.set_color('black')
-		line = ui.Path()
-		line.move_to(0, MY)
-		line.line_to(diagram.W, MY)
-		line.stroke()
-		line = ui.Path()
-		line.move_to(MX, 0)
-		line.line_to(MX, diagram.H)
-		line.stroke()
-		
-		PH = 2*16
-		PJ = (math.sqrt(5)-1)*PH
-						
-		IH = 2*48
-		IJ = (math.sqrt(5)-1)*IH
-
-		drawBoxes(MX, MY, diagram.blue_18_inner_roots, diagram.blue_18_outer_roots, [diagram.cycles[90+(-1-i)%5].nodes[0].ktype for i in range(5)])
-
-		drawCircledText("18", MX, MY, 40, 20, '#138fff', 2.5)
-		
-		drawBoxes(MX, MY, diagram.blue_23_inner_roots, diagram.blue_23_outer_roots, [diagram.cycles[115+(-1-i)%5].nodes[0].ktype for i in range(5)])
-
-		drawCircledText("23", MX, MY, 32, 16, '#003b81', 2)
-
-		drawBoxes(MX, MY, diagram.blue_5_inner_roots, diagram.blue_5_outer_roots, [diagram.cycles[25+(-1-i)%5].nodes[0].ktype for i in range(5)])
-
-		drawCircledText("5", MX, MY, 24, 12, '#138fff', 1.5)
-																														
-		drawBoxes(MX, MY, diagram.blue_right_inner_roots, diagram.blue_right_outer_roots, [diagram.cycles[(-1-i)%5].nodes[0].ktype for i in range(5)])
-
-		drawCircledText("0", MX, MY, 16, 8, '#003b81', 1)
-
-		for k in range(5):
-			drawBoxes(MX+diagram.first_penta_inner_roots[k][0], MY+diagram.first_penta_inner_roots[k][1], diagram.blue_left_inner_roots, diagram.blue_left_outer_roots, [diagram.cycles[5*diagram.first_inner_blues[k]+(diagram.first_inner_offs[k]-i)%5].nodes[0].ktype for i in range(5)])
-			drawCircledText(str(diagram.first_inner_blues[k]), MX+diagram.first_penta_inner_roots[k][0], MY+diagram.first_penta_inner_roots[k][1], 16, 8, '#138fff', 1)
-		
-		for k in range(5):
-			drawBoxes(MX+diagram.first_penta_outer_roots[k][0], MY+diagram.first_penta_outer_roots[k][1], diagram.blue_left_inner_roots, diagram.blue_left_outer_roots, [diagram.cycles[5*diagram.first_outer_blues[k]+(diagram.first_outer_offs[k]-i)%5].nodes[0].ktype for i in range(5)])
-			drawCircledText(str(diagram.first_outer_blues[k]), MX+diagram.first_penta_outer_roots[k][0], MY+diagram.first_penta_outer_roots[k][1], 16, 8, '#003b81', 1)
-		
-		for k in range(5):
-			drawBoxes(MX+diagram.second_penta_inner_roots[k][0], MY+diagram.second_penta_inner_roots[k][1], diagram.blue_left_inner_roots, diagram.blue_left_outer_roots, [diagram.cycles[5*diagram.second_inner_blues[k]+(diagram.second_inner_offs[k]-i)%5].nodes[0].ktype for i in range(5)])
-			drawCircledText(str(diagram.second_inner_blues[k]), MX+diagram.second_penta_inner_roots[k][0], MY+diagram.second_penta_inner_roots[k][1], 16, 8, '#003b81', 1)
-
-	
-		for k in range(5):
-			drawBoxes(MX+diagram.second_penta_outer_roots[k][0], MY+diagram.second_penta_outer_roots[k][1], diagram.blue_left_inner_roots, diagram.blue_left_outer_roots, [diagram.cycles[5*diagram.second_outer_blues[k]+(diagram.second_outer_offs[k]-i)%5].nodes[0].ktype for i in range(5)])
-			drawCircledText(str(diagram.second_outer_blues[k]), MX+diagram.second_penta_outer_roots[k][0], MY+diagram.second_penta_outer_roots[k][1], 16, 8, '#138fff', 1)
+		if diagram.hasRadialCoords:
+			MX = diagram.W / 2
+			MY = diagram.H / 2
 			
-		RH = 8
-		for cycle in diagram.cycles:
-			for i in range(6):
-				box = ui.Path()
-				box.move_to(cycle.px, cycle.py)
-				box.line_to(cycle.px+cycle.inner_roots[i][0], cycle.py+cycle.inner_roots[i][1])
-				box.line_to(cycle.px+cycle.outer_roots[i][0], cycle.py+cycle.outer_roots[i][1])	
-				box.line_to(cycle.px+cycle.inner_roots[(i+1)%6][0], cycle.py+cycle.inner_roots[(i+1)%6][1])
-				box.close()
-				ui.set_color(colors.normal(cycle.nodes[i].ktype))
-				box.fill()
+			ui.set_color('black')
+			line = ui.Path()
+			line.move_to(0, MY)
+			line.line_to(diagram.W, MY)
+			line.stroke()
+			line = ui.Path()
+			line.move_to(MX, 0)
+			line.line_to(MX, diagram.H)
+			line.stroke()
+			
+			PH = 2*16
+			PJ = (math.sqrt(5)-1)*PH
+							
+			IH = 2*48
+			IJ = (math.sqrt(5)-1)*IH
+	
+			base_ktype = 0 # diagram.startNode.prevs[1].node.ktype
 				
-			drawCircledText(str(cycle.index), cycle.px, cycle.py, RH, 4, 'black', 0.5)
+			centerPentaColor = colors.normal(diagram.startNode.prevs[1].node.ktype) # '#003b81' 
+			offsetPentaColor = colors.light(diagram.startNode.prevs[1].node.ktype) # '#138fff'
+	
+			drawBoxes5(MX, MY, diagram.blue_18_inner_roots, diagram.blue_18_outer_roots, diagram, 18, -1)	
+	
+			drawCircledText(str(diagram.loopsByKType[base_ktype][18].ktype_index), MX, MY, 40, 20, offsetPentaColor, 2.5)
+			
+			drawBoxes5(MX, MY, diagram.blue_23_inner_roots, diagram.blue_23_outer_roots, diagram, 23, -1)
+	
+			drawCircledText(str(diagram.loopsByKType[base_ktype][23].ktype_index), MX, MY, 32, 16, centerPentaColor, 2)
+	
+			drawBoxes5(MX, MY, diagram.blue_5_inner_roots, diagram.blue_5_outer_roots,  diagram, 5, -1)
+			
+			drawCircledText(str(diagram.loopsByKType[base_ktype][5].ktype_index), MX, MY, 24, 12, offsetPentaColor, 1.5)
+																															
+			drawBoxes5(MX, MY, diagram.blue_right_inner_roots, diagram.blue_right_outer_roots, diagram, 0, -1)
+	
+			drawCircledText(str(diagram.loopsByKType[base_ktype][0].ktype_index), MX, MY, 16, 8, centerPentaColor, 1)
+	
+			for k in range(5):
+				drawBoxes5(MX+diagram.first_penta_inner_roots[k][0], MY+diagram.first_penta_inner_roots[k][1], diagram.blue_left_inner_roots, diagram.blue_left_outer_roots, diagram, diagram.first_inner_blues[k], diagram.first_inner_offs[k])
+				drawCircledText(str(diagram.loopsByKType[base_ktype][diagram.first_inner_blues[k]].ktype_index), MX+diagram.first_penta_inner_roots[k][0], MY+diagram.first_penta_inner_roots[k][1], 16, 8, offsetPentaColor, 1)
+			
+			for k in range(5):
+				drawBoxes5(MX+diagram.first_penta_outer_roots[k][0], MY+diagram.first_penta_outer_roots[k][1], diagram.blue_left_inner_roots, diagram.blue_left_outer_roots, diagram, diagram.first_outer_blues[k], diagram.first_outer_offs[k])
+				
+				drawCircledText(str(diagram.loopsByKType[base_ktype][diagram.first_outer_blues[k]].ktype_index), MX+diagram.first_penta_outer_roots[k][0], MY+diagram.first_penta_outer_roots[k][1], 16, 8, centerPentaColor, 1)
+			
+			for k in range(5):
+				drawBoxes5(MX+diagram.second_penta_inner_roots[k][0], MY+diagram.second_penta_inner_roots[k][1], diagram.blue_left_inner_roots, diagram.blue_left_outer_roots, diagram, diagram.second_inner_blues[k], diagram.second_inner_offs[k])
+				drawCircledText(str(diagram.loopsByKType[base_ktype][diagram.second_inner_blues[k]].ktype_index), MX+diagram.second_penta_inner_roots[k][0], MY+diagram.second_penta_inner_roots[k][1], 16, 8, centerPentaColor, 1)
+	
+		
+			for k in range(5):
+				drawBoxes5(MX+diagram.second_penta_outer_roots[k][0], MY+diagram.second_penta_outer_roots[k][1], diagram.blue_left_inner_roots, diagram.blue_left_outer_roots, diagram, diagram.second_outer_blues[k], diagram.second_outer_offs[k])
+				drawCircledText(str(diagram.loopsByKType[base_ktype][diagram.second_outer_blues[k]].ktype_index), MX+diagram.second_penta_outer_roots[k][0], MY+diagram.second_penta_outer_roots[k][1], 16, 8, offsetPentaColor, 1)
+				
+			RH = 8
+			for cycle in diagram.cycles:
+				drawBoxes6(cycle)				
+				drawCircledText(str(cycle.index), cycle.px, cycle.py, RH, 4, 'black', 0.5)
 						
 
 		# for dx, dy in diagram.first_penta_inner_roots:
@@ -315,8 +325,8 @@ def draw(diagram):
 		for node in diagram.nodes:
 
 			oval = ui.Path.oval(node.px - RR/2, node.py - RR/2, RR, RR)
-			if node.address.startswith('0000'):
-				print("draw " + node.address + " | " + str((node.px - RR/2, node.py - RR/2, RR, RR)))
+			#if node.address.startswith('0000'):
+				#print("draw " + node.address + " | " + str((node.px - RR/2, node.py - RR/2, RR, RR)))
 
 			# § drawing chained node color fills
 			if node.cycle.chain is not None and len(node.cycle.chain.cycles) > 1:
@@ -329,11 +339,17 @@ def draw(diagram):
 			oval.fill()
 
 			# § drawing chained node strokes
-			if node.cycle.chain is not None and len(node.cycle.chain.cycles) > 1 and node.loop.extended:
+			if node.cycle.chain is not None and (node.loop.extended or node.prevs[2].node.loop.extended):
 				# getting personal				
-				ui.set_color(ℓ(diagram, node)) # 𝒞(node))
-				oval.line_width = 4*DH
-				oval.set_line_dash([1,1.05])
+				# ui.set_color(ℓ(diagram, node)) # 𝒞(node))
+				# oval.line_width = 4*DH
+				# oval.set_line_dash([1,1.05])
+				# ui.set_color('black')
+				#print("[nn] 𝒮: ", 𝒮(diagram, node))
+				ui.set_color(𝒮(diagram, node))
+				oval.fill()
+				oval.line_width = 1
+				oval.set_line_dash([1,0])
 			elif node.loop.availabled:
 				ui.set_color(ℓ(diagram, node))
 				oval.line_width = DH
@@ -359,11 +375,7 @@ def draw(diagram):
 					ui.set_color(ℓ(diagram, node, True))
 					line.line_cap_style = ui.LINE_CAP_ROUND
 					line.stroke()			
-					
-					circle = ui.Path.oval(node.px - 1.5*RR/2, node.py - 1.5*RR/2, 1.5*RR, 1.5*RR)
-					ui.set_color(ℓ(diagram, node, True))
-					circle.line_width = 1
-					circle.stroke()
+										
 				else:
 					line = ui.Path()
 					line.move_to(node.px, node.py)
@@ -411,7 +423,8 @@ def drawCircledText(text, centerX, centerY, radius, textSize, color, borderWidth
 	width, height = ui.measure_string(text, 0, ('HelveticaNeue-MediumItalic', textSize), ui.ALIGN_CENTER, ui.LB_CHAR_WRAP)
 	ui.draw_string(text, (centerX - width / 2, centerY - height / 2, width, height), ('HelveticaNeue-MediumItalic', textSize), color, ui.ALIGN_CENTER, ui.LB_CHAR_WRAP)
 
-def drawBoxes(cornerX, cornerY, inner_roots, outer_roots, ktypes):
+	
+def drawBoxes5(cornerX, cornerY, inner_roots, outer_roots, diagram, cycleIndex, inner_off):
 	for i in range(5):
 		box = ui.Path()
 		box.move_to(cornerX, cornerY)
@@ -419,10 +432,23 @@ def drawBoxes(cornerX, cornerY, inner_roots, outer_roots, ktypes):
 		box.line_to(cornerX + outer_roots[i][0], cornerY + outer_roots[i][1])	
 		box.line_to(cornerX + inner_roots[(i+1)%5][0], cornerY + inner_roots[(i+1)%5][1])
 		box.close()
-		ui.set_color(colors.light(ktypes[i]))
+		
+		node = diagram.cycles[5*cycleIndex+(inner_off-i)%5].nodes[0]		
+		ui.set_color('white' if node.loop.extended or not node.loop.availabled else colors.light(node.ktype))
 		box.fill()				
-	
-															
+
+def drawBoxes6(cycle):											
+	for i in range(6):
+		box = ui.Path()
+		box.move_to(cycle.px, cycle.py)
+		box.line_to(cycle.px+cycle.inner_roots[i][0], cycle.py+cycle.inner_roots[i][1])
+		box.line_to(cycle.px+cycle.outer_roots[i][0], cycle.py+cycle.outer_roots[i][1])	
+		box.line_to(cycle.px+cycle.inner_roots[(i+1)%6][0], cycle.py+cycle.inner_roots[(i+1)%6][1])
+		box.close()
+		ui.set_color('white' if cycle.nodes[i].loop.extended or not cycle.nodes[i].loop.availabled else colors.normal(cycle.nodes[i].ktype))
+		box.fill()
+				
+				
 def show(diagram):
 	img = draw(diagram)
 	img.show()
@@ -431,7 +457,26 @@ def show(diagram):
 	
 if __name__ == "__main__":
 	from diagram import *
-	diagram = Diagram(6, 0)
-	setCoords(diagram)	
+	diagram = Diagram(6, 3)
+
+	### « #5 | sol » @ sols.6.py ###
+	
+	diagram.extendLoop(diagram.nodeByAddress['00001'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['01033'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['02302'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['10030'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['10105'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['10205'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['10242'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['10305'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['11005'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['11105'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['11205'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['11305'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['12004'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['12013'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['12022'].loop)
+	
+	setRadialCoords(diagram)	
 	show(diagram)
 	

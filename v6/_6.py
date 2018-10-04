@@ -7,16 +7,31 @@ import itertools
 
 def extend(addr):
 	loop = diagram.nodeByAddress[addr].loop
-	return diagram.extendLoop(loop)
+	assert diagram.extendLoop(loop)
 	
 
 if __name__ == "__main__":
 	
-	diagram = Diagram(6, 0)	
-		
-	print(diagram.cycles[0].py)
+	diagram = Diagram(6, 0)		
+
+	main_loop = diagram.nodeByAddress['00005'].loop
+	
+	print("main loop: " + str(main_loop))
+	diagram.extendLoop(main_loop)
+	show(diagram); input()
+	diagram.collapseBack(main_loop)
+	for main_node in main_loop.nodes[:-1]:
+		adj_node = main_node.links[1].next.links[1].next.prevs[2].node
+		print("adj node: " + str(adj_node))
+		diagram.extendLoop(adj_node.loop)
+		show(diagram); input()
+		#diagram.collapseBack(adj_node.loop)		
+
+	#extend('00005') # blue:0
+	#extend(diagram.nodeByAddress['00005'].loop.nodes[3].links[1].next.links[1].next.prevs[2].node.address) # blue:0
 
 	# @0
+	#extend('00005') # blue:0
 	#extend('00004') #  green |  3,  -2-,  1
 	#extend('00014') # violet |  1,  -4-, 12
 	#extend('00024') #    red | 12, -13-, 16
@@ -198,5 +213,5 @@ if __name__ == "__main__":
 	# extend('01240')
 	# extend('01340')
 							
-	show(diagram)
+	#show(diagram)
 	
