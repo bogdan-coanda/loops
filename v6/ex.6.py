@@ -48,7 +48,7 @@ if __name__ == "__main__":
 	
 	original = Diagram(6, 3) 
 	
-	diagram = Diagram(6, 1, original.nodeByAddress['00005'].links[1].next.perm)
+	diagram = Diagram(6, 3)#, original.nodeByAddress['00005'].links[1].next.perm)
 	# diagram = Diagram(6, 1, original.nodeByAddress['02231'].links[1].next.perm)
 		
 	# diagram = Diagram(6, 3, original.nodeByAddress['00005'].links[1].next.perm)
@@ -140,7 +140,7 @@ if __name__ == "__main__":
 	extend('10242') # yellow:20 # adj: [   red:2,  violet:17,   blue:20,  green:23, orange:15] | ⟨ 74: 89:104:103:119⟩ | £103 £,104 £,89 £,74
 	extend('10205') #   blue:14	# adj: [orange:14, yellow:14,    red:14, violet:14,  green:14] | ⟨ 70: 71: 72: 73: 74⟩ | £,74  
 	extend('10305') #   blue:15 # adj: [yellow:15,    red:15, violet:15, orange:15,  green:15] | ⟨ 75: 76: 77: 78: 79⟩ | £.79 
-	extend('11105') #   blue:17 # adj: [orange:17,    red:17, yellow:17, violet:17,  green:17] | ⟨ 85: 86: 87: 88: 89⟩ | £,89 
+	# extend('11105') #   blue:17 # adj: [orange:17,    red:17, yellow:17, violet:17,  green:17] | ⟨ 85: 86: 87: 88: 89⟩ | £,89 
 	extend('11205') #   blue:18 # adj: [   red:18, yellow:18, violet:18, orange:18,  green:18] | ⟨ 90: 91: 92: 93: 94⟩ | £.94 
 	extend('12004') #  green:20 # adj: [  blue:20, orange:21,    red:6,  violet:19, yellow:23] | ⟨100:104:108:112:116⟩ | £,104 
 	extend('12013') #  green:21 # adj: [orange:20,   blue:21,    red:22, violet:11, yellow:14] | ⟨101:105:109:113:117⟩ | £.109
@@ -191,16 +191,16 @@ if __name__ == "__main__":
 	# jmp(1, 5)
 	# jmp(2)	
 			
-	extend('01222') # 0/2
-	extend('01022') # 0/2
+	# extend('01222') # 0/2
+	# extend('01022') # 0/2
 	# extend('01230') # 0/2
 	# extend('01103') # 0/2
-	extend('01122') # 1/2
-	extend('01323') # 0/1
-	extend('02204') # 0/1
-	extend('02231') # 0/1
-	
-	extend('01230') # 0/1
+	# extend('01122') # 1/2
+	# extend('01323') # 0/1
+	# extend('02204') # 0/1
+	# extend('02231') # 0/1
+	# 
+	# extend('01230') # 0/1
 			
 	point(diagram)
 	show(diagram)

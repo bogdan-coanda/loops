@@ -1,12 +1,13 @@
 class Node (object):
 	
-	__slots__ = ['perm', 'index', 'cycleIndex', 'address', 'nextLink', 'prevLink', 'loopBrethren', 'chainID', 'px', 'py', 'loop', 'links', 'prevs', 'cycle', 'cycleBrethren', 'ktype', 'showLinksOfTypes', 'tuple']
+	__slots__ = ['index', 'perm', 'address', 'cycle', 'nextLink', 'prevLink', 'loopBrethren', 'chainID', 'px', 'py', 'loop', 'links', 'prevs', 'cycle', 'cycleBrethren', 'ktype', 'showLinksOfTypes', 'tuple']
 	
-	def __init__(self, perm, index, cycleIndex, address, px, py):
-		self.perm = perm
+	def __init__(self, index, perm, address):
 		self.index = index
-		self.cycleIndex = cycleIndex
+		self.perm = perm
 		self.address = address
+		
+		self.cycle = None # set by cycle.__init__(nodes)
 		
 		self.nextLink = None
 		self.prevLink = None
@@ -14,8 +15,8 @@ class Node (object):
 		# each node holds links to its N-2 brethren (nodes that extend into the same loop)
 		self.loopBrethren = set()
 								
-		self.px = px
-		self.py = py
+		self.px = None
+		self.py = None
 						
 		self.loop = None
 		

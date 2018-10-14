@@ -6,12 +6,21 @@ class Cycle (object):
 	
 	__slots__ = ['index', 'address', 'nodes', 'px', 'py', 'isKernel', 'chain', 'marker', 'inner_roots', 'outer_roots']
 	
-	def __init__(self, index, address, px, py):
+	def __init__(self, index, address, nodes):
 		self.index = index
+		
+		self.nodes = nodes
+		for node in self.nodes:
+			# everyone holds a link to its cycle center
+			node.cycle = self
+			node.cycleBrethren = [n for n in self.nodes if n != node]
+		
+		saddr = list(set([node.address[:-1] for node in self.nodes]))
+		assert len(saddr) is 1 and saddr[0] == address, "invalid cycle address: " + str(saddr)
 		self.address = address
-		self.nodes = [] # late init
-		self.px = px
-		self.py = py
+		
+		self.px = 0
+		self.py = 0
 		self.isKernel = False
 		self.chain = None
 		self.marker = None

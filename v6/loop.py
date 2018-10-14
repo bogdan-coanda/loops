@@ -2,7 +2,7 @@ from extension_result import *
 
 class Loop (object):
 	
-	__slots__ = ['index', 'nodes', 'availabled', 'extended', '_root', 'head', 'extension_result', 'seen', '_firstNode', 'ktype', 'ktype_index']
+	__slots__ = ['index', 'nodes', 'availabled', 'extended', '_root', 'head', 'extension_result', 'seen', '_firstNode', 'ktype', 'ktype_columnIndex', 'ktype_radialIndex']
 	
 	def __init__(self, index):
 		self.index = index
@@ -16,7 +16,8 @@ class Loop (object):
 		self._firstNode = None
 		# @generateLoops
 		self.ktype = None
-		self.ktype_index = None
+		self.ktype_columnIndex = None
+		self.ktype_radialIndex = None
 		
 		
 	def root(self):

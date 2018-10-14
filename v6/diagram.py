@@ -5,31 +5,30 @@ from node import Node
 from link import Link
 from loop import Loop
 from chain import Chain
-from uicanvas import show
+from uicanvas import show, setRadialCoords
 from extension_result import ExtensionResult
 import itertools
 import math
 from time import time
 import pickle
+from measures import *
 
 
 class Diagram (object):
 	
 	
-	def __init__(self, N, kernelSize=1, startPerm=None):
+	def __init__(self, N, kernelSize=1):
 		
 		self.spClass = N
 		self.kernelSize = kernelSize
 		self.chainAutoInc = -1
 		self.hasRadialCoords = False
 		
-		self.generateGraph(startPerm)
-																																					
-		self.startPerm = startPerm or self.perms[0]	
-		self.startNode = self.nodeByPerm[self.startPerm]									
+		self.generateGraph()
 
 		# subsets		
 		self.pointers = []
+		self.pointer_avlen = self.spClass
 		
 		# every cycle has its own chain at start
 		for cycle in self.cycles:
@@ -53,112 +52,87 @@ class Diagram (object):
 		self.cleanexCount = 0
 									
 		
-	def generateGraph(self, startPerm):
-				
-		self.perms = ["".join([str(p) for p in perm]) for perm in Permutator(list(range(self.spClass))).results]
+	def generateGraph(self):
 		
-		self.generateNodes(startPerm)
+		self.generateNodes()
+		self.generateCycles()
 		self.generateLinks()
 		self.generateLoops()		
-		
-		
-	def generateNodes(self, startPerm):
-		
-		self.nodes = []
-		self.cycles = []
-		self.nodeByPerm = {}
-		self.nodeByAddress = {}
-		self.cycleByAddress = {}
-		self.chains = set()
-		
-		gn_address = [0] * (self.spClass-1)
-		gn_perm = startPerm or self.perms[0]
-		print("[generateNodes] gn_perm: ", gn_perm)
-		gn_next = gn_perm
-		gn_cc = 0
-		gn_qq = 0
-		gn_all = set()
-		
-		DM = 32
-		RH = 8
-
-		if self.spClass is 8:
-			xydelta = [
-				(0, DM*(self.spClass-2)*(self.spClass-1)), 
-				(DM*((self.spClass-3)*(self.spClass-2)-1), 0), 
-				(DM*(self.spClass-1), 0), 
-				(0, DM*(self.spClass)), 
-				(DM, 0), 
-				(0, DM), 
-				(0, 0)]				
-		elif self.spClass is 7:
-			xydelta = [
-				(DM*((self.spClass-3)*(self.spClass-2)-1), 0), 
-				(DM*(self.spClass-1), 0), 
-				(0, DM*self.spClass), 
-				(DM, 0), 
-				(0, DM), 
-				(0, 0)]
-		elif self.spClass is 6:
-			xydelta = [
-				(0, DM*self.spClass), 
-				(DM*(self.spClass-1), 0), 
-				(DM, 0), 
-				(0, DM), 
-				(0, 0)]
-		elif self.spClass is 5:
-			xydelta = [
-				(DM*(self.spClass-1), 0), 
-				(DM, 0), 
-				(0, DM), 
-				(0, 0)]				
-		elif self.spClass is 4:
-			xydelta = [
-				(DM, 0), 
-				(0, DM), 
-				(0, 0)]				
 						
-		def genNode(lvl = 2, qx = DM, qy = DM):
-			nonlocal gn_address, gn_perm, gn_next, gn_cc, gn_qq, gn_all
-			
-			if lvl == self.spClass + 1:
-				gn_perm = gn_next
-				qLast = gn_address[-1]
-				dx = RH*math.cos((2*qLast - (self.spClass-1)) * math.pi / self.spClass) # math.floor()
-				dy = RH*math.sin((2*qLast - (self.spClass-1)) * math.pi / self.spClass)
-				
-				### 2 * math.pi * ([0..6] - 3 + 0.5) / self.spClass 
-				
-				node = Node(gn_perm, gn_qq, gn_cc, "".join([str(a) for a in gn_address]), qx+dx, qy+dy)
-				self.nodes.append(node)
-				self.cycles[-1].nodes.append(node)
-				self.nodeByPerm[gn_perm] = node
-				self.nodeByAddress[node.address] = node
-				gn_all.add(gn_perm)
-				gn_qq += 1
-				gn_next = D1(gn_perm)
-				return
-				
-			if lvl == self.spClass:
-				cycle = Cycle(gn_cc, "".join([str(a) for a in gn_address[:-1]]), qx, qy)				
-				#cycle.available_loops_count = self.spClass
-				self.cycles.append(cycle)
-				self.cycleByAddress[cycle.address] = cycle
-				 
-				
-			for q in range(0, lvl):
-				gn_address[lvl - 2] = q
-				genNode(lvl + 1, qx + q * xydelta[lvl-2][0], qy + q * xydelta[lvl-2][1])
-				gn_next = DX(self.spClass - lvl + 1, gn_perm)
+		
+	def generateNodes(self):
 
-			if lvl == self.spClass:
-				gn_cc += 1
-																	
-		genNode()
-		self.W = max([cycle.px for cycle in self.cycles]) + DM
-		self.H = max([cycle.py for cycle in self.cycles]) + DM		
+		self.startPerm = "".join([str(x) for x in range(self.spClass)])		
+		self.spgen = SPGenerator(self.startPerm)	
+		self.altgen = self.spgen
+		self.nodes = [Node(i, self.spgen.perms[i], self.spgen.addrs[i]) for i in range(len(self.spgen.perms))]
+		
+		self.nodeByPerm = {}
+		self.nodeByAddress = {}		
+		for node in self.nodes:
+			self.nodeByPerm[node.perm] = node
+			self.nodeByAddress[node.address] = node
+			
+		self.startNode = self.nodeByPerm[self.startPerm]
+					
+		
+	def generateCycles(self):
+		
+		self.cycles = [Cycle(i, k, v) for i,(k,v) in enumerate(sorted(groupby(self.nodes, K = lambda node: node.address[:-1]).items()))]
+					
+		self.cycleByAddress = {}
+		for cycle in self.cycles:
+			self.cycleByAddress[cycle.address] = cycle
+										
+		for cycle in self.cycles:
+			qx = Measures.DM
+			qy = Measures.DM
+			for lvl, q in enumerate([int(x) for x in cycle.address]):
+				qx += q * Measures.xydelta[self.spClass][lvl][0]
+				qy += q * Measures.xydelta[self.spClass][lvl][1]
+			cycle.px = qx
+			cycle.py = qy
+			for node in cycle.nodes:
+				qLast = int(node.address[-1])
+				dx = Measures.RH*math.cos((2*qLast - (self.spClass-1)) * math.pi / self.spClass)
+				dy = Measures.RH*math.sin((2*qLast - (self.spClass-1)) * math.pi / self.spClass)
+				node.px = qx+dx
+				node.py = qy+dy
+
+		self.chains = set()								
+		self.W = max([cycle.px for cycle in self.cycles]) + Measures.DM
+		self.H = max([cycle.py for cycle in self.cycles]) + Measures.DM		
 		#print("generated nodes | WxH: " + str(self.W) + "x" + str(self.H))
-		#assert len(gn_all) == len(self.perms)		
+		
+		
+	def readdress(self, addr):
+		
+		self.altgen = SPGenerator(self.nodeByAddress[addr].perm)
+
+		# readdress cycles
+		for i in range(0, len(self.altgen.perms), self.spClass):
+			curr_cycle = self.nodeByPerm[self.altgen.perms[i]].cycle
+			curr_address = self.altgen.addrs[i]
+			
+			qx = Measures.DM
+			qy = Measures.DM
+			for lvl, q in enumerate([int(x) for x in curr_address]):
+				qx += q * Measures.xydelta[self.spClass][lvl][0]
+				qy += q * Measures.xydelta[self.spClass][lvl][1]	
+			curr_cycle.px = qx
+			curr_cycle.py = qy			
+			
+		# readdress nodes
+		for i in range(len(self.altgen.perms)):
+			curr_node = self.nodeByPerm[self.altgen.perms[i]]
+			curr_address = self.altgen.addrs[i]
+
+			qLast = int(curr_address[-1])
+			dx = Measures.RH*math.cos((2*qLast - (self.spClass-1)) * math.pi / self.spClass)
+			dy = Measures.RH*math.sin((2*qLast - (self.spClass-1)) * math.pi / self.spClass)
+			curr_node.px = curr_node.cycle.px+dx
+			curr_node.py = curr_node.cycle.py+dy			
+		
 		
 		
 	def generateLinks(self):
@@ -190,11 +164,7 @@ class Diagram (object):
 		lix = -1 # current loop index
 		
 		for node in self.nodes:			
-			
-			# everyone holds a link to its cycle center
-			node.cycle = self.cycles[node.cycleIndex]
-			node.cycleBrethren = [n for n in node.cycle.nodes if n != node]
-			
+						
 			# if this node has yet to be included in a loop
 			if node.loop is None:
 				# adapt current loop details to a new loop
@@ -223,34 +193,55 @@ class Diagram (object):
 					lnindex = loopNodes.index(ln)
 					ln.loopBrethren = loopNodes[lnindex+1:] + loopNodes[:lnindex]
 
-		self.loopsByFirstPerm = {}		
+		# memorize loops by smallest perm
+		self.loopByFirstPerm = {}		
 		for loop in self.loops:
 			# collapse ktype			
 			ks = set([node.ktype for node in loop.nodes])
 			assert len(ks) == 1
 			loop.ktype = list(ks)[0]
-			# also, memorize loops by smallest perm
-			self.loopsByFirstPerm[loop.firstPerm()] = loop
+			# memorize
+			self.loopByFirstPerm[loop.firstPerm()] = loop
 			
-		self.loopsByKType = [[] for _ in range(self.spClass)]
-		self.loopsByKType[0] = sorted([loop for loop in self.loops if loop.ktype is 0], key = lambda loop: loop.firstAddress())
-		print("[generateLoops] ktype[0][0]: " + str(self.loopsByKType[0][0]) + " | " + str(self.loopsByKType[0][0].firstAddress()))
+		# I. assign radial indexes to ktype loops based on radial connectivity		
+		self.radialLoopsByKType = [[] for _ in range(self.spClass)]
 		
-		for index, blue_loop in enumerate(self.loopsByKType[0]):
-			blue_loop.ktype_index = index
+		# Ia. assign blue radial indexes (will be the same as the blue column indexes)
+		self.radialLoopsByKType[0] = sorted([loop for loop in self.loops if loop.ktype is 0], key = lambda loop: loop.firstAddress())
+		print("[generateLoops] ktype[0][0]: " + str(self.radialLoopsByKType[0][0]) + " | " + str(self.radialLoopsByKType[0][0].firstAddress()))
+		
+		for index, blue_loop in enumerate(self.radialLoopsByKType[0]):
+			blue_loop.ktype_radialIndex = index
 			for node in blue_loop.nodes:
 				other_loop = node.links[1].next.links[1].next.prevs[2].node.loop
-				other_loop.ktype_index = index
-				assert len(self.loopsByKType[other_loop.ktype]) == index
-				self.loopsByKType[other_loop.ktype].append(other_loop)
+				other_loop.ktype_radialIndex = index # memo its own radial index
+				assert len(self.radialLoopsByKType[other_loop.ktype]) == index
+				self.radialLoopsByKType[other_loop.ktype].append(other_loop)
 								
+		# generate <perm, addr> pairing lists for the rest of the nodes in the zeroth cycle, ordered by ktype
+		self.kgens = [self.spgen]
+		curr_start_node = self.startNode
+		for ktype in range(1, self.spClass):
+			curr_start_node = curr_start_node.prevs[1].node			
+			self.kgens.append(SPGenerator(curr_start_node.perm))	
+	
+		self.columnLoopsByKType = []
+		for ktype in range(self.spClass):
+			curr_loops = [self.nodeByPerm[self.kgens[ktype].perms[j]].prevs[1].node.loop for j in range(0, len(self.kgens[ktype].perms), self.spClass)][::(self.spClass-1)]
+			for index, loop in enumerate(curr_loops):
+				loop.ktype_columnIndex = index # memo its own column index
+			self.columnLoopsByKType.append(curr_loops)
+			# print(ktype)			
+			# for loop in curr_loops:
+			# 	print("ktype: " + str(loop.ktype) + " | " + str(loop) + " | ktype_columnIndex: " + str(loop.ktype_columnIndex) + " | ktype_radialIndex: " + str(loop.ktype_radialIndex))	
+	
 	
 	def generateKernel(self):
 				
 		affected_chains = []
 		bases = []
 		
-		node = self.nodeByPerm[self.perms[0]].prevs[1].node # self.startNode.prevs[1].node
+		node = self.startNode.prevs[1].node # self.startNode.prevs[1].node
 		
 		for kern_index in range(self.kernelSize):			
 			for column_index in range(self.spClass - 2):
@@ -414,6 +405,21 @@ class Diagram (object):
 	def pointToAddressTuple(self, address):
 		self.pointers = list(self.nodeByAddress[address].tuple)
 
+	def point(self):
+		self.pointers = []
+			
+		if len(self.chains) is 1 and len(list(self.chains)[0].cycles) is len(self.cycles):
+			return
+				
+		chain_avlen, smallest_chain_group = (len(self.cycles), [])
+		sorted_chain_groups = sorted(groupby(self.chains, K = lambda chain: len(chain.avloops)).items())
+		if len(sorted_chain_groups) > 0:
+			chain_avlen, smallest_chain_group	= sorted_chain_groups[0]		
+		
+		self.pointer_avlen = chain_avlen
+		self.pointers += itertools.chain(*[[[n for n in loop.nodes if n.cycle.chain is chain][0] for loop in chain.avloops] if chain_avlen is not 0 else chain.cycles for chain in smallest_chain_group])																				
+		#print("[pointing] chain avlen: " + str(chain_avlen))
+	
 
 	def superperm(self, start_addr, end_addr):
 		curr = self.nodeByAddress[start_addr]
@@ -437,82 +443,245 @@ class Diagram (object):
 	def loadExtenders(self):
 		with open('extenders.'+str(self.spClass)+".pkl", 'rb') as infile:	
 			self.extenders = list(pickle.load(infile))
-		self.extenders = [[self.nodeByPerm[perm].loop.firstAddress() for perm in extender] for extender in self.extenders]
+		self.extenders = [[self.nodeByPerm[perm].loop.firstAddress() for perm in extender] for extender in self.extenders]		
+		self.exloops = [[self.nodeByAddress[addr].loop for addr in addrs] for addrs in self.extenders]
 		print("Loaded "+str(len(self.extenders))+" extenders")		
 					
 
-if __name__ == "__main__":
 
-	diagram = Diagram(6, 1)
-	diagram.loadExtenders()
+
+def countColors(loops):
+	return sorted(groupby([loop.ktype for loop in loops], G = lambda g: len(g)).items())
 	
-	print("len: " + str(len(diagram.extenders[0])) + " | " + str(diagram.extenders[0]))
-	
-	for i1, l1 in enumerate(diagram.extenders):
-		for i2, l2 in enumerate(diagram.extenders):
-			if i2 > i1:
-				lx = set(l1).intersection(l2)
-				if len(lx) >= 24:
-					# print("l1: " + str(loops1))
-					# print("l2: " + str(loops2))
-					# print("lx: " + str(lx)) 
-					cloops = [diagram.nodeByAddress[addr].loop for addr in lx]
-					blue_count = len([loop for loop in cloops if loop.ktype == 0])
-					print(str(i1) + "⋂" + str(i2) + " ⇒ " + str(len(lx)) + " | blues: " + str(blue_count))
-					
-					if blue_count >= 10:
-						for loop in cloops:
-							diagram.extendLoop(loop)			
-							
-						show(diagram); input("roots")
-						aloop = diagram.nodeByAddress[list(set(l1).difference(lx))[0]].loop
-						print("trying to extend by aloop: " + str(aloop))
-						diagram.extendLoop(aloop)
-						show(diagram); input("@"+str(i1))																
-						diagram.collapseBack(aloop)
-						bloop = diagram.nodeByAddress[list(set(l2).difference(lx))[0]].loop
-						print("trying to extend by bloop: " + str(bloop))
-						diagram.extendLoop(bloop)
-						show(diagram); input("@"+str(i2))																
-						diagram.collapseBack(bloop)
-												
-						for loop in reversed(cloops):
-							diagram.collapseBack(loop)							
-							
-	
-	grex_blue = groupby(diagram.extenders, K = lambda loops: len([loop for loop in loops if loop.ktype == 0]))
-	# grex_blue_14 = groupby(grex_blue[14], K = lambda loops: str(sorted(groupby([loop.ktype for loop in loops], G = lambda g: len(g)).items())))
-	# print("\n".join(sorted([str(key)+":"+str(len(vals)) for key,vals in grex_blue_14.items()])))
-	# ks = sorted([sorted(groupby([loop.ktype for loop in loops], G = lambda g: len(g)).items()) for loops in grex_blue[14]])
-	# print("\n".join([str(k) for k in ks]))
-									
-	for index, loops in enumerate(grex_blue[14]):
-		ktypes = sorted(groupby([loop.ktype for loop in loops], G = lambda g: len(g)).items())
+def color_string(ktype):
+	if ktype is 0:
+		return "blue"
+	elif ktype is 1:
+		return "green"
+	elif ktype is 2:
+		return "yellow"
+	elif ktype is 3:
+		return "orange"
+	elif ktype is 4:
+		return "red"
+	elif ktype is 5:
+		return "violet"
+	else:
+		return "«·??·»"
 		
+	
+def kstr(loops):	
+	return ", ".join([color_string(k) + ":" + str(v) for k, v in countColors(loops)])
+
+
+if __name__ == "__main__":
+	
+	diagram = Diagram(6, 3)
+	
+	def extend(addr):
+		assert diagram.extendLoop(diagram.nodeByAddress[addr].loop)
+	def collapse(addr):
+		diagram.collapseBack(diagram.nodeByAddress[addr].loop)
+	def single():
+		singles = []
+		diagram.point()
+		while diagram.pointer_avlen == 1 and len(diagram.pointers):
+			singles.append(diagram.pointers[0].loop)
+			diagram.extendLoop(diagram.pointers[0].loop)
+			diagram.point()
+		return singles			
+	def trial(loops, __show__=False):
+		results = []
 		for loop in loops:
-			diagram.extendLoop(loop)			
-		show(diagram); input(str(index) + " | " + str(ktypes))					
-		for loop in reversed(loops):
-			diagram.collapseBack(loop)	
+			if loop.availabled:			
+				diagram.extendLoop(loop)
+				diagram.point()
+				if __show__:
+					show(diagram)
+					if diagram.pointer_avlen == 0:
+						print(" === !!! " + str(0) + " !!! === ")			
+					input("#x | avloops: " + str(len([l for l in diagram.loops if l.availabled])) + " | " + str(loop))
+				
+				singles = single()
+				if __show__:
+					show(diagram)
+					if diagram.pointer_avlen == 0:
+						print(" === !!! " + str(0) + " !!! === ")			
+					input("#x | avloops: " + str(len([l for l in diagram.loops if l.availabled])) + " | " + str(loop) + " | s: " + str(len(singles)))		
+				
+				result = ((diagram.pointer_avlen, -len(singles), len([l for l in diagram.loops if l.availabled]), -len(diagram.pointers)), loop)
+				print("[trial] " + str(result))
+				results.append(result)
+				
+				for l in reversed(singles):
+					diagram.collapseBack(l)					
+				diagram.collapseBack(loop)				
+				
+		print("[trial] ---")
+		grouped = sorted(groupby(results, 
+			K = lambda result: result[0],
+			V = lambda result: result[1]#,
+			#G = lambda g: len(g)
+		).items())
+		print("xxx: " + str([l.firstNode() for l in grouped[0][1]]))
+		diagram.pointers = [l.firstNode() for l in grouped[0][1]]
+		show(diagram)
+		input("(avlen | -singles | availabled | -pointers): loop_count\n" + "\n".join(str(g[0])+": "+str(len(g[1])) for g in grouped) + "\nloops: \n"+"\n".join([str(l) for l in grouped[0][1]]) + "\naddrs: \n"+" ".join([l.firstAddress() for l in grouped[0][1]]))		
+		return grouped[0][1]
+	# diagram.readdress('10041')
+
+	# diagram.readdress('10205')
+	#setRadialCoords(diagram)
 			
-	# diagram = Diagram(7, 4)								
-	# 
-	# diagram.extendLoop(diagram.nodeByAddress['000001'].loop)
-	#diagram.extendLoop(diagram.nodeByAddress['123001'].loop)
-	# diagram.collapseBack(diagram.nodeByAddress['123001'].loop)
-	# diagram.collapseBack(diagram.nodeByAddress['000001'].loop)
-	# 
-	# show(diagram)
-	# 
-	# diagram.pointers = []
-	# affected_nodes = list(itertools.chain(*[loop.nodes for loop in diagram.nodeByAddress['000001'].loop.extension_result.affected_loops]))
-	# for cycle in diagram.cycles:
-	# 	if cycle.chain in diagram.nodeByAddress['000001'].loop.extension_result.touched_chains:
-	# 		diagram.pointers += [node for node in cycle.nodes if node in affected_nodes]
-	# show(diagram)
-	# 
-	# diagram.pointers = []	
-	# for cycle in diagram.cycles:
-	# 	if cycle.chain in diagram.nodeByAddress['000001'].loop.extension_result.touched_chains:
-	# 		diagram.pointers.append(cycle)
-	# show(diagram)	
+	# diagram.extendLoop(diagram.nodeByAddress['00001'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['01033'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['02302'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['10030'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['10105'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['10205'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['10305'].loop)	
+	# diagram.extendLoop(diagram.nodeByAddress['11005'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['11105'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['11205'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['11305'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['12013'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['12022'].loop)			
+
+	# diagram.extendLoop(diagram.nodeByAddress['10242'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['12004'].loop)
+			
+	# --- #
+			
+	# diagram.extendLoop(diagram.nodeByAddress['12003'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['10204'].loop)	
+	# diagram.extendLoop(diagram.nodeByAddress['10004'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['10015'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['10021'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['10111'].loop)
+	# diagram.extendLoop(diagram.nodeByAddress['10242'].loop)
+	
+	# extend('11005')
+	# extend('11105')
+	# extend('11205')
+	# extend('11305')
+	
+	# diagram.setLoopUnavailabled(diagram.nodeByAddress['01042'].loop)
+	# diagram.setLoopUnavailabled(diagram.nodeByAddress['02042'].loop)
+	# diagram.setLoopUnavailabled(diagram.nodeByAddress['01343'].loop)
+	# diagram.setLoopUnavailabled(diagram.nodeByAddress['00311'].loop)
+	# diagram.setLoopUnavailabled(diagram.nodeByAddress['00302'].loop)
+	# diagram.setLoopUnavailabled(diagram.nodeByAddress['00343'].loop)
+	# diagram.setLoopUnavailabled(diagram.nodeByAddress['01302'].loop)
+	# diagram.setLoopUnavailabled(diagram.nodeByAddress['01311'].loop)
+	# diagram.setLoopUnavailabled(diagram.nodeByAddress['02302'].loop)
+	# diagram.setLoopUnavailabled(diagram.nodeByAddress['02311'].loop)
+	# diagram.setLoopUnavailabled(diagram.nodeByAddress['02343'].loop)
+	# diagram.setLoopUnavailabled(diagram.nodeByAddress['10003'].loop)
+	# diagram.setLoopUnavailabled(diagram.nodeByAddress['10030'].loop)
+	# diagram.setLoopUnavailabled(diagram.nodeByAddress['11004'].loop)
+	'''
+	# (2, 0, 48, -2): 18
+	# 00001 00033 00042 00302 00311 00343 01001 01033 01042 01302 01311 01343 02001 02033 02042 02302 02311 02343
+	extend('00001')
+	
+	# 00001 ⇒ (2, -3, 34, -14): 2
+	# 01302 02033
+	extend('01302')
+
+	# extend('00033')
+	# extend('01302')
+	# extend('10233')
+	# extend('11104')
+	# extend('12205')
+	# extend('10113')
+	'''
+	diagram.point()
+	show(diagram)
+	input("=== av loops: " + str(len([loop for loop in diagram.loops if loop.availabled])))
+	
+	pointloops0 = [l for l in diagram.loops if l.availabled] # [node.loop for node in diagram.pointers]
+
+	pointloops0 = trial(pointloops0)
+	
+	for loop0 in pointloops0:
+		if loop0.availabled:			
+			diagram.extendLoop(loop0)
+			diagram.point()
+			show(diagram)
+			if diagram.pointer_avlen == 0:
+				print(" === !!! " + str(0) + " !!! === ")			
+			input("#0 | avloops: " + str(len([l for l in diagram.loops if l.availabled])) + " | " + str(loop0))
+			
+			singles0 = single()
+			show(diagram)
+			if diagram.pointer_avlen == 0:
+				print(" === !!! " + str(0) + " !!! === ")			
+			input("#0 | avloops: " + str(len([l for l in diagram.loops if l.availabled])) + " | " + str(loop0) + " | s: " + str(len(singles0)))
+						
+			# pointloops1 = [node.loop for node in diagram.pointers]
+			# for loop1 in pointloops1:
+			# 	if loop1.availabled:
+			# 		diagram.extendLoop(loop1)
+			# 		diagram.point()
+			# 		show(diagram)
+			# 		if diagram.pointer_avlen == 0:
+			# 			print(" === !!! " + str(0) + " !!! === ")					
+			# 		input("#0: " + str(loop0) + " | s: " + str(len(singles0)) + "\n#1: " + str(loop1))
+			# 
+			# 		singles1 = single()
+			# 		show(diagram)
+			# 		if diagram.pointer_avlen == 0:
+			# 			print(" === !!! " + str(0) + " !!! === ")
+			# 		input("#0: " + str(loop0) + " | s: " + str(len(singles0)) + "\n#1: " + str(loop1) + " | s: " + str(len(singles1)))
+			# 
+			# 		pointloops2 = [node.loop for node in diagram.pointers]																										
+			# 		for loop2 in pointloops2:
+			# 			if loop2.availabled:
+			# 				diagram.extendLoop(loop2)
+			# 				diagram.point()
+			# 				show(diagram)
+			# 				if diagram.pointer_avlen == 0:
+			# 					print(" === !!! " + str(0) + " !!! === ")							
+			# 				input("#0: " + str(loop0) + " | s: " + str(len(singles0)) + "\n#1: " + str(loop1) + " | s: " + str(len(singles1)) + "\n#2: " + str(loop2))
+			# 
+			# 				singles2 = single()
+			# 				show(diagram)
+			# 				if diagram.pointer_avlen == 0:
+			# 					print(" === !!! " + str(0) + " !!! === ")							
+			# 				input("#0: " + str(loop0) + " | s: " + str(len(singles0)) + "\n#1: " + str(loop1) + " | s: " + str(len(singles1)) + "\n#2: " + str(loop2) + " | s: " + str(len(singles2)))
+			# 
+			# 				pointloops3 = [node.loop for node in diagram.pointers]
+			# 				for loop3 in pointloops3:
+			# 					if loop3.availabled:			
+			# 						diagram.extendLoop(loop3)
+			# 						diagram.point()
+			# 						show(diagram)
+			# 						if diagram.pointer_avlen == 0:
+			# 							print(" === !!! " + str(0) + " !!! === ")			
+			# 						input("#0: " + str(loop0) + " | s: " + str(len(singles0)) + "\n#1: " + str(loop1) + " | s: " + str(len(singles1)) + "\n#2: " + str(loop2) + " | s: " + str(len(singles2)) + "\n#3: " + str(loop3))									
+			# 						singles3 = single()
+			# 						show(diagram)
+			# 						if diagram.pointer_avlen == 0:
+			# 							print(" === !!! " + str(0) + " !!! === ")			
+			# 						input("#0: " + str(loop0) + " | s: " + str(len(singles0)) + "\n#1: " + str(loop1) + " | s: " + str(len(singles1)) + "\n#2: " + str(loop2) + " | s: " + str(len(singles2)) + "\n#3: " + str(loop3) + " | s: " + str(len(singles3)))									
+			# 
+			# 						for loop in reversed(singles3):
+			# 							diagram.collapseBack(loop)					
+			# 						diagram.collapseBack(loop3)
+			# 				for loop in reversed(singles2):
+			# 					diagram.collapseBack(loop)
+			# 				diagram.collapseBack(loop2)										
+			# 		for loop in reversed(singles1):
+			# 			diagram.collapseBack(loop)							
+			# 		diagram.collapseBack(loop1)	
+			for loop in reversed(singles0):
+				diagram.collapseBack(loop)					
+			diagram.collapseBack(loop0)
+			
+# [~] for each loop test to choose the one that leaves the smallest chain_avlen behind			
+
+# [~] for a loop, test all available combinations of chaining its cycles without this loop
+			
+		
+		
+							

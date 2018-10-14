@@ -2,23 +2,62 @@ class Permutator (object):
 	
 	def __init__(self, inputArr):
 		self.results = []
-#		print("[permutator] input: " + str(inputArr))
+		# print("[permutator] input: " + str(inputArr))
 		self.permute(inputArr, [])
 	
 	def permute(self, arr, memo):
-#		print("[permute] start | arr: " + str(arr) + " | memo: " + str(memo))
+		# print("[permute] start | arr: " + str(arr) + " | memo: " + str(memo))
 		for i in range(len(arr)):
 			curr = arr[i]
 			del arr[i]
-#			print("[permute] i: " + str(i) + " | cur: " + str(curr) + " | arr: " + str(arr) + " | memo: " + str(memo))
+			# print("[permute] i: " + str(i) + " | cur: " + str(curr) + " | arr: " + str(arr) + " | memo: " + str(memo))
 			if len(arr) == 0:
 				self.results += [memo + [curr]]
-#				print("[permute] pushed result: " + str(self.results[-1]))
+				# print("[permute] pushed result: " + str(self.results[-1]))
 						
 			self.permute(arr, memo + [curr]);
 			arr.insert(i, curr)
-#			print("[permute] after splice i: " + str(i) + " | cur[0]: " + str(curr) + " | arr: " + str(arr))
-#		print("[permute] on return: " + str(self.results))
+			# print("[permute] after splice i: " + str(i) + " | cur[0]: " + str(curr) + " | arr: " + str(arr))
+		# print("[permute] on return: " + str(self.results))
+
+
+class SPGenerator(object):
+	
+	def __init__(self, startPerm):
+		self.N = len(startPerm)
+		
+		curr_addr = '0' * (self.N-1)
+		curr_perm = startPerm
+		next_perm = curr_perm
+		gn_cc = 0
+		gn_qq = 0
+		
+		self.perms = []
+		self.addrs = []
+		
+		def next(lvl = 2):
+			nonlocal curr_addr, curr_perm, next_perm
+			
+			if lvl == self.N + 1:
+				curr_perm = next_perm
+
+				# print("appending @" + str(len(self.perms)) + ": ⟨" + curr_perm + "|" + curr_addr + "⟩")
+				
+				self.perms.append(curr_perm)
+				self.addrs.append(curr_addr)
+
+				next_perm = D1(curr_perm)
+				return
+								
+			for q in range(0, lvl):
+				curr_addr = curr_addr[:lvl-2] + str(q) + curr_addr[lvl-1:]
+				next(lvl + 1)
+				next_perm = DX(self.N - lvl + 1, curr_perm)
+																	
+		next()
+		
+		
+	
 
 def D1(perm):
 	return perm[1:] + perm[0] 
@@ -45,6 +84,10 @@ def R5(perm): return RX(5,perm)
 def R6(perm): return RX(6,perm)
 
 if __name__ == "__main__":
+		
+	sp = SPGenerator("0123")
+	
+	print("###")
 		
 	p = Permutator([0,1,2,3,4])
 	
