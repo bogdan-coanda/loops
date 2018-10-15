@@ -39,7 +39,7 @@ if __name__ == "__main__":
 			
 			for il_1, loop_1 in enumerate(avloops_1):
 				diagram.extendLoop(loop_1)
-				singles_1 = single()					
+				singles_1 = single()
 		
 				result = ((diagram.pointer_avlen, (-len(singles_0), -len(singles_1)), len([l for l in diagram.loops if l.availabled]), -len(diagram.pointers)), (loop_0, loop_1))
 				#print("[trial] " + str(result))
@@ -63,4 +63,4 @@ if __name__ == "__main__":
 	).items())
 	diagram.pointers = chain(*[[l.firstNode() for l in ls] for ls in grouped[0][1]])
 	show(diagram)
-	input("(avlen | -singles | availabled | -pointers): loop_count\n" + "\n".join(str(g[0])+": "+str(len(g[1])) for g in grouped) + "\nloops: \n"+"\n".join([str(l) for l in grouped[0][1]]) + "\naddrs: \n"+" ".join([l.firstAddress() for l in grouped[0][1]]))				
+	input("(avlen | -singles | availabled | -pointers): loop_count\n" + "\n".join(str(g[0])+": "+str(len(g[1])) for g in grouped) + "\nloops: \n"+"\n".join(itertools.chain(*[[str(l) for l in ls] for ls in grouped[0][1]]) + "\naddrs: \n"+" ".join(itertools.chain(*[[l.firstAddress() for l in ls] for ls in grouped[0][1]]))))				
