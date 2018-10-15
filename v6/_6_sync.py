@@ -63,4 +63,4 @@ if __name__ == "__main__":
 	).items())
 	diagram.pointers = chain(*[[l.firstNode() for l in ls] for ls in grouped[0][1]])
 	show(diagram)
-	input("(avlen | -singles | availabled | -pointers): loop_count\n" + "\n".join(str(g[0])+": "+str(len(g[1])) for g in grouped) + "\nloops: \n"+"\n".join(itertools.chain(*[[str(l) for l in ls] for ls in grouped[0][1]]) + "\naddrs: \n"+" ".join(itertools.chain(*[[l.firstAddress() for l in ls] for ls in grouped[0][1]]))))				
+	input("(avlen | -singles | availabled | -pointers): loop_count\n" + "\n".join(str(g[0])+": "+str(len(g[1])) for g in grouped) + "\nloops: \n"+"\n".join(list(itertools.chain(*[[str(l) for l in ls] for ls in grouped[0][1]]))) + "\naddrs: \n"+" ".join(list(itertools.chain(*[[l.firstAddress() for l in ls] for ls in grouped[0][1]]))))				
