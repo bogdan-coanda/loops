@@ -1,5 +1,7 @@
 from diagram import *
 from uicanvas import *
+from common import *
+from time import time
 
 
 if __name__ == "__main__":
@@ -36,14 +38,17 @@ if __name__ == "__main__":
 				#result = ((diagram.pointer_avlen, -len(singles), len([l for l in diagram.loops if l.availabled]), -len(diagram.pointers)), loop)				
 				for l in reversed(singles):
 					diagram.collapseBack(l)					
-				diagram.collapseBack(loop)						
+				diagram.collapseBack(loop)	
+				if len(zeroes):
+					break				
 		return (zeroes, avLoop, bestAv)
 		
 	qq = -1
+	startTime = time()
 	def next(lvl=0):
 		global qq
 		if len(diagram.chains) is 1 and len(list(diagram.chains)[0].cycles) is len(diagram.cycles):
-			show(diagram); input("[lvl:"+str(lvl)+"|ext:"+str(len([l for l in diagram.loops if l.extended]))+"] SOLUTION!!!")
+			show(diagram); input("["+tstr(time() - startTime)+"][qq:"+str(qq)+"][lvl:"+str(lvl)+"|ext:"+str(len([l for l in diagram.loops if l.extended]))+"] SOLUTION!!!")
 			
 		lvl_seen = []
 		
@@ -53,11 +58,11 @@ if __name__ == "__main__":
 			if len(avloops) == 0 or len([chain for chain in diagram.chains if len(chain.avloops) == 0]): # no loops to trial or has unreachable chains
 				break
 			
-			print("[qq:"+str(qq)+"][lvl:"+str(lvl)+"|ext:"+str(len([l for l in diagram.loops if l.extended]))+"|seen:"+str(len(lvl_seen))+"] avloops: " + str(len(avloops)))					
+			print("["+tstr(time() - startTime)+"][qq:"+str(qq)+"][lvl:"+str(lvl)+"|ext:"+str(len([l for l in diagram.loops if l.extended]))+"|seen:"+str(len(lvl_seen))+"] avloops: " + str(len(avloops)))					
 			zeroes, avLoop, bestAv = trial(avloops)			
 			
 			if len(zeroes):
-				print("[qq:"+str(qq)+"][lvl:"+str(lvl)+"|ext:"+str(len([l for l in diagram.loops if l.extended]))+"|seen:"+str(len(lvl_seen))+"] trial | zeroes: " + str(len(zeroes)))
+				print("["+tstr(time() - startTime)+"][qq:"+str(qq)+"][lvl:"+str(lvl)+"|ext:"+str(len([l for l in diagram.loops if l.extended]))+"|seen:"+str(len(lvl_seen))+"] trial | zeroes: " + str(len(zeroes)))
 				for loop in zeroes:
 					diagram.setLoopUnavailabled(loop)
 					lvl_seen.append(loop)
@@ -65,7 +70,7 @@ if __name__ == "__main__":
 			else:
 				diagram.extendLoop(avLoop)
 				singles = single()
-				print("[qq:"+str(qq)+"][lvl:"+str(lvl)+"|ext:"+str(len([l for l in diagram.loops if l.extended]))+"|seen:"+str(len(lvl_seen))+"] trial: " + str(bestAv) + " | loop: " + str(avLoop))				
+				print("["+tstr(time() - startTime)+"][qq:"+str(qq)+"][lvl:"+str(lvl)+"|ext:"+str(len([l for l in diagram.loops if l.extended]))+"|seen:"+str(len(lvl_seen))+"] trial: " + str(bestAv) + " | loop: " + str(avLoop))				
 				if lvl > 17:
 					show(diagram); input()
 				
