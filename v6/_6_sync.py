@@ -3,6 +3,7 @@ from uicanvas import *
 from common import *
 from itertools import chain
 from time import time
+from collections import defaultdict
 
 if __name__ == "__main__":
 	
@@ -34,7 +35,7 @@ if __name__ == "__main__":
 				return singles
 					
 									
-	results = []		
+	results = defaultdict(list)		
 	
 	startTime = time()
 	
@@ -58,9 +59,9 @@ if __name__ == "__main__":
 						
 						singles = single()
 						if diagram.pointer_avlen == 0:
-							results.append(((0, 0, -len(singles)), [l.firstAddress() for l in [loop0, loop1, loop2]]))										
+							results[(0, 0, -len(singles))].append([l.firstAddress() for l in [loop0, loop1, loop2]])
 						else:
-							results.append(((len([l for l in avloops if l.availabled]), diagram.pointer_avlen, -len(singles)), [l.firstAddress() for l in [loop0, loop1, loop2]]))
+							results[(len([l for l in avloops if l.availabled]), diagram.pointer_avlen, -len(singles))].append([l.firstAddress() for l in [loop0, loop1, loop2]])
 	
 						if i1 % 20 == 0 and i2 % 20 == 0:
 							print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlen))	
@@ -73,11 +74,7 @@ if __name__ == "__main__":
 		diagram.collapseBack(loop0)
 			
 	print("["+tstr(time() - startTime)+"][trial] ---")
-	grouped = sorted(groupby(results, 
-		K = lambda result: result[0],
-		V = lambda result: result[1]#,
-		#G = lambda g: len(g)
-	).items())
+	grouped = sorted(results.items())
 	diagram.pointers = [diagram.nodeByAddress[addr] for addr in set(chain(*grouped[0][1]))]
 	show(diagram)
 	print("["+tstr(time() - startTime)+"](availabled | pointer_avlen | -singles): loop_count\n" + "\n".join(str(g[0])+": "+str(len(g[1])) for g in grouped) + "\naddrs: \n"+" ".join([str(ls) for ls in grouped[0][1]]))				
