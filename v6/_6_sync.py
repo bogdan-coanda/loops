@@ -14,13 +14,26 @@ if __name__ == "__main__":
 		diagram.collapseBack(diagram.nodeByAddress[addr].loop)
 	def single():
 		singles = []
-		diagram.point()
-		while diagram.pointer_avlen == 1 and len(diagram.pointers):
-			singles.append(diagram.pointers[0].loop)
-			diagram.extendLoop(diagram.pointers[0].loop)
-			diagram.point()
-		return singles			
-		
+		diagram.pointer_avlen = diagram.spClass
+		while True:
+			found = False
+			for chain in diagram.chains:
+				avlen = len(chain.avloops)
+				if avlen == 0:
+					diagram.pointer_avlen = 0
+					return singles
+				elif avlen == 1:
+					avloop = list(chain.avloops)[0]
+					singles.append(avloop)
+					diagram.extendLoop(avloop)					
+					found = True
+					break
+				elif avlen < diagram.pointer_avlen:
+					diagram.pointer_avlen = avlen
+			if not found:
+				return singles
+					
+									
 	results = []		
 	
 	startTime = time()
@@ -49,7 +62,7 @@ if __name__ == "__main__":
 						else:
 							results.append(((len([l for l in avloops if l.availabled]), diagram.pointer_avlen, -len(singles)), [l.firstAddress() for l in [loop0, loop1, loop2]]))
 	
-						if i2 < i1+5:
+						if i1 % 20 == 0 and i2 % 20 == 0:
 							print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlen))	
 	
 						for l in reversed(singles):
