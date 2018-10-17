@@ -7,7 +7,7 @@ from collections import defaultdict
 
 if __name__ == "__main__":
 	
-	diagram = Diagram(6, 3)
+	diagram = Diagram(7, 4)
 	
 	def extend(addr):
 		assert diagram.extendLoop(diagram.nodeByAddress[addr].loop)
@@ -35,9 +35,10 @@ if __name__ == "__main__":
 				return singles
 					
 									
-	results = defaultdict(list)		
+	results = defaultdict(int)		
 	
 	startTime = time()
+	extend('000001')
 	
 	avloops = [l for l in diagram.loops if l.availabled]
 	avlen = len(avloops)
@@ -59,11 +60,11 @@ if __name__ == "__main__":
 						
 						singles = single()
 						if diagram.pointer_avlen == 0:
-							results[(0, 0, -len(singles))].append([l.firstAddress() for l in [loop0, loop1, loop2]])
+							results[(0, 0, -len(singles))] += 1
 						else:
-							results[(len([l for l in avloops if l.availabled]), diagram.pointer_avlen, -len(singles))].append([l.firstAddress() for l in [loop0, loop1, loop2]])
+							results[(len([l for l in avloops if l.availabled]), diagram.pointer_avlen, -len(singles))] += 1
 					
-						if i1 % 20 == 0 and i2 % 20 == 0:
+						if i2 % 300 == 0:
 							print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlen))	
 	
 						for l in reversed(singles):
@@ -72,14 +73,21 @@ if __name__ == "__main__":
 						diagram.collapseBack(loop2)
 				diagram.collapseBack(loop1)
 		diagram.collapseBack(loop0)
-		with open("_6sync3results.txt", 'a') as log:
+		with open("_7sync4results.txt", 'a') as log:
 			for k,v in results.items():
 				log.write(str(k) + " : " + str(v) + "\n")
 		results.clear()
 			# log.write(str(0 if diagram.pointer_avlen is 0 else len([l for l in avloops if l.availabled])) + " " + str(diagram.pointer_avlen) + " " + str(-len(singles)) + " " + loop0.firstAddress() + " " + loop1.firstAddress() + " " + loop2.firstAddress() + "\n")		
 			
-	print("["+tstr(time() - startTime)+"][trial] ---")
+	print("["+tstr(time() - startTime)+"][trial] »»» ---")
+	with open("_7sync4results.txt", 'r') as log:
+		lines = log.read().splitlines()
+		for line in lines:
+			key = tuple(int(x) for x in line.split(" : ")[0][1:-1].split(", "))
+			val = int(lines[0].split(" : ")[1])
+			results[key] += val
+		
 	grouped = sorted(results.items())
-	diagram.pointers = [diagram.nodeByAddress[addr] for addr in set(chain(*grouped[0][1]))]
+	#diagram.pointers = [diagram.nodeByAddress[addr] for addr in set(chain(*grouped[0][1]))]
 	show(diagram)
-	print("["+tstr(time() - startTime)+"](availabled | pointer_avlen | -singles): loop_count\n" + "\n".join(str(g[0])+": "+str(len(g[1])) for g in grouped) + "\naddrs: \n"+" ".join([str(ls) for ls in grouped[0][1]]))				
+	print("["+tstr(time() - startTime)+"](availabled | pointer_avlen | -singles): loop_count\n" + "\n".join(str(g[0])+": "+str(g[1]) for g in grouped))				
