@@ -86,7 +86,7 @@ if __name__ == "__main__":
 		results.clear()
 		'''
 		with open("_7sync4zeroes.txt", 'a') as log:
-			log.write("=== i0: " + str(i0) + " | " + str(len(zeroes)) + " ===")			
+			log.write("=== i0: " + str(i0) + " | " + str(len(zeroes)) + " ===\n")			
 			for addrs in zeroes:
 				log.write(" ".join(addrs) + "\n")
 		zeroes.clear()
