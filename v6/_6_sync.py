@@ -36,6 +36,7 @@ if __name__ == "__main__":
 					
 									
 	results = defaultdict(int)		
+	zeroes = []
 	
 	startTime = time()
 	extend('000001')
@@ -56,28 +57,41 @@ if __name__ == "__main__":
 				for i2 in range(i1+1, avlen): 
 					loop2 = avloops[i2]
 					if loop2.availabled:
-						diagram.extendLoop(loop2)
+						diagram.extendLoop(loop2)						
+						#singles = single()
 						
-						singles = single()
+						if diagram.pointer_avlen == 0:
+							zeroes.append((loop0.firstAddress(), loop1.firstAddress(), loop2.firstAddress()))
+							
+						'''
 						if diagram.pointer_avlen == 0:
 							results[(0, 0, -len(singles))] += 1
 						else:
 							results[(len([l for l in avloops if l.availabled]), diagram.pointer_avlen, -len(singles))] += 1
-					
+						'''
+						
 						if i2 % 300 == 0:
 							print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlen))	
 	
-						for l in reversed(singles):
-							diagram.collapseBack(l)		
+						#for l in reversed(singles):
+							#diagram.collapseBack(l)		
 										
 						diagram.collapseBack(loop2)
 				diagram.collapseBack(loop1)
 		diagram.collapseBack(loop0)
+		'''
 		with open("_7sync4results.txt", 'a') as log:
 			for k,v in results.items():
 				log.write(str(k) + " : " + str(v) + "\n")
 		results.clear()
-			# log.write(str(0 if diagram.pointer_avlen is 0 else len([l for l in avloops if l.availabled])) + " " + str(diagram.pointer_avlen) + " " + str(-len(singles)) + " " + loop0.firstAddress() + " " + loop1.firstAddress() + " " + loop2.firstAddress() + "\n")		
+		'''
+		with open("_7sync4zeroes.txt", 'a') as log:
+			log.write("=== i0: " + str(i0) + " | " + str(len(zeroes)) + " ===")			
+			for addrs in zeroes:
+				log.write(" ".join(addrs) + "\n")
+		zeroes.clear()
+			
+		# log.write(str(0 if diagram.pointer_avlen is 0 else len([l for l in avloops if l.availabled])) + " " + str(diagram.pointer_avlen) + " " + str(-len(singles)) + " " + loop0.firstAddress() + " " + loop1.firstAddress() + " " + loop2.firstAddress() + "\n")		
 			
 	print("["+tstr(time() - startTime)+"][trial] »»» ---")
 	with open("_7sync4results.txt", 'r') as log:
