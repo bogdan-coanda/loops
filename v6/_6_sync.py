@@ -62,7 +62,7 @@ if __name__ == "__main__":
 							results[(0, 0, -len(singles))].append([l.firstAddress() for l in [loop0, loop1, loop2]])
 						else:
 							results[(len([l for l in avloops if l.availabled]), diagram.pointer_avlen, -len(singles))].append([l.firstAddress() for l in [loop0, loop1, loop2]])
-	
+					
 						if i1 % 20 == 0 and i2 % 20 == 0:
 							print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlen))	
 	
@@ -72,6 +72,11 @@ if __name__ == "__main__":
 						diagram.collapseBack(loop2)
 				diagram.collapseBack(loop1)
 		diagram.collapseBack(loop0)
+		with open("_6sync3results.txt", 'a') as log:
+			for k,v in results.items():
+				log.write(str(k) + " : " + str(v) + "\n")
+		results.clear()
+			# log.write(str(0 if diagram.pointer_avlen is 0 else len([l for l in avloops if l.availabled])) + " " + str(diagram.pointer_avlen) + " " + str(-len(singles)) + " " + loop0.firstAddress() + " " + loop1.firstAddress() + " " + loop2.firstAddress() + "\n")		
 			
 	print("["+tstr(time() - startTime)+"][trial] ---")
 	grouped = sorted(results.items())
