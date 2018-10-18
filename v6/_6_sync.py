@@ -58,7 +58,7 @@ if __name__ == "__main__":
 					loop2 = avloops[i2]
 					if loop2.availabled:
 						diagram.extendLoop(loop2)						
-						#singles = single()
+						singles = single()
 						
 						if diagram.pointer_avlen == 0:
 							zeroes.append((loop0.firstAddress(), loop1.firstAddress(), loop2.firstAddress()))
@@ -73,8 +73,8 @@ if __name__ == "__main__":
 						if i2 % 300 == 0:
 							print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlen))	
 	
-						#for l in reversed(singles):
-							#diagram.collapseBack(l)		
+						for l in reversed(singles):
+							diagram.collapseBack(l)		
 										
 						diagram.collapseBack(loop2)
 				diagram.collapseBack(loop1)
