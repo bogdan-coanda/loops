@@ -48,20 +48,22 @@ if __name__ == "__main__":
 	for i0 in range(avlen):
 		loop0 = avloops[i0]		
 		diagram.extendLoop(loop0)
-				
+		singles0 = single()				
+		
 		for i1 in range(i0+1, avlen):
 			loop1 = avloops[i1]
 			if loop1.availabled:
 				diagram.extendLoop(loop1)
+				singles1 = single()
 				
 				for i2 in range(i1+1, avlen): 
 					loop2 = avloops[i2]
 					if loop2.availabled:
 						diagram.extendLoop(loop2)						
-						singles = single()
+						singles2 = single()
 						
 						if diagram.pointer_avlen == 0:
-							zeroes.append((loop0.firstAddress(), loop1.firstAddress(), loop2.firstAddress()))
+							zeroes.append((len(singles0), len(singles1), len(singles2), loop0.firstAddress(), loop1.firstAddress(), loop2.firstAddress()))
 							
 						'''
 						if diagram.pointer_avlen == 0:
@@ -73,11 +75,16 @@ if __name__ == "__main__":
 						if i2 % 300 == 0:
 							print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlen))	
 	
-						for l in reversed(singles):
-							diagram.collapseBack(l)		
-										
+						for l in reversed(singles2):
+							diagram.collapseBack(l)												
 						diagram.collapseBack(loop2)
+						
+				for l in reversed(singles1):
+					diagram.collapseBack(l)								
 				diagram.collapseBack(loop1)
+				
+		for l in reversed(singles0):
+			diagram.collapseBack(l)						
 		diagram.collapseBack(loop0)
 		'''
 		with open("_7sync4results.txt", 'a') as log:
@@ -85,7 +92,7 @@ if __name__ == "__main__":
 				log.write(str(k) + " : " + str(v) + "\n")
 		results.clear()
 		'''
-		with open("_7sync4zeroes.txt", 'a') as log:
+		with open("_7sync4zeroessingled.txt", 'a') as log:
 			log.write("=== i0: " + str(i0) + " | " + str(len(zeroes)) + " ===\n")			
 			for addrs in zeroes:
 				log.write(" ".join(addrs) + "\n")
@@ -98,7 +105,7 @@ if __name__ == "__main__":
 		lines = log.read().splitlines()
 		for line in lines:
 			key = tuple(int(x) for x in line.split(" : ")[0][1:-1].split(", "))
-			val = int(lines[0].split(" : ")[1])
+			val = int(line.split(" : ")[1])
 			results[key] += val
 		
 	grouped = sorted(results.items())
