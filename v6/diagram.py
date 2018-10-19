@@ -280,10 +280,7 @@ class Diagram (object):
 			
 		loop.extended = True
 						
-		affected_chains = []
-		
-		for node in loop.nodes:
-			affected_chains.append(node.cycle.chain)
+		affected_chains = [node.cycle.chain for node in loop.nodes]
 		
 		new_chain, affected_loops, touched_chains = self.makeChain(affected_chains)				
 		
@@ -453,22 +450,6 @@ class Diagram (object):
 def countColors(loops):
 	return sorted(groupby([loop.ktype for loop in loops], G = lambda g: len(g)).items())
 	
-def color_string(ktype):
-	if ktype is 0:
-		return "blue"
-	elif ktype is 1:
-		return "green"
-	elif ktype is 2:
-		return "yellow"
-	elif ktype is 3:
-		return "orange"
-	elif ktype is 4:
-		return "red"
-	elif ktype is 5:
-		return "violet"
-	else:
-		return "«·??·»"
-		
 	
 def kstr(loops):	
 	return ", ".join([color_string(k) + ":" + str(v) for k, v in countColors(loops)])

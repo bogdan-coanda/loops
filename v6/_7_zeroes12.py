@@ -55,12 +55,20 @@ if __name__ == "__main__":
 	# extend('100243')
 	
 	singles = single()
-	
-	
-	diagram.pointers = list(itertools.chain(*[chain.cycles for chain in diagram.chains if len(chain.avloops) == 0]))
+		
+	diagram.point()
 	print("pointers: " + str(len(diagram.pointers)))
 	show(diagram)
 	print("singles: " + str(len(singles)))
+	
+	l1 = diagram.nodeByAddress['100242'].loop;
+	l2 = diagram.nodeByAddress['100243'].loop;
+	lq = diagram.nodeByAddress['120343'].loop;
+			
+	print("lq: " + str(lq))
+	print("l1.killingField: " + str(l1.killingField()))
+	print("l2.killingField: " + str(l2.killingField()))
+	print("intersected: " + str(l1._killingField.intersection(l2._killingField)))
 	
 	# 6 | loops: 013152 100106 120154 | dead cycles: 10005
 
@@ -118,7 +126,7 @@ if __name__ == "__main__":
 	#11 | loops: 023152 100102 113023 | dead cycles: 11310
 																		
 	#ordered = [6, 7, 0, 11, 3, 4, 5, 1, 2, 8, 9, 10]
-			
+				
 	'''
 	for index, addrs in enumerate(zeroes):
 	#for index in ordered:
