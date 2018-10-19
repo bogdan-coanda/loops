@@ -261,7 +261,7 @@ class Diagram (object):
 				node = node.loopBrethren[-1].nextLink.next.prevs[1].node																		
 																							
 		self.chainAutoInc = -1
-		new_chain, affected_loops, touched_chains = self.makeChain(affected_chains)
+		new_chain, affected_loops = self.makeChain(affected_chains)
 				
 
 	### ~~~ extensions ~~~ ###	
@@ -282,7 +282,7 @@ class Diagram (object):
 						
 		affected_chains = [node.cycle.chain for node in loop.nodes]
 		
-		new_chain, affected_loops, touched_chains = self.makeChain(affected_chains)				
+		new_chain, affected_loops = self.makeChain(affected_chains)				
 		
 		#for node in loop.nodes:
 			#assert not node.links[1].next.loop.availabled and not node.prevs[1].node.loop.availabled, "broken extension neighbours!!!"
@@ -292,7 +292,7 @@ class Diagram (object):
 				#assert self.checkAvailability(lp), "broken checked loops"
 				
 		#assert len([node for node in loop.nodes if node.links[1].next.loop.availabled or node.prevs[1].node.loop.availabled]) is 0, "broken extension neighbours!!!"		
-		loop.extension_result.setDetails(new_chain, affected_loops, affected_chains, touched_chains)
+		loop.extension_result.setDetails(new_chain, affected_loops, affected_chains)
 
 		##assert set(list(itertools.chain(*[chain.avloops for chain in diagram.chains]))) == set([loop for loop in diagram.loops if loop.availabled and len([n for n in loop.nodes if n.cycle.chain])])
 		
@@ -340,7 +340,6 @@ class Diagram (object):
 		new_chain = Chain(self.chainAutoInc)
 		# print("creating new chain: " + str(new_chain))
 		affected_loops = []
-		touched_chains = set()
 		
 		# for each old chain
 		for index, old_chain in enumerate(affected_chains):
@@ -364,7 +363,6 @@ class Diagram (object):
 					if not self.checkAvailability(loop):
 						# remember erased loop
 						self.setLoopUnavailabled(loop)
-						touched_chains.update([node.cycle.chain for node in loop.nodes])
 						affected_loops.append(loop)
 					else:
 						# move still available loop to new chain
@@ -373,13 +371,10 @@ class Diagram (object):
 		# a new chain is born
 		#print("[makeChain] adding: " + str(new_chain))
 		self.chains.add(new_chain)
-		# if new_chain.id == 33013:
-		# 	print("made chain: 33013")
-		#touched_chains.remove(new_chain)
-		return (new_chain, affected_loops, touched_chains)
+		return (new_chain, affected_loops)
 		
 		
-	def breakChain(self, extension_result): # touched_chains is unused here
+	def breakChain(self, extension_result):
 		#print("[breakChain] removing: " + str(new_chain))
 		# if extension_result.new_chain.id == 33013:
 		# 	print("breaking chain: 33013")

@@ -3,13 +3,12 @@ COERCED_KILL = False
 
 class ExtensionResult (object):
 	
-	__slots__ = ['new_chain', 'affected_loops', 'affected_chains', 'touched_chains', 'reachable', 'temporary_reachable', 'extended_count', 'killed_count', 'coerced_loops', 'temporary_extended_count', 'temporary_killed_count', 'temporary_coerced_loops']
+	__slots__ = ['new_chain', 'affected_loops', 'affected_chains', 'reachable', 'temporary_reachable', 'extended_count', 'killed_count', 'coerced_loops', 'temporary_extended_count', 'temporary_killed_count', 'temporary_coerced_loops']
 	
 	def __init__(self):
 		self.new_chain = None
 		self.affected_loops = None
 		self.affected_chains = None
-		self.touched_chains = None
 						
 		# coerced loops are time-ordered pairs of (loop, bool ? `extended` : `killed`)
 		self.coerced_loops = []
@@ -22,11 +21,10 @@ class ExtensionResult (object):
 		self.temporary_killed_count = 0
 		self.temporary_reachable = None
 		
-	def setDetails(self, new_chain, affected_loops, affected_chains, touched_chains):
+	def setDetails(self, new_chain, affected_loops, affected_chains):
 		self.new_chain = new_chain
 		self.affected_loops = affected_loops
 		self.affected_chains = affected_chains
-		self.touched_chains = touched_chains		
 						
 	def setReachability(self, reachable, temporary):
 		if not temporary:
