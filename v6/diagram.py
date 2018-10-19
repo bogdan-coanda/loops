@@ -314,7 +314,7 @@ class Diagram (object):
 			ichain = loop.nodes[i].cycle.chain
 			for j in range(0, i):
 				jchain = loop.nodes[j].cycle.chain
-				# if the loop would link back to the same chain, or to a different colored (marked) chain
+				# if the loop would link back to the same chain
 				if ichain is jchain:
 					return False
 		return True
