@@ -95,7 +95,7 @@ if __name__ == "__main__":
 		with open("_7sync4zeroessingled.txt", 'a') as log:
 			log.write("=== i0: " + str(i0) + " | " + str(len(zeroes)) + " ===\n")			
 			for addrs in zeroes:
-				log.write(" ".join(addrs) + "\n")
+				log.write(" ".join([str(x) for x in addrs]) + "\n")
 		zeroes.clear()
 			
 		# log.write(str(0 if diagram.pointer_avlen is 0 else len([l for l in avloops if l.availabled])) + " " + str(diagram.pointer_avlen) + " " + str(-len(singles)) + " " + loop0.firstAddress() + " " + loop1.firstAddress() + " " + loop2.firstAddress() + "\n")		
