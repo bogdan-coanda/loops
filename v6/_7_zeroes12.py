@@ -34,6 +34,43 @@ if __name__ == "__main__":
 			if not found:
 				return singles
 				
+	def coerce():
+		singles = []
+		coerced = []
+		diagram.pointer_avlen = diagram.spClass		
+		
+		while True:
+			found = False
+			
+			for chain in diagram.chains:
+				avlen = len(chain.avloops)
+				
+				if avlen == 0:
+					diagram.pointer_avlen = 0
+					return (singles, coerced) 
+
+				elif avlen == 1:
+					avloop = list(chain.avloops)[0]
+					singles.append(avloop)
+					diagram.extendLoop(avloop)					
+					found = True
+					break
+				
+				elif avlen == 2:
+					killingFields = [loop.killingField() for loop in chain.avloops]
+					intersected = killingFields[0].intersection(killingFields[1])
+					if len(intersected):
+						for avloop in intersected:
+							coerced.append(avloop)
+							diagram.setLoopUnavailabled(avloop)
+						found = True																									
+						break
+						
+			if not found:
+				return (singles, coerced)
+				
+				
+				
 	zeroes = []
 	with open("_7sync4zeroessingled.txt", 'r') as log:
 		lines = log.read().splitlines()
@@ -43,24 +80,30 @@ if __name__ == "__main__":
 				
 	extend('000001')
 	
-	extend('013430')
+	extend('001303')
 	# 
-	extend('100023')	
+	# extend('100023')	
 	# extend('100210')	
 	# extend('100220')
 	# 
-	# extend('120343')
+	singles, coerced = coerce()	
+	print("[coerce] singles: " + str(len(singles)) + " | " + str(singles) + " | coerced: " + str(len(coerced)) + " | " + str(coerced))
+		
+	extend('023152')
 	
 	# extend('100242')
 	# extend('100243')
 	
-	singles = single()
-		
+	#singles = single()
+	singles, coerced = coerce()
+	print("[coerce] singles: " + str(len(singles)) + " | " + str(singles) + " | coerced: " + str(len(coerced)) + " | " + str(coerced))
+							
 	diagram.point()
 	print("pointers: " + str(len(diagram.pointers)))
 	show(diagram)
-	print("singles: " + str(len(singles)))
+	print("[coerce] singles: " + str(len(singles)) + " | " + str(singles) + " | coerced: " + str(len(coerced)) + " | " + str(coerced))
 	
+	'''
 	l1 = diagram.nodeByAddress['100242'].loop;
 	l2 = diagram.nodeByAddress['100243'].loop;
 	lq = diagram.nodeByAddress['120343'].loop;
@@ -69,6 +112,7 @@ if __name__ == "__main__":
 	print("l1.killingField: " + str(l1.killingField()))
 	print("l2.killingField: " + str(l2.killingField()))
 	print("intersected: " + str(l1._killingField.intersection(l2._killingField)))
+	'''
 	
 	# 6 | loops: 013152 100106 120154 | dead cycles: 10005
 

@@ -7,6 +7,7 @@ from collections import defaultdict
 
 if __name__ == "__main__":
 	
+	# diagram = Diagram(6, 3)
 	diagram = Diagram(7, 4)
 	
 	def extend(addr):
@@ -34,7 +35,44 @@ if __name__ == "__main__":
 			if not found:
 				return singles
 					
-									
+	def coerce():
+		singles = []
+		coerced = []
+		diagram.pointer_avlen = diagram.spClass		
+		
+		while True:
+			found = False
+			
+			for chain in diagram.chains:
+				avlen = len(chain.avloops)
+				
+				if avlen == 0:
+					diagram.pointer_avlen = 0
+					return (singles, coerced) 
+
+				elif avlen == 1:
+					avloop = list(chain.avloops)[0]
+					singles.append(avloop)
+					diagram.extendLoop(avloop)					
+					found = True
+					break
+				
+				elif avlen == 2:
+					killingFields = [loop.killingField() for loop in chain.avloops]
+					intersected = killingFields[0].intersection(killingFields[1])
+					if len(intersected):
+						for avloop in intersected:
+							coerced.append(avloop)
+							diagram.setLoopUnavailabled(avloop)
+						found = True																									
+						break
+						
+				elif avlen < diagram.pointer_avlen:
+					diagram.pointer_avlen = avlen
+											
+			if not found:
+				return (singles, coerced)
+													
 	results = defaultdict(int)		
 	zeroes = []
 	
@@ -48,60 +86,67 @@ if __name__ == "__main__":
 	for i0 in range(avlen):
 		loop0 = avloops[i0]		
 		diagram.extendLoop(loop0)
-		singles0 = single()				
+		singles0, coerced0 = coerce()				
 		
 		for i1 in range(i0+1, avlen):
 			loop1 = avloops[i1]
 			if loop1.availabled:
 				diagram.extendLoop(loop1)
-				singles1 = single()
+				singles1, coerced1 = coerce()
 				
 				for i2 in range(i1+1, avlen): 
 					loop2 = avloops[i2]
 					if loop2.availabled:
 						diagram.extendLoop(loop2)						
-						singles2 = single()
+						singles2, coerced2 = coerce()
 						
-						if diagram.pointer_avlen == 0:
-							zeroes.append((len(singles0), len(singles1), len(singles2), loop0.firstAddress(), loop1.firstAddress(), loop2.firstAddress()))
-							
 						'''
 						if diagram.pointer_avlen == 0:
-							results[(0, 0, -len(singles))] += 1
-						else:
-							results[(len([l for l in avloops if l.availabled]), diagram.pointer_avlen, -len(singles))] += 1
+							zeroes.append((len(singles0)+len(singles1)+len(singles2), len(coerced0)+len(coerced1)+len(coerced2), loop0.firstAddress(), loop1.firstAddress(), loop2.firstAddress()))							
 						'''
+						results[(
+							0 if diagram.pointer_avlen == 0 else len([l for l in avloops if l.availabled]), 
+							diagram.pointer_avlen, 
+							-(len(singles0)+len(singles1)+len(singles2)), 
+							-(len(coerced0)+len(coerced1)+len(coerced2))
+						)] += 1
 						
 						if i2 % 300 == 0:
 							print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlen))	
 	
 						for l in reversed(singles2):
-							diagram.collapseBack(l)												
+							diagram.collapseBack(l)		
+						for l in coerced2:
+							diagram.setLoopAvailabled(l)																	
 						diagram.collapseBack(loop2)
 						
 				for l in reversed(singles1):
-					diagram.collapseBack(l)								
+					diagram.collapseBack(l)		
+				for l in coerced1:
+					diagram.setLoopAvailabled(l)											
 				diagram.collapseBack(loop1)
 				
 		for l in reversed(singles0):
 			diagram.collapseBack(l)						
+		for l in coerced0:
+			diagram.setLoopAvailabled(l)			
 		diagram.collapseBack(loop0)
-		'''
-		with open("_7sync4results.txt", 'a') as log:
+		
+		with open("_7sync4coercedresults.txt", 'a') as log:
 			for k,v in results.items():
 				log.write(str(k) + " : " + str(v) + "\n")
 		results.clear()
 		'''
-		with open("_7sync4zeroessingled.txt", 'a') as log:
+		with open("_7sync4zeroescoerced.txt", 'a') as log:
 			log.write("=== i0: " + str(i0) + " | " + str(len(zeroes)) + " ===\n")			
 			for addrs in zeroes:
 				log.write(" ".join([str(x) for x in addrs]) + "\n")
 		zeroes.clear()
-			
+		'''	
 		# log.write(str(0 if diagram.pointer_avlen is 0 else len([l for l in avloops if l.availabled])) + " " + str(diagram.pointer_avlen) + " " + str(-len(singles)) + " " + loop0.firstAddress() + " " + loop1.firstAddress() + " " + loop2.firstAddress() + "\n")		
 			
 	print("["+tstr(time() - startTime)+"][trial] »»» ---")
-	with open("_7sync4results.txt", 'r') as log:
+	with open("_7sync4coercedresults.txt", 'r') as log:
 		lines = log.read().splitlines()
 		for line in lines:
 			key = tuple(int(x) for x in line.split(" : ")[0][1:-1].split(", "))
@@ -111,4 +156,4 @@ if __name__ == "__main__":
 	grouped = sorted(results.items())
 	#diagram.pointers = [diagram.nodeByAddress[addr] for addr in set(chain(*grouped[0][1]))]
 	show(diagram)
-	print("["+tstr(time() - startTime)+"](availabled | pointer_avlen | -singles): loop_count\n" + "\n".join(str(g[0])+": "+str(g[1]) for g in grouped))				
+	print("["+tstr(time() - startTime)+"](): loop_count\n" + "\n".join(str(g[0])+": "+str(g[1]) for g in grouped))				
