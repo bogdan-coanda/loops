@@ -86,19 +86,19 @@ if __name__ == "__main__":
 	for i0 in range(avlen):
 		loop0 = avloops[i0]		
 		diagram.extendLoop(loop0)
-		singles0, coerced0 = coerce()				
+		singles0, coerced0 = diagram.coerceLoop(loop0)				
 		
 		for i1 in range(i0+1, avlen):
 			loop1 = avloops[i1]
 			if loop1.availabled:
 				diagram.extendLoop(loop1)
-				singles1, coerced1 = coerce()
+				singles1, coerced1 = diagram.coerceLoop(loop1)
 				
 				for i2 in range(i1+1, avlen): 
 					loop2 = avloops[i2]
 					if loop2.availabled:
 						diagram.extendLoop(loop2)						
-						singles2, coerced2 = coerce()
+						singles2, coerced2 = diagram.coerceLoop(loop2)
 						
 						'''
 						if diagram.pointer_avlen == 0:
@@ -114,22 +114,22 @@ if __name__ == "__main__":
 						if i2 % 300 == 0:
 							print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlen))	
 	
-						for l in reversed(singles2):
-							diagram.collapseBack(l)		
-						for l in coerced2:
-							diagram.setLoopAvailabled(l)																	
+						# for l in reversed(singles2):
+						# 	diagram.collapseBack(l)		
+						# for l in coerced2:
+						# 	diagram.setLoopAvailabled(l)																	
 						diagram.collapseBack(loop2)
 						
-				for l in reversed(singles1):
-					diagram.collapseBack(l)		
-				for l in coerced1:
-					diagram.setLoopAvailabled(l)											
+				# for l in reversed(singles1):
+				# 	diagram.collapseBack(l)		
+				# for l in coerced1:
+				# 	diagram.setLoopAvailabled(l)											
 				diagram.collapseBack(loop1)
 				
-		for l in reversed(singles0):
-			diagram.collapseBack(l)						
-		for l in coerced0:
-			diagram.setLoopAvailabled(l)			
+		# for l in reversed(singles0):
+		# 	diagram.collapseBack(l)						
+		# for l in coerced0:
+		# 	diagram.setLoopAvailabled(l)			
 		diagram.collapseBack(loop0)
 		
 		with open("_7sync4coercedresults.txt", 'a') as log:

@@ -15,8 +15,8 @@ from measures import *
 
 
 class Diagram (object):
-	
-	
+
+		
 	def __init__(self, N, kernelSize=1):
 		
 		self.spClass = N
@@ -280,10 +280,14 @@ class Diagram (object):
 			
 		loop.extended = True
 						
+		# affected chains are the ones that will be tied together by this extension
+		# they're the chains that need to be added back on collapse
 		affected_chains = [node.cycle.chain for node in loop.nodes]
 		
+		# affected loops are avloops set to unavailabled because we're connecting these chains together
+		# they're the loops that are re-availabled on collapse
 		new_chain, affected_loops = self.makeChain(affected_chains)				
-		
+				
 		#for node in loop.nodes:
 			#assert not node.links[1].next.loop.availabled and not node.prevs[1].node.loop.availabled, "broken extension neighbours!!!"
 			
@@ -292,12 +296,59 @@ class Diagram (object):
 				#assert self.checkAvailability(lp), "broken checked loops"
 				
 		#assert len([node for node in loop.nodes if node.links[1].next.loop.availabled or node.prevs[1].node.loop.availabled]) is 0, "broken extension neighbours!!!"		
-		loop.extension_result.setDetails(new_chain, affected_loops, affected_chains)
+		loop.extension_result.setExtensionDetails(new_chain, affected_loops, affected_chains)
 
 		##assert set(list(itertools.chain(*[chain.avloops for chain in diagram.chains]))) == set([loop for loop in diagram.loops if loop.availabled and len([n for n in loop.nodes if n.cycle.chain])])
 		
 		return True
-										
+	
+	
+	# [~] revert touched nodes partially, maybe, actually reconstruct it from affected loops, also document what's contained inside affected stuff		
+	def coerceLoop(self, loop):		
+		singles = []
+		coerced = []
+		#diagram.pointer_avlen = diagram.spClass		
+						
+		# gather around all currently touched chains
+		next_touched_chains = set(itertools.chain(*[[n.cycle.chain for n in l.nodes]for l in loop.extension_result.affected_loops]))
+		while len(next_touched_chains):
+			curr_touched_chains = next_touched_chains
+			# construct a new set of touched chains for new coercions
+			next_touched_chains = set()
+						
+			for chain in curr_touched_chains:
+				avlen = len(chain.avloops)
+			
+			if avlen == 0:
+				self.pointer_avlen = 0
+				loop.extension_result.singles = singles
+				loop.extension_result.affected_loops += coerced
+				return (singles, coerced) 
+
+			elif avlen == 1:
+				avloop = list(chain.avloops)[0]
+				singles.append(avloop)
+				diagram.extendLoop(avloop)
+				next_touched_chains.update(avloop.extension_result.affected_chains)
+			
+			elif avlen == 2:
+				killingFields = [l.killingField() for l in chain.avloops]
+				intersected = killingFields[0].intersection(killingFields[1])
+				if len(intersected):
+					for avloop in intersected:
+						coerced.append(avloop)
+						diagram.setLoopUnavailabled(avloop)
+						next_touched_chains.update([n.cycle.chain for n in avloop.nodes])
+					
+			if avlen < self.pointer_avlen:
+				self.pointer_avlen = avlen
+											
+		# singles will be collapsed on loop collapse
+		# coerced loops will be appended to the rest of the affected loops to be re-availabled along with them
+		loop.extension_result.addCoercionDetails(singles, coerced)
+		# for printing
+		return (singles, coerced)			
+		
 																						
 	def collapseBack(self, loop):	
 		#print("[collapse] loop: " + str(loop))
@@ -376,17 +427,20 @@ class Diagram (object):
 		
 	def breakChain(self, extension_result):
 		#print("[breakChain] removing: " + str(new_chain))
-		# if extension_result.new_chain.id == 33013:
-		# 	print("breaking chain: 33013")
-		# print("breaking chain: " + str(extension_result.new_chain))
+		
+		# collapse back singles (if any)
+		for loop in reversed(extension_result.affected_singles):
+			self.collapseBack(loop)
+		
+		# remove/add chains
 		self.chains.remove(extension_result.new_chain)
 		for chain in extension_result.affected_chains:
-			#print("[breakChain] adding: " + str(chain))
-			# if chain.id == 33013:
-			# 	print("adding back chain: 33013 | while breaking chain: " + str(extension_result.new_chain.id))			
 			self.chains.add(chain)
+			# remap cycles
 			for cycle in chain.cycles:
 				cycle.chain = chain
+			
+		# re-available affected loops	(including coerced, if any)
 		for loop in extension_result.affected_loops:
 			self.setLoopAvailabled(loop)
 					
