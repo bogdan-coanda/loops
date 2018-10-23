@@ -328,7 +328,7 @@ class Diagram (object):
 			elif avlen == 1:
 				avloop = list(chain.avloops)[0]
 				singles.append(avloop)
-				diagram.extendLoop(avloop)
+				self.extendLoop(avloop)
 				next_touched_chains.update(avloop.extension_result.affected_chains)
 			
 			elif avlen == 2:
@@ -337,7 +337,7 @@ class Diagram (object):
 				if len(intersected):
 					for avloop in intersected:
 						coerced.append(avloop)
-						diagram.setLoopUnavailabled(avloop)
+						self.setLoopUnavailabled(avloop)
 						next_touched_chains.update([n.cycle.chain for n in avloop.nodes])
 					
 			if avlen < self.pointer_avlen:

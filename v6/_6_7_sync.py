@@ -111,7 +111,7 @@ if __name__ == "__main__":
 							-(len(coerced0)+len(coerced1)+len(coerced2))
 						)] += 1
 						
-						if i2 % 300 == 0:
+						if i0 == 2 or i2 % 300 == 0:
 							print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlen))	
 	
 						# for l in reversed(singles2):
@@ -132,7 +132,7 @@ if __name__ == "__main__":
 		# 	diagram.setLoopAvailabled(l)			
 		diagram.collapseBack(loop0)
 		
-		with open("_7sync4coercedresults.txt", 'a') as log:
+		with open("_7sync4coercedresults2.txt", 'a') as log:
 			for k,v in results.items():
 				log.write(str(k) + " : " + str(v) + "\n")
 		results.clear()
@@ -146,7 +146,7 @@ if __name__ == "__main__":
 		# log.write(str(0 if diagram.pointer_avlen is 0 else len([l for l in avloops if l.availabled])) + " " + str(diagram.pointer_avlen) + " " + str(-len(singles)) + " " + loop0.firstAddress() + " " + loop1.firstAddress() + " " + loop2.firstAddress() + "\n")		
 			
 	print("["+tstr(time() - startTime)+"][trial] »»» ---")
-	with open("_7sync4coercedresults.txt", 'r') as log:
+	with open("_7sync4coercedresults2.txt", 'r') as log:
 		lines = log.read().splitlines()
 		for line in lines:
 			key = tuple(int(x) for x in line.split(" : ")[0][1:-1].split(", "))
