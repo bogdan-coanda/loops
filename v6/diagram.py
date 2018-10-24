@@ -332,7 +332,7 @@ class Diagram (object):
 					singles.append(avloop)
 					self.extendLoop(avloop)
 					show(self); input("[coerce] singled: " + str(avloop))
-					next_touched_chains.update(avloop.extension_result.affected_chains)
+					next_touched_chains.update(set(itertools.chain(*[[n.cycle.chain for n in l.nodes]for l in avloop.extension_result.affected_loops])))
 				
 				elif avlen == 2:
 					killingFields = [l.killingField() for l in chain.avloops]
