@@ -97,8 +97,15 @@ if __name__ == "__main__":
 				for i2 in range(i1+1, avlen): 
 					loop2 = avloops[i2]
 					if loop2.availabled:
+						
+						#print("i: "+str(i0)+'/'+str(i1)+'/'+str(i2))
+						
 						diagram.extendLoop(loop2)
 						singles2, coerced2 = diagram.coerceLoop(loop2)
+						
+						#if len(singles2)+len(coerced2) > 0:
+							#print("singles: "+str(len(singles2))+" | coerced: "+str(len(coerced2)))
+						
 						'''
 						if diagram.pointer_avlen == 0:
 							zeroes.append((len(singles0)+len(singles1)+len(singles2), len(coerced0)+len(coerced1)+len(coerced2), loop0.firstAddress(), loop1.firstAddress(), loop2.firstAddress()))							
@@ -110,7 +117,7 @@ if __name__ == "__main__":
 							-(len(coerced0)+len(coerced1)+len(coerced2))
 						)] += 1
 						
-						if i0 == 2 or i2 % 300 == 0:
+						if i2 % 300 == 0:
 							print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlen))	
 							
 						# for l in reversed(singles2):

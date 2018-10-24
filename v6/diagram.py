@@ -353,7 +353,6 @@ class Diagram (object):
 	def collapseBack(self, loop):	
 		#print("[collapse] loop: " + str(loop))
 		self.breakChain(loop.extension_result)
-		#loop.extension_result = None
 		loop.extended = False
 																
 	
@@ -431,6 +430,7 @@ class Diagram (object):
 		# collapse back singles (if any)
 		for loop in reversed(extension_result.affected_singles):
 			self.collapseBack(loop)
+		extension_result.affected_singles.clear()
 		
 		# remove/add chains
 		self.chains.remove(extension_result.new_chain)
