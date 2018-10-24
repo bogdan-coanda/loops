@@ -312,36 +312,39 @@ class Diagram (object):
 		# gather around all currently touched chains
 		next_touched_chains = set(itertools.chain(*[[n.cycle.chain for n in l.nodes]for l in loop.extension_result.affected_loops]))
 		while len(next_touched_chains):
+			print("[coerce] next touched chains: " + str(len(next_touched_chains)))
 			curr_touched_chains = next_touched_chains
 			# construct a new set of touched chains for new coercions
 			next_touched_chains = set()
 						
-			for chain in curr_touched_chains:
+			for ic, chain in enumerate(curr_touched_chains):
 				avlen = len(chain.avloops)
-			
-			if avlen == 0:
-				self.pointer_avlen = 0
-				loop.extension_result.singles = singles
-				loop.extension_result.affected_loops += coerced
-				return (singles, coerced) 
-
-			elif avlen == 1:
-				avloop = list(chain.avloops)[0]
-				singles.append(avloop)
-				self.extendLoop(avloop)
-				next_touched_chains.update(avloop.extension_result.affected_chains)
-			
-			elif avlen == 2:
-				killingFields = [l.killingField() for l in chain.avloops]
-				intersected = killingFields[0].intersection(killingFields[1])
-				if len(intersected):
-					for avloop in intersected:
-						coerced.append(avloop)
-						self.setLoopUnavailabled(avloop)
-						next_touched_chains.update([n.cycle.chain for n in avloop.nodes])
+				print("[coerce] ic: " + str(ic) + " | avlen: " + str(avlen))
+				
+				if avlen == 0:
+					self.pointer_avlen = 0
+					loop.extension_result.singles = singles
+					loop.extension_result.affected_loops += coerced
+					return (singles, coerced) 
+	
+				elif avlen == 1:
+					avloop = list(chain.avloops)[0]
+					singles.append(avloop)
+					self.extendLoop(avloop)
+					show(self); input("[coerce] singled: " + str(avloop))
+					next_touched_chains.update(avloop.extension_result.affected_chains)
+				
+				elif avlen == 2:
+					killingFields = [l.killingField() for l in chain.avloops]
+					intersected = killingFields[0].intersection(killingFields[1])
+					if len(intersected):
+						for avloop in intersected:
+							coerced.append(avloop)
+							self.setLoopUnavailabled(avloop)
+							next_touched_chains.update([n.cycle.chain for n in avloop.nodes])
 					
-			if avlen < self.pointer_avlen:
-				self.pointer_avlen = avlen
+				if avlen < self.pointer_avlen:
+					self.pointer_avlen = avlen
 											
 		# singles will be collapsed on loop collapse
 		# coerced loops will be appended to the rest of the affected loops to be re-availabled along with them

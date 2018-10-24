@@ -53,7 +53,7 @@ if __name__ == "__main__":
 				elif avlen == 1:
 					avloop = list(chain.avloops)[0]
 					singles.append(avloop)
-					diagram.extendLoop(avloop)					
+					diagram.extendLoop(avloop)
 					found = True
 					break
 				
@@ -94,12 +94,14 @@ if __name__ == "__main__":
 				diagram.extendLoop(loop1)
 				singles1, coerced1 = diagram.coerceLoop(loop1)
 				
-				for i2 in range(79, avlen): 
+				for i2 in range(80, avlen): 
 					loop2 = avloops[i2]
 					if loop2.availabled:
+						show(diagram); input("[dbg] before extend by " + str(loop2))
 						diagram.extendLoop(loop2)						
+						show(diagram); input("[dbg] after extend by " + str(loop2))
 						singles2, coerced2 = diagram.coerceLoop(loop2)
-						
+						print("[dbg] after coerce by " + str(loop2))
 						'''
 						if diagram.pointer_avlen == 0:
 							zeroes.append((len(singles0)+len(singles1)+len(singles2), len(coerced0)+len(coerced1)+len(coerced2), loop0.firstAddress(), loop1.firstAddress(), loop2.firstAddress()))							
@@ -113,12 +115,13 @@ if __name__ == "__main__":
 						
 						if i0 == 2 or i2 % 300 == 0:
 							print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlen))	
-	
+							
 						# for l in reversed(singles2):
 						# 	diagram.collapseBack(l)		
 						# for l in coerced2:
 						# 	diagram.setLoopAvailabled(l)																	
 						diagram.collapseBack(loop2)
+						show(diagram); input("[dbg] after collapse by " + str(loop2))
 						
 				# for l in reversed(singles1):
 				# 	diagram.collapseBack(l)		
