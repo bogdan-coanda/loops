@@ -312,14 +312,12 @@ class Diagram (object):
 		# gather around all currently touched chains
 		next_touched_chains = set(itertools.chain(*[[n.cycle.chain for n in l.nodes]for l in loop.extension_result.affected_loops]))
 		while len(next_touched_chains):
-			print("[coerce] next touched chains: " + str(len(next_touched_chains)))
 			curr_touched_chains = next_touched_chains
 			# construct a new set of touched chains for new coercions
 			next_touched_chains = set()
 						
 			for ic, chain in enumerate(curr_touched_chains):
 				avlen = len(chain.avloops)
-				print("[coerce] ic: " + str(ic) + " | avlen: " + str(avlen))
 				
 				if avlen == 0:
 					self.pointer_avlen = 0
@@ -331,7 +329,6 @@ class Diagram (object):
 					avloop = list(chain.avloops)[0]
 					singles.append(avloop)
 					self.extendLoop(avloop)
-					show(self); input("[coerce] singled: " + str(avloop))
 					next_touched_chains.update(set(itertools.chain(*[[n.cycle.chain for n in l.nodes]for l in avloop.extension_result.affected_loops])))
 				
 				elif avlen == 2:

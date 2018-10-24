@@ -83,25 +83,22 @@ if __name__ == "__main__":
 	avlen = len(avloops)
 	print("avlen: " + str(avlen))
 	
-	for i0 in range(2, avlen):
+	for i0 in range(0, avlen):
 		loop0 = avloops[i0]		
 		diagram.extendLoop(loop0)
 		singles0, coerced0 = diagram.coerceLoop(loop0)				
 		
-		for i1 in range(5, avlen):
+		for i1 in range(i0+1, avlen):
 			loop1 = avloops[i1]
 			if loop1.availabled:
 				diagram.extendLoop(loop1)
 				singles1, coerced1 = diagram.coerceLoop(loop1)
 				
-				for i2 in range(80, avlen): 
+				for i2 in range(i1+1, avlen): 
 					loop2 = avloops[i2]
 					if loop2.availabled:
-						show(diagram); input("[dbg] before extend by " + str(loop2))
-						diagram.extendLoop(loop2)						
-						show(diagram); input("[dbg] after extend by " + str(loop2))
+						diagram.extendLoop(loop2)
 						singles2, coerced2 = diagram.coerceLoop(loop2)
-						print("[dbg] after coerce by " + str(loop2))
 						'''
 						if diagram.pointer_avlen == 0:
 							zeroes.append((len(singles0)+len(singles1)+len(singles2), len(coerced0)+len(coerced1)+len(coerced2), loop0.firstAddress(), loop1.firstAddress(), loop2.firstAddress()))							
@@ -121,7 +118,6 @@ if __name__ == "__main__":
 						# for l in coerced2:
 						# 	diagram.setLoopAvailabled(l)																	
 						diagram.collapseBack(loop2)
-						show(diagram); input("[dbg] after collapse by " + str(loop2))
 						
 				# for l in reversed(singles1):
 				# 	diagram.collapseBack(l)		
