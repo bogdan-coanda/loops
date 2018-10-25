@@ -307,7 +307,7 @@ class Diagram (object):
 	def coerceLoop(self, loop):		
 		singles = []
 		coerced = []
-		#diagram.pointer_avlen = diagram.spClass		
+		#self.pointer_avlen = self.spClass		
 						
 		# gather around all currently touched chains
 		next_touched_chains = set(itertools.chain(*[[n.cycle.chain for n in l.nodes]for l in loop.extension_result.affected_loops]))
@@ -320,7 +320,7 @@ class Diagram (object):
 				avlen = len(chain.avloops)
 				
 				if avlen == 0:
-					self.pointer_avlen = 0
+					#self.pointer_avlen = 0
 					loop.extension_result.singles = singles
 					loop.extension_result.affected_loops += coerced
 					return (singles, coerced) 
@@ -340,8 +340,8 @@ class Diagram (object):
 							self.setLoopUnavailabled(avloop)
 							next_touched_chains.update([n.cycle.chain for n in avloop.nodes])
 					
-				if avlen < self.pointer_avlen:
-					self.pointer_avlen = avlen
+				#elif avlen < self.pointer_avlen:
+					#self.pointer_avlen = avlen
 											
 		# singles will be collapsed on loop collapse
 		# coerced loops will be appended to the rest of the affected loops to be re-availabled along with them
@@ -450,6 +450,10 @@ class Diagram (object):
 			
 	def pointToAddressTuple(self, address):
 		self.pointers = list(self.nodeByAddress[address].tuple)
+
+	def measure_avlen(self):
+		self.pointer_avlen = min(*[len(chain.avloops) for chain in self.chains])
+		return self.pointer_avlen
 
 	def point(self):
 		self.pointers = []
