@@ -326,7 +326,7 @@ class Diagram (object):
 		
 					elif avlen == 1:
 						avloop = list(chain.avloops)[0]
-						print("[coerceLoop] singling: " + str(avloop))
+						#print("[coerceLoop] singling: " + str(avloop))
 						singles.append(avloop)
 						self.extendLoop(avloop)
 						next_touched_chains.update(set(itertools.chain(*[[n.cycle.chain for n in l.nodes]for l in itertools.chain(loop.extension_result.affected_loops, avloop.extension_result.new_chain.avloops)])))
@@ -336,7 +336,7 @@ class Diagram (object):
 						intersected = killingFields[0].intersection(killingFields[1])
 						if len(intersected):
 							for avloop in intersected:
-								print("[coerceLoop] killing: " + str(avloop))
+								#print("[coerceLoop] killing: " + str(avloop))
 								coerced.append(avloop)
 								self.setLoopUnavailabled(avloop)
 								next_touched_chains.update([n.cycle.chain for n in avloop.nodes])
