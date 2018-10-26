@@ -78,18 +78,18 @@ if __name__ == "__main__":
 	avlen = len(avloops)
 	print("avlen: " + str(avlen))
 	
-	for i0 in range(0, avlen):
+	for i0 in range(160, avlen):
 		loop0 = avloops[i0]		
 		diagram.extendLoop(loop0)
 		singles0, coerced0 = diagram.coerceLoop(loop0) # coerce() # 
 		
-		for i1 in range(i0+1, avlen):
+		for i1 in range(426, avlen):
 			loop1 = avloops[i1]
 			if loop1.availabled:
 				diagram.extendLoop(loop1)
 				singles1, coerced1 = diagram.coerceLoop(loop1) # coerce() # 
 				
-				for i2 in range(i1+1, avlen): 
+				for i2 in range(503, avlen): 
 					loop2 = avloops[i2]
 					if loop2.availabled:
 						
