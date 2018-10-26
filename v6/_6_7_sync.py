@@ -148,8 +148,9 @@ if __name__ == "__main__":
 						
 						#'''
 						diagram.measure_avlen()
+						all_avloops_len = len([l for l in avloops if l.availabled])
 						results[(
-							0 if diagram.pointer_avlen == 0 else len([l for l in avloops if l.availabled]), 
+							0 if diagram.pointer_avlen == 0 else all_avloops_len, 
 							diagram.pointer_avlen, 
 							-(len(singles0)+len(singles1)+len(singles2)), 
 							-(len(coerced0)+len(coerced1)+len(coerced2))
@@ -158,6 +159,14 @@ if __name__ == "__main__":
 																		
 						if i2 % 300 == 0:
 							print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlen))	
+							
+						if all_avloops_len == 587:
+							print("[$587] i: "+str(i0)+'/'+str(i1)+'/'+str(i2) + " | " + str((
+							0 if diagram.pointer_avlen == 0 else all_avloops_len, 
+							diagram.pointer_avlen, 
+							-(len(singles0)+len(singles1)+len(singles2)), 
+							-(len(coerced0)+len(coerced1)+len(coerced2))
+						)))
 							
 						#for l in reversed(singles2):
 							#diagram.collapseBack(l)		
