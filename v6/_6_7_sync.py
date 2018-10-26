@@ -81,13 +81,13 @@ if __name__ == "__main__":
 	for i0 in range(0, avlen):
 		loop0 = avloops[i0]		
 		diagram.extendLoop(loop0)
-		singles0, coerced0 = coerce() # diagram.coerceLoop(loop0) # 
+		singles0, coerced0 = diagram.coerceLoop(loop0) # coerce() # 
 		
 		for i1 in range(i0+1, avlen):
 			loop1 = avloops[i1]
 			if loop1.availabled:
 				diagram.extendLoop(loop1)
-				singles1, coerced1 = coerce() # diagram.coerceLoop(loop1) # 
+				singles1, coerced1 = diagram.coerceLoop(loop1) # coerce() # 
 				
 				for i2 in range(i1+1, avlen): 
 					loop2 = avloops[i2]
@@ -96,7 +96,7 @@ if __name__ == "__main__":
 						#print("i: "+str(i0)+'/'+str(i1)+'/'+str(i2))
 						
 						diagram.extendLoop(loop2)
-						singles2, coerced2 = coerce() # diagram.coerceLoop(loop2) # 
+						singles2, coerced2 = diagram.coerceLoop(loop2) # coerce() # 
 						
 						#if len(singles2)+len(coerced2) > 0:
 							#print("singles: "+str(len(singles2))+" | coerced: "+str(len(coerced2)))
@@ -151,25 +151,25 @@ if __name__ == "__main__":
 						if i2 % 300 == 0:
 							print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlen))	
 							
-						for l in reversed(singles2):
-							diagram.collapseBack(l)		
-						for l in coerced2:
-							diagram.setLoopAvailabled(l)																	
+						#for l in reversed(singles2):
+							#diagram.collapseBack(l)		
+						#for l in coerced2:
+							#diagram.setLoopAvailabled(l)																	
 						diagram.collapseBack(loop2)
 														
-				for l in reversed(singles1):
-					diagram.collapseBack(l)		
-				for l in coerced1:
-					diagram.setLoopAvailabled(l)											
+				#for l in reversed(singles1):
+					#diagram.collapseBack(l)		
+				#for l in coerced1:
+					#diagram.setLoopAvailabled(l)											
 				diagram.collapseBack(loop1)
 														
-		for l in reversed(singles0):
-			diagram.collapseBack(l)						
-		for l in coerced0:
-			diagram.setLoopAvailabled(l)			
+		#for l in reversed(singles0):
+			#diagram.collapseBack(l)						
+		#for l in coerced0:
+			#diagram.setLoopAvailabled(l)			
 		diagram.collapseBack(loop0)
 
-		with open("_7sync4coercedresults1b.txt", 'a') as log:
+		with open("_7sync4coercedresults2b.txt", 'a') as log:
 			total = 0
 			for k,v in sorted(results.items()):
 				log.write(str(k) + " : " + str(v) + "\n")
@@ -187,7 +187,7 @@ if __name__ == "__main__":
 		# log.write(str(0 if diagram.pointer_avlen is 0 else len([l for l in avloops if l.availabled])) + " " + str(diagram.pointer_avlen) + " " + str(-len(singles)) + " " + loop0.firstAddress() + " " + loop1.firstAddress() + " " + loop2.firstAddress() + "\n")		
 			
 	print("["+tstr(time() - startTime)+"][trial] »»» ---")
-	with open("_7sync4coercedresults_v1.txt", 'r') as log:
+	with open("_7sync4coercedresults2b.txt", 'r') as log:
 		lines = log.read().splitlines()
 		for line in lines:
 			if not line.startswith("==="):
