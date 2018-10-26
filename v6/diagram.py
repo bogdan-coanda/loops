@@ -310,7 +310,7 @@ class Diagram (object):
 		#self.pointer_avlen = self.spClass		
 						
 		# gather around all currently touched chains
-		next_touched_chains = set(itertools.chain(*[[n.cycle.chain for n in l.nodes]for l in loop.extension_result.affected_loops]))
+		next_touched_chains = set(itertools.chain(*[[n.cycle.chain for n in l.nodes]for l in itertools.chain(loop.extension_result.affected_loops, loop.extension_result.new_chain.avloops)]))
 		while len(next_touched_chains):
 			curr_touched_chains = next_touched_chains
 			# construct a new set of touched chains for new coercions
@@ -329,7 +329,7 @@ class Diagram (object):
 					avloop = list(chain.avloops)[0]
 					singles.append(avloop)
 					self.extendLoop(avloop)
-					next_touched_chains.update(set(itertools.chain(*[[n.cycle.chain for n in l.nodes]for l in avloop.extension_result.affected_loops])))
+					next_touched_chains.update(set(itertools.chain(*[[n.cycle.chain for n in l.nodes]for l in itertools.chain(loop.extension_result.affected_loops, avloop.extension_result.new_chain.avloops)])))
 				
 				elif avlen == 2:
 					killingFields = [l.killingField() for l in chain.avloops]

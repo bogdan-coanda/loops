@@ -94,11 +94,19 @@ if __name__ == "__main__":
 					if loop2.availabled:
 						
 						#print("i: "+str(i0)+'/'+str(i1)+'/'+str(i2))
+						#show(diagram); input()						
 						
 						diagram.extendLoop(loop2)
 						singles2, coerced2 = diagram.coerceLoop(loop2) # coerce() # 
 						diagram.measure_avlen()
 						
+						# show(diagram); 
+						# next_touched_chains = set(itertools.chain(*[[n.cycle.chain for n in l.nodes]for l in loop2.extension_result.affected_loops]))
+						# print(next_touched_chains)
+						# print([len(chain.avloops) for chain in next_touched_chains])
+						# print([(chain,chain.cycles) for chain in diagram.chains if len(chain.avloops) < 3])
+						# input()
+												
 						measurement_2b = (
 							0 if diagram.pointer_avlen == 0 else len([l for l in avloops if l.availabled]), 
 							diagram.pointer_avlen, 
@@ -108,7 +116,7 @@ if __name__ == "__main__":
 
 						diagram.collapseBack(loop2)
 						diagram.extendLoop(loop2)
-						singles2, coerced2 = coerce()
+						singles2b, coerced2b = coerce()
 						diagram.measure_avlen()
 						
 						measurement_1b = (
@@ -118,11 +126,11 @@ if __name__ == "__main__":
 							-(len(coerced0)+len(coerced1)+len(coerced2))
 						)
 						
-						assert measurement_1b == measurement_2b, "i: "+str(i0)+'/'+str(i1)+'/'+str(i2)
+						assert measurement_1b == measurement_2b, "i: "+str(i0)+'/'+str(i1)+'/'+str(i2)+" | co1: "+str(coerced2b)+" / co2: "+str(coerced2)
 						
-						for l in reversed(singles2):
+						for l in reversed(singles2b):
 							diagram.collapseBack(l)		
-						for l in coerced2:
+						for l in coerced2b:
 							diagram.setLoopAvailabled(l)
 							
 						'''
