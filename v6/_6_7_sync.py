@@ -97,48 +97,47 @@ if __name__ == "__main__":
 						
 						diagram.extendLoop(loop2)
 						singles2, coerced2 = diagram.coerceLoop(loop2) # coerce() # 
+						diagram.measure_avlen()
 						
-						#if len(singles2)+len(coerced2) > 0:
-							#print("singles: "+str(len(singles2))+" | coerced: "+str(len(coerced2)))
+						measurement_2b = (
+							0 if diagram.pointer_avlen == 0 else len([l for l in avloops if l.availabled]), 
+							diagram.pointer_avlen, 
+							-(len(singles0)+len(singles1)+len(singles2)), 
+							-(len(coerced0)+len(coerced1)+len(coerced2))
+						)
+
+						diagram.collapseBack(loop2)
+						diagram.extendLoop(loop2)
+						singles2, coerced2 = coerce()
+						diagram.measure_avlen()
 						
+						measurement_1b = (
+							0 if diagram.pointer_avlen == 0 else len([l for l in avloops if l.availabled]), 
+							diagram.pointer_avlen, 
+							-(len(singles0)+len(singles1)+len(singles2)), 
+							-(len(coerced0)+len(coerced1)+len(coerced2))
+						)
+						
+						assert measurement_1b == measurement_2b, "i: "+str(i0)+'/'+str(i1)+'/'+str(i2)
+						
+						for l in reversed(singles2):
+							diagram.collapseBack(l)		
+						for l in coerced2:
+							diagram.setLoopAvailabled(l)
+							
 						'''
 						if diagram.pointer_avlen == 0:
 							zeroes.append((len(singles0)+len(singles1)+len(singles2), len(coerced0)+len(coerced1)+len(coerced2), loop0.firstAddress(), loop1.firstAddress(), loop2.firstAddress()))							
 						'''
 						#'''
-						# measurement = (
-						# 	0 if diagram.pointer_avlen == 0 else len([l for l in avloops if l.availabled]), 
-						# 	diagram.measure_avlen(), 
-						# 	-(len(singles0)+len(singles1)+len(singles2)), 
-						# 	-(len(coerced0)+len(coerced1)+len(coerced2))
-						# )
 						# results[(i0, i1, i2)] = result
 						# if (i0, i1, i2) == (0, 2, 284):
 						# 	diagram.point()
 						# 	show(diagram)
 						# 	print(" | avlen: " + str(diagram.pointer_avlen))
 						# 	input("~~~ result: " + str(result))
+						
 						'''
-						diagram.collapseBack(loop2)
-						diagram.extendLoop(loop2)
-						singles2, coerced2 = coerce()
-						result2 = (
-							0 if diagram.pointer_avlen == 0 else len([l for l in avloops if l.availabled]), 
-							diagram.measure_avlen(), 
-							-(len(singles0)+len(singles1)+len(singles2)), 
-							-(len(coerced0)+len(coerced1)+len(coerced2))
-						)
-						assert results[(i0, i1, i2)] == result2 #:
-							# diagram.point()
-							# show(diagram)
-							# input("~~~ broken @ "+str(i0)+'/'+str(i1)+'/'+str(i2)+" ~~~")
-						for l in reversed(singles2):
-							diagram.collapseBack(l)		
-						for l in coerced2:
-							diagram.setLoopAvailabled(l)
-						'''													
-												
-						#'''
 						diagram.measure_avlen()
 						results[(
 							0 if diagram.pointer_avlen == 0 else len([l for l in avloops if l.availabled]), 
@@ -146,8 +145,8 @@ if __name__ == "__main__":
 							-(len(singles0)+len(singles1)+len(singles2)), 
 							-(len(coerced0)+len(coerced1)+len(coerced2))
 						)] += 1
-						#'''
-												
+						'''
+																		
 						if i2 % 300 == 0:
 							print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlen))	
 							
@@ -169,6 +168,7 @@ if __name__ == "__main__":
 			#diagram.setLoopAvailabled(l)			
 		diagram.collapseBack(loop0)
 
+		'''
 		with open("_7sync4coercedresults2b.txt", 'a') as log:
 			total = 0
 			for k,v in sorted(results.items()):
@@ -176,7 +176,7 @@ if __name__ == "__main__":
 				total += v
 			log.write("=== " + str(i0) + ": " + str(total) + " | @ " + tstr(time() - startTime) + "\n")
 		results.clear()
-								
+		'''
 		'''
 		with open("_7sync4zeroescoerced.txt", 'a') as log:
 			log.write("=== i0: " + str(i0) + " | " + str(len(zeroes)) + " ===\n")			
