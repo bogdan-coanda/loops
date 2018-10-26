@@ -98,7 +98,7 @@ if __name__ == "__main__":
 						
 						diagram.extendLoop(loop2)
 						singles2, coerced2 = diagram.coerceLoop(loop2) # coerce() # 
-						diagram.measure_avlen()
+						# diagram.measure_avlen()
 						
 						# show(diagram); 
 						# next_touched_chains = set(itertools.chain(*[[n.cycle.chain for n in l.nodes]for l in loop2.extension_result.affected_loops]))
@@ -106,7 +106,8 @@ if __name__ == "__main__":
 						# print([len(chain.avloops) for chain in next_touched_chains])
 						# print([(chain,chain.cycles) for chain in diagram.chains if len(chain.avloops) < 3])
 						# input()
-												
+							
+						'''
 						measurement_2b = (
 							0 if diagram.pointer_avlen == 0 else len([l for l in avloops if l.availabled]), 
 							diagram.pointer_avlen, 
@@ -132,7 +133,7 @@ if __name__ == "__main__":
 							diagram.collapseBack(l)		
 						for l in coerced2b:
 							diagram.setLoopAvailabled(l)
-							
+						'''
 						'''
 						if diagram.pointer_avlen == 0:
 							zeroes.append((len(singles0)+len(singles1)+len(singles2), len(coerced0)+len(coerced1)+len(coerced2), loop0.firstAddress(), loop1.firstAddress(), loop2.firstAddress()))							
@@ -145,7 +146,7 @@ if __name__ == "__main__":
 						# 	print(" | avlen: " + str(diagram.pointer_avlen))
 						# 	input("~~~ result: " + str(result))
 						
-						'''
+						#'''
 						diagram.measure_avlen()
 						results[(
 							0 if diagram.pointer_avlen == 0 else len([l for l in avloops if l.availabled]), 
@@ -153,7 +154,7 @@ if __name__ == "__main__":
 							-(len(singles0)+len(singles1)+len(singles2)), 
 							-(len(coerced0)+len(coerced1)+len(coerced2))
 						)] += 1
-						'''
+						#'''
 																		
 						if i2 % 300 == 0:
 							print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlen))	
@@ -176,7 +177,7 @@ if __name__ == "__main__":
 			#diagram.setLoopAvailabled(l)			
 		diagram.collapseBack(loop0)
 
-		'''
+		#'''
 		with open("_7sync4coercedresults2b.txt", 'a') as log:
 			total = 0
 			for k,v in sorted(results.items()):
@@ -184,7 +185,7 @@ if __name__ == "__main__":
 				total += v
 			log.write("=== " + str(i0) + ": " + str(total) + " | @ " + tstr(time() - startTime) + "\n")
 		results.clear()
-		'''
+		#'''
 		'''
 		with open("_7sync4zeroescoerced.txt", 'a') as log:
 			log.write("=== i0: " + str(i0) + " | " + str(len(zeroes)) + " ===\n")			
