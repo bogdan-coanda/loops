@@ -162,11 +162,12 @@ if __name__ == "__main__":
 							
 						if all_avloops_len == 587:
 							print("[$587] i: "+str(i0)+'/'+str(i1)+'/'+str(i2) + " | " + str((
-							0 if diagram.pointer_avlen == 0 else all_avloops_len, 
-							diagram.pointer_avlen, 
-							-(len(singles0)+len(singles1)+len(singles2)), 
-							-(len(coerced0)+len(coerced1)+len(coerced2))
-						)))
+								0 if diagram.pointer_avlen == 0 else all_avloops_len, 
+								diagram.pointer_avlen, 
+								-(len(singles0)+len(singles1)+len(singles2)), 
+								-(len(coerced0)+len(coerced1)+len(coerced2))
+							)))
+							input("found 587")
 							
 						#for l in reversed(singles2):
 							#diagram.collapseBack(l)		
