@@ -75,7 +75,7 @@ if __name__ == "__main__":
 	input("[base] avlen: " + str(avlenZ) + " | min chlen: " + str(min_chlenZ) + "\nsingles: " + str(singlesZ) + "\ncoerced: " + str(coercedZ))
 	
 #-### ~~~ lvl:0 ~~~ ###
-	for i0 in range(56, avlenZ):
+	for i0 in range(0, avlenZ):
 		loop0 = avloopsZ[i0]		
 		diagram.extendLoop(loop0)
 		min_chlen0, singles0, coerced0 = coerce()
