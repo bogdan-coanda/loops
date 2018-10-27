@@ -136,7 +136,7 @@ if __name__ == "__main__":
 
 								if avlen2 <= 532:
 									with open("__587__found.txt", 'a') as log:
-										log.write("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " @ " + str(i0) + "/" + str(avlenZ) + " " + str(i1) + " " + str(i2) + " /" + str(avlen0) + "\n| " + str(loop0) + " " + str(loop1) + " " + str(loop2))
+										log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " @ " + str(i0) + "/" + str(avlenZ) + " " + str(i1) + " " + str(i2) + " /" + str(avlen0) + "\n| " + str(loop0) + " " + str(loop1) + " " + str(loop2)).replace("⟩", ")").replace("⟨", "("))
 										
 								for l in reversed(singles2):
 									diagram.collapseBack(l)		
