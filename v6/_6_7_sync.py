@@ -67,19 +67,20 @@ if __name__ == "__main__":
 	
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
-	avloops = [l for l in diagram.loops if l.availabled]
-	avlen = len(avloops)
+	avloopsZ = [l for l in diagram.loops if l.availabled]
+	avlenZ = len(avloopsZ)
 	
 	diagram.point()
 	show(diagram)
-	input("[base] avlen: " + str(avlen) + " | min chlen: " + str(min_chlenZ) + "\nsingles: " + str(singlesZ) + "\ncoerced: " + str(coercedZ))
+	input("[base] avlen: " + str(avlenZ) + " | min chlen: " + str(min_chlenZ) + "\nsingles: " + str(singlesZ) + "\ncoerced: " + str(coercedZ))
 	
 #-### ~~~ lvl:0 ~~~ ###
-	for i0 in range(0, avlen):
-		loop0 = avloops[i0]		
+	for i0 in range(0, avlenZ):
+		loop0 = avloopsZ[i0]		
 		diagram.extendLoop(loop0)
 		min_chlen0, singles0, coerced0 = coerce()
-		avlen0 = len([l for l in avloops if l.availabled])
+		avloops0 = [l for l in avloopsZ if l.availabled]
+		avlen0 = len(avloops0)
 
 		results0[(
 			0 if min_chlen0 == 0 else avlen0, 
@@ -93,12 +94,12 @@ if __name__ == "__main__":
 			print("[lvl:0] avlen: " + str(avlen0) + " | chlen: " + str(min_chlen0) + " | s: " + str(len(singles0)) + " | c: " + str(len(coerced0)))
 		else:
 #-----### ~~~ lvl:1 ~~~ ###				
-			for i1 in range(i0+1, avlen):
-				loop1 = avloops[i1]
+			for i1 in range(i0+1, avlen0):
+				loop1 = avloops0[i1]
 				if loop1.availabled:
 					diagram.extendLoop(loop1)
 					min_chlen1, singles1, coerced1 = coerce()
-					avlen1 = len([l for l in avloops if l.availabled])
+					avlen1 = len([l for l in avloops0 if l.availabled])
 							
 					results1[(
 						0 if min_chlen1 == 0 else avlen1, 
@@ -112,12 +113,12 @@ if __name__ == "__main__":
 						print("[lvl:1] avlen: " + str(avlen1) + " | chlen: " + str(min_chlen1) + " | s: " + str(len(singles0)+len(singles1)) + " | c: " + str(len(coerced0)+len(coerced1)))
 					else:
 #-----------### ~~~ lvl:2 ~~~ ###										
-						for i2 in range(i1+1, avlen): 
-							loop2 = avloops[i2]
+						for i2 in range(i1+1, avlen0): 
+							loop2 = avloops0[i2]
 							if loop2.availabled:
 								diagram.extendLoop(loop2)
 								min_chlen2, singles2, coerced2 = coerce() 
-								avlen2 = len([l for l in avloops if l.availabled])
+								avlen2 = len([l for l in avloops0 if l.availabled])
 
 								results2[(
 									0 if min_chlen2 == 0 else avlen2, 
@@ -127,23 +128,23 @@ if __name__ == "__main__":
 								)] += 1
 
 								if min_chlen2 == 0:
-									zeroes1.append((i0, i1, i2))
-									print("[lvl:2] avlen: " + str(avlen1) + " | chlen: " + str(min_chlen1) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)))
+									zeroes2.append((i0, i1, i2))
+									print("[lvl:2] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)))
 									
 								if i2 % 290 == 0:
-									print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlen))							
+									print("["+tstr(time() - startTime)+"] @ " + str(i0) + "/" + str(avlenZ) + " " + str(i1) + " " + str(i2) + " /" + str(avlen0))							
 
 								for l in reversed(singles2):
 									diagram.collapseBack(l)		
 								for l in coerced2:
-									diagram.setLoopAvailabled(l)																	
-								diagram.collapseBack(loop2)												
-#-----------### ~~~ lvl:2 ~~~ ###																																		
+									diagram.setLoopAvailabled(l)
+								diagram.collapseBack(loop2)
+#-----------### ~~~ lvl:2 ~~~ ###
 					for l in reversed(singles1):
 						diagram.collapseBack(l)		
 					for l in coerced1:
-						diagram.setLoopAvailabled(l)											
-					diagram.collapseBack(loop1)																									
+						diagram.setLoopAvailabled(l)
+					diagram.collapseBack(loop1)
 #-----### ~~~ lvl:1 ~~~ ###			
 		for l in reversed(singles0):
 			diagram.collapseBack(l)						
@@ -160,7 +161,7 @@ if __name__ == "__main__":
 		results2.clear()		
 		with open("__587_lvl2_zeroes.txt", 'a') as log:
 			for e in zeroes2:
-				log.write(str(e) + " : " + "|".join([str(avloops[i]) for i in e]) + "\n")
+				log.write(str(e) + " : " + str(avloopsZ[e[0]]) + "|" + "|".join([str(avloops0[i]) for i in e[1:]]) + "\n")
 			log.write("=== " + str(i0) + ": " + str(len(zeroes2)) + " | @ " + tstr(time() - startTime) + "\n")
 		zeroes2.clear
 #-### ~~~ lvl:0 ~~~ ###
