@@ -14,26 +14,6 @@ if __name__ == "__main__":
 		assert diagram.extendLoop(diagram.nodeByAddress[addr].loop)
 	def collapse(addr):
 		diagram.collapseBack(diagram.nodeByAddress[addr].loop)
-	def single():
-		singles = []
-		diagram.pointer_avlen = diagram.spClass
-		while True:
-			found = False
-			for chain in diagram.chains:
-				avlen = len(chain.avloops)
-				if avlen == 0:
-					diagram.pointer_avlen = 0
-					return singles
-				elif avlen == 1:
-					avloop = list(chain.avloops)[0]
-					singles.append(avloop)
-					diagram.extendLoop(avloop)					
-					found = True
-					break
-				elif avlen < diagram.pointer_avlen:
-					diagram.pointer_avlen = avlen
-			if not found:
-				return singles
 					
 	def coerce():
 		singles = []
@@ -41,12 +21,15 @@ if __name__ == "__main__":
 		
 		while True:
 			found = False
+			min_chlen = len(diagram.loops)
 			
 			for chain in diagram.chains:
 				avlen = len(chain.avloops)
+				if avlen < min_chlen:
+					min_chlen = avlen
 				
 				if avlen == 0:
-					return (singles, coerced) 
+					return (0, singles, coerced) 
 
 				elif avlen == 1:
 					avloop = list(chain.avloops)[0]
@@ -66,155 +49,145 @@ if __name__ == "__main__":
 						break
 																	
 			if not found:
-				return (singles, coerced)
-													
-	results = defaultdict(int)		
-	zeroes = []
-	
+				return (min_chlen, singles, coerced)
+		
+																								
+	results0 = defaultdict(int)		
+	zeroes0 = []
+	results1 = defaultdict(int)		
+	zeroes1 = []	
+	results2 = defaultdict(int)		
+	zeroes2 = []	
+			
 	startTime = time()
 	extend('000001')
+	extend('100004')
+	extend('100012')
+	extend('121014')
+	
+	min_chlenZ, singlesZ, coercedZ = coerce()
 	
 	avloops = [l for l in diagram.loops if l.availabled]
 	avlen = len(avloops)
-	print("avlen: " + str(avlen))
 	
+	diagram.point()
+	show(diagram)
+	input("[base] avlen: " + str(avlen) + " | min chlen: " + str(min_chlenZ) + "\nsingles: " + str(singlesZ) + "\ncoerced: " + str(coercedZ))
+	
+#-### ~~~ lvl:0 ~~~ ###
 	for i0 in range(0, avlen):
 		loop0 = avloops[i0]		
 		diagram.extendLoop(loop0)
-		singles0, coerced0 = diagram.coerceLoop(loop0) # coerce() # 
-		
-		for i1 in range(i0+1, avlen):
-			loop1 = avloops[i1]
-			if loop1.availabled:
-				diagram.extendLoop(loop1)
-				singles1, coerced1 = diagram.coerceLoop(loop1) # coerce() # 
-				
-				for i2 in range(i1+1, avlen): 
-					loop2 = avloops[i2]
-					if loop2.availabled:
-						
-						#print("i: "+str(i0)+'/'+str(i1)+'/'+str(i2))
-						#show(diagram); input()						
-						
-						diagram.extendLoop(loop2)
-						singles2, coerced2 = diagram.coerceLoop(loop2) # coerce() # 
-						# diagram.measure_avlen()
-						
-						# show(diagram); 
-						# next_touched_chains = set(itertools.chain(*[[n.cycle.chain for n in l.nodes]for l in loop2.extension_result.affected_loops]))
-						# print(next_touched_chains)
-						# print([len(chain.avloops) for chain in next_touched_chains])
-						# print([(chain,chain.cycles) for chain in diagram.chains if len(chain.avloops) < 3])
-						# input()
-							
-						'''
-						measurement_2b = (
-							0 if diagram.pointer_avlen == 0 else len([l for l in avloops if l.availabled]), 
-							diagram.pointer_avlen, 
-							-(len(singles0)+len(singles1)+len(singles2)), 
-							-(len(coerced0)+len(coerced1)+len(coerced2))
-						)
+		min_chlen0, singles0, coerced0 = coerce()
+		avlen0 = len([l for l in avloops if l.availabled])
 
-						diagram.collapseBack(loop2)
-						diagram.extendLoop(loop2)
-						singles2b, coerced2b = coerce()
-						diagram.measure_avlen()
-						
-						measurement_1b = (
-							0 if diagram.pointer_avlen == 0 else len([l for l in avloops if l.availabled]), 
-							diagram.pointer_avlen, 
-							-(len(singles0)+len(singles1)+len(singles2)), 
-							-(len(coerced0)+len(coerced1)+len(coerced2))
-						)
-						
-						assert measurement_1b == measurement_2b, "i: "+str(i0)+'/'+str(i1)+'/'+str(i2)+" | co1: "+str(coerced2b)+" / co2: "+str(coerced2)
-						
-						for l in reversed(singles2b):
-							diagram.collapseBack(l)		
-						for l in coerced2b:
-							diagram.setLoopAvailabled(l)
-						'''
-						'''
-						if diagram.pointer_avlen == 0:
-							zeroes.append((len(singles0)+len(singles1)+len(singles2), len(coerced0)+len(coerced1)+len(coerced2), loop0.firstAddress(), loop1.firstAddress(), loop2.firstAddress()))							
-						'''
-						#'''
-						# results[(i0, i1, i2)] = result
-						# if (i0, i1, i2) == (0, 2, 284):
-						# 	diagram.point()
-						# 	show(diagram)
-						# 	print(" | avlen: " + str(diagram.pointer_avlen))
-						# 	input("~~~ result: " + str(result))
-						
-						#'''
-						diagram.measure_avlen()
-						all_avloops_len = len([l for l in avloops if l.availabled])
-						results[(
-							0 if diagram.pointer_avlen == 0 else all_avloops_len, 
-							diagram.pointer_avlen, 
-							-(len(singles0)+len(singles1)+len(singles2)), 
-							-(len(coerced0)+len(coerced1)+len(coerced2))
-						)] += 1
-						#'''
-																		
-						if i2 % 300 == 0:
-							print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlen))	
+		results0[(
+			0 if min_chlen0 == 0 else avlen0, 
+			min_chlen0, 
+			-(len(singles0)), 
+			-(len(coerced0))
+		)] += 1
+			
+		if min_chlen0 == 0:
+			zeroes0.append((i0))
+			print("[lvl:0] avlen: " + str(avlen0) + " | chlen: " + str(min_chlen0) + " | s: " + str(len(singles0)) + " | c: " + str(len(coerced0)))
+		else:
+#-----### ~~~ lvl:1 ~~~ ###				
+			for i1 in range(i0+1, avlen):
+				loop1 = avloops[i1]
+				if loop1.availabled:
+					diagram.extendLoop(loop1)
+					min_chlen1, singles1, coerced1 = coerce()
+					avlen1 = len([l for l in avloops if l.availabled])
 							
-						if all_avloops_len == 587:
-							print("[$587] i: "+str(i0)+'/'+str(i1)+'/'+str(i2) + " | " + str((
-								0 if diagram.pointer_avlen == 0 else all_avloops_len, 
-								diagram.pointer_avlen, 
-								-(len(singles0)+len(singles1)+len(singles2)), 
-								-(len(coerced0)+len(coerced1)+len(coerced2))
-							)))
-							input("found 587")
-							
-						#for l in reversed(singles2):
-							#diagram.collapseBack(l)		
-						#for l in coerced2:
-							#diagram.setLoopAvailabled(l)																	
-						diagram.collapseBack(loop2)
-														
-				#for l in reversed(singles1):
-					#diagram.collapseBack(l)		
-				#for l in coerced1:
-					#diagram.setLoopAvailabled(l)											
-				diagram.collapseBack(loop1)
-														
-		#for l in reversed(singles0):
-			#diagram.collapseBack(l)						
-		#for l in coerced0:
-			#diagram.setLoopAvailabled(l)			
+					results1[(
+						0 if min_chlen1 == 0 else avlen1, 
+						min_chlen1, 
+						-(len(singles0)+len(singles1)), 
+						-(len(coerced0)+len(coerced1))
+					)] += 1
+
+					if min_chlen1 == 0:
+						zeroes1.append((i0, i1))
+						print("[lvl:1] avlen: " + str(avlen1) + " | chlen: " + str(min_chlen1) + " | s: " + str(len(singles0)+len(singles1)) + " | c: " + str(len(coerced0)+len(coerced1)))
+					else:
+#-----------### ~~~ lvl:2 ~~~ ###										
+						for i2 in range(i1+1, avlen): 
+							loop2 = avloops[i2]
+							if loop2.availabled:
+								diagram.extendLoop(loop2)
+								min_chlen2, singles2, coerced2 = coerce() 
+								avlen2 = len([l for l in avloops if l.availabled])
+
+								results2[(
+									0 if min_chlen2 == 0 else avlen2, 
+									min_chlen2, 
+									-(len(singles0)+len(singles1)+len(singles2)), 
+									-(len(coerced0)+len(coerced1)+len(coerced2))
+								)] += 1
+
+								if min_chlen2 == 0:
+									zeroes1.append((i0, i1, i2))
+									print("[lvl:2] avlen: " + str(avlen1) + " | chlen: " + str(min_chlen1) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)))
+									
+								if i2 % 290 == 0:
+									print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlen))							
+
+								for l in reversed(singles2):
+									diagram.collapseBack(l)		
+								for l in coerced2:
+									diagram.setLoopAvailabled(l)																	
+								diagram.collapseBack(loop2)												
+#-----------### ~~~ lvl:2 ~~~ ###																																		
+					for l in reversed(singles1):
+						diagram.collapseBack(l)		
+					for l in coerced1:
+						diagram.setLoopAvailabled(l)											
+					diagram.collapseBack(loop1)																									
+#-----### ~~~ lvl:1 ~~~ ###			
+		for l in reversed(singles0):
+			diagram.collapseBack(l)						
+		for l in coerced0:
+			diagram.setLoopAvailabled(l)			
 		diagram.collapseBack(loop0)
-
-		#'''
-		with open("_7sync4coercedresults2b.txt", 'a') as log:
+		
+		with open("__587_lvl2_results.txt", 'a') as log:
 			total = 0
-			for k,v in sorted(results.items()):
+			for k,v in sorted(results2.items()):
 				log.write(str(k) + " : " + str(v) + "\n")
 				total += v
 			log.write("=== " + str(i0) + ": " + str(total) + " | @ " + tstr(time() - startTime) + "\n")
-		results.clear()
-		#'''
-		'''
-		with open("_7sync4zeroescoerced.txt", 'a') as log:
-			log.write("=== i0: " + str(i0) + " | " + str(len(zeroes)) + " ===\n")			
-			for addrs in zeroes:
-				log.write(" ".join([str(x) for x in addrs]) + "\n")
-		zeroes.clear()
-		'''	
-		# log.write(str(0 if diagram.pointer_avlen is 0 else len([l for l in avloops if l.availabled])) + " " + str(diagram.pointer_avlen) + " " + str(-len(singles)) + " " + loop0.firstAddress() + " " + loop1.firstAddress() + " " + loop2.firstAddress() + "\n")		
-			
-	print("["+tstr(time() - startTime)+"][trial] »»» ---")
-	with open("_7sync4coercedresults2b.txt", 'r') as log:
+		results2.clear()		
+		with open("__587_lvl2_zeroes.txt", 'a') as log:
+			for e in zeroes2:
+				log.write(str(e) + " : " + "|".join([str(avloops[i]) for i in e]) + "\n")
+			log.write("=== " + str(i0) + ": " + str(len(zeroes2)) + " | @ " + tstr(time() - startTime) + "\n")
+		zeroes2.clear
+#-### ~~~ lvl:0 ~~~ ###
+				
+	diagram.point()
+	show(diagram)
+	
+	sorted0 = sorted(results0.items())	
+	print("["+tstr(time() - startTime)+"] lvl:0\n| results:\n" + "\n".join(str(pair[0])+": "+str(pair[1]) for pair in sorted0)+"\n| zeroes:\n"+"\n".join([str(e) for e in zeroes0]))
+	sorted1 = sorted(results1.items())	
+	print("["+tstr(time() - startTime)+"] lvl:1\n| results:\n" + "\n".join(str(pair[0])+": "+str(pair[1]) for pair in sorted1)+"\n| zeroes:\n"+"\n".join([str(e) for e in zeroes1]))
+	
+	results2.clear()
+	with open("__587_lvl2_results.txt", 'r') as log:
 		lines = log.read().splitlines()
 		for line in lines:
 			if not line.startswith("==="):
 				key = tuple(int(x) for x in line.split(" : ")[0][1:-1].split(", "))
 				val = int(line.split(" : ")[1])
-				results[key] += val
-		
-	grouped = sorted(results.items())
-	#diagram.pointers = [diagram.nodeByAddress[addr] for addr in set(chain(*grouped[0][1]))]
-	show(diagram)
-	print("["+tstr(time() - startTime)+"](): loop_count\n" + "\n".join(str(g[0])+": "+str(g[1]) for g in grouped))				
+				results2[key] += val
+	zeroes2count = 0
+	with open("__587_lvl2_zeroes.txt", 'r') as log:
+		lines = log.read().splitlines()
+		for line in lines:
+			if not line.startswith("==="):		
+				zeroes2count += 1
+				
+	sorted2 = sorted(results2.items())	
+	print("["+tstr(time() - startTime)+"] lvl:2\n| results:\n" + "\n".join(str(pair[0])+": "+str(pair[1]) for pair in sorted2)+"\n| zeroes: "+str(zeroes2count))
+
