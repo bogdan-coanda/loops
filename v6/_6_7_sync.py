@@ -59,9 +59,9 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	results_filename = "__527_lvl2_results.txt"
-	zeroes_filename = "__527_lvl2_zeroes.txt"
-	found_filename = "__527__found.txt"
+	results_filename = "__527_lvl2_results_tmp.txt"
+	zeroes_filename = "__527_lvl2_zeroes_tmp.txt"
+	found_filename = "__527__found_tmp.txt"
 
 	startTime = time()
 	extend('000001')
@@ -104,6 +104,8 @@ if __name__ == "__main__":
 		if min_chlen0 == 0:
 			zeroes0.append((i0))
 			print("[lvl:0] avlen: " + str(avlen0) + " | chlen: " + str(min_chlen0) + " | s: " + str(len(singles0)) + " | c: " + str(len(coerced0)))
+			with open(found_filename, 'a') as log:
+				log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen0) + " | chlen: " + str(min_chlen0) + " | s: " + str(len(singles0)) + " | c: " + str(len(coerced0)) + " @ " + str(i0) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n\n").replace("⟩", ")").replace("⟨", "("))
 #---### ~~~ lvl:1 ~~~ ###				
 		else:
 			for i1 in range(i0+1, avlenZ):
@@ -123,6 +125,8 @@ if __name__ == "__main__":
 					if min_chlen1 == 0:
 						zeroes1.append((i0, i1))
 						print("[lvl:1] avlen: " + str(avlen1) + " | chlen: " + str(min_chlen1) + " | s: " + str(len(singles0)+len(singles1)) + " | c: " + str(len(coerced0)+len(coerced1)))
+						with open(found_filename, 'a') as log:
+							log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen1) + " | chlen: " + str(min_chlen1) + " | s: " + str(len(singles0)+len(singles1)) + " | c: " + str(len(coerced0)+len(coerced1)) + " @ " + str(i0) + " " + str(i1) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n\n").replace("⟩", ")").replace("⟨", "("))
 #---------### ~~~ lvl:2 ~~~ ###
 					else:
 						for i2 in range(i1+1, avlenZ): 
@@ -146,9 +150,9 @@ if __name__ == "__main__":
 								if i2 % 200 == 0:
 									print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ))							
 
-								# if avlen2 <= 532 or min_chlen2 == 0:
-								# 	with open(found_filename, 'a') as log:
-								# 		log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "("))
+								if avlen2 <= 401 or min_chlen2 == 0:
+									with open(found_filename, 'a') as log:
+										log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "("))
 
 								for l in reversed(singles2):
 									diagram.collapseBack(l)		
