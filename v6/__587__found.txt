@@ -9,23 +9,23 @@
 | (loop:[orange:79]:100324|Ex)
 
 [319m4s.300] avlen: 527 | chlen: 2 | s: 5 | c: 0 @ 394/587 438 469 /581
-| (loop:[yellow:78]:100211|Ex)
 | (loop:[green:72]:102023|Ex)
 | (loop:[blue:79]:103406|Ex)
+| (loop:[yellow:78]:100211|Ex)
 
 [321m5s.405] avlen: 554 | chlen: 0 | s: 1 | c: 0 @ 406/587 439 469 /581
-| (loop:[yellow:71]:100343|Ex)
 | (loop:[green:72]:102023|Ex)
 | (loop:[blue:79]:103406|Ex)
+| (loop:[yellow:71]:100343|Ex)
+
+[325m50s.59] avlen: 560 | chlen: 0 | s: 0 | c: 0 @ 443/587 466 470 /582
+| (loop:[green:72]:102023|Ex)
+| (loop:[blue:79]:103406|Ex)
+| (loop:[green:78]:103032|Ex)
 
 [321m12s.963] avlen: 532 | chlen: 2 | s: 4 | c: 0 @ 407/587 419 469 /581
 | (loop:[orange:64]:100351|Ex)
 | (loop:[orange:67]:101200|Ex)
-| (loop:[blue:79]:103406|Ex)
-
-[325m50s.59] avlen: 560 | chlen: 0 | s: 0 | c: 0 @ 443/587 466 470 /582
-| (loop:[green:72]:102023|Ex)
-| (loop:[green:78]:103032|Ex)
 | (loop:[blue:79]:103406|Ex)
 
 [325m55s.558] avlen: 532 | chlen: 2 | s: 4 | c: 2 @ 444/587 460 464 /576
