@@ -58,12 +58,21 @@ if __name__ == "__main__":
 	zeroes1 = []	
 	results2 = defaultdict(int)		
 	zeroes2 = []	
-			
+
+	results_filename = "__587_lvl2_results_tmp.txt"
+	zeroes_filename = "__587_lvl2_zeroes_tmp.txt"
+	found_filename = "__587__found_tmp.txt"
+
 	startTime = time()
 	extend('000001')
 	extend('100004')
 	extend('100012')
 	extend('121014')
+	
+	# [0m1s.894] avlen: 527 | chlen: 2 | s: 5 | c: 0 @ 443 475 394 /587
+	# | (loop:[green:72]:102023|Ex)
+	# | (loop:[blue:79]:103406|Ex)
+	# | (loop:[yellow:78]:100211|Ex)	
 	
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
@@ -75,12 +84,11 @@ if __name__ == "__main__":
 	input("[base] avlen: " + str(avlenZ) + " | min chlen: " + str(min_chlenZ) + "\nsingles: " + str(singlesZ) + "\ncoerced: " + str(coercedZ))
 	
 #-### ~~~ lvl:0 ~~~ ###
-	for i0 in range(0, avlenZ):
+	for i0 in range(443, avlenZ):
 		loop0 = avloopsZ[i0]		
 		diagram.extendLoop(loop0)
 		min_chlen0, singles0, coerced0 = coerce()
-		avloops0 = [l for l in avloopsZ if l.availabled]
-		avlen0 = len(avloops0)
+		avlen0 = len([l for l in avloopsZ if l.availabled])
 
 		results0[(
 			0 if min_chlen0 == 0 else avlen0, 
@@ -94,12 +102,12 @@ if __name__ == "__main__":
 			print("[lvl:0] avlen: " + str(avlen0) + " | chlen: " + str(min_chlen0) + " | s: " + str(len(singles0)) + " | c: " + str(len(coerced0)))
 		else:
 #-----### ~~~ lvl:1 ~~~ ###				
-			for i1 in range(i0+1, avlen0):
-				loop1 = avloops0[i1]
+			for i1 in range(475, avlenZ):
+				loop1 = avloopsZ[i1]
 				if loop1.availabled:
 					diagram.extendLoop(loop1)
 					min_chlen1, singles1, coerced1 = coerce()
-					avlen1 = len([l for l in avloops0 if l.availabled])
+					avlen1 = len([l for l in avloopsZ if l.availabled])
 							
 					results1[(
 						0 if min_chlen1 == 0 else avlen1, 
@@ -113,12 +121,12 @@ if __name__ == "__main__":
 						print("[lvl:1] avlen: " + str(avlen1) + " | chlen: " + str(min_chlen1) + " | s: " + str(len(singles0)+len(singles1)) + " | c: " + str(len(coerced0)+len(coerced1)))
 					else:
 #-----------### ~~~ lvl:2 ~~~ ###										
-						for i2 in range(i1+1, avlen0): 
-							loop2 = avloops0[i2]
+						for i2 in range(0, avlenZ): 
+							loop2 = avloopsZ[i2]
 							if loop2.availabled:
 								diagram.extendLoop(loop2)
 								min_chlen2, singles2, coerced2 = coerce() 
-								avlen2 = len([l for l in avloops0 if l.availabled])
+								avlen2 = len([l for l in avloopsZ if l.availabled])
 
 								results2[(
 									0 if min_chlen2 == 0 else avlen2, 
@@ -132,11 +140,11 @@ if __name__ == "__main__":
 									print("[lvl:2] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)))
 									
 								if i2 % 260 == 0:
-									print("["+tstr(time() - startTime)+"] @ " + str(i0) + "/" + str(avlenZ) + " " + str(i1) + " " + str(i2) + " /" + str(avlen0))							
+									print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ))							
 
 								if avlen2 <= 532 or min_chlen2 == 0:
-									with open("__587__found.txt", 'a') as log:
-										log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " @ " + str(i0) + "/" + str(avlenZ) + " " + str(i1) + " " + str(i2) + " /" + str(avlen0) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "("))
+									with open(found_filename, 'a') as log:
+										log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "("))
 										
 								for l in reversed(singles2):
 									diagram.collapseBack(l)		
@@ -149,6 +157,7 @@ if __name__ == "__main__":
 					for l in coerced1:
 						diagram.setLoopAvailabled(l)
 					diagram.collapseBack(loop1)
+					break # [~]
 #-----### ~~~ lvl:1 ~~~ ###			
 		for l in reversed(singles0):
 			diagram.collapseBack(l)						
@@ -156,18 +165,19 @@ if __name__ == "__main__":
 			diagram.setLoopAvailabled(l)			
 		diagram.collapseBack(loop0)
 		
-		with open("__587_lvl2_results.txt", 'a') as log:
+		with open(results_filename, 'a') as log:
 			total = 0
 			for k,v in sorted(results2.items()):
 				log.write(str(k) + " : " + str(v) + "\n")
 				total += v
 			log.write("=== " + str(i0) + ": " + str(total) + " | @ " + tstr(time() - startTime) + "\n")
 		results2.clear()		
-		with open("__587_lvl2_zeroes.txt", 'a') as log:
+		with open(zeroes_filename, 'a') as log:
 			for e in zeroes2:
-				log.write((str(e) + " : " + str(avloopsZ[e[0]]) + "|" + "|".join([str(avloops0[i]) for i in e[1:]]) + "\n").replace("⟩", ")").replace("⟨", "("))
+				log.write((str(e) + " : " + "|".join([str(avloopsZ[i]) for i in e]) + "\n").replace("⟩", ")").replace("⟨", "("))
 			log.write("=== " + str(i0) + ": " + str(len(zeroes2)) + " | @ " + tstr(time() - startTime) + "\n")
 		zeroes2.clear()
+		break # [~]		
 #-### ~~~ lvl:0 ~~~ ###
 				
 	diagram.point()
@@ -179,7 +189,7 @@ if __name__ == "__main__":
 	print("["+tstr(time() - startTime)+"] lvl:1\n| results:\n" + "\n".join(str(pair[0])+": "+str(pair[1]) for pair in sorted1)+"\n| zeroes:\n"+"\n".join([str(e) for e in zeroes1]))
 	
 	results2.clear()
-	with open("__587_lvl2_results.txt", 'r') as log:
+	with open(results_filename, 'r') as log:
 		lines = log.read().splitlines()
 		for line in lines:
 			if not line.startswith("==="):
@@ -187,7 +197,7 @@ if __name__ == "__main__":
 				val = int(line.split(" : ")[1])
 				results2[key] += val
 	zeroes2count = 0
-	with open("__587_lvl2_zeroes.txt", 'r') as log:
+	with open(zeroes_filename, 'r') as log:
 		lines = log.read().splitlines()
 		for line in lines:
 			if not line.startswith("==="):		

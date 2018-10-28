@@ -1,0 +1,5 @@
+[0m1s.894] avlen: 527 | chlen: 2 | s: 5 | c: 0 @ 443 475 394 /587
+| (loop:[green:72]:102023|Ex)
+| (loop:[blue:79]:103406|Ex)
+| (loop:[yellow:78]:100211|Ex)
+
