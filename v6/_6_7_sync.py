@@ -59,9 +59,9 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	results_filename = "__527_lvl2_results_tmp.txt"
-	zeroes_filename = "__527_lvl2_zeroes_tmp.txt"
-	found_filename = "__527__found_tmp.txt"
+	results_filename = "__394_lvl2_results.txt"
+	zeroes_filename = "__394_lvl2_zeroes.txt"
+	found_filename = "__394__found.txt"
 
 	startTime = time()
 	extend('000001')
@@ -78,6 +78,15 @@ if __name__ == "__main__":
 	extend('103406')
 	extend('100211')
 	
+	# [257m7s.946] avlen: 394 | chlen: 2 | s: 12 | c: 1 @ 386 398 505 /527
+	# | (loop:[blue:68]:101306|Ex)
+	# | (loop:[green:74]:102041|Ex)
+	# | (loop:[blue:108]:121306|Ex)
+
+	extend('101306')
+	extend('102041')
+	extend('121306')
+			
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
 	avloopsZ = [l for l in diagram.loops if l.availabled]
@@ -96,7 +105,7 @@ if __name__ == "__main__":
 
 		results0[(
 			0 if min_chlen0 == 0 else avlen0, 
-			min_chlen0, 
+			min_chlen0 if min_chlen0 != 0 else avlen0, 
 			-(len(singles0)), 
 			-(len(coerced0))
 		)] += 1
@@ -117,7 +126,7 @@ if __name__ == "__main__":
 
 					results1[(
 						0 if min_chlen1 == 0 else avlen1, 
-						min_chlen1, 
+						min_chlen1 if min_chlen1 != 0 else avlen1,  
 						-(len(singles0)+len(singles1)), 
 						-(len(coerced0)+len(coerced1))
 					)] += 1
@@ -138,7 +147,7 @@ if __name__ == "__main__":
 
 								results2[(
 									0 if min_chlen2 == 0 else avlen2, 
-									min_chlen2, 
+									min_chlen2 if min_chlen2 != 0 else avlen2, 
 									-(len(singles0)+len(singles1)+len(singles2)), 
 									-(len(coerced0)+len(coerced1)+len(coerced2))
 								)] += 1
@@ -147,12 +156,12 @@ if __name__ == "__main__":
 									zeroes2.append((i0, i1, i2))
 									print("[lvl:2] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)))
 
-								if i2 % 200 == 0:
+								if i2 % 190 == 0:
 									print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ))							
 
-								if avlen2 <= 401 or min_chlen2 == 0:
-									with open(found_filename, 'a') as log:
-										log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "("))
+								# if avlen2 <= 401 or min_chlen2 == 0:
+								# 	with open(found_filename, 'a') as log:
+								# 		log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "("))
 
 								for l in reversed(singles2):
 									diagram.collapseBack(l)		
@@ -165,6 +174,8 @@ if __name__ == "__main__":
 					for l in coerced1:
 						diagram.setLoopAvailabled(l)
 					diagram.collapseBack(loop1)
+					# if i1 % 190 == 0:
+					# 	print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " /" + str(avlenZ))												
 					# break # [~]
 #---### ~~~ lvl:1 ~~~ ###			
 		for l in reversed(singles0):
@@ -195,22 +206,22 @@ if __name__ == "__main__":
 	print("["+tstr(time() - startTime)+"] lvl:0\n| results:\n" + "\n".join(str(pair[0])+": "+str(pair[1]) for pair in sorted0)+"\n| zeroes:\n"+"\n".join([str(e) for e in zeroes0]))
 	sorted1 = sorted(results1.items())	
 	print("["+tstr(time() - startTime)+"] lvl:1\n| results:\n" + "\n".join(str(pair[0])+": "+str(pair[1]) for pair in sorted1)+"\n| zeroes:\n"+"\n".join([str(e) for e in zeroes1]))
-	
-	results2.clear()
-	with open(results_filename, 'r') as log:
-		lines = log.read().splitlines()
-		for line in lines:
-			if not line.startswith("==="):
-				key = tuple(int(x) for x in line.split(" : ")[0][1:-1].split(", "))
-				val = int(line.split(" : ")[1])
-				results2[key] += val
-	zeroes2count = 0
-	with open(zeroes_filename, 'r') as log:
-		lines = log.read().splitlines()
-		for line in lines:
-			if not line.startswith("==="):		
-				zeroes2count += 1
 
-	sorted2 = sorted(results2.items())	
-	print("["+tstr(time() - startTime)+"] lvl:2\n| results:\n" + "\n".join(str(pair[0])+": "+str(pair[1]) for pair in sorted2)+"\n| zeroes: "+str(zeroes2count))
+	# results2.clear()
+	# with open(results_filename, 'r') as log:
+	# 	lines = log.read().splitlines()
+	# 	for line in lines:
+	# 		if not line.startswith("==="):
+	# 			key = tuple(int(x) for x in line.split(" : ")[0][1:-1].split(", "))
+	# 			val = int(line.split(" : ")[1])
+	# 			results2[key] += val
+	# zeroes2count = 0
+	# with open(zeroes_filename, 'r') as log:
+	# 	lines = log.read().splitlines()
+	# 	for line in lines:
+	# 		if not line.startswith("==="):		
+	# 			zeroes2count += 1
+	# 
+	# sorted2 = sorted(results2.items())	
+	# print("["+tstr(time() - startTime)+"] lvl:2\n| results:\n" + "\n".join(str(pair[0])+": "+str(pair[1]) for pair in sorted2)+"\n| zeroes: "+str(zeroes2count))
 
