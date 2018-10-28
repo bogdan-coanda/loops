@@ -59,9 +59,9 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	results_filename = "__587_lvl2_results_tmp.txt"
-	zeroes_filename = "__587_lvl2_zeroes_tmp.txt"
-	found_filename = "__587__found_tmp.txt"
+	results_filename = "__527_lvl2_results.txt"
+	zeroes_filename = "__527_lvl2_zeroes.txt"
+	found_filename = "__527__found.txt"
 
 	startTime = time()
 	extend('000001')
@@ -74,6 +74,10 @@ if __name__ == "__main__":
 	# | (loop:[blue:79]:103406|Ex)
 	# | (loop:[yellow:78]:100211|Ex)	
 	
+	extend('102023')
+	extend('103406')
+	extend('100211')
+	
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
 	avloopsZ = [l for l in diagram.loops if l.availabled]
@@ -84,7 +88,7 @@ if __name__ == "__main__":
 	input("[base] avlen: " + str(avlenZ) + " | min chlen: " + str(min_chlenZ) + "\nsingles: " + str(singlesZ) + "\ncoerced: " + str(coercedZ))
 	
 #-### ~~~ lvl:0 ~~~ ###
-	for i0 in range(443, avlenZ):
+	for i0 in range(0, avlenZ):
 		loop0 = avloopsZ[i0]		
 		diagram.extendLoop(loop0)
 		min_chlen0, singles0, coerced0 = coerce()
@@ -100,15 +104,15 @@ if __name__ == "__main__":
 		if min_chlen0 == 0:
 			zeroes0.append((i0))
 			print("[lvl:0] avlen: " + str(avlen0) + " | chlen: " + str(min_chlen0) + " | s: " + str(len(singles0)) + " | c: " + str(len(coerced0)))
+#---### ~~~ lvl:1 ~~~ ###				
 		else:
-#-----### ~~~ lvl:1 ~~~ ###				
-			for i1 in range(475, avlenZ):
+			for i1 in range(i0+1, avlenZ):
 				loop1 = avloopsZ[i1]
 				if loop1.availabled:
 					diagram.extendLoop(loop1)
 					min_chlen1, singles1, coerced1 = coerce()
 					avlen1 = len([l for l in avloopsZ if l.availabled])
-							
+
 					results1[(
 						0 if min_chlen1 == 0 else avlen1, 
 						min_chlen1, 
@@ -119,9 +123,9 @@ if __name__ == "__main__":
 					if min_chlen1 == 0:
 						zeroes1.append((i0, i1))
 						print("[lvl:1] avlen: " + str(avlen1) + " | chlen: " + str(min_chlen1) + " | s: " + str(len(singles0)+len(singles1)) + " | c: " + str(len(coerced0)+len(coerced1)))
+#---------### ~~~ lvl:2 ~~~ ###
 					else:
-#-----------### ~~~ lvl:2 ~~~ ###										
-						for i2 in range(0, avlenZ): 
+						for i2 in range(i1+1, avlenZ): 
 							loop2 = avloopsZ[i2]
 							if loop2.availabled:
 								diagram.extendLoop(loop2)
@@ -138,27 +142,27 @@ if __name__ == "__main__":
 								if min_chlen2 == 0:
 									zeroes2.append((i0, i1, i2))
 									print("[lvl:2] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)))
-									
-								if i2 % 260 == 0:
+
+								if i2 % 200 == 0:
 									print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ))							
 
-								if avlen2 <= 532 or min_chlen2 == 0:
-									with open(found_filename, 'a') as log:
-										log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "("))
-										
+								# if avlen2 <= 532 or min_chlen2 == 0:
+								# 	with open(found_filename, 'a') as log:
+								# 		log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "("))
+
 								for l in reversed(singles2):
 									diagram.collapseBack(l)		
 								for l in coerced2:
 									diagram.setLoopAvailabled(l)
 								diagram.collapseBack(loop2)
-#-----------### ~~~ lvl:2 ~~~ ###
+#---------### ~~~ lvl:2 ~~~ ###
 					for l in reversed(singles1):
 						diagram.collapseBack(l)		
 					for l in coerced1:
 						diagram.setLoopAvailabled(l)
 					diagram.collapseBack(loop1)
-					break # [~]
-#-----### ~~~ lvl:1 ~~~ ###			
+					# break # [~]
+#---### ~~~ lvl:1 ~~~ ###			
 		for l in reversed(singles0):
 			diagram.collapseBack(l)						
 		for l in coerced0:
@@ -177,7 +181,7 @@ if __name__ == "__main__":
 				log.write((str(e) + " : " + "|".join([str(avloopsZ[i]) for i in e]) + "\n").replace("⟩", ")").replace("⟨", "("))
 			log.write("=== " + str(i0) + ": " + str(len(zeroes2)) + " | @ " + tstr(time() - startTime) + "\n")
 		zeroes2.clear()
-		break # [~]		
+		# break # [~]		
 #-### ~~~ lvl:0 ~~~ ###
 				
 	diagram.point()
@@ -202,7 +206,7 @@ if __name__ == "__main__":
 		for line in lines:
 			if not line.startswith("==="):		
 				zeroes2count += 1
-				
+
 	sorted2 = sorted(results2.items())	
 	print("["+tstr(time() - startTime)+"] lvl:2\n| results:\n" + "\n".join(str(pair[0])+": "+str(pair[1]) for pair in sorted2)+"\n| zeroes: "+str(zeroes2count))
 
