@@ -167,7 +167,7 @@ if __name__ == "__main__":
 			for e in zeroes2:
 				log.write((str(e) + " : " + str(avloopsZ[e[0]]) + "|" + "|".join([str(avloops0[i]) for i in e[1:]]) + "\n").replace("⟩", ")").replace("⟨", "("))
 			log.write("=== " + str(i0) + ": " + str(len(zeroes2)) + " | @ " + tstr(time() - startTime) + "\n")
-		zeroes2.clear
+		zeroes2.clear()
 #-### ~~~ lvl:0 ~~~ ###
 				
 	diagram.point()
