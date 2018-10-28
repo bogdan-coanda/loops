@@ -131,12 +131,12 @@ if __name__ == "__main__":
 									zeroes2.append((i0, i1, i2))
 									print("[lvl:2] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)))
 									
-								if i2 % 290 == 0:
+								if i2 % 260 == 0:
 									print("["+tstr(time() - startTime)+"] @ " + str(i0) + "/" + str(avlenZ) + " " + str(i1) + " " + str(i2) + " /" + str(avlen0))							
 
-								if avlen2 <= 532:
+								if avlen2 <= 532 or min_chlen2 == 0:
 									with open("__587__found.txt", 'a') as log:
-										log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " @ " + str(i0) + "/" + str(avlenZ) + " " + str(i1) + " " + str(i2) + " /" + str(avlen0) + "\n| " + str(loop0) + " " + str(loop1) + " " + str(loop2)).replace("⟩", ")").replace("⟨", "("))
+										log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " @ " + str(i0) + "/" + str(avlenZ) + " " + str(i1) + " " + str(i2) + " /" + str(avlen0) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "("))
 										
 								for l in reversed(singles2):
 									diagram.collapseBack(l)		
@@ -165,7 +165,7 @@ if __name__ == "__main__":
 		results2.clear()		
 		with open("__587_lvl2_zeroes.txt", 'a') as log:
 			for e in zeroes2:
-				log.write(str(e) + " : " + str(avloopsZ[e[0]]) + "|" + "|".join([str(avloops0[i]) for i in e[1:]]) + "\n")
+				log.write((str(e) + " : " + str(avloopsZ[e[0]]) + "|" + "|".join([str(avloops0[i]) for i in e[1:]]) + "\n").replace("⟩", ")").replace("⟨", "("))
 			log.write("=== " + str(i0) + ": " + str(len(zeroes2)) + " | @ " + tstr(time() - startTime) + "\n")
 		zeroes2.clear
 #-### ~~~ lvl:0 ~~~ ###
