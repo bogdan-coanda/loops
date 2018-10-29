@@ -99,7 +99,7 @@ if __name__ == "__main__":
 	tobex_countZ = diagram.tobex_base_count - len([l for l in avloopsZ if l.extended])
 	tobex_ratioZ = (avlenZ / tobex_countZ) if tobex_countZ is not 0 else 0
 			
-	min_found_avlen2 = avlenZ
+	min_found_tobex_ratio2 = tobex_ratioZ*2
 			
 	diagram.point()
 	show(diagram)
@@ -180,8 +180,8 @@ if __name__ == "__main__":
 								if i2 % 300 == 0:
 									print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ))							
 
-								if min_chlen2 != 0 and avlen2 <= min_found_avlen2:
-									min_found_avlen2 = avlen2
+								if min_chlen2 != 0 and tobex_ratio2 <= min_found_tobex_ratio2:
+									min_found_tobex_ratio2 = tobex_ratio2
 									with open(minim_filename, 'a') as log:
 										log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " | tobex c: " + str(tobex_count2) + " r: " + str(tobex_ratio2) + " @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "("))
 																		
@@ -210,18 +210,18 @@ if __name__ == "__main__":
 			diagram.setLoopAvailabled(l)			
 		diagram.collapseBack(loop0)
 		
-		with open(results_filename, 'a') as log:
-			total = 0
-			for k,v in sorted(results2.items(), key = lambda pair: (0 if pair[0][1] == 0 else pair[0][-1], pair[0][-1], pair[0][0], pair[0][1])):
-				log.write(str(k) + " : " + str(v) + "\n")
-				total += v
-			log.write("=== " + str(i0) + ": " + str(total) + " | @ " + tstr(time() - startTime) + "\n")
-		results2.clear()		
-		with open(zeroes_filename, 'a') as log:
-			for e in zeroes2:
-				log.write((str(e) + " : " + "|".join([str(avloopsZ[i]) for i in e]) + "\n").replace("⟩", ")").replace("⟨", "("))
-			log.write("=== " + str(i0) + ": " + str(len(zeroes2)) + " | @ " + tstr(time() - startTime) + "\n")
-		zeroes2.clear()
+		# with open(results_filename, 'a') as log:
+		# 	total = 0
+		# 	for k,v in sorted(results2.items(), key = lambda pair: (0 if pair[0][1] == 0 else pair[0][-1], pair[0][-1], pair[0][0], pair[0][1])):
+		# 		log.write(str(k) + " : " + str(v) + "\n")
+		# 		total += v
+		# 	log.write("=== " + str(i0) + ": " + str(total) + " | @ " + tstr(time() - startTime) + "\n")
+		# results2.clear()		
+		# with open(zeroes_filename, 'a') as log:
+		# 	for e in zeroes2:
+		# 		log.write((str(e) + " : " + "|".join([str(avloopsZ[i]) for i in e]) + "\n").replace("⟩", ")").replace("⟨", "("))
+		# 	log.write("=== " + str(i0) + ": " + str(len(zeroes2)) + " | @ " + tstr(time() - startTime) + "\n")
+		# zeroes2.clear()
 		# break # [~]		
 #-### ~~~ lvl:0 ~~~ ###
 				
