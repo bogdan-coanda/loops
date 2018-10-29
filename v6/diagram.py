@@ -49,6 +49,10 @@ class Diagram (object):
 		if self.kernelSize > 0:
 			self.generateKernel()
 			
+		# tobex = number of chains to be brought together /over/ number of chains added by an extension loop 
+		self.tobex_base_count = int((len(self.chains) - 1) / (self.spClass - 2)) # [~] int conversion is always correct here (we can always fully divide)
+		print("[diagram] tobex: " + str(self.tobex_base_count))
+			
 		self.cleanexCount = 0
 									
 		
