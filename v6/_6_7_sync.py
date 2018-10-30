@@ -59,16 +59,27 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	results_filename = "__629__tobex__lvl2__results.txt"
-	zeroes_filename = "__629__tobex__lvl2__zeroes.txt"
-	found_filename = "__629__tobex__found.txt"
-	minim_filename = "__629__tobex__minim.txt"
+	results_filename = "__591__tobex__lvl2__results.txt"
+	zeroes_filename = "__591__tobex__lvl2__zeroes.txt"
+	found_filename = "__591__tobex__found.txt"
+	minim_filename = "__591__tobex__minim.txt"
 
 	# [base] avlen: 636 | min chlen: 5 | tobex count: 120 ratio: 5.3
 	startTime = time()
 	
 	# [base] avlen: 629 | min chlen: 4 | tobex count: 120 ratio: 5.241666666666666
 	extend('000001')
+	
+	# [274m30s.84] avlen: 591 | chlen: 3 | s: 0 | c: 0 | tobex c: 117 r: 5.051282051282051
+	# @ 510 519 529 /629
+	# | (loop:[green:80]:110005|Ex)
+	# | (loop:[green:84]:110041|Ex)
+	# | (loop:[yellow:82]:110220|Ex)
+	
+	extend('110005')
+	extend('110041')
+	extend('110220')
+	
 	
 	# extend('100004')
 	# extend('100012')
@@ -177,7 +188,7 @@ if __name__ == "__main__":
 									zeroes2.append((i0, i1, i2))
 									print("[lvl:2] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " | tobex c: " + str(tobex_count2) + " r: " + str(tobex_ratio2))
 
-								if i2 % 300 == 0:
+								if i2 % 290 == 0:
 									print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ))							
 
 								if min_chlen2 != 0 and tobex_ratio2 <= min_found_tobex_ratio2:
@@ -210,18 +221,18 @@ if __name__ == "__main__":
 			diagram.setLoopAvailabled(l)			
 		diagram.collapseBack(loop0)
 		
-		# with open(results_filename, 'a') as log:
-		# 	total = 0
-		# 	for k,v in sorted(results2.items(), key = lambda pair: (0 if pair[0][1] == 0 else pair[0][-1], pair[0][-1], pair[0][0], pair[0][1])):
-		# 		log.write(str(k) + " : " + str(v) + "\n")
-		# 		total += v
-		# 	log.write("=== " + str(i0) + ": " + str(total) + " | @ " + tstr(time() - startTime) + "\n")
-		# results2.clear()		
-		# with open(zeroes_filename, 'a') as log:
-		# 	for e in zeroes2:
-		# 		log.write((str(e) + " : " + "|".join([str(avloopsZ[i]) for i in e]) + "\n").replace("⟩", ")").replace("⟨", "("))
-		# 	log.write("=== " + str(i0) + ": " + str(len(zeroes2)) + " | @ " + tstr(time() - startTime) + "\n")
-		# zeroes2.clear()
+		with open(results_filename, 'a') as log:
+			total = 0
+			for k,v in sorted(results2.items(), key = lambda pair: (0 if pair[0][1] == 0 else pair[0][-1], pair[0][-1], pair[0][0], pair[0][1])):
+				log.write(str(k) + " : " + str(v) + "\n")
+				total += v
+			log.write("=== " + str(i0) + ": " + str(total) + " | @ " + tstr(time() - startTime) + "\n")
+		results2.clear()		
+		with open(zeroes_filename, 'a') as log:
+			for e in zeroes2:
+				log.write((str(e) + " : " + "|".join([str(avloopsZ[i]) for i in e]) + "\n").replace("⟩", ")").replace("⟨", "("))
+			log.write("=== " + str(i0) + ": " + str(len(zeroes2)) + " | @ " + tstr(time() - startTime) + "\n")
+		zeroes2.clear()
 		# break # [~]		
 #-### ~~~ lvl:0 ~~~ ###
 				
