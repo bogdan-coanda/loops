@@ -60,7 +60,7 @@ if __name__ == "__main__":
 	zeroes2 = []	
 
 	results_filename = "__445__tobex__lvl2__results.txt"
-	zeroes_filename = "__445__tobex__lvl2__zeroes.txt"
+	zeroes_filename = "__445__tobex__zeroes.txt"
 	found_filename = "__445__tobex__found.txt"
 	minim_filename = "__445__tobex__minim.txt"
 
@@ -156,7 +156,7 @@ if __name__ == "__main__":
 		if min_chlen0 == 0:
 			zeroes0.append((i0))
 			print("[lvl:0] avlen: " + str(avlen0) + " | chlen: " + str(min_chlen0) + " | s: " + str(len(singles0)) + " | c: " + str(len(coerced0)) + " | tobex c: " + str(tobex_count0) + " r: " + str(tobex_ratio0))
-			with open(found_filename, 'a') as log:
+			with open(zeroes_filename, 'a') as log:
 				log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen0) + " | chlen: " + str(min_chlen0) + " | s: " + str(len(singles0)) + " | c: " + str(len(coerced0)) + " | tobex c: " + str(tobex_count0) + " r: " + str(tobex_ratio0) + " @ " + str(i0) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n\n").replace("⟩", ")").replace("⟨", "("))
 #---### ~~~ lvl:1 ~~~ ###				
 		else:
@@ -181,7 +181,7 @@ if __name__ == "__main__":
 					if min_chlen1 == 0:
 						zeroes1.append((i0, i1))
 						print("[lvl:1] avlen: " + str(avlen1) + " | chlen: " + str(min_chlen1) + " | s: " + str(len(singles0)+len(singles1)) + " | c: " + str(len(coerced0)+len(coerced1)) + " | tobex c: " + str(tobex_count1) + " r: " + str(tobex_ratio1))
-						with open(found_filename, 'a') as log:
+						with open(zeroes_filename, 'a') as log:
 							log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen1) + " | chlen: " + str(min_chlen1) + " | s: " + str(len(singles0)+len(singles1)) + " | c: " + str(len(coerced0)+len(coerced1)) + " | tobex c: " + str(tobex_count1) + " r: " + str(tobex_ratio1) + " @ " + str(i0) + " " + str(i1) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n\n").replace("⟩", ")").replace("⟨", "("))
 #---------### ~~~ lvl:2 ~~~ ###
 					else:
