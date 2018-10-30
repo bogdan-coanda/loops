@@ -59,10 +59,10 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	results_filename = "__542__tobex__lvl2__results.txt"
-	zeroes_filename = "__542__tobex__lvl2__zeroes.txt"
-	found_filename = "__542__tobex__found.txt"
-	minim_filename = "__542__tobex__minim.txt"
+	results_filename = "__445__tobex__lvl2__results.txt"
+	zeroes_filename = "__445__tobex__lvl2__zeroes.txt"
+	found_filename = "__445__tobex__found.txt"
+	minim_filename = "__445__tobex__minim.txt"
 
 	# [base] avlen: 636 | min chlen: 5 | tobex count: 120 ratio: 5.3
 	startTime = time()
@@ -89,6 +89,16 @@ if __name__ == "__main__":
 	extend('020001')
 	extend('101053')
 	extend('101101')
+	
+	# [430m27s.886] avlen: 445 | chlen: 2 | s: 8 | c: 6 | tobex c: 109 r: 4.08256880733945
+	# @ 270 450 508 /542
+	# | (loop:[indigo:87]:020312|Ex)
+	# | (loop:[yellow:96]:110031|Ex)
+	# | (loop:[blue:103]:120306|Ex)
+	
+	extend('020312')
+	extend('110031')
+	extend('120306')
 	
 	# extend('100004')
 	# extend('100012')
@@ -193,11 +203,11 @@ if __name__ == "__main__":
 									tobex_ratio2
 								)] += 1
 
-								if min_chlen2 == 0:
-									zeroes2.append((i0, i1, i2))
-									print("[lvl:2] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " | tobex c: " + str(tobex_count2) + " r: " + str(tobex_ratio2))
+								#if min_chlen2 == 0:
+								#	zeroes2.append((i0, i1, i2))
+								#	print("[lvl:2] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " | tobex c: " + str(tobex_count2) + " r: " + str(tobex_ratio2))
 
-								if i2 % 290 == 0:
+								if i2 % 220 == 0:
 									print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ))							
 
 								if min_chlen2 != 0 and tobex_ratio2 <= min_found_tobex_ratio2:
