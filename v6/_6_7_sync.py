@@ -59,10 +59,10 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	results_filename = "__591__tobex__lvl2__results.txt"
-	zeroes_filename = "__591__tobex__lvl2__zeroes.txt"
-	found_filename = "__591__tobex__found.txt"
-	minim_filename = "__591__tobex__minim.txt"
+	results_filename = "__542__tobex__lvl2__results.txt"
+	zeroes_filename = "__542__tobex__lvl2__zeroes.txt"
+	found_filename = "__542__tobex__found.txt"
+	minim_filename = "__542__tobex__minim.txt"
 
 	# [base] avlen: 636 | min chlen: 5 | tobex count: 120 ratio: 5.3
 	startTime = time()
@@ -80,6 +80,15 @@ if __name__ == "__main__":
 	extend('110041')
 	extend('110220')
 	
+	# [200m1s.347] avlen: 542 | chlen: 2 | s: 2 | c: 2 | tobex c: 115 r: 4.71304347826087
+	# @ 255 427 428 /591
+	# | (loop:[indigo:80]:020001|Ex)
+	# | (loop:[orange:96]:101053|Ex)
+	# | (loop:[orange:111]:101101|Ex)
+
+	extend('020001')
+	extend('101053')
+	extend('101101')
 	
 	# extend('100004')
 	# extend('100012')
