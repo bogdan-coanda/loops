@@ -51,10 +51,16 @@ class Diagram (object):
 			
 		# tobex = number of chains to be brought together /over/ number of chains added by an extension loop 
 		self.tobex_base_count = int((len(self.chains) - 1) / (self.spClass - 2)) # [~] int conversion is always correct here (we can always fully divide)
+		# add back already extended (by kernel) loops as they will always be found and extracted when measuring current tobex count
+		self.tobex_base_count += len([loop for loop in self.loops if loop.extended])
 		print("[diagram] tobex: " + str(self.tobex_base_count))
 			
 		self.cleanexCount = 0
 									
+	
+	def measureTobex(self):
+		return self.tobex_base_count - len([loop for loop in self.loops if loop.extended])
+		
 		
 	def generateGraph(self):
 		
