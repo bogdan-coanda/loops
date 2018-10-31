@@ -59,82 +59,18 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	results_filename = "__156b__tobex__lvl2__results.txt"
-	zeroes_filename = "__156b__tobex__zeroes.txt"
-	minim_filename = "__156b__tobex__minim.txt"
-	sols_filename = "__156b__tobex__sols.txt"
+	results_filename = "__629__tobex__lvl2__results.txt"
+	zeroes_filename = "__629__tobex__zeroes.txt"
+	minim_filename = "__629__tobex__minim.txt"
+	maxim_filename = "__629__tobex__maxim.txt"
+	sols_filename = "__629__tobex__sols.txt"
 	
 	# [base] avlen: 636 | min chlen: 5 | tobex count: 120 ratio: 5.3
 	startTime = time()
 	
-	# [base] avlen: 629 | min chlen: 4 | tobex count: 120 ratio: 5.241666666666666
+	# [base] avlen: 629 | min chlen: 4 | tobex count: 119 ratio: 5.285714285714286
 	extend('000001')
 	
-	# [274m30s.84] avlen: 591 | chlen: 3 | s: 0 | c: 0 | tobex c: 117 r: 5.051282051282051
-	# @ 510 519 529 /629
-	# | (loop:[green:80]:110005|Ex)
-	# | (loop:[green:84]:110041|Ex)
-	# | (loop:[yellow:82]:110220|Ex)
-	
-	extend('110005')
-	extend('110041')
-	extend('110220')
-	
-	# [200m1s.347] avlen: 542 | chlen: 2 | s: 2 | c: 2 | tobex c: 115 r: 4.71304347826087
-	# @ 255 427 428 /591
-	# | (loop:[indigo:80]:020001|Ex)
-	# | (loop:[orange:96]:101053|Ex)
-	# | (loop:[orange:111]:101101|Ex)
-
-	extend('020001')
-	extend('101053')
-	extend('101101')
-	
-	# [430m27s.886] avlen: 445 | chlen: 2 | s: 8 | c: 6 | tobex c: 109 r: 4.08256880733945
-	# @ 270 450 508 /542
-	# | (loop:[indigo:87]:020312|Ex)
-	# | (loop:[yellow:96]:110031|Ex)
-	# | (loop:[blue:103]:120306|Ex)
-	
-	extend('020312')
-	extend('110031')
-	extend('120306')
-	
-	# [59m39s.470] avlen: 203 | chlen: 2 | s: 36 | c: 41 | tobex c: 81 r: 2.506172839506173
-	# @ 17 166 424 /445
-	# | (loop:[orange:25]:002034|Ex)
-	# | (loop:[red:35]:013020|Ex)
-	# | (loop:[green:106]:121014|Ex)
-	
-	extend('002034')
-	extend('013020')
-	extend('121014')
-	
-	# [6m59s.57] avlen: 167 | chlen: 2 | s: 3 | c: 3 | tobex c: 55 r: 3.036363636363636
-	# @ 72 83 85 /203
-	# | (loop:[violet:52]:013142|Ex)
-	# | (loop:[red:78]:013403|Ex)
-	# | (loop:[violet:54]:013411|Ex)
-
-	extend('013142')
-	extend('013403')
-	extend('013411')
-			
-	# [0m15s.35] avlen: 156 | chlen: 2 | s: 0 | c: 2 | tobex c: 52 r: 3.0
-	# @ 75 105 113 /167
-	# | (loop:[yellow:49]:020103|Ex)
-	# | (loop:[blue:50]:022006|Ex)
-	# | (loop:[green:56]:023014|Ex)
-	# 
-	# [0m18s.580] avlen: 156 | chlen: 2 | s: 0 | c: 2 | tobex c: 52 r: 3.0
-	# @ 105 111 113 /167
-	# | (loop:[blue:50]:022006|Ex)
-	# | (loop:[blue:53]:022306|Ex)
-	# | (loop:[green:56]:023014|Ex)
-
-	extend('022006')
-	extend('022306')
-	extend('023014')
 							
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
@@ -144,7 +80,8 @@ if __name__ == "__main__":
 	tobex_ratioZ = (avlenZ / tobex_countZ) if tobex_countZ is not 0 else 0
 			
 	min_found_tobex_ratio2 = tobex_ratioZ*2
-			
+	max_found_tobex_ratio2 = 0
+	
 	diagram.point()
 	show(diagram)
 	print("extended: " + str(len([l for l in diagram.loops if l.extended and not (l.firstNode().address.startswith('00') and l.firstNode().address.endswith('06'))])))
@@ -240,12 +177,17 @@ if __name__ == "__main__":
 								#	zeroes2.append((i0, i1, i2))
 								#	print("[lvl:2] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " | tobex c: " + str(tobex_count2) + " r: " + str(tobex_ratio2))
 
-								if i2 % 70 == 0:
+								if i2 % 300 == 0:
 									print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ))							
 
 								if min_chlen2 != 0 and tobex_ratio2 <= min_found_tobex_ratio2:
 									min_found_tobex_ratio2 = tobex_ratio2
 									with open(minim_filename, 'a') as log:
+										log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " | tobex c: " + str(tobex_count2) + " r: " + str(tobex_ratio2) + " @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "("))
+
+								if min_chlen2 != 0 and tobex_ratio2 >= max_found_tobex_ratio2:
+									max_found_tobex_ratio2 = tobex_ratio2
+									with open(maxim_filename, 'a') as log:
 										log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " | tobex c: " + str(tobex_count2) + " r: " + str(tobex_ratio2) + " @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "("))
 
 								for l in reversed(singles2):
