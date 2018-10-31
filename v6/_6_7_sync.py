@@ -59,10 +59,10 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	results_filename = "__167__tobex__lvl2__results.txt"
-	zeroes_filename = "__167__tobex__zeroes.txt"
-	minim_filename = "__167__tobex__minim.txt"
-	sols_filename = "__167__tobex__sols.txt"
+	results_filename = "__156a__tobex__lvl2__results.txt"
+	zeroes_filename = "__156a__tobex__zeroes.txt"
+	minim_filename = "__156a__tobex__minim.txt"
+	sols_filename = "__156a__tobex__sols.txt"
 	
 	# [base] avlen: 636 | min chlen: 5 | tobex count: 120 ratio: 5.3
 	startTime = time()
@@ -120,28 +120,22 @@ if __name__ == "__main__":
 	extend('013403')
 	extend('013411')
 			
-	# extend('100004')
-	# extend('100012')
-	# extend('121014')
-	
-	# [0m1s.894] avlen: 527 | chlen: 2 | s: 5 | c: 0 @ 443 475 394 /587
-	# | (loop:[green:72]:102023|Ex)
-	# | (loop:[blue:79]:103406|Ex)
-	# | (loop:[yellow:78]:100211|Ex)	
-	
-	# extend('102023')
-	# extend('103406')
-	# extend('100211')
-	
-	# [257m7s.946] avlen: 394 | chlen: 2 | s: 12 | c: 1 @ 386 398 505 /527
-	# | (loop:[blue:68]:101306|Ex)
-	# | (loop:[green:74]:102041|Ex)
-	# | (loop:[blue:108]:121306|Ex)
+	# [0m15s.35] avlen: 156 | chlen: 2 | s: 0 | c: 2 | tobex c: 52 r: 3.0
+	# @ 75 105 113 /167
+	# | (loop:[yellow:49]:020103|Ex)
+	# | (loop:[blue:50]:022006|Ex)
+	# | (loop:[green:56]:023014|Ex)
+	# 
+	# [0m18s.580] avlen: 156 | chlen: 2 | s: 0 | c: 2 | tobex c: 52 r: 3.0
+	# @ 105 111 113 /167
+	# | (loop:[blue:50]:022006|Ex)
+	# | (loop:[blue:53]:022306|Ex)
+	# | (loop:[green:56]:023014|Ex)
 
-	# extend('101306')
-	# extend('102041')
-	# extend('121306')
-			
+	extend('020103')
+	extend('022006')
+	extend('023014')
+							
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
 	avloopsZ = [l for l in diagram.loops if l.availabled]
@@ -246,7 +240,7 @@ if __name__ == "__main__":
 								#	zeroes2.append((i0, i1, i2))
 								#	print("[lvl:2] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " | tobex c: " + str(tobex_count2) + " r: " + str(tobex_ratio2))
 
-								if i2 % 80 == 0:
+								if i2 % 70 == 0:
 									print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ))							
 
 								if min_chlen2 != 0 and tobex_ratio2 <= min_found_tobex_ratio2:

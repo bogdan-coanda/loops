@@ -1,0 +1,10 @@
+[0m15s.35] avlen: 156 | chlen: 2 | s: 0 | c: 2 | tobex c: 52 r: 3.0 @ 75 105 113 /167
+| (loop:[yellow:49]:020103|Ex)
+| (loop:[blue:50]:022006|Ex)
+| (loop:[green:56]:023014|Ex)
+
+[0m18s.580] avlen: 156 | chlen: 2 | s: 0 | c: 2 | tobex c: 52 r: 3.0 @ 105 111 113 /167
+| (loop:[blue:50]:022006|Ex)
+| (loop:[blue:53]:022306|Ex)
+| (loop:[green:56]:023014|Ex)
+
