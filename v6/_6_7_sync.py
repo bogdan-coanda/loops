@@ -59,11 +59,11 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	results_filename = "__203__tobex__lvl2__results.txt"
-	zeroes_filename = "__203__tobex__zeroes.txt"
-	found_filename = "__203__tobex__found.txt"
-	minim_filename = "__203__tobex__minim.txt"
-
+	results_filename = "__156b__tobex__lvl2__results.txt"
+	zeroes_filename = "__156b__tobex__zeroes.txt"
+	minim_filename = "__156b__tobex__minim.txt"
+	sols_filename = "__156b__tobex__sols.txt"
+	
 	# [base] avlen: 636 | min chlen: 5 | tobex count: 120 ratio: 5.3
 	startTime = time()
 	
@@ -110,39 +110,44 @@ if __name__ == "__main__":
 	extend('013020')
 	extend('121014')
 	
-	# extend('100004')
-	# extend('100012')
-	# extend('121014')
-	
-	# [0m1s.894] avlen: 527 | chlen: 2 | s: 5 | c: 0 @ 443 475 394 /587
-	# | (loop:[green:72]:102023|Ex)
-	# | (loop:[blue:79]:103406|Ex)
-	# | (loop:[yellow:78]:100211|Ex)	
-	
-	# extend('102023')
-	# extend('103406')
-	# extend('100211')
-	
-	# [257m7s.946] avlen: 394 | chlen: 2 | s: 12 | c: 1 @ 386 398 505 /527
-	# | (loop:[blue:68]:101306|Ex)
-	# | (loop:[green:74]:102041|Ex)
-	# | (loop:[blue:108]:121306|Ex)
+	# [6m59s.57] avlen: 167 | chlen: 2 | s: 3 | c: 3 | tobex c: 55 r: 3.036363636363636
+	# @ 72 83 85 /203
+	# | (loop:[violet:52]:013142|Ex)
+	# | (loop:[red:78]:013403|Ex)
+	# | (loop:[violet:54]:013411|Ex)
 
-	# extend('101306')
-	# extend('102041')
-	# extend('121306')
+	extend('013142')
+	extend('013403')
+	extend('013411')
 			
+	# [0m15s.35] avlen: 156 | chlen: 2 | s: 0 | c: 2 | tobex c: 52 r: 3.0
+	# @ 75 105 113 /167
+	# | (loop:[yellow:49]:020103|Ex)
+	# | (loop:[blue:50]:022006|Ex)
+	# | (loop:[green:56]:023014|Ex)
+	# 
+	# [0m18s.580] avlen: 156 | chlen: 2 | s: 0 | c: 2 | tobex c: 52 r: 3.0
+	# @ 105 111 113 /167
+	# | (loop:[blue:50]:022006|Ex)
+	# | (loop:[blue:53]:022306|Ex)
+	# | (loop:[green:56]:023014|Ex)
+
+	extend('022006')
+	extend('022306')
+	extend('023014')
+							
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
 	avloopsZ = [l for l in diagram.loops if l.availabled]
 	avlenZ = len(avloopsZ)
-	tobex_countZ = diagram.tobex_base_count - len([l for l in avloopsZ if l.extended])
+	tobex_countZ = diagram.measureTobex()
 	tobex_ratioZ = (avlenZ / tobex_countZ) if tobex_countZ is not 0 else 0
 			
 	min_found_tobex_ratio2 = tobex_ratioZ*2
 			
 	diagram.point()
 	show(diagram)
+	print("extended: " + str(len([l for l in diagram.loops if l.extended and not (l.firstNode().address.startswith('00') and l.firstNode().address.endswith('06'))])))
 	input("[base] avlen: " + str(avlenZ) + " | min chlen: " + str(min_chlenZ) + " | tobex count: " + str(tobex_countZ) + " ratio: " + str(tobex_ratioZ) + "\nsingles: " + str(singlesZ) + "\ncoerced: " + str(coercedZ))
 	
 #-### ~~~ lvl:0 ~~~ ###
@@ -151,7 +156,7 @@ if __name__ == "__main__":
 		diagram.extendLoop(loop0)
 		min_chlen0, singles0, coerced0 = coerce()
 		avlen0 = len([l for l in avloopsZ if l.availabled])
-		tobex_count0 = diagram.tobex_base_count - len([l for l in avloopsZ if l.extended])
+		tobex_count0 = diagram.measureTobex()
 		tobex_ratio0 = (avlen0 / tobex_count0) if tobex_count0 != 0 else 0
 
 		results0[(
@@ -163,7 +168,13 @@ if __name__ == "__main__":
 			tobex_ratio0
 		)] += 1
 			
-		if min_chlen0 == 0:
+		if len(diagram.chains) == 1:
+			with open(sols_filename, 'a') as log:
+				log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen0) + " | chlen: " + str(min_chlen0) + " | s: " + str(len(singles0)) + " | c: " + str(len(coerced0)) + " | tobex c: " + str(tobex_count0) + " r: " + str(tobex_ratio0) + " @ " + str(i0) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n\n").replace("⟩", ")").replace("⟨", "("))
+			show(diagram)
+			input(("["+tstr(time() - startTime)+"] avlen: " + str(avlen0) + " | chlen: " + str(min_chlen0) + " | s: " + str(len(singles0)) + " | c: " + str(len(coerced0)) + " | tobex c: " + str(tobex_count0) + " r: " + str(tobex_ratio0) + " @ " + str(i0) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n\n").replace("⟩", ")").replace("⟨", "("))
+		
+		elif min_chlen0 == 0:
 			zeroes0.append((i0))
 			print("[lvl:0] avlen: " + str(avlen0) + " | chlen: " + str(min_chlen0) + " | s: " + str(len(singles0)) + " | c: " + str(len(coerced0)) + " | tobex c: " + str(tobex_count0) + " r: " + str(tobex_ratio0))
 			with open(zeroes_filename, 'a') as log:
@@ -176,7 +187,7 @@ if __name__ == "__main__":
 					diagram.extendLoop(loop1)
 					min_chlen1, singles1, coerced1 = coerce()
 					avlen1 = len([l for l in avloopsZ if l.availabled])
-					tobex_count1 = diagram.tobex_base_count - len([l for l in avloopsZ if l.extended])
+					tobex_count1 = diagram.measureTobex()
 					tobex_ratio1 = (avlen1 / tobex_count1) if tobex_count1 != 0 else 0
 		
 					results1[(
@@ -188,7 +199,13 @@ if __name__ == "__main__":
 						tobex_ratio1
 					)] += 1
 
-					if min_chlen1 == 0:
+					if len(diagram.chains) == 1:
+						with open(sols_filename, 'a') as log:
+							log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen1) + " | chlen: " + str(min_chlen1) + " | s: " + str(len(singles0)+len(singles1)) + " | c: " + str(len(coerced0)+len(coerced1)) + " | tobex c: " + str(tobex_count1) + " r: " + str(tobex_ratio1) + " @ " + str(i0) + " " + str(i1) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n\n").replace("⟩", ")").replace("⟨", "("))
+						show(diagram)
+						input(("["+tstr(time() - startTime)+"] avlen: " + str(avlen1) + " | chlen: " + str(min_chlen1) + " | s: " + str(len(singles0)+len(singles1)) + " | c: " + str(len(coerced0)+len(coerced1)) + " | tobex c: " + str(tobex_count1) + " r: " + str(tobex_ratio1) + " @ " + str(i0) + " " + str(i1) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n\n").replace("⟩", ")").replace("⟨", "("))
+										
+					elif min_chlen1 == 0:
 						zeroes1.append((i0, i1))
 						print("[lvl:1] avlen: " + str(avlen1) + " | chlen: " + str(min_chlen1) + " | s: " + str(len(singles0)+len(singles1)) + " | c: " + str(len(coerced0)+len(coerced1)) + " | tobex c: " + str(tobex_count1) + " r: " + str(tobex_ratio1))
 						with open(zeroes_filename, 'a') as log:
@@ -201,7 +218,7 @@ if __name__ == "__main__":
 								diagram.extendLoop(loop2)
 								min_chlen2, singles2, coerced2 = coerce() 
 								avlen2 = len([l for l in avloopsZ if l.availabled])
-								tobex_count2 = diagram.tobex_base_count - len([l for l in avloopsZ if l.extended])
+								tobex_count2 = diagram.measureTobex()
 								tobex_ratio2 = (avlen2 / tobex_count2) if tobex_count2 != 0 else 0
 					
 								results2[(
@@ -213,21 +230,23 @@ if __name__ == "__main__":
 									tobex_ratio2
 								)] += 1
 
-								#if min_chlen2 == 0:
+								if len(diagram.chains) == 1:
+									with open(sols_filename, 'a') as log:
+										log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " | tobex c: " + str(tobex_count2) + " r: " + str(tobex_ratio2) + " @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "("))
+									show(diagram)
+									input(("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " | tobex c: " + str(tobex_count2) + " r: " + str(tobex_ratio2) + " @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "("))							
+									
+								#elif min_chlen2 == 0:
 								#	zeroes2.append((i0, i1, i2))
 								#	print("[lvl:2] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " | tobex c: " + str(tobex_count2) + " r: " + str(tobex_ratio2))
 
-								if i2 % 100 == 0:
+								if i2 % 70 == 0:
 									print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ))							
 
 								if min_chlen2 != 0 and tobex_ratio2 <= min_found_tobex_ratio2:
 									min_found_tobex_ratio2 = tobex_ratio2
 									with open(minim_filename, 'a') as log:
 										log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " | tobex c: " + str(tobex_count2) + " r: " + str(tobex_ratio2) + " @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "("))
-																		
-								# if avlen2 <= 157: # or min_chlen2 == 0:
-								# 	with open(found_filename, 'a') as log:
-								# 		log.write(("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " | tobex c: " + str(tobex_count2) + " r: " + str(tobex_ratio2) + " @ " + str(i0) + " " + str(i1) + " " + str(i2) + " /" + str(avlenZ) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "("))
 
 								for l in reversed(singles2):
 									diagram.collapseBack(l)		
