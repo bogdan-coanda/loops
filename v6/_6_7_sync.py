@@ -59,11 +59,11 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	results_filename = "__617__tobex__lvl2__results.txt"
-	zeroes_filename = "__617__tobex__zeroes.txt"
-	minim_filename = "__617__tobex__minim.txt"
-	maxim_filename = "__617__tobex__maxim.txt"
-	sols_filename = "__617__tobex__sols.txt"
+	results_filename = "__605max__lvl2__results.txt"
+	zeroes_filename = "__605max__zeroes.txt"
+	minim_filename = "__605max__minim.txt"
+	maxim_filename = "__605max__maxim.txt"
+	sols_filename = "__605max__sols.txt"
 	
 	# [base] avlen: 636 | min chlen: 5 | tobex count: 120 ratio: 5.3
 	startTime = time()
@@ -80,7 +80,17 @@ if __name__ == "__main__":
 	extend('110334')
 	extend('111023')
 	extend('113206')
-							
+	
+	# [264m44s.302] avlen: 605 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.353982300884955
+	# @ 397 419 481 /617
+	# | (loop:[green:62]:100023|Ex)
+	# | (loop:[yellow:62]:100220|Ex)
+	# | (loop:[blue:72]:102206|Ex)
+		
+	extend('100023')
+	extend('100220')
+	extend('102206')
+																			
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
 	avloopsZ = [l for l in diagram.loops if l.availabled]

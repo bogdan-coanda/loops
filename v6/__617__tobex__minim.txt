@@ -1,0 +1,265 @@
+[0m4s.451] avlen: 590 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.221238938053097 @ 0 2 4 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[violet:61]:000052|Ex)
+
+[0m4s.459] avlen: 589 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.212389380530974 @ 0 2 5 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[red:41]:000053|Ex)
+
+[0m4s.481] avlen: 589 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.212389380530974 @ 0 2 14 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[violet:68]:000402|Ex)
+
+[0m4s.484] avlen: 589 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.212389380530974 @ 0 2 16 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[violet:64]:000411|Ex)
+
+[0m4s.487] avlen: 589 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.212389380530974 @ 0 2 18 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[red:84]:000421|Ex)
+
+[0m4s.490] avlen: 589 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.212389380530974 @ 0 2 20 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[violet:69]:000453|Ex)
+
+[0m4s.544] avlen: 589 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.212389380530974 @ 0 2 77 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[violet:76]:003101|Ex)
+
+[0m4s.618] avlen: 589 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.212389380530974 @ 0 2 280 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[yellow:52]:020022|Ex)
+
+[0m4s.620] avlen: 588 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.20353982300885 @ 0 2 287 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[indigo:85]:020043|Ex)
+
+[0m4s.675] avlen: 588 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.20353982300885 @ 0 2 444 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[green:69]:101041|Ex)
+
+[0m4s.692] avlen: 588 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.20353982300885 @ 0 2 503 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[yellow:84]:110004|Ex)
+
+[0m4s.699] avlen: 588 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.20353982300885 @ 0 2 513 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[green:84]:110041|Ex)
+
+[0m4s.875] avlen: 588 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.20353982300885 @ 0 3 328 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[red:45]:000044|Ex)
+| (loop:[indigo:90]:021033|Ex)
+
+[0m4s.896] avlen: 588 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.20353982300885 @ 0 3 393 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[red:45]:000044|Ex)
+| (loop:[orange:90]:100012|Ex)
+
+[0m4s.932] avlen: 588 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.20353982300885 @ 0 3 503 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[red:45]:000044|Ex)
+| (loop:[yellow:84]:110004|Ex)
+
+[0m4s.938] avlen: 588 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.20353982300885 @ 0 3 513 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[red:45]:000044|Ex)
+| (loop:[green:84]:110041|Ex)
+
+[0m4s.980] avlen: 588 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.20353982300885 @ 0 4 18 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:61]:000052|Ex)
+| (loop:[red:84]:000421|Ex)
+
+[0m5s.23] avlen: 588 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.20353982300885 @ 0 4 77 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:61]:000052|Ex)
+| (loop:[violet:76]:003101|Ex)
+
+[0m5s.26] avlen: 588 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.20353982300885 @ 0 4 80 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:61]:000052|Ex)
+| (loop:[violet:77]:003152|Ex)
+
+[0m5s.93] avlen: 588 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.20353982300885 @ 0 4 280 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:61]:000052|Ex)
+| (loop:[yellow:52]:020022|Ex)
+
+[0m5s.96] avlen: 587 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.1946902654867255 @ 0 4 288 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:61]:000052|Ex)
+| (loop:[indigo:81]:020052|Ex)
+
+[0m5s.137] avlen: 587 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.1946902654867255 @ 0 4 411 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:61]:000052|Ex)
+| (loop:[orange:77]:100144|Ex)
+
+[0m5s.138] avlen: 587 | chlen: 2 | s: 0 | c: 1 | tobex c: 113 r: 5.1946902654867255 @ 0 4 412 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:61]:000052|Ex)
+| (loop:[orange:92]:100153|Ex)
+
+[0m5s.166] avlen: 587 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.1946902654867255 @ 0 4 508 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:61]:000052|Ex)
+| (loop:[yellow:92]:110022|Ex)
+
+[0m5s.329] avlen: 587 | chlen: 2 | s: 0 | c: 1 | tobex c: 113 r: 5.1946902654867255 @ 0 5 297 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[red:41]:000053|Ex)
+| (loop:[indigo:82]:020142|Ex)
+
+[0m5s.330] avlen: 586 | chlen: 2 | s: 0 | c: 1 | tobex c: 113 r: 5.185840707964601 @ 0 5 298 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[red:41]:000053|Ex)
+| (loop:[indigo:42]:020151|Ex)
+
+[0m5s.341] avlen: 586 | chlen: 2 | s: 0 | c: 1 | tobex c: 113 r: 5.185840707964601 @ 0 5 331 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[red:41]:000053|Ex)
+| (loop:[indigo:46]:021051|Ex)
+
+[0m5s.379] avlen: 586 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.185840707964601 @ 0 5 446 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[red:41]:000053|Ex)
+| (loop:[orange:96]:101053|Ex)
+
+[0m7s.496] avlen: 585 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.176991150442478 @ 0 14 530 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:68]:000402|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[0m7s.940] avlen: 584 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.168141592920354 @ 0 16 530 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:64]:000411|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[1m5s.299] avlen: 584 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.168141592920354 @ 0 504 530 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[green:80]:110005|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[1m5s.421] avlen: 584 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.168141592920354 @ 0 508 530 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[yellow:92]:110022|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[1m5s.461] avlen: 584 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.168141592920354 @ 0 509 530 /617
+| (loop:[red:80]:000011|Ex)
+| (loop:[green:82]:110023|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[1m9s.473] avlen: 584 | chlen: 2 | s: 0 | c: 1 | tobex c: 113 r: 5.168141592920354 @ 1 10 307 /617
+| (loop:[violet:80]:000034|Ex)
+| (loop:[violet:82]:000303|Ex)
+| (loop:[indigo:102]:020303|Ex)
+
+[1m10s.544] avlen: 584 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.168141592920354 @ 1 14 530 /617
+| (loop:[violet:80]:000034|Ex)
+| (loop:[violet:68]:000402|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[1m10s.822] avlen: 584 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.168141592920354 @ 1 16 19 /617
+| (loop:[violet:80]:000034|Ex)
+| (loop:[violet:64]:000411|Ex)
+| (loop:[violet:84]:000444|Ex)
+
+[1m10s.996] avlen: 584 | chlen: 2 | s: 0 | c: 0 | tobex c: 113 r: 5.168141592920354 @ 1 16 442 /617
+| (loop:[violet:80]:000034|Ex)
+| (loop:[violet:64]:000411|Ex)
+| (loop:[green:67]:101023|Ex)
+
+[1m11s.28] avlen: 583 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.15929203539823 @ 1 16 530 /617
+| (loop:[violet:80]:000034|Ex)
+| (loop:[violet:64]:000411|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[2m12s.862] avlen: 583 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.15929203539823 @ 1 504 530 /617
+| (loop:[violet:80]:000034|Ex)
+| (loop:[green:80]:110005|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[2m12s.984] avlen: 583 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.15929203539823 @ 1 508 530 /617
+| (loop:[violet:80]:000034|Ex)
+| (loop:[yellow:92]:110022|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[2m13s.30] avlen: 583 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.15929203539823 @ 1 509 530 /617
+| (loop:[violet:80]:000034|Ex)
+| (loop:[green:82]:110023|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[2m17s.392] avlen: 583 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.15929203539823 @ 2 12 513 /617
+| (loop:[violet:65]:000043|Ex)
+| (loop:[violet:63]:000321|Ex)
+| (loop:[green:84]:110041|Ex)
+
+[2m32s.101] avlen: 582 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.150442477876106 @ 2 77 512 /617
+| (loop:[violet:65]:000043|Ex)
+| (loop:[violet:76]:003101|Ex)
+| (loop:[yellow:80]:110040|Ex)
+
+[3m17s.498] avlen: 582 | chlen: 2 | s: 0 | c: 0 | tobex c: 113 r: 5.150442477876106 @ 2 437 444 /617
+| (loop:[violet:65]:000043|Ex)
+| (loop:[green:65]:101005|Ex)
+| (loop:[green:69]:101041|Ex)
+
+[3m20s.845] avlen: 581 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.1415929203539825 @ 2 503 512 /617
+| (loop:[violet:65]:000043|Ex)
+| (loop:[yellow:84]:110004|Ex)
+| (loop:[yellow:80]:110040|Ex)
+
+[3m20s.889] avlen: 581 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.1415929203539825 @ 2 504 513 /617
+| (loop:[violet:65]:000043|Ex)
+| (loop:[green:80]:110005|Ex)
+| (loop:[green:84]:110041|Ex)
+
+[4m48s.533] avlen: 580 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.132743362831858 @ 4 77 80 /617
+| (loop:[violet:61]:000052|Ex)
+| (loop:[violet:76]:003101|Ex)
+| (loop:[violet:77]:003152|Ex)
+
+[5m18s.680] avlen: 580 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.132743362831858 @ 4 273 288 /617
+| (loop:[violet:61]:000052|Ex)
+| (loop:[indigo:80]:020001|Ex)
+| (loop:[indigo:81]:020052|Ex)
+
+[5m30s.484] avlen: 580 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.132743362831858 @ 4 390 403 /617
+| (loop:[violet:61]:000052|Ex)
+| (loop:[orange:75]:100003|Ex)
+| (loop:[orange:76]:100054|Ex)
+
+[5m31s.516] avlen: 579 | chlen: 2 | s: 0 | c: 1 | tobex c: 113 r: 5.123893805309734 @ 4 404 412 /617
+| (loop:[violet:61]:000052|Ex)
+| (loop:[orange:91]:100102|Ex)
+| (loop:[orange:92]:100153|Ex)
+
+[19m33s.341] avlen: 579 | chlen: 2 | s: 0 | c: 1 | tobex c: 113 r: 5.123893805309734 @ 16 390 429 /617
+| (loop:[violet:64]:000411|Ex)
+| (loop:[orange:75]:100003|Ex)
+| (loop:[orange:79]:100324|Ex)
+
+[19m33s.429] avlen: 579 | chlen: 2 | s: 0 | c: 1 | tobex c: 113 r: 5.123893805309734 @ 16 393 430 /617
+| (loop:[violet:64]:000411|Ex)
+| (loop:[orange:90]:100012|Ex)
+| (loop:[orange:94]:100333|Ex)
+
+[276m4s.990] avlen: 579 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.123893805309734 @ 504 513 522 /617
+| (loop:[green:80]:110005|Ex)
+| (loop:[green:84]:110041|Ex)
+| (loop:[yellow:82]:110220|Ex)
+
