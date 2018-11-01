@@ -1,0 +1,295 @@
+[0m1s.794] avlen: 602 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.189655172413793 @ 0 2 4 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[violet:61]:000052|Ex)
+
+[0m1s.802] avlen: 601 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.181034482758621 @ 0 2 5 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[red:41]:000053|Ex)
+
+[0m1s.822] avlen: 601 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.181034482758621 @ 0 2 14 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[violet:68]:000402|Ex)
+
+[0m1s.825] avlen: 601 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.181034482758621 @ 0 2 16 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[violet:64]:000411|Ex)
+
+[0m1s.828] avlen: 601 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.181034482758621 @ 0 2 18 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[red:84]:000421|Ex)
+
+[0m1s.831] avlen: 601 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.181034482758621 @ 0 2 20 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[violet:69]:000453|Ex)
+
+[0m1s.886] avlen: 601 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.181034482758621 @ 0 2 77 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[violet:76]:003101|Ex)
+
+[0m1s.958] avlen: 601 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.181034482758621 @ 0 2 280 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[yellow:52]:020022|Ex)
+
+[0m1s.960] avlen: 600 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.172413793103448 @ 0 2 287 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[indigo:85]:020043|Ex)
+
+[0m2s.14] avlen: 600 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.172413793103448 @ 0 2 447 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[green:69]:101041|Ex)
+
+[0m2s.33] avlen: 600 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.172413793103448 @ 0 2 509 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[yellow:84]:110004|Ex)
+
+[0m2s.39] avlen: 600 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.172413793103448 @ 0 2 519 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[green:84]:110041|Ex)
+
+[0m2s.212] avlen: 600 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.172413793103448 @ 0 3 330 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[red:45]:000044|Ex)
+| (loop:[indigo:90]:021033|Ex)
+
+[0m2s.233] avlen: 600 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.172413793103448 @ 0 3 396 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[red:45]:000044|Ex)
+| (loop:[orange:90]:100012|Ex)
+
+[0m2s.269] avlen: 600 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.172413793103448 @ 0 3 509 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[red:45]:000044|Ex)
+| (loop:[yellow:84]:110004|Ex)
+
+[0m2s.275] avlen: 600 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.172413793103448 @ 0 3 519 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[red:45]:000044|Ex)
+| (loop:[green:84]:110041|Ex)
+
+[0m2s.317] avlen: 600 | chlen: 4 | s: 0 | c: 0 | tobex c: 116 r: 5.172413793103448 @ 0 4 18 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:61]:000052|Ex)
+| (loop:[red:84]:000421|Ex)
+
+[0m2s.360] avlen: 600 | chlen: 4 | s: 0 | c: 0 | tobex c: 116 r: 5.172413793103448 @ 0 4 77 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:61]:000052|Ex)
+| (loop:[violet:76]:003101|Ex)
+
+[0m2s.362] avlen: 600 | chlen: 4 | s: 0 | c: 0 | tobex c: 116 r: 5.172413793103448 @ 0 4 80 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:61]:000052|Ex)
+| (loop:[violet:77]:003152|Ex)
+
+[0m2s.429] avlen: 600 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.172413793103448 @ 0 4 280 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:61]:000052|Ex)
+| (loop:[yellow:52]:020022|Ex)
+
+[0m2s.431] avlen: 599 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.163793103448276 @ 0 4 288 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:61]:000052|Ex)
+| (loop:[indigo:81]:020052|Ex)
+
+[0m2s.472] avlen: 599 | chlen: 4 | s: 0 | c: 0 | tobex c: 116 r: 5.163793103448276 @ 0 4 414 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:61]:000052|Ex)
+| (loop:[orange:77]:100144|Ex)
+
+[0m2s.502] avlen: 599 | chlen: 4 | s: 0 | c: 0 | tobex c: 116 r: 5.163793103448276 @ 0 4 514 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:61]:000052|Ex)
+| (loop:[yellow:92]:110022|Ex)
+
+[0m2s.664] avlen: 599 | chlen: 2 | s: 0 | c: 0 | tobex c: 116 r: 5.163793103448276 @ 0 5 298 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[red:41]:000053|Ex)
+| (loop:[indigo:42]:020151|Ex)
+
+[0m2s.676] avlen: 599 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.163793103448276 @ 0 5 333 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[red:41]:000053|Ex)
+| (loop:[indigo:46]:021051|Ex)
+
+[0m2s.713] avlen: 598 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.155172413793103 @ 0 5 449 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[red:41]:000053|Ex)
+| (loop:[orange:96]:101053|Ex)
+
+[0m4s.846] avlen: 597 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.146551724137931 @ 0 14 538 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:68]:000402|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[0m5s.292] avlen: 596 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.137931034482759 @ 0 16 538 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:64]:000411|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[1m5s.100] avlen: 596 | chlen: 4 | s: 0 | c: 0 | tobex c: 116 r: 5.137931034482759 @ 0 510 538 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[green:80]:110005|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[1m5s.221] avlen: 596 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.137931034482759 @ 0 514 538 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[yellow:92]:110022|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[1m5s.264] avlen: 596 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.137931034482759 @ 0 515 538 /629
+| (loop:[red:80]:000011|Ex)
+| (loop:[green:82]:110023|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[1m10s.802] avlen: 596 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.137931034482759 @ 1 14 538 /629
+| (loop:[violet:80]:000034|Ex)
+| (loop:[violet:68]:000402|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[1m11s.90] avlen: 596 | chlen: 4 | s: 0 | c: 0 | tobex c: 116 r: 5.137931034482759 @ 1 16 19 /629
+| (loop:[violet:80]:000034|Ex)
+| (loop:[violet:64]:000411|Ex)
+| (loop:[violet:84]:000444|Ex)
+
+[1m11s.271] avlen: 596 | chlen: 2 | s: 0 | c: 0 | tobex c: 116 r: 5.137931034482759 @ 1 16 445 /629
+| (loop:[violet:80]:000034|Ex)
+| (loop:[violet:64]:000411|Ex)
+| (loop:[green:67]:101023|Ex)
+
+[1m11s.305] avlen: 595 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.129310344827586 @ 1 16 538 /629
+| (loop:[violet:80]:000034|Ex)
+| (loop:[violet:64]:000411|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[2m16s.228] avlen: 595 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.129310344827586 @ 1 510 538 /629
+| (loop:[violet:80]:000034|Ex)
+| (loop:[green:80]:110005|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[2m16s.357] avlen: 595 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.129310344827586 @ 1 514 538 /629
+| (loop:[violet:80]:000034|Ex)
+| (loop:[yellow:92]:110022|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[2m16s.406] avlen: 595 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.129310344827586 @ 1 515 538 /629
+| (loop:[violet:80]:000034|Ex)
+| (loop:[green:82]:110023|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[2m21s.260] avlen: 595 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.129310344827586 @ 2 12 519 /629
+| (loop:[violet:65]:000043|Ex)
+| (loop:[violet:63]:000321|Ex)
+| (loop:[green:84]:110041|Ex)
+
+[2m37s.89] avlen: 594 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.120689655172414 @ 2 77 518 /629
+| (loop:[violet:65]:000043|Ex)
+| (loop:[violet:76]:003101|Ex)
+| (loop:[yellow:80]:110040|Ex)
+
+[3m26s.954] avlen: 594 | chlen: 2 | s: 0 | c: 0 | tobex c: 116 r: 5.120689655172414 @ 2 440 447 /629
+| (loop:[violet:65]:000043|Ex)
+| (loop:[green:65]:101005|Ex)
+| (loop:[green:69]:101041|Ex)
+
+[3m30s.805] avlen: 593 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.112068965517241 @ 2 509 518 /629
+| (loop:[violet:65]:000043|Ex)
+| (loop:[yellow:84]:110004|Ex)
+| (loop:[yellow:80]:110040|Ex)
+
+[3m30s.854] avlen: 593 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.112068965517241 @ 2 510 519 /629
+| (loop:[violet:65]:000043|Ex)
+| (loop:[green:80]:110005|Ex)
+| (loop:[green:84]:110041|Ex)
+
+[5m9s.492] avlen: 592 | chlen: 4 | s: 0 | c: 0 | tobex c: 116 r: 5.103448275862069 @ 4 77 80 /629
+| (loop:[violet:61]:000052|Ex)
+| (loop:[violet:76]:003101|Ex)
+| (loop:[violet:77]:003152|Ex)
+
+[5m43s.405] avlen: 592 | chlen: 4 | s: 0 | c: 0 | tobex c: 116 r: 5.103448275862069 @ 4 273 288 /629
+| (loop:[violet:61]:000052|Ex)
+| (loop:[indigo:80]:020001|Ex)
+| (loop:[indigo:81]:020052|Ex)
+
+[5m56s.859] avlen: 592 | chlen: 4 | s: 0 | c: 0 | tobex c: 116 r: 5.103448275862069 @ 4 393 406 /629
+| (loop:[violet:61]:000052|Ex)
+| (loop:[orange:75]:100003|Ex)
+| (loop:[orange:76]:100054|Ex)
+
+[5m58s.11] avlen: 592 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.103448275862069 @ 4 407 415 /629
+| (loop:[violet:61]:000052|Ex)
+| (loop:[orange:91]:100102|Ex)
+| (loop:[orange:92]:100153|Ex)
+
+[6m4s.142] avlen: 592 | chlen: 4 | s: 0 | c: 0 | tobex c: 116 r: 5.103448275862069 @ 4 509 518 /629
+| (loop:[violet:61]:000052|Ex)
+| (loop:[yellow:84]:110004|Ex)
+| (loop:[yellow:80]:110040|Ex)
+
+[24m4s.549] avlen: 592 | chlen: 4 | s: 0 | c: 0 | tobex c: 116 r: 5.103448275862069 @ 16 273 319 /629
+| (loop:[violet:64]:000411|Ex)
+| (loop:[indigo:80]:020001|Ex)
+| (loop:[indigo:84]:020411|Ex)
+
+[24m20s.14] avlen: 592 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.103448275862069 @ 16 393 432 /629
+| (loop:[violet:64]:000411|Ex)
+| (loop:[orange:75]:100003|Ex)
+| (loop:[orange:79]:100324|Ex)
+
+[24m20s.125] avlen: 592 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.103448275862069 @ 16 396 433 /629
+| (loop:[violet:64]:000411|Ex)
+| (loop:[orange:90]:100012|Ex)
+| (loop:[orange:94]:100333|Ex)
+
+[24m24s.62] avlen: 592 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.103448275862069 @ 16 441 464 /629
+| (loop:[violet:64]:000411|Ex)
+| (loop:[blue:65]:101006|Ex)
+| (loop:[blue:69]:101406|Ex)
+
+[24m28s.560] avlen: 592 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.103448275862069 @ 16 511 538 /629
+| (loop:[violet:64]:000411|Ex)
+| (loop:[blue:80]:110006|Ex)
+| (loop:[blue:84]:110406|Ex)
+
+[305m14s.392] avlen: 592 | chlen: 2 | s: 0 | c: 0 | tobex c: 116 r: 5.103448275862069 @ 412 441 464 /629
+| (loop:[yellow:77]:100121|Ex)
+| (loop:[blue:65]:101006|Ex)
+| (loop:[blue:69]:101406|Ex)
+
+[308m19s.878] avlen: 592 | chlen: 2 | s: 0 | c: 0 | tobex c: 116 r: 5.103448275862069 @ 434 440 447 /629
+| (loop:[yellow:67]:100334|Ex)
+| (loop:[green:65]:101005|Ex)
+| (loop:[green:69]:101041|Ex)
+
+[314m35s.352] avlen: 592 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.103448275862069 @ 509 518 552 /629
+| (loop:[yellow:84]:110004|Ex)
+| (loop:[yellow:80]:110040|Ex)
+| (loop:[green:92]:112023|Ex)
+
+[314m35s.355] avlen: 592 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.103448275862069 @ 509 518 556 /629
+| (loop:[yellow:84]:110004|Ex)
+| (loop:[yellow:80]:110040|Ex)
+| (loop:[blue:92]:112206|Ex)
+
+[314m38s.306] avlen: 592 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.103448275862069 @ 510 519 527 /629
+| (loop:[green:80]:110005|Ex)
+| (loop:[green:84]:110041|Ex)
+| (loop:[blue:82]:110206|Ex)
+
+[314m38s.308] avlen: 591 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.094827586206897 @ 510 519 529 /629
+| (loop:[green:80]:110005|Ex)
+| (loop:[green:84]:110041|Ex)
+| (loop:[yellow:82]:110220|Ex)
+
