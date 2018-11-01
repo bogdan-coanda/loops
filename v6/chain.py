@@ -14,6 +14,6 @@ class Chain (object):
 		
 		
 	def __repr__(self):
-		return "⟨chain:"+str(self.id)+"|"+str(len(self.cycles))+"/"+str(len(self.avloops))+"§"+str(self.marker)+"⟩"
+		return "⟨chain:"+str(self.id)+"|"+str(len(self.cycles))+"/"+str(len(self.avloops))+"⟩"
 		
 						
