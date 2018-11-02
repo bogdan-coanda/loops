@@ -59,11 +59,11 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	results_filename = "__gg__lvl2__results.txt"
-	zeroes_filename = "__gg__zeroes.txt"
-	minim_filename = "__gg__minim.txt"
-	maxim_filename = "__gg__maxim.txt"
-	sols_filename = "__gg__sols.txt"
+	results_filename = "__gg2__lvl2__results.txt"
+	zeroes_filename = "__gg2__zeroes.txt"
+	minim_filename = "__gg2__minim.txt"
+	maxim_filename = "__gg2__maxim.txt"
+	sols_filename = "__gg2__sols.txt"
 	
 	# [base] avlen: 636 | min chlen: 5 | tobex count: 120 ratio: 5.3
 	startTime = time()
@@ -71,8 +71,17 @@ if __name__ == "__main__":
 	# [base] avlen: 629 | min chlen: 4 | tobex count: 119 ratio: 5.285714285714286
 	extend('000001')
 	
+	# __2____gg__minim
+	# [38m32s.983] avlen: 591 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.094827586206897 | head c: (chain:1404168|140/111) av: 111
+	# @ 86/110 67/115 117/118
+	# | (loop:[green:80]:110005|Ex)
+	# | (loop:[yellow:82]:110220|Ex)
+	# | (loop:[green:84]:110041|Ex)
 
-																																													
+	extend('110005')
+	extend('110220')
+	extend('110041')
+
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
 	headChainZ = diagram.startNode.cycle.chain
