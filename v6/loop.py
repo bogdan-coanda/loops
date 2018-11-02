@@ -80,6 +80,8 @@ class Loop (object):
 		
 		return self._killingField 
 		
+	def chain(self):
+		return self.nodes[0].cycle.chain
 		
 def color_string(ktype):
 	if ktype is 0:
