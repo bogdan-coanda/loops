@@ -59,11 +59,11 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	results_filename = "__605max__lvl2__results.txt"
-	zeroes_filename = "__605max__zeroes.txt"
-	minim_filename = "__605max__minim.txt"
-	maxim_filename = "__605max__maxim.txt"
-	sols_filename = "__605max__sols.txt"
+	results_filename = "__alt1__lvl2__results.txt"
+	zeroes_filename = "__alt1__zeroes.txt"
+	minim_filename = "__alt1__minim.txt"
+	maxim_filename = "__alt1__maxim.txt"
+	sols_filename = "__alt1__sols.txt"
 	
 	# [base] avlen: 636 | min chlen: 5 | tobex count: 120 ratio: 5.3
 	startTime = time()
@@ -77,9 +77,13 @@ if __name__ == "__main__":
 	# | (loop:[green:87]:111023|Ex)
 	# | (loop:[blue:97]:113206|Ex)
 							
+	# ~~~ #
+	# [base] avlen: 624 | min chlen: 4 | tobex count: 118 ratio: 5.288135593220339
 	extend('110334')
-	extend('111023')
-	extend('113206')
+	
+	# ~~~ #
+	#extend('111023')
+	#extend('113206')
 	
 	# [264m44s.302] avlen: 605 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.353982300884955
 	# @ 397 419 481 /617
@@ -87,9 +91,9 @@ if __name__ == "__main__":
 	# | (loop:[yellow:62]:100220|Ex)
 	# | (loop:[blue:72]:102206|Ex)
 		
-	extend('100023')
-	extend('100220')
-	extend('102206')
+	#extend('100023')
+	#extend('100220')
+	#extend('102206')
 																			
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
