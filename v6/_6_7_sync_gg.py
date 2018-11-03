@@ -107,6 +107,7 @@ if __name__ == "__main__":
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
 	headChainZ = diagram.startNode.cycle.chain
+	headLoopsZ = headChainZ.avloops	
 	avlenZ = len([l for l in diagram.loops if l.availabled])
 	tobex_countZ = diagram.measureTobex()
 	tobex_ratioZ = (avlenZ / tobex_countZ) if tobex_countZ is not 0 else 0
@@ -120,13 +121,14 @@ if __name__ == "__main__":
 		
 	diagram.point()
 	show(diagram)
-	input("[base] avlen: " + str(avlenZ) + " | min chlen: " + str(min_chlenZ) + " | tobex count: " + str(tobex_countZ) + " ratio: " + str(tobex_ratioZ) + "\nsingles: " + str(singlesZ) + "\ncoerced: " + str(coercedZ) + " | head chain: " + str(headChainZ) + " | head loops: " + str(len(headChainZ.avloops)))
+	input("[base] avlen: " + str(avlenZ) + " | min chlen: " + str(min_chlenZ) + " | tobex count: " + str(tobex_countZ) + " ratio: " + str(tobex_ratioZ) + "\nsingles: " + str(singlesZ) + "\ncoerced: " + str(coercedZ) + " | head chain: " + str(headChainZ) + " | head loops: " + str(len(headLoopsZ)))
 	
 #-### ~~~ lvl:0 ~~~ ###
-	for i0, loop0 in enumerate(headChainZ.avloops):
+	for i0, loop0 in enumerate(headLoopsZ):
 		diagram.extendLoop(loop0)
 		min_chlen0, singles0, coerced0 = coerce()
 		headChain0 = diagram.startNode.cycle.chain
+		headLoops0 = [l for l in headLoopsZ[i0+1:] if l in headChain0.avloops] + [l for l in headChain0.avloops if l not in headLoopsZ]
 		avlen0 = len([l for l in diagram.loops if l.availabled])
 		tobex_count0 = diagram.measureTobex()
 		tobex_ratio0 = (avlen0 / tobex_count0) if tobex_count0 != 0 else 0
@@ -141,7 +143,7 @@ if __name__ == "__main__":
 			tobex_ratio0
 		)] += 1
 			
-		log_line0 = ("["+tstr(time() - startTime)+"] avlen: " + str(avlen0) + " | chlen: " + str(min_chlen0) + " | s: " + str(len(singles0)) + " | c: " + str(len(coerced0)) + " | tobex c: " + str(tobex_count0) + " r: " + str(tobex_ratio0) + " | head c: " + str(headChain0) + " av: " + str(len(headChain0.avloops)) + " @ " + str(i0) + "/" + str(len(headChainZ.avloops)) + "\n| " + str(loop0) + "\n\n").replace("⟩", ")").replace("⟨", "(")
+		log_line0 = ("["+tstr(time() - startTime)+"] avlen: " + str(avlen0) + " | chlen: " + str(min_chlen0) + " | s: " + str(len(singles0)) + " | c: " + str(len(coerced0)) + " | tobex c: " + str(tobex_count0) + " r: " + str(tobex_ratio0) + " | head c: " + str(headChain0) + " av: " + str(len(headChain0.avloops)) + " @ " + str(i0) + "/" + str(len(headLoopsZ)) + "\n| " + str(loop0) + "\n\n").replace("⟩", ")").replace("⟨", "(")
 			
 		if min_chlen0 != 0 and tobex_ratio0 <= min_found_tobex_ratio0:
 			min_found_tobex_ratio0 = tobex_ratio0
@@ -165,11 +167,12 @@ if __name__ == "__main__":
 				log.write(log_line0)
 #---### ~~~ lvl:1 ~~~ ###				
 		else:
-			for i1, loop1 in enumerate(headChain0.avloops):
+			for i1, loop1 in enumerate(headLoops0):
 				if loop1.availabled: # [~] redundant currently
 					diagram.extendLoop(loop1)
 					min_chlen1, singles1, coerced1 = coerce()
 					headChain1 = diagram.startNode.cycle.chain
+					headLoops1 = [l for l in headLoops0[i0+1:] if l in headChain1.avloops] + [l for l in headChain1.avloops if l not in headLoops0]
 					avlen1 = len([l for l in diagram.loops if l.availabled])
 					tobex_count1 = diagram.measureTobex()
 					tobex_ratio1 = (avlen1 / tobex_count1) if tobex_count1 != 0 else 0
@@ -187,7 +190,7 @@ if __name__ == "__main__":
 					# if i1 % 120 == 0:
 					# 	print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " /" + str(avlenZ))
 
-					log_line1 = ("["+tstr(time() - startTime)+"] avlen: " + str(avlen1) + " | chlen: " + str(min_chlen1) + " | s: " + str(len(singles0)+len(singles1)) + " | c: " + str(len(coerced0)+len(coerced1)) + " | tobex c: " + str(tobex_count1) + " r: " + str(tobex_ratio1) + " | head c: " + str(headChain1) + " av: " + str(len(headChain1.avloops)) + " @ " + str(i0) + "/" + str(len(headChainZ.avloops)) + " " + str(i1) + "/" + str(len(headChain0.avloops)) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n\n").replace("⟩", ")").replace("⟨", "(")
+					log_line1 = ("["+tstr(time() - startTime)+"] avlen: " + str(avlen1) + " | chlen: " + str(min_chlen1) + " | s: " + str(len(singles0)+len(singles1)) + " | c: " + str(len(coerced0)+len(coerced1)) + " | tobex c: " + str(tobex_count1) + " r: " + str(tobex_ratio1) + " | head c: " + str(headChain1) + " av: " + str(len(headChain1.avloops)) + " @ " + str(i0) + "/" + str(len(headLoopsZ)) + " " + str(i1) + "/" + str(len(headLoops0)) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n\n").replace("⟩", ")").replace("⟨", "(")
 							
 					if min_chlen1 != 0 and tobex_ratio1 <= min_found_tobex_ratio1:
 						min_found_tobex_ratio1 = tobex_ratio1
@@ -211,11 +214,12 @@ if __name__ == "__main__":
 							log.write(log_line1)
 #---------### ~~~ lvl:2 ~~~ ###
 					else:
-						for i2, loop2 in enumerate(headChain1.avloops): 
+						for i2, loop2 in enumerate(headLoops1): 
 							if loop2.availabled:
 								diagram.extendLoop(loop2)
 								min_chlen2, singles2, coerced2 = coerce() 
 								headChain2 = diagram.startNode.cycle.chain
+								headLoops2 = [l for l in headLoops1[i2+1:] if l in headChain2.avloops] + [l for l in headChain2.avloops if l not in headLoops1]
 								avlen2 = len([l for l in diagram.loops if l.availabled])
 								tobex_count2 = diagram.measureTobex()
 								tobex_ratio2 = (avlen2 / tobex_count2) if tobex_count2 != 0 else 0
@@ -231,9 +235,9 @@ if __name__ == "__main__":
 								)] += 1
 
 								if i2 % 40 == 0:
-									print("["+tstr(time() - startTime)+"] @ " + str(i0) + " /" + str(len(headChainZ.avloops)) + " " + str(i1) + " /" + str(len(headChain0.avloops)) + " " + str(i2) + " /" + str(len(headChain1.avloops)))							
+									print("["+tstr(time() - startTime)+"] @ " + str(i0) + " /" + str(len(headLoopsZ)) + " " + str(i1) + " /" + str(len(headLoops0)) + " " + str(i2) + " /" + str(len(headLoops1)))							
 									
-								log_line2 = ("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " | tobex c: " + str(tobex_count2) + " r: " + str(tobex_ratio2) + " | head c: " + str(headChain2) + " av: " + str(len(headChain2.avloops)) + " @ " + str(i0) + "/" + str(len(headChainZ.avloops)) + " " + str(i1) + "/" + str(len(headChain0.avloops)) + " " + str(i2) + "/" + str(len(headChain1.avloops)) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "(")
+								log_line2 = ("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " | tobex c: " + str(tobex_count2) + " r: " + str(tobex_ratio2) + " | head c: " + str(headChain2) + " av: " + str(len(headChain2.avloops)) + " @ " + str(i0) + "/" + str(len(headLoopsZ)) + " " + str(i1) + "/" + str(len(headLoops0)) + " " + str(i2) + "/" + str(len(headLoops1)) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "(")
 
 								if min_chlen2 != 0 and tobex_ratio2 <= min_found_tobex_ratio2:
 									min_found_tobex_ratio2 = tobex_ratio2
