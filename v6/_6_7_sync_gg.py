@@ -59,11 +59,11 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	results_filename = "__gg4__lvl2__results.txt"
-	zeroes_filename = "__gg4__zeroes.txt"
-	minim_filename = "__gg4__minim.txt"
-	maxim_filename = "__gg4__maxim.txt"
-	sols_filename = "__gg4__sols.txt"
+	results_filename = "__gg5__lvl2__results.txt"
+	zeroes_filename = "__gg5__zeroes.txt"
+	minim_filename = "__gg5__minim.txt"
+	maxim_filename = "__gg5__maxim.txt"
+	sols_filename = "__gg5__sols.txt"
 	
 	# [base] avlen: 636 | min chlen: 5 | tobex count: 120 ratio: 5.3
 	startTime = time()
@@ -104,6 +104,17 @@ if __name__ == "__main__":
 	extend('110031')
 	extend('120306')
 
+	# __2____gg4__minim
+	# [5m6s.259] avlen: 202 | chlen: 2 | s: 38 | c: 11 | tobex c: 59 r: 3.4237288135593222 | head c: (chain:155678|345/103) av: 103
+	# @ 3/136 130/132 7/133
+	# | (loop:[green:93]:112032|Ex)
+	# | (loop:[indigo:37]:003312|Ex)
+	# | (loop:[blue:91]:112106|Ex)
+
+	extend('112032')
+	extend('003312')
+	extend('112106')
+	
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
 	headChainZ = diagram.startNode.cycle.chain
@@ -234,7 +245,7 @@ if __name__ == "__main__":
 									tobex_ratio2
 								)] += 1
 
-								if i2 % 40 == 0:
+								if i2 % 20 == 0:
 									print("["+tstr(time() - startTime)+"] @ " + str(i0) + " /" + str(len(headLoopsZ)) + " " + str(i1) + " /" + str(len(headLoops0)) + " " + str(i2) + " /" + str(len(headLoops1)))							
 									
 								log_line2 = ("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " | tobex c: " + str(tobex_count2) + " r: " + str(tobex_ratio2) + " | head c: " + str(headChain2) + " av: " + str(len(headChain2.avloops)) + " @ " + str(i0) + "/" + str(len(headLoopsZ)) + " " + str(i1) + "/" + str(len(headLoops0)) + " " + str(i2) + "/" + str(len(headLoops1)) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "(")
