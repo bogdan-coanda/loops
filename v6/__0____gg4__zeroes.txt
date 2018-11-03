@@ -1,0 +1,6 @@
+[49m9s.891] avlen: 409 | chlen: 0 | s: 4 | c: 11 | tobex c: 95 r: 4.3052631578947365 | head c: (chain:1438856|240/138) av: 138 @ 38/136
+| (loop:[yellow:111]:120343|Ex)
+
+[66m3s.146] avlen: 403 | chlen: 0 | s: 5 | c: 11 | tobex c: 94 r: 4.287234042553192 | head c: (chain:1930891|240/134) av: 134 @ 51/136
+| (loop:[indigo:70]:002044|Ex)
+
