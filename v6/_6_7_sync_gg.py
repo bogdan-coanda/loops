@@ -59,25 +59,19 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	results_filename = "__ff2__lvl2__results.txt"
-	zeroes_filename = "__ff2__zeroes.txt"
-	minim_filename = "__ff2__minim.txt"
-	maxim_filename = "__ff2__maxim.txt"
-	sols_filename = "__ff2__sols.txt"
+	results_filename = "__ff3__lvl2__results.txt"
+	zeroes_filename = "__ff3__zeroes.txt"
+	minim_filename = "__ff3__minim.txt"
+	maxim_filename = "__ff3__maxim.txt"
+	sols_filename = "__ff3__sols.txt"
 	
 	# [base] avlen: 636 | min chlen: 5 | tobex count: 120 ratio: 5.3
 	startTime = time()
 	
 	# [base] avlen: 629 | min chlen: 4 | tobex count: 119 ratio: 5.285714285714286
 	extend('000001')
-	
-	# __2____gg1__minim
-	# [38m32s.983] avlen: 591 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.094827586206897 | head c: (chain:1404168|140/111) av: 111
-	# @ 86/110 67/115 117/118
-	# | (loop:[green:80]:110005|Ex)
-	# | (loop:[yellow:82]:110220|Ex)
-	# | (loop:[green:84]:110041|Ex)
 
+	# __2____ff1__maxim
 	# [6m22s.68] avlen: 611 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.267241379310345 | head c: (chain:412431|140/146) av: 146
 	# @ 95/110 11/28 5/31
 	# | (loop:[red:21]:010100|Ex)
@@ -87,7 +81,18 @@ if __name__ == "__main__":
 	extend('010100')
 	extend('021203')
 	extend('021206')
-	
+
+	# __2____ff2__maxim
+	# [13m29s.226] avlen: 593 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.247787610619469 | head c: (chain:726492|155/183) av: 183
+	# @ 89/146 27/72 22/61
+	# | (loop:[indigo:39]:003453|Ex)
+	# | (loop:[violet:118]:013354|Ex)
+	# | (loop:[green:57]:023023|Ex)
+
+	extend('003453')
+	extend('013354')
+	extend('023023')
+
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
 	headChainZ = diagram.startNode.cycle.chain
