@@ -1,0 +1,85 @@
+[0m12s.25] avlen: 491 | chlen: 2 | s: 0 | c: 1 | tobex c: 99 r: 4.959595959595959 | head c: (chain:21|215/249) av: 249 @ 0/254 0/254 0/252
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[violet:61]:000052|Ex)
+
+[0m12s.35] avlen: 467 | chlen: 2 | s: 2 | c: 4 | tobex c: 97 r: 4.814432989690721 | head c: (chain:24|225/245) av: 245 @ 0/254 0/254 1/252
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[red:41]:000053|Ex)
+
+[0m12s.85] avlen: 476 | chlen: 2 | s: 0 | c: 3 | tobex c: 99 r: 4.808080808080808 | head c: (chain:46|220/248) av: 248 @ 0/254 0/254 23/252
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[orange:36]:001053|Ex)
+
+[0m12s.89] avlen: 476 | chlen: 2 | s: 0 | c: 2 | tobex c: 99 r: 4.808080808080808 | head c: (chain:48|220/245) av: 245 @ 0/254 0/254 25/252
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[orange:37]:001143|Ex)
+
+[0m12s.188] avlen: 467 | chlen: 2 | s: 1 | c: 4 | tobex c: 98 r: 4.76530612244898 | head c: (chain:110|225/240) av: 240 @ 0/254 0/254 81/252
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:65]:000043|Ex)
+| (loop:[red:102]:010142|Ex)
+
+[0m13s.277] avlen: 460 | chlen: 2 | s: 2 | c: 3 | tobex c: 97 r: 4.742268041237113 | head c: (chain:834|230/247) av: 247 @ 0/254 3/254 9/254
+| (loop:[red:80]:000011|Ex)
+| (loop:[red:41]:000053|Ex)
+| (loop:[red:44]:000412|Ex)
+
+[0m18s.325] avlen: 460 | chlen: 2 | s: 2 | c: 5 | tobex c: 97 r: 4.742268041237113 | head c: (chain:4270|225/240) av: 240 @ 0/254 16/254 65/241
+| (loop:[red:80]:000011|Ex)
+| (loop:[violet:69]:000453|Ex)
+| (loop:[red:102]:010142|Ex)
+
+[0m20s.379] avlen: 460 | chlen: 3 | s: 2 | c: 2 | tobex c: 97 r: 4.742268041237113 | head c: (chain:5669|230/250) av: 250 @ 0/254 21/254 193/236
+| (loop:[red:80]:000011|Ex)
+| (loop:[red:50]:001034|Ex)
+| (loop:[orange:104]:102453|Ex)
+
+[0m21s.605] avlen: 460 | chlen: 2 | s: 1 | c: 6 | tobex c: 98 r: 4.6938775510204085 | head c: (chain:6502|225/233) av: 233 @ 0/254 25/254 26/227
+| (loop:[red:80]:000011|Ex)
+| (loop:[orange:36]:001053|Ex)
+| (loop:[indigo:30]:003001|Ex)
+
+[0m21s.758] avlen: 443 | chlen: 2 | s: 3 | c: 3 | tobex c: 96 r: 4.614583333333333 | head c: (chain:6597|240/236) av: 236 @ 0/254 25/254 108/227
+| (loop:[red:80]:000011|Ex)
+| (loop:[orange:36]:001053|Ex)
+| (loop:[violet:59]:013453|Ex)
+
+[0m21s.925] avlen: 447 | chlen: 2 | s: 2 | c: 8 | tobex c: 97 r: 4.608247422680412 | head c: (chain:6697|235/235) av: 235 @ 0/254 25/254 190/227
+| (loop:[red:80]:000011|Ex)
+| (loop:[orange:36]:001053|Ex)
+| (loop:[orange:104]:102453|Ex)
+
+[0m43s.613] avlen: 447 | chlen: 2 | s: 2 | c: 1 | tobex c: 97 r: 4.608247422680412 | head c: (chain:21287|230/217) av: 217 @ 0/254 96/254 37/157
+| (loop:[red:80]:000011|Ex)
+| (loop:[yellow:35]:010352|Ex)
+| (loop:[violet:39]:013420|Ex)
+
+[1m28s.35] avlen: 403 | chlen: 2 | s: 8 | c: 8 | tobex c: 91 r: 4.428571428571429 | head c: (chain:48430|260/209) av: 209 @ 1/254 48/261 183/221
+| (loop:[violet:80]:000034|Ex)
+| (loop:[indigo:73]:002403|Ex)
+| (loop:[blue:77]:103206|Ex)
+
+[2m56s.639] avlen: 391 | chlen: 2 | s: 9 | c: 11 | tobex c: 90 r: 4.344444444444444 | head c: (chain:94635|265/207) av: 207 @ 2/254 81/251 100/166
+| (loop:[violet:65]:000043|Ex)
+| (loop:[red:102]:010142|Ex)
+| (loop:[indigo:99]:023421|Ex)
+
+[21m22s.551] avlen: 386 | chlen: 2 | s: 10 | c: 9 | tobex c: 89 r: 4.337078651685394 | head c: (chain:648849|265/205) av: 205 @ 18/254 65/239 100/168
+| (loop:[violet:69]:000453|Ex)
+| (loop:[red:102]:010142|Ex)
+| (loop:[indigo:99]:023421|Ex)
+
+[29m10s.464] avlen: 379 | chlen: 2 | s: 10 | c: 15 | tobex c: 89 r: 4.258426966292135 | head c: (chain:882438|270/206) av: 206 @ 25/254 121/235 69/108
+| (loop:[orange:20]:001044|Ex)
+| (loop:[yellow:46]:020244|Ex)
+| (loop:[orange:104]:102453|Ex)
+
+[44m52s.925] avlen: 369 | chlen: 2 | s: 10 | c: 10 | tobex c: 89 r: 4.146067415730337 | head c: (chain:1320454|270/185) av: 185 @ 40/254 106/220 1/117
+| (loop:[orange:25]:002034|Ex)
+| (loop:[violet:39]:013420|Ex)
+| (loop:[violet:43]:010353|Ex)
+
