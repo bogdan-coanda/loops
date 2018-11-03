@@ -59,11 +59,11 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	results_filename = "__ff1__lvl2__results.txt"
-	zeroes_filename = "__ff1__zeroes.txt"
-	minim_filename = "__ff1__minim.txt"
-	maxim_filename = "__ff1__maxim.txt"
-	sols_filename = "__ff1__sols.txt"
+	results_filename = "__ff2__lvl2__results.txt"
+	zeroes_filename = "__ff2__zeroes.txt"
+	minim_filename = "__ff2__minim.txt"
+	maxim_filename = "__ff2__maxim.txt"
+	sols_filename = "__ff2__sols.txt"
 	
 	# [base] avlen: 636 | min chlen: 5 | tobex count: 120 ratio: 5.3
 	startTime = time()
@@ -78,6 +78,15 @@ if __name__ == "__main__":
 	# | (loop:[yellow:82]:110220|Ex)
 	# | (loop:[green:84]:110041|Ex)
 
+	# [6m22s.68] avlen: 611 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.267241379310345 | head c: (chain:412431|140/146) av: 146
+	# @ 95/110 11/28 5/31
+	# | (loop:[red:21]:010100|Ex)
+	# | (loop:[indigo:106]:021203|Ex)
+	# | (loop:[blue:47]:021206|Ex)
+	
+	extend('010100')
+	extend('021203')
+	extend('021206')
 	
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
