@@ -59,11 +59,11 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	results_filename = "__gg6__lvl2__results.txt"
-	zeroes_filename = "__gg6__zeroes.txt"
-	minim_filename = "__gg6__minim.txt"
-	maxim_filename = "__gg6__maxim.txt"
-	sols_filename = "__gg6__sols.txt"
+	results_filename = "__ff1__lvl2__results.txt"
+	zeroes_filename = "__ff1__zeroes.txt"
+	minim_filename = "__ff1__minim.txt"
+	maxim_filename = "__ff1__maxim.txt"
+	sols_filename = "__ff1__sols.txt"
 	
 	# [base] avlen: 636 | min chlen: 5 | tobex count: 120 ratio: 5.3
 	startTime = time()
@@ -71,64 +71,18 @@ if __name__ == "__main__":
 	# [base] avlen: 629 | min chlen: 4 | tobex count: 119 ratio: 5.285714285714286
 	extend('000001')
 	
-	# __2____gg__minim
+	# __2____gg1__minim
 	# [38m32s.983] avlen: 591 | chlen: 3 | s: 0 | c: 0 | tobex c: 116 r: 5.094827586206897 | head c: (chain:1404168|140/111) av: 111
 	# @ 86/110 67/115 117/118
 	# | (loop:[green:80]:110005|Ex)
 	# | (loop:[yellow:82]:110220|Ex)
 	# | (loop:[green:84]:110041|Ex)
 
-	extend('110005')
-	extend('110220')
-	extend('110041')
-
-	# __2____gg2__minim
-	# [9m16s.830] avlen: 542 | chlen: 2 | s: 2 | c: 2 | tobex c: 111 r: 4.882882882882883 | head c: (chain:579798|165/127) av: 127
-	# @ 36/111 3/116 1/130
-	# | (loop:[indigo:80]:020001|Ex)
-	# | (loop:[orange:111]:101101|Ex)
-	# | (loop:[orange:96]:101053|Ex)
-
-	extend('020001')
-	extend('101101')
-	extend('101053')
-
-	# __2____gg3__minim
-	# [62m48s.733] avlen: 445 | chlen: 2 | s: 8 | c: 6 | tobex c: 100 r: 4.45 | head c: (chain:2537694|215/136) av: 136
-	# @ 102/127 72/135 54/132
-	# | (loop:[indigo:87]:020312|Ex)
-	# | (loop:[yellow:96]:110031|Ex)
-	# | (loop:[blue:103]:120306|Ex)
-
-	extend('020312')
-	extend('110031')
-	extend('120306')
-
-	# __2____gg4__minim
-	# [5m6s.259] avlen: 202 | chlen: 2 | s: 38 | c: 11 | tobex c: 59 r: 3.4237288135593222 | head c: (chain:155678|345/103) av: 103
-	# @ 3/136 130/132 7/133
-	# | (loop:[green:93]:112032|Ex)
-	# | (loop:[indigo:37]:003312|Ex)
-	# | (loop:[blue:91]:112106|Ex)
-
-	extend('112032')
-	extend('003312')
-	extend('112106')
-	
-	# [0m29s.883] avlen: 161 | chlen: 2 | s: 3 | c: 5 | tobex c: 53 r: 3.0377358490566038 | head c: (chain:15297|360/94) av: 94
-	# @ 88/103 21/22 68/84
-	# | (loop:[orange:39]:001412|Ex)
-	# | (loop:[green:50]:022005|Ex)
-	# | (loop:[yellow:51]:020343|Ex)
-	
-	extend('001412')
-	extend('022005')
-	extend('020343')
 	
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
 	headChainZ = diagram.startNode.cycle.chain
-	headLoopsZ = list(headChainZ.avloops)
+	headLoopsZ = sorted(headChainZ.avloops, key = lambda l: l.firstAddress())
 	avlenZ = len([l for l in diagram.loops if l.availabled])
 	tobex_countZ = diagram.measureTobex()
 	tobex_ratioZ = (avlenZ / tobex_countZ) if tobex_countZ is not 0 else 0
@@ -149,7 +103,7 @@ if __name__ == "__main__":
 		diagram.extendLoop(loop0)
 		min_chlen0, singles0, coerced0 = coerce()
 		headChain0 = diagram.startNode.cycle.chain
-		headLoops0 = [l for l in headLoopsZ[i0+1:] if l in headChain0.avloops] + [l for l in list(headChain0.avloops) if l not in headLoopsZ]
+		headLoops0 = sorted(set(headChain0.avloops).difference(headLoopsZ[:i0+1]), key = lambda l: l.firstAddress())
 		avlen0 = len([l for l in diagram.loops if l.availabled])
 		tobex_count0 = diagram.measureTobex()
 		tobex_ratio0 = (avlen0 / tobex_count0) if tobex_count0 != 0 else 0
@@ -193,7 +147,7 @@ if __name__ == "__main__":
 					diagram.extendLoop(loop1)
 					min_chlen1, singles1, coerced1 = coerce()
 					headChain1 = diagram.startNode.cycle.chain
-					headLoops1 = [l for l in headLoops0[i0+1:] if l in headChain1.avloops] + [l for l in list(headChain1.avloops) if l not in headLoops0]
+					headLoops1 = sorted(set(headChain1.avloops).difference(headLoopsZ[:i0+1]).difference(headLoops0[:i1+1]), key = lambda l: l.firstAddress())
 					avlen1 = len([l for l in diagram.loops if l.availabled])
 					tobex_count1 = diagram.measureTobex()
 					tobex_ratio1 = (avlen1 / tobex_count1) if tobex_count1 != 0 else 0
@@ -240,7 +194,7 @@ if __name__ == "__main__":
 								diagram.extendLoop(loop2)
 								min_chlen2, singles2, coerced2 = coerce() 
 								headChain2 = diagram.startNode.cycle.chain
-								headLoops2 = [l for l in headLoops1[i2+1:] if l in headChain2.avloops] + [l for l in list(headChain2.avloops) if l not in headLoops1]
+								#headLoops2 = sorted(set(headChain2.avloops).difference(headLoopsZ[:i0+1]).difference(headLoops0[:i1+1]).difference(headLoops0[:i2+1]), key = lambda l: l.firstAddress())
 								avlen2 = len([l for l in diagram.loops if l.availabled])
 								tobex_count2 = diagram.measureTobex()
 								tobex_ratio2 = (avlen2 / tobex_count2) if tobex_count2 != 0 else 0
