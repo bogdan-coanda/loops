@@ -107,7 +107,7 @@ if __name__ == "__main__":
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
 	headChainZ = diagram.startNode.cycle.chain
-	headLoopsZ = headChainZ.avloops	
+	headLoopsZ = list(headChainZ.avloops)
 	avlenZ = len([l for l in diagram.loops if l.availabled])
 	tobex_countZ = diagram.measureTobex()
 	tobex_ratioZ = (avlenZ / tobex_countZ) if tobex_countZ is not 0 else 0
@@ -128,7 +128,7 @@ if __name__ == "__main__":
 		diagram.extendLoop(loop0)
 		min_chlen0, singles0, coerced0 = coerce()
 		headChain0 = diagram.startNode.cycle.chain
-		headLoops0 = [l for l in headLoopsZ[i0+1:] if l in headChain0.avloops] + [l for l in headChain0.avloops if l not in headLoopsZ]
+		headLoops0 = [l for l in headLoopsZ[i0+1:] if l in headChain0.avloops] + [l for l in list(headChain0.avloops) if l not in headLoopsZ]
 		avlen0 = len([l for l in diagram.loops if l.availabled])
 		tobex_count0 = diagram.measureTobex()
 		tobex_ratio0 = (avlen0 / tobex_count0) if tobex_count0 != 0 else 0
@@ -172,7 +172,7 @@ if __name__ == "__main__":
 					diagram.extendLoop(loop1)
 					min_chlen1, singles1, coerced1 = coerce()
 					headChain1 = diagram.startNode.cycle.chain
-					headLoops1 = [l for l in headLoops0[i0+1:] if l in headChain1.avloops] + [l for l in headChain1.avloops if l not in headLoops0]
+					headLoops1 = [l for l in headLoops0[i0+1:] if l in headChain1.avloops] + [l for l in list(headChain1.avloops) if l not in headLoops0]
 					avlen1 = len([l for l in diagram.loops if l.availabled])
 					tobex_count1 = diagram.measureTobex()
 					tobex_ratio1 = (avlen1 / tobex_count1) if tobex_count1 != 0 else 0
@@ -219,7 +219,7 @@ if __name__ == "__main__":
 								diagram.extendLoop(loop2)
 								min_chlen2, singles2, coerced2 = coerce() 
 								headChain2 = diagram.startNode.cycle.chain
-								headLoops2 = [l for l in headLoops1[i2+1:] if l in headChain2.avloops] + [l for l in headChain2.avloops if l not in headLoops1]
+								headLoops2 = [l for l in headLoops1[i2+1:] if l in headChain2.avloops] + [l for l in list(headChain2.avloops) if l not in headLoops1]
 								avlen2 = len([l for l in diagram.loops if l.availabled])
 								tobex_count2 = diagram.measureTobex()
 								tobex_ratio2 = (avlen2 / tobex_count2) if tobex_count2 != 0 else 0
