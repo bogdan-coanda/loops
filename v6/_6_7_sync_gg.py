@@ -59,11 +59,11 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	results_filename = "__gg3__lvl2__results.txt"
-	zeroes_filename = "__gg3__zeroes.txt"
-	minim_filename = "__gg3__minim.txt"
-	maxim_filename = "__gg3__maxim.txt"
-	sols_filename = "__gg3__sols.txt"
+	results_filename = "__gg4__lvl2__results.txt"
+	zeroes_filename = "__gg4__zeroes.txt"
+	minim_filename = "__gg4__minim.txt"
+	maxim_filename = "__gg4__maxim.txt"
+	sols_filename = "__gg4__sols.txt"
 	
 	# [base] avlen: 636 | min chlen: 5 | tobex count: 120 ratio: 5.3
 	startTime = time()
@@ -82,6 +82,7 @@ if __name__ == "__main__":
 	extend('110220')
 	extend('110041')
 
+	# __2____gg2__minim
 	# [9m16s.830] avlen: 542 | chlen: 2 | s: 2 | c: 2 | tobex c: 111 r: 4.882882882882883 | head c: (chain:579798|165/127) av: 127
 	# @ 36/111 3/116 1/130
 	# | (loop:[indigo:80]:020001|Ex)
@@ -91,6 +92,17 @@ if __name__ == "__main__":
 	extend('020001')
 	extend('101101')
 	extend('101053')
+
+	# __2____gg3__minim
+	# [62m48s.733] avlen: 445 | chlen: 2 | s: 8 | c: 6 | tobex c: 100 r: 4.45 | head c: (chain:2537694|215/136) av: 136
+	# @ 102/127 72/135 54/132
+	# | (loop:[indigo:87]:020312|Ex)
+	# | (loop:[yellow:96]:110031|Ex)
+	# | (loop:[blue:103]:120306|Ex)
+
+	extend('020312')
+	extend('110031')
+	extend('120306')
 
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
