@@ -61,7 +61,7 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	head_filename = '__ff23__'
+	head_filename = '__ff27__'
 	results_filename = head_filename + "results"
 	zeroes_filename = head_filename + "zeroes"
 	minim_filename = head_filename + "minim"
@@ -277,8 +277,73 @@ if __name__ == "__main__":
 	# | (loop:[blue:87]:111206|Ex)
 
 	extend('111206')
+
+	# __ff23__zeroes__0__							
+	# [0m6s.891] avlen: 325 | chlen: 0 | s: 8 | c: 15 | tobex c: 78 r: 4.166666666666667 | head c: (chain:78|295/212) av: 212 @ 18/255
+	# | (loop:[red:93]:001402|Ex)
+	# 
+	# [0m7s.739] avlen: 200 | chlen: 0 | s: 24 | c: 33 | tobex c: 62 r: 3.225806451612903 | head c: (chain:241|365/133) av: 133 @ 105/255
+	# | (loop:[blue:34]:012406|Ex)
+	# 
+	# [0m7s.877] avlen: 265 | chlen: 0 | s: 15 | c: 21 | tobex c: 71 r: 3.732394366197183 | head c: (chain:264|335/178) av: 178 @ 107/255
+	# | (loop:[violet:34]:012430|Ex)
+	# 
+	# [0m8s.160] avlen: 85 | chlen: 0 | s: 43 | c: 42 | tobex c: 43 r: 1.9767441860465116 | head c: (chain:327|460/64) av: 64 @ 120/255
+	# | (loop:[violet:37]:013151|Ex)
+	# 
+	# [0m8s.355] avlen: 156 | chlen: 0 | s: 30 | c: 38 | tobex c: 56 r: 2.7857142857142856 | head c: (chain:366|395/114) av: 114 @ 125/255
+	# | (loop:[blue:38]:013306|Ex)
+	# 
+	# [0m8s.798] avlen: 168 | chlen: 0 | s: 27 | c: 43 | tobex c: 59 r: 2.847457627118644 | head c: (chain:477|395/122) av: 122 @ 167/255
+	# | (loop:[indigo:111]:023053|Ex)
+	# 
+	# [0m9s.414] avlen: 172 | chlen: 0 | s: 30 | c: 61 | tobex c: 56 r: 3.0714285714285716 | head c: (chain:597|375/113) av: 113 @ 215/255
+	# | (loop:[green:76]:103014|Ex)
+	# 
+	# [0m9s.650] avlen: 190 | chlen: 0 | s: 26 | c: 40 | tobex c: 60 r: 3.1666666666666665 | head c: (chain:641|370/118) av: 118 @ 222/255
+	# | (loop:[green:84]:110041|Ex)
+
+	unavail('001402')
+	unavail('012406')		
+	unavail('012430')
+	unavail('013151')		
+	unavail('013306')
+	unavail('023053')		
+	unavail('103014')
+	unavail('110041')		
+					
+	# __ff24__zeroes__0__												
+	# [0m6s.439] avlen: 123 | chlen: 0 | s: 36 | c: 38 | tobex c: 50 r: 2.46 | head c: (chain:150|435/84) av: 84 @ 38/247
+	# | (loop:[indigo:30]:003001|Ex)
+	# 
+	# [0m6s.559] avlen: 336 | chlen: 0 | s: 4 | c: 12 | tobex c: 82 r: 4.097560975609756 | head c: (chain:171|295/212) av: 212 @ 46/247
+	# | (loop:[violet:92]:003143|Ex)
+	# 
+	# [0m7s.563] avlen: 285 | chlen: 0 | s: 11 | c: 17 | tobex c: 75 r: 3.8 | head c: (chain:354|325/191) av: 191 @ 135/247
+	# | (loop:[yellow:43]:020310|Ex)
+	# 
+	# [0m8s.156] avlen: 125 | chlen: 0 | s: 36 | c: 35 | tobex c: 50 r: 2.5 | head c: (chain:469|430/77) av: 77 @ 168/247
+	# | (loop:[indigo:118]:023403|Ex)					
+
+	unavail('003001')
+	unavail('003143')		
+	unavail('020310')
+	unavail('023403')		
+
+	# __ff25__zeroes__0__												
+	# [0m2s.822] avlen: 273 | chlen: 0 | s: 12 | c: 24 | tobex c: 74 r: 3.689189189189189 | head c: (chain:151|325/170) av: 170 @ 48/243
+	# | (loop:[indigo:38]:003402|Ex)
+
+	unavail('003402')
+
+	# __ff26__maxim__0__												
+	# [0m4s.126] avlen: 383 | chlen: 2 | s: 0 | c: 0 | tobex c: 86 r: 4.453488372093023 | head c: (chain:287|275/244) av: 244 @ 116/242
+	# | (loop:[red:118]:013242|Ex)
+
+	extend('013242')
 	
 	
+
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
 	headChainZ = diagram.startNode.cycle.chain
