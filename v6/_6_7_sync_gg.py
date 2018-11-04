@@ -14,6 +14,8 @@ if __name__ == "__main__":
 		assert diagram.extendLoop(diagram.nodeByAddress[addr].loop)
 	def collapse(addr):
 		diagram.collapseBack(diagram.nodeByAddress[addr].loop)
+	def unavail(addr):
+		diagram.setLoopUnavailabled(diagram.nodeByAddress[addr].loop)
 					
 	def coerce():
 		singles = []
@@ -59,11 +61,12 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	results_filename = "__ff9__results"
-	zeroes_filename = "__ff9__zeroes"
-	minim_filename = "__ff9__minim"
-	maxim_filename = "__ff9__maxim"
-	sols_filename = "__ff9__sols"
+	head_filename = '__ff10__'
+	results_filename = head_filename + "results"
+	zeroes_filename = head_filename + "zeroes"
+	minim_filename = head_filename + "minim"
+	maxim_filename = head_filename + "maxim"
+	sols_filename = head_filename + "sols"
 	
 	# [base] avlen: 636 | min chlen: 5 | tobex count: 120 ratio: 5.3
 	startTime = time()
@@ -159,6 +162,9 @@ if __name__ == "__main__":
 	extend('020130')
 	extend('120211')
 	
+	# __ff9__zeroes__0__
+	unavail('013420')
+	
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
 	headChainZ = diagram.startNode.cycle.chain
@@ -221,109 +227,109 @@ if __name__ == "__main__":
 			with open(zeroes_filename+"__0__.txt", 'a') as log:
 				log.write(log_line0)
 #---### ~~~ lvl:1 ~~~ ###				
-		else:
-			for i1, loop1 in enumerate(headLoops0):
-				if loop1.availabled: # [~] redundant currently
-					diagram.extendLoop(loop1)
-					min_chlen1, singles1, coerced1 = coerce()
-					headChain1 = diagram.startNode.cycle.chain
-					headLoops1 = sorted(set(headChain1.avloops).difference(headLoopsZ[:i0+1]).difference(headLoops0[:i1+1]), key = lambda l: l.firstAddress())
-					avlen1 = len([l for l in diagram.loops if l.availabled])
-					tobex_count1 = diagram.measureTobex()
-					tobex_ratio1 = (avlen1 / tobex_count1) if tobex_count1 != 0 else 0
-		
-					results1[(
-						avlen1, 
-						min_chlen1,  
-						len(headChain1.avloops),
-						-(len(singles0)+len(singles1)), 
-						-(len(coerced0)+len(coerced1)),
-						tobex_count1,
-						tobex_ratio1
-					)] += 1
-					
+		# else:
+		# 	for i1, loop1 in enumerate(headLoops0):
+		# 		if loop1.availabled: # [~] redundant currently
+		# 			diagram.extendLoop(loop1)
+		# 			min_chlen1, singles1, coerced1 = coerce()
+		# 			headChain1 = diagram.startNode.cycle.chain
+		# 			headLoops1 = sorted(set(headChain1.avloops).difference(headLoopsZ[:i0+1]).difference(headLoops0[:i1+1]), key = lambda l: l.firstAddress())
+		# 			avlen1 = len([l for l in diagram.loops if l.availabled])
+		# 			tobex_count1 = diagram.measureTobex()
+		# 			tobex_ratio1 = (avlen1 / tobex_count1) if tobex_count1 != 0 else 0
+		# 
+		# 			results1[(
+		# 				avlen1, 
+		# 				min_chlen1,  
+		# 				len(headChain1.avloops),
+		# 				-(len(singles0)+len(singles1)), 
+		# 				-(len(coerced0)+len(coerced1)),
+		# 				tobex_count1,
+		# 				tobex_ratio1
+		# 			)] += 1
+		# 
 					# if i1 % 120 == 0:
 					# 	print("["+tstr(time() - startTime)+"] @ " + str(i0) + " " + str(i1) + " /" + str(avlenZ))
-
-					log_line1 = ("["+tstr(time() - startTime)+"] avlen: " + str(avlen1) + " | chlen: " + str(min_chlen1) + " | s: " + str(len(singles0)+len(singles1)) + " | c: " + str(len(coerced0)+len(coerced1)) + " | tobex c: " + str(tobex_count1) + " r: " + str(tobex_ratio1) + " | head c: " + str(headChain1) + " av: " + str(len(headChain1.avloops)) + " @ " + str(i0) + "/" + str(len(headLoopsZ)) + " " + str(i1) + "/" + str(len(headLoops0)) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n\n").replace("⟩", ")").replace("⟨", "(")
-							
-					if min_chlen1 != 0 and tobex_ratio1 <= min_found_tobex_ratio1:
-						min_found_tobex_ratio1 = tobex_ratio1
-						with open(minim_filename+"__1__.txt", 'a') as log:
-							log.write(log_line1)
-							
-					if min_chlen1 != 0 and tobex_ratio1 >= max_found_tobex_ratio1:
-						max_found_tobex_ratio1 = tobex_ratio1
-						with open(maxim_filename+"__1__.txt", 'a') as log:
-							log.write(log_line1)
-							
-					if len(diagram.chains) == 1:
-						with open(sols_filename+"__1__.txt", 'a') as log:
-							log.write(log_line1)
-						show(diagram)
-						input(log_line1)
-										
-					elif min_chlen1 == 0:
-						zeroes1.append((i0, i1))
-						with open(zeroes_filename+"__1__.txt", 'a') as log:
-							log.write(log_line1)
+		# 
+		# 			log_line1 = ("["+tstr(time() - startTime)+"] avlen: " + str(avlen1) + " | chlen: " + str(min_chlen1) + " | s: " + str(len(singles0)+len(singles1)) + " | c: " + str(len(coerced0)+len(coerced1)) + " | tobex c: " + str(tobex_count1) + " r: " + str(tobex_ratio1) + " | head c: " + str(headChain1) + " av: " + str(len(headChain1.avloops)) + " @ " + str(i0) + "/" + str(len(headLoopsZ)) + " " + str(i1) + "/" + str(len(headLoops0)) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n\n").replace("⟩", ")").replace("⟨", "(")
+		# 
+		# 			if min_chlen1 != 0 and tobex_ratio1 <= min_found_tobex_ratio1:
+		# 				min_found_tobex_ratio1 = tobex_ratio1
+		# 				with open(minim_filename+"__1__.txt", 'a') as log:
+		# 					log.write(log_line1)
+		# 
+		# 			if min_chlen1 != 0 and tobex_ratio1 >= max_found_tobex_ratio1:
+		# 				max_found_tobex_ratio1 = tobex_ratio1
+		# 				with open(maxim_filename+"__1__.txt", 'a') as log:
+		# 					log.write(log_line1)
+		# 
+		# 			if len(diagram.chains) == 1:
+		# 				with open(sols_filename+"__1__.txt", 'a') as log:
+		# 					log.write(log_line1)
+		# 				show(diagram)
+		# 				input(log_line1)
+		# 
+		# 			elif min_chlen1 == 0:
+		# 				zeroes1.append((i0, i1))
+		# 				with open(zeroes_filename+"__1__.txt", 'a') as log:
+		# 					log.write(log_line1)
 #---------### ~~~ lvl:2 ~~~ ###
-					else:
-						for i2, loop2 in enumerate(headLoops1): 
-							if loop2.availabled:
-								diagram.extendLoop(loop2)
-								min_chlen2, singles2, coerced2 = coerce() 
-								headChain2 = diagram.startNode.cycle.chain
+					# else:
+					# 	for i2, loop2 in enumerate(headLoops1): 
+					# 		if loop2.availabled:
+					# 			diagram.extendLoop(loop2)
+					# 			min_chlen2, singles2, coerced2 = coerce() 
+					# 			headChain2 = diagram.startNode.cycle.chain
 								#headLoops2 = sorted(set(headChain2.avloops).difference(headLoopsZ[:i0+1]).difference(headLoops0[:i1+1]).difference(headLoops0[:i2+1]), key = lambda l: l.firstAddress())
-								avlen2 = len([l for l in diagram.loops if l.availabled])
-								tobex_count2 = diagram.measureTobex()
-								tobex_ratio2 = (avlen2 / tobex_count2) if tobex_count2 != 0 else 0
-
-								results2[(
-									avlen2, 
-									min_chlen2, 
-									len(headChain2.avloops),
-									-(len(singles0)+len(singles1)+len(singles2)), 
-									-(len(coerced0)+len(coerced1)+len(coerced2)),
-									tobex_count2,
-									tobex_ratio2
-								)] += 1
-
-								if i2 % 20 == 0:
-									print("["+tstr(time() - startTime)+"] @ " + str(i0) + " /" + str(len(headLoopsZ)) + " " + str(i1) + " /" + str(len(headLoops0)) + " " + str(i2) + " /" + str(len(headLoops1)))							
-									
-								log_line2 = ("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " | tobex c: " + str(tobex_count2) + " r: " + str(tobex_ratio2) + " | head c: " + str(headChain2) + " av: " + str(len(headChain2.avloops)) + " @ " + str(i0) + "/" + str(len(headLoopsZ)) + " " + str(i1) + "/" + str(len(headLoops0)) + " " + str(i2) + "/" + str(len(headLoops1)) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "(")
-
-								if min_chlen2 != 0 and tobex_ratio2 <= min_found_tobex_ratio2:
-									min_found_tobex_ratio2 = tobex_ratio2
-									with open(minim_filename+"__2__.txt", 'a') as log:
-										log.write(log_line2)
-
-								if min_chlen2 != 0 and tobex_ratio2 >= max_found_tobex_ratio2:
-									max_found_tobex_ratio2 = tobex_ratio2
-									with open(maxim_filename+"__2__.txt", 'a') as log:
-										log.write(log_line2)
-
-								if len(diagram.chains) == 1:
-									with open(sols_filename+"__2__.txt", 'a') as log:
-										log.write(log_line2)
-									show(diagram)
-									input(log_line2)							
-
-								elif min_chlen2 == 0:
-									zeroes2.append((i0, i1, i2))
-
-								for l in reversed(singles2):
-									diagram.collapseBack(l)		
-								for l in coerced2:
-									diagram.setLoopAvailabled(l)
-								diagram.collapseBack(loop2)
+					# 			avlen2 = len([l for l in diagram.loops if l.availabled])
+					# 			tobex_count2 = diagram.measureTobex()
+					# 			tobex_ratio2 = (avlen2 / tobex_count2) if tobex_count2 != 0 else 0
+					# 
+					# 			results2[(
+					# 				avlen2, 
+					# 				min_chlen2, 
+					# 				len(headChain2.avloops),
+					# 				-(len(singles0)+len(singles1)+len(singles2)), 
+					# 				-(len(coerced0)+len(coerced1)+len(coerced2)),
+					# 				tobex_count2,
+					# 				tobex_ratio2
+					# 			)] += 1
+					# 
+					# 			if i2 % 20 == 0:
+					# 				print("["+tstr(time() - startTime)+"] @ " + str(i0) + " /" + str(len(headLoopsZ)) + " " + str(i1) + " /" + str(len(headLoops0)) + " " + str(i2) + " /" + str(len(headLoops1)))							
+					# 
+					# 			log_line2 = ("["+tstr(time() - startTime)+"] avlen: " + str(avlen2) + " | chlen: " + str(min_chlen2) + " | s: " + str(len(singles0)+len(singles1)+len(singles2)) + " | c: " + str(len(coerced0)+len(coerced1)+len(coerced2)) + " | tobex c: " + str(tobex_count2) + " r: " + str(tobex_ratio2) + " | head c: " + str(headChain2) + " av: " + str(len(headChain2.avloops)) + " @ " + str(i0) + "/" + str(len(headLoopsZ)) + " " + str(i1) + "/" + str(len(headLoops0)) + " " + str(i2) + "/" + str(len(headLoops1)) + "\n| " + str(loop0) + "\n| " + str(loop1) + "\n| " + str(loop2) + "\n\n").replace("⟩", ")").replace("⟨", "(")
+					# 
+					# 			if min_chlen2 != 0 and tobex_ratio2 <= min_found_tobex_ratio2:
+					# 				min_found_tobex_ratio2 = tobex_ratio2
+					# 				with open(minim_filename+"__2__.txt", 'a') as log:
+					# 					log.write(log_line2)
+					# 
+					# 			if min_chlen2 != 0 and tobex_ratio2 >= max_found_tobex_ratio2:
+					# 				max_found_tobex_ratio2 = tobex_ratio2
+					# 				with open(maxim_filename+"__2__.txt", 'a') as log:
+					# 					log.write(log_line2)
+					# 
+					# 			if len(diagram.chains) == 1:
+					# 				with open(sols_filename+"__2__.txt", 'a') as log:
+					# 					log.write(log_line2)
+					# 				show(diagram)
+					# 				input(log_line2)							
+					# 
+					# 			elif min_chlen2 == 0:
+					# 				zeroes2.append((i0, i1, i2))
+					# 
+					# 			for l in reversed(singles2):
+					# 				diagram.collapseBack(l)		
+					# 			for l in coerced2:
+					# 				diagram.setLoopAvailabled(l)
+					# 			diagram.collapseBack(loop2)
 #---------### ~~~ lvl:2 ~~~ ###
-					for l in reversed(singles1):
-						diagram.collapseBack(l)		
-					for l in coerced1:
-						diagram.setLoopAvailabled(l)
-					diagram.collapseBack(loop1)
+					# for l in reversed(singles1):
+					# 	diagram.collapseBack(l)		
+					# for l in coerced1:
+					# 	diagram.setLoopAvailabled(l)
+					# diagram.collapseBack(loop1)
 					# break # [~]
 #---### ~~~ lvl:1 ~~~ ###			
 		for l in reversed(singles0):
@@ -332,13 +338,13 @@ if __name__ == "__main__":
 			diagram.setLoopAvailabled(l)			
 		diagram.collapseBack(loop0)
 		
-		with open(results_filename+"__2__.txt", 'a') as log:
-			total = 0
-			for k,v in sorted(results2.items(), key = lambda pair: (0 if pair[0][1] == 0 else pair[0][-1], pair[0][-1], pair[0][0], pair[0][1])):
-				log.write(str(k) + " : " + str(v) + "\n")
-				total += v
-			log.write("=== " + str(i0) + ": " + str(total) + " | @ " + tstr(time() - startTime) + "\n")
-		results2.clear()		
+		# with open(results_filename+"__2__.txt", 'a') as log:
+		# 	total = 0
+		# 	for k,v in sorted(results2.items(), key = lambda pair: (0 if pair[0][1] == 0 else pair[0][-1], pair[0][-1], pair[0][0], pair[0][1])):
+		# 		log.write(str(k) + " : " + str(v) + "\n")
+		# 		total += v
+		# 	log.write("=== " + str(i0) + ": " + str(total) + " | @ " + tstr(time() - startTime) + "\n")
+		# results2.clear()		
 		# with open(zeroes_filename+"__2__.txt", 'a') as log:
 		# 	for e in zeroes2:
 		# 		log.write((str(e) + " : " + "|".join([str(avloopsZ[i]) for i in e]) + "\n").replace("⟩", ")").replace("⟨", "("))
@@ -352,24 +358,24 @@ if __name__ == "__main__":
 	
 	sorted0 = sorted(results0.items(), key = lambda pair: (0 if pair[0][1] == 0 else pair[0][-1], pair[0][-1], pair[0][0], pair[0][1]))
 	print("["+tstr(time() - startTime)+"] lvl:0\n| results:\n" + "\n".join(str(pair[0])+": "+str(pair[1]) for pair in sorted0)+"\n| zeroes:\n"+"\n".join([str(e) for e in zeroes0]))
-	sorted1 = sorted(results1.items(), key = lambda pair: (0 if pair[0][1] == 0 else pair[0][-1], pair[0][-1], pair[0][0], pair[0][1]))	
-	print("["+tstr(time() - startTime)+"] lvl:1\n| results:\n" + "\n".join(str(pair[0])+": "+str(pair[1]) for pair in sorted1)+"\n| zeroes:\n"+"\n".join([str(e) for e in zeroes1]))
-
-	results2.clear()
-	with open(results_filename+"__2__.txt", 'r') as log:
-		lines = log.read().splitlines()
-		for line in lines:
-			if not line.startswith("==="):
-				key = tuple(int(x) if '.' not in x else float(x) for x in line.split(" : ")[0][1:-1].split(", "))
-				val = int(line.split(" : ")[1])
-				results2[key] += val
-	zeroes2count = len(zeroes2)
+	# sorted1 = sorted(results1.items(), key = lambda pair: (0 if pair[0][1] == 0 else pair[0][-1], pair[0][-1], pair[0][0], pair[0][1]))	
+	# print("["+tstr(time() - startTime)+"] lvl:1\n| results:\n" + "\n".join(str(pair[0])+": "+str(pair[1]) for pair in sorted1)+"\n| zeroes:\n"+"\n".join([str(e) for e in zeroes1]))
+	# 
+	# results2.clear()
+	# with open(results_filename+"__2__.txt", 'r') as log:
+	# 	lines = log.read().splitlines()
+	# 	for line in lines:
+	# 		if not line.startswith("==="):
+	# 			key = tuple(int(x) if '.' not in x else float(x) for x in line.split(" : ")[0][1:-1].split(", "))
+	# 			val = int(line.split(" : ")[1])
+	# 			results2[key] += val
+	# zeroes2count = len(zeroes2)
 	# with open(zeroes_filename+"__2__.txt", 'r') as log:
 	# 	lines = log.read().splitlines()
 	# 	for line in lines:
 	# 		if not line.startswith("==="):		
 	# 			zeroes2count += 1
-
-	sorted2 = sorted(results2.items(), key = lambda pair: (0 if pair[0][1] == 0 else pair[0][-1], pair[0][-1], pair[0][0], pair[0][1]))
-	print("["+tstr(time() - startTime)+"] lvl:2\n| results:\n" + "\n".join(str(pair[0])+": "+str(pair[1]) for pair in sorted2)+"\n| zeroes: "+str(zeroes2count))
+	# 
+	# sorted2 = sorted(results2.items(), key = lambda pair: (0 if pair[0][1] == 0 else pair[0][-1], pair[0][-1], pair[0][0], pair[0][1]))
+	# print("["+tstr(time() - startTime)+"] lvl:2\n| results:\n" + "\n".join(str(pair[0])+": "+str(pair[1]) for pair in sorted2)+"\n| zeroes: "+str(zeroes2count))
 
