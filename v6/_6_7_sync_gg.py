@@ -61,7 +61,7 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	head_filename = '__ff11__'
+	head_filename = '__ff12__'
 	results_filename = head_filename + "results"
 	zeroes_filename = head_filename + "zeroes"
 	minim_filename = head_filename + "minim"
@@ -169,11 +169,21 @@ if __name__ == "__main__":
 	
 	unavail('013420')
 		
+	# __ff10__zeroes__0__
 	# [0m7s.32] avlen: 448 | chlen: 2 | s: 0 | c: 0 | tobex c: 92 r: 4.869565217391305 | head c: (chain:369|250/283) av: 283
 	# @ 246/281
 	# | (loop:[yellow:84]:110004|Ex)
 	
 	extend('110004')
+	
+	# __ff11__zeroes__0__
+	#[0m6s.82] avlen: 412 | chlen: 0 | s: 3 | c: 2 | tobex c: 88 r: 4.681818181818182 | head c: (chain:369|265/259) av: 259
+	# @ 233/283
+	# | (loop:[orange:118]:102321|Ex)	
+	
+	unavail('102321')
+	
+	
 	
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
