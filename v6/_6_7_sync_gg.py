@@ -47,12 +47,53 @@ if __name__ == "__main__":
 						for avloop in intersected:
 							coerced.append(avloop)
 							diagram.setLoopUnavailabled(avloop)
-						found = True																									
+						found = True
 						break
 																	
 			if not found:
 				return (min_chlen, singles, coerced)
 		
+	def decimate():
+		zeroes = []
+		
+		while True:
+			found = False
+			results = {}
+			avloops = [l for l in diagram.loops if l.availabled]
+			print("[decimate] avloops: " + str(len(avloops)))
+			for loop in avloops:
+				diagram.extendLoop(loop)
+				min_chlen, singles, coerced = coerce()
+				avlen = len([l for l in diagram.loops if l.availabled])
+				tobex_count = diagram.measureTobex()
+				tobex_ratio = (avlen / tobex_count) if tobex_count != 0 else 0
+
+				results[loop] = (
+					avlen, 
+					min_chlen,
+					len(diagram.startNode.cycle.chain.avloops),
+					-(len(singles)), 
+					-(len(coerced)),
+					tobex_count,
+					tobex_ratio
+				)
+										
+				for l in reversed(singles):
+					diagram.collapseBack(l)						
+				for l in coerced:
+					diagram.setLoopAvailabled(l)			
+				diagram.collapseBack(loop)				
+								
+				if min_chlen == 0:
+					zeroes.append(loop)
+					diagram.setLoopUnavailabled(loop)
+					found = True
+			
+			if not found:
+				return (zeroes, results)
+			print("[decimate] zeroes so far: " + str(len(zeroes)))
+				
+				
 																								
 	results0 = defaultdict(int)		
 	zeroes0 = []
@@ -61,7 +102,7 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	head_filename = '__ff27__'
+	head_filename = '__ff28__'
 	results_filename = head_filename + "results"
 	zeroes_filename = head_filename + "zeroes"
 	minim_filename = head_filename + "minim"
@@ -341,10 +382,68 @@ if __name__ == "__main__":
 	# | (loop:[red:118]:013242|Ex)
 
 	extend('013242')
-	
-	
+
+	# __ff26__maxim__0__												
+	# [0m37s.668] avlen: 362 | chlen: 2 | s: 1 | c: 2 | tobex c: 84 r: 4.309523809523809 | head c: (chain:3093|280/230) av: 230
+	# @ 211/235
+	# | (loop:[green:93]:112032|Ex)
+
+	extend('112032')
 
 	min_chlenZ, singlesZ, coercedZ = coerce()
+	
+	zeroes, results = decimate()
+	input("zeroes: " + str(len(zeroes)) + "\n" + "\n".join([str(l) for l in zeroes]))
+	
+	sorted_results = sorted(results.items(), key = lambda pair: (0 if pair[1][1] == 0 else pair[1][-1], pair[1][-1], pair[1][0], pair[1][1]))
+	input("results: " + str(len(sorted_results)) + "\n" + "\n".join([str(p) for p in sorted_results]))
+	
+	filtered_results = [p for p in sorted_results if p[0] in diagram.startNode.cycle.chain.avloops]
+	input("filtered: " + str(len(filtered_results)) + "\n" + "\n".join([str(p) for p in filtered_results]))
+	
+	# __ff27__zeroes__0__														
+	# [0m12s.485] avlen: 109 | chlen: 0 | s: 36 | c: 40 | tobex c: 49 r: 2.2244897959183674 | head c: (chain:251|450/80) av: 80 @ 86/244
+	# | (loop:[red:32]:011311|Ex)
+	# 
+	# [0m13s.239] avlen: 236 | chlen: 0 | s: 17 | c: 29 | tobex c: 68 r: 3.4705882352941178 | head c: (chain:397|345/163) av: 163 @ 141/244
+	# | (loop:[indigo:52]:021311|Ex)
+	# 
+	# [0m13s.512] avlen: 133 | chlen: 0 | s: 33 | c: 35 | tobex c: 52 r: 2.5576923076923075 | head c: (chain:456|430/86) av: 86 @ 152/244
+	# | (loop:[indigo:95]:023011|Ex)
+	# 
+	# [0m13s.689] avlen: 129 | chlen: 0 | s: 35 | c: 35 | tobex c: 50 r: 2.58 | head c: (chain:500|435/89) av: 89 @ 159/244
+	# | (loop:[indigo:112]:023143|Ex)
+	# 
+	# [0m14s.395] avlen: 227 | chlen: 0 | s: 19 | c: 21 | tobex c: 66 r: 3.4393939393939394 | head c: (chain:632|355/167) av: 167 @ 214/244
+	# | (loop:[yellow:95]:110352|Ex)
+	# 
+	# [0m14s.838] avlen: 82 | chlen: 0 | s: 46 | c: 63 | tobex c: 39 r: 2.1025641025641026 | head c: (chain:714|450/60) av: 60 @ 236/244
+	# | (loop:[blue:110]:122006|Ex)
+	
+	# unavail('011311')
+	# unavail('021311')
+	# unavail('023011')
+	# unavail('023143')
+	# unavail('110352')
+	# unavail('122006')
+
+	# __ff28__zeroes__0__														
+	# [0m3s.439] avlen: 128 | chlen: 0 | s: 34 | c: 21 | tobex c: 51 r: 2.5098039215686274 | head c: (chain:384|440/89) av: 89 @ 141/238
+	# | (loop:[indigo:93]:021353|Ex)
+
+	# unavail('021353')
+
+	# __ff29__zeroes__0__														
+	# [0m4s.2] avlen: 216 | chlen: 0 | s: 20 | c: 23 | tobex c: 65 r: 3.3230769230769233 | head c: (chain:351|350/142) av: 142 @ 133/237
+	# | (loop:[indigo:89]:020453|Ex)
+	# 
+	# [0m4s.960] avlen: 263 | chlen: 0 | s: 13 | c: 12 | tobex c: 72 r: 3.6527777777777777 | head c: (chain:532|335/166) av: 166 @ 213/237
+	# | (loop:[blue:91]:112106|Ex)
+
+	# unavail('020453')
+	# unavail('112106')
+		
+	# min_chlenZ, singlesZ, coercedZ = coerce()
 	
 	headChainZ = diagram.startNode.cycle.chain
 	headLoopsZ = sorted(headChainZ.avloops, key = lambda l: l.firstAddress())
