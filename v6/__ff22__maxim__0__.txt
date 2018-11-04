@@ -1,0 +1,24 @@
+[0m2s.667] avlen: 395 | chlen: 2 | s: 0 | c: 5 | tobex c: 88 r: 4.488636363636363 | head c: (chain:32|270/258) av: 258 @ 0/260
+| (loop:[violet:80]:000034|Ex)
+
+[0m2s.685] avlen: 399 | chlen: 2 | s: 0 | c: 0 | tobex c: 88 r: 4.534090909090909 | head c: (chain:33|270/258) av: 258 @ 1/260
+| (loop:[violet:65]:000043|Ex)
+
+[0m2s.716] avlen: 391 | chlen: 2 | s: 2 | c: 0 | tobex c: 86 r: 4.546511627906977 | head c: (chain:37|270/253) av: 253 @ 3/260
+| (loop:[red:81]:000101|Ex)
+
+[0m2s.789] avlen: 391 | chlen: 2 | s: 2 | c: 1 | tobex c: 86 r: 4.546511627906977 | head c: (chain:54|270/254) av: 254 @ 10/260
+| (loop:[red:85]:001001|Ex)
+
+[0m3s.69] avlen: 402 | chlen: 2 | s: 0 | c: 1 | tobex c: 88 r: 4.568181818181818 | head c: (chain:114|270/253) av: 253 @ 49/260
+| (loop:[indigo:77]:003303|Ex)
+
+[0m3s.413] avlen: 402 | chlen: 2 | s: 0 | c: 0 | tobex c: 88 r: 4.568181818181818 | head c: (chain:182|270/262) av: 262 @ 92/260
+| (loop:[red:68]:011344|Ex)
+
+[0m4s.88] avlen: 402 | chlen: 2 | s: 0 | c: 0 | tobex c: 88 r: 4.568181818181818 | head c: (chain:317|270/256) av: 256 @ 150/260
+| (loop:[blue:46]:021106|Ex)
+
+[0m4s.928] avlen: 399 | chlen: 2 | s: 1 | c: 0 | tobex c: 87 r: 4.586206896551724 | head c: (chain:483|270/255) av: 255 @ 233/260
+| (loop:[blue:87]:111206|Ex)
+

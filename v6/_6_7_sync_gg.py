@@ -61,7 +61,7 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	head_filename = '__ff20__'
+	head_filename = '__ff23__'
 	results_filename = head_filename + "results"
 	zeroes_filename = head_filename + "zeroes"
 	minim_filename = head_filename + "minim"
@@ -247,7 +247,36 @@ if __name__ == "__main__":
 	# | (loop:[orange:88]:102354|Ex)	
 	
 	extend('102354')
+
+	# __ff20__zeroes__0__				
+	# [0m4s.438] avlen: 242 | chlen: 0 | s: 17 | c: 32 | tobex c: 71 r: 3.408450704225352 | head c: (chain:283|355/157) av: 157 @ 128/265
+	# | (loop:[violet:59]:013453|Ex)
+	# 
+	# [0m5s.79] avlen: 306 | chlen: 0 | s: 9 | c: 18 | tobex c: 79 r: 3.8734177215189876 | head c: (chain:416|320/200) av: 200 @ 188/265
+	# | (loop:[orange:107]:100201|Ex)
+	# 
+	# [0m5s.483] avlen: 160 | chlen: 0 | s: 27 | c: 40 | tobex c: 61 r: 2.622950819672131 | head c: (chain:498|400/108) av: 108 @ 222/265
+	# | (loop:[orange:104]:102453|Ex)
+	# 
+	# [0m5s.652] avlen: 380 | chlen: 0 | s: 2 | c: 4 | tobex c: 86 r: 4.4186046511627906 | head c: (chain:529|280/242) av: 242 @ 237/265
+	# | (loop:[green:89]:111041|Ex)
+
+	unavail('013453')
+	unavail('100201')
+	unavail('102453')
+	unavail('111041')
 	
+	# __ff21__zeroes__0__					
+	# [0m5s.957] avlen: 236 | chlen: 0 | s: 19 | c: 26 | tobex c: 69 r: 3.420289855072464 | head c: (chain:468|360/154) av: 154 @ 219/261
+	# | (loop:[orange:89]:102444|Ex)	
+
+	unavail('102444')
+
+	# __ff22__maxim__0__														
+	# [0m4s.928] avlen: 399 | chlen: 2 | s: 1 | c: 0 | tobex c: 87 r: 4.586206896551724 | head c: (chain:483|270/255) av: 255 @ 233/260
+	# | (loop:[blue:87]:111206|Ex)
+
+	extend('111206')
 	
 	
 	min_chlenZ, singlesZ, coercedZ = coerce()
