@@ -61,7 +61,7 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	head_filename = '__ff17__'
+	head_filename = '__ff18__'
 	results_filename = head_filename + "results"
 	zeroes_filename = head_filename + "zeroes"
 	minim_filename = head_filename + "minim"
@@ -225,10 +225,17 @@ if __name__ == "__main__":
 
 	unavail('012032')
 	unavail('013023')
+
+	# __ff17__zeroes__0__
+	# [0m4s.952] avlen: 117 | chlen: 0 | s: 40 | c: 47 | tobex c: 49 r: 2.3877551020408165 | head c: (chain:105|460/76) av: 76 @ 19/268
+	# | (loop:[orange:37]:001143|Ex)
+	# 
+	# [0m6s.789] avlen: 221 | chlen: 0 | s: 22 | c: 20 | tobex c: 67 r: 3.298507462686567 | head c: (chain:480|370/153) av: 153 @ 230/268
+	# | (loop:[blue:77]:103206|Ex)			
+
+	unavail('001143')
+	unavail('103206')
 	
-			
-
-
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
 	headChainZ = diagram.startNode.cycle.chain
