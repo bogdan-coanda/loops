@@ -59,11 +59,11 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	results_filename = "__ff8__lvl2__results.txt"
-	zeroes_filename = "__ff8__zeroes.txt"
-	minim_filename = "__ff8__minim.txt"
-	maxim_filename = "__ff8__maxim.txt"
-	sols_filename = "__ff8__sols.txt"
+	results_filename = "__ff9__results"
+	zeroes_filename = "__ff9__zeroes"
+	minim_filename = "__ff9__minim"
+	maxim_filename = "__ff9__maxim"
+	sols_filename = "__ff9__sols"
 	
 	# [base] avlen: 636 | min chlen: 5 | tobex count: 120 ratio: 5.3
 	startTime = time()
@@ -148,6 +148,17 @@ if __name__ == "__main__":
 	extend('021306')
 	extend('021406')
 	
+	# __2____ff8__maxim
+	# [347m58s.339] avlen: 457 | chlen: 2 | s: 0 | c: 0 | tobex c: 93 r: 4.913978494623656 | head c: (chain:5974271|245/282) av: 282
+	# @ 148/274 4/131 121/132
+	# | (loop:[yellow:57]:020121|Ex)
+	# | (loop:[yellow:41]:020130|Ex)
+	# | (loop:[yellow:118]:120211|Ex)
+	
+	extend('020121')
+	extend('020130')
+	extend('120211')
+	
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
 	headChainZ = diagram.startNode.cycle.chain
@@ -191,23 +202,23 @@ if __name__ == "__main__":
 			
 		if min_chlen0 != 0 and tobex_ratio0 <= min_found_tobex_ratio0:
 			min_found_tobex_ratio0 = tobex_ratio0
-			with open("__0__"+minim_filename, 'a') as log:
+			with open(minim_filename+"__0__.txt", 'a') as log:
 				log.write(log_line0)
 												
 		if min_chlen0 != 0 and tobex_ratio0 >= max_found_tobex_ratio0:
 			max_found_tobex_ratio0 = tobex_ratio0
-			with open("__0__"+maxim_filename, 'a') as log:
+			with open(maxim_filename+"__0__.txt", 'a') as log:
 				log.write(log_line0)
 							
 		if len(diagram.chains) == 1:
-			with open("__0__"+sols_filename, 'a') as log:
+			with open(sols_filename+"__0__.txt", 'a') as log:
 				log.write(log_line0)
 			show(diagram)
 			input("sol! " + log_line0)
 		
 		elif min_chlen0 == 0:
 			zeroes0.append((i0))
-			with open("__0__"+zeroes_filename, 'a') as log:
+			with open(zeroes_filename+"__0__.txt", 'a') as log:
 				log.write(log_line0)
 #---### ~~~ lvl:1 ~~~ ###				
 		else:
@@ -238,23 +249,23 @@ if __name__ == "__main__":
 							
 					if min_chlen1 != 0 and tobex_ratio1 <= min_found_tobex_ratio1:
 						min_found_tobex_ratio1 = tobex_ratio1
-						with open("__1__"+minim_filename, 'a') as log:
+						with open(minim_filename+"__1__.txt", 'a') as log:
 							log.write(log_line1)
 							
 					if min_chlen1 != 0 and tobex_ratio1 >= max_found_tobex_ratio1:
 						max_found_tobex_ratio1 = tobex_ratio1
-						with open("__1__"+maxim_filename, 'a') as log:
+						with open(maxim_filename+"__1__.txt", 'a') as log:
 							log.write(log_line1)
 							
 					if len(diagram.chains) == 1:
-						with open("__1__"+sols_filename, 'a') as log:
+						with open(sols_filename+"__1__.txt", 'a') as log:
 							log.write(log_line1)
 						show(diagram)
 						input(log_line1)
 										
 					elif min_chlen1 == 0:
 						zeroes1.append((i0, i1))
-						with open("__1__"+zeroes_filename, 'a') as log:
+						with open(zeroes_filename+"__1__.txt", 'a') as log:
 							log.write(log_line1)
 #---------### ~~~ lvl:2 ~~~ ###
 					else:
@@ -285,16 +296,16 @@ if __name__ == "__main__":
 
 								if min_chlen2 != 0 and tobex_ratio2 <= min_found_tobex_ratio2:
 									min_found_tobex_ratio2 = tobex_ratio2
-									with open("__2__"+minim_filename, 'a') as log:
+									with open(minim_filename+"__2__.txt", 'a') as log:
 										log.write(log_line2)
 
 								if min_chlen2 != 0 and tobex_ratio2 >= max_found_tobex_ratio2:
 									max_found_tobex_ratio2 = tobex_ratio2
-									with open("__2__"+maxim_filename, 'a') as log:
+									with open(maxim_filename+"__2__.txt", 'a') as log:
 										log.write(log_line2)
 
 								if len(diagram.chains) == 1:
-									with open("__2__"+sols_filename, 'a') as log:
+									with open(sols_filename+"__2__.txt", 'a') as log:
 										log.write(log_line2)
 									show(diagram)
 									input(log_line2)							
@@ -321,14 +332,14 @@ if __name__ == "__main__":
 			diagram.setLoopAvailabled(l)			
 		diagram.collapseBack(loop0)
 		
-		with open(results_filename, 'a') as log:
+		with open(results_filename+"__2__.txt", 'a') as log:
 			total = 0
 			for k,v in sorted(results2.items(), key = lambda pair: (0 if pair[0][1] == 0 else pair[0][-1], pair[0][-1], pair[0][0], pair[0][1])):
 				log.write(str(k) + " : " + str(v) + "\n")
 				total += v
 			log.write("=== " + str(i0) + ": " + str(total) + " | @ " + tstr(time() - startTime) + "\n")
 		results2.clear()		
-		# with open(zeroes_filename, 'a') as log:
+		# with open(zeroes_filename+"__2__.txt", 'a') as log:
 		# 	for e in zeroes2:
 		# 		log.write((str(e) + " : " + "|".join([str(avloopsZ[i]) for i in e]) + "\n").replace("⟩", ")").replace("⟨", "("))
 		# 	log.write("=== " + str(i0) + ": " + str(len(zeroes2)) + " | @ " + tstr(time() - startTime) + "\n")
@@ -345,7 +356,7 @@ if __name__ == "__main__":
 	print("["+tstr(time() - startTime)+"] lvl:1\n| results:\n" + "\n".join(str(pair[0])+": "+str(pair[1]) for pair in sorted1)+"\n| zeroes:\n"+"\n".join([str(e) for e in zeroes1]))
 
 	results2.clear()
-	with open(results_filename, 'r') as log:
+	with open(results_filename+"__2__.txt", 'r') as log:
 		lines = log.read().splitlines()
 		for line in lines:
 			if not line.startswith("==="):
@@ -353,7 +364,7 @@ if __name__ == "__main__":
 				val = int(line.split(" : ")[1])
 				results2[key] += val
 	zeroes2count = len(zeroes2)
-	# with open(zeroes_filename, 'r') as log:
+	# with open(zeroes_filename+"__2__.txt", 'r') as log:
 	# 	lines = log.read().splitlines()
 	# 	for line in lines:
 	# 		if not line.startswith("==="):		
