@@ -1,0 +1,12 @@
+[0m58s.616] avlen: 385 | chlen: 2 | s: 0 | c: 10 | tobex c: 87 r: 4.425287356321839 | head c: (chain:2097|270/252) av: 252 @ 0/260
+| (loop:[violet:80]:000034|Ex)
+
+[0m58s.657] avlen: 361 | chlen: 2 | s: 3 | c: 7 | tobex c: 84 r: 4.2976190476190474 | head c: (chain:2102|285/231) av: 231 @ 2/260
+| (loop:[violet:61]:000052|Ex)
+
+[0m58s.753] avlen: 322 | chlen: 2 | s: 7 | c: 18 | tobex c: 80 r: 4.025 | head c: (chain:2128|295/207) av: 207 @ 15/260
+| (loop:[red:93]:001402|Ex)
+
+[0m59s.334] avlen: 313 | chlen: 2 | s: 8 | c: 19 | tobex c: 79 r: 3.962025316455696 | head c: (chain:2292|300/187) av: 187 @ 117/260
+| (loop:[violet:37]:013151|Ex)
+
