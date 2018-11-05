@@ -231,6 +231,13 @@ if __name__ == "__main__":
 	# | (loop:[blue:87]:111206|Ex)
 
 	extend('111206')
+	
+	# __ff12__maxim__0__
+	# [1m55s.331] avlen: 420 | chlen: 2 | s: 0 | c: 0 | tobex c: 90 r: 4.666666666666667 | head c: (chain:2510|260/267) av: 267
+	# @ 125/266
+	# | (loop:[red:118]:013242|Ex)
+
+	extend('013242')
 
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
