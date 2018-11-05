@@ -102,7 +102,7 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	head_filename = '__ff18__'
+	head_filename = '__ff13__'
 	results_filename = head_filename + "results"
 	zeroes_filename = head_filename + "zeroes"
 	minim_filename = head_filename + "minim"
@@ -229,74 +229,18 @@ if __name__ == "__main__":
 	# @ 147/282
 	# | (loop:[yellow:53]:020112|Ex)
 	
-	extend('020112')
-	
-	# __ff13__zeroes__0__
-	# [0m10s.598] avlen: 235 | chlen: 0 | s: 20 | c: 44 | tobex c: 70 r: 3.357142857142857 | head c: (chain:351|355/150) av: 150
-	# @ 187/278
-	# | (loop:[indigo:99]:023421|Ex)
-			
-	unavail('023421')
-	
-	# __ff14__maxim__0__
-	# [0m6s.834] avlen: 430 | chlen: 2 | s: 0 | c: 0 | tobex c: 90 r: 4.777777777777778 | head c: (chain:413|260/272) av: 272
-	# @ 240/277
-	# | (loop:[yellow:88]:110013|Ex)
-	
 	# [decimate] avloops: 0
-	unavail('110013')
-
-	# __ff14b__maxim__0__				
-	# [0m12s.94] avlen: 424 | chlen: 2 | s: 1 | c: 0 | tobex c: 89 r: 4.764044943820225 | head c: (chain:1078|260/273) av: 273
-	# @ 229/275
-	# | (loop:[orange:88]:102354|Ex)
-		
-	extend('102354')
-		
-	# __ff15__maxim__0__
-	# [0m38s.200] avlen: 414 | chlen: 2 | s: 0 | c: 0 | tobex c: 88 r: 4.704545454545454 | head c: (chain:1621|265/267) av: 267
-	# @ 157/271
-	# | (loop:[blue:46]:021106|Ex)
-
-	extend('021106')
-
-	# __ff16__maxim__0__
-	# [0m59s.124] avlen: 399 | chlen: 2 | s: 0 | c: 0 | tobex c: 87 r: 4.586206896551724 | head c: (chain:2239|270/263) av: 263
-	# @ 88/260
-	# | (loop:[red:68]:011344|Ex)
-
-	# [decimate] avloops: 0
-	unavail('011344')
+	unavail('020112')
 	
-	# __ff16b__maxim__0__
-	# [0m25s.37] avlen: 390 | chlen: 2 | s: 0 | c: 0 | tobex c: 87 r: 4.482758620689655 | head c: (chain:3068|270/248) av: 248
-	# @ 140/251
-	# | (loop:[indigo:84]:020411|Ex)
+	# __ff12b__maxim__0__
+	# [0m19s.774] avlen: 419 | chlen: 2 | s: 0 | c: 0 | tobex c: 91 r: 4.604395604395604 | head c: (chain:2624|255/266) av: 266
+	# @ 23/262
+	# | (loop:[red:94]:001453|Ex)
 	
-	extend('020411')
+	extend('001453')
 	
-	# __ff17__maxim__0__
-	# [0m46s.143] avlen: 381 | chlen: 2 | s: 0 | c: 0 | tobex c: 86 r: 4.430232558139535 | head c: (chain:3431|275/246) av: 246
-	# @ 190/246
-	# | (loop:[orange:113]:101242|Ex)
-	
-	extend('101242')
-	
-	# __ff17__maxim__0__
-	# [0m32s.876] avlen: 384 | chlen: 2 | s: 1 | c: 0 | tobex c: 85 r: 4.517647058823529 | head c: (chain:2680|275/252) av: 252
-	# @ 223/260
-	# | (loop:[green:81]:110014|Ex)
 
-	# [decimate] avloops: 0
-	#unavail('110014')
 
-	# __ff18__maxim__0__
-	# [0m34s.503] avlen: 368 | chlen: 2 | s: 1 | c: 0 | tobex c: 83 r: 4.433734939759036 | head c: (chain:2707|280/241) av: 241
-	# @ 147/249
-	# | (loop:[green:53]:022032|Ex)
-
-	# [decimate] avloops: 0
-	#unavail('022032')
 
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
