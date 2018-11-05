@@ -102,7 +102,7 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	head_filename = '__ff19__'
+	head_filename = '__ff17__'
 	results_filename = head_filename + "results"
 	zeroes_filename = head_filename + "zeroes"
 	minim_filename = head_filename + "minim"
@@ -265,19 +265,31 @@ if __name__ == "__main__":
 	# @ 88/260
 	# | (loop:[red:68]:011344|Ex)
 
-	extend('011344')
+	# [decimate] avloops: 0
+	unavail('011344')
 	
+	# __ff16b__maxim__0__
+	# [0m25s.37] avlen: 390 | chlen: 2 | s: 0 | c: 0 | tobex c: 87 r: 4.482758620689655 | head c: (chain:3068|270/248) av: 248
+	# @ 140/251
+	# | (loop:[indigo:84]:020411|Ex)
+	
+	extend('020411')
+	
+	# __ff17__maxim__0__
 	# [0m32s.876] avlen: 384 | chlen: 2 | s: 1 | c: 0 | tobex c: 85 r: 4.517647058823529 | head c: (chain:2680|275/252) av: 252
 	# @ 223/260
 	# | (loop:[green:81]:110014|Ex)
 
-	extend('110014')
+	# [decimate] avloops: 0
+	#unavail('110014')
 
+	# __ff18__maxim__0__
 	# [0m34s.503] avlen: 368 | chlen: 2 | s: 1 | c: 0 | tobex c: 83 r: 4.433734939759036 | head c: (chain:2707|280/241) av: 241
 	# @ 147/249
 	# | (loop:[green:53]:022032|Ex)
 
-	extend('022032')
+	# [decimate] avloops: 0
+	#unavail('022032')
 
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
