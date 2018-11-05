@@ -1,0 +1,24 @@
+[0m32s.30] avlen: 432 | chlen: 2 | s: 0 | c: 2 | tobex c: 91 r: 4.747252747252747 | head c: (chain:1205|255/275) av: 275 @ 0/281
+| (loop:[red:80]:000011|Ex)
+
+[0m32s.66] avlen: 435 | chlen: 2 | s: 0 | c: 0 | tobex c: 91 r: 4.78021978021978 | head c: (chain:1207|255/280) av: 280 @ 2/281
+| (loop:[violet:65]:000043|Ex)
+
+[0m32s.71] avlen: 436 | chlen: 2 | s: 0 | c: 0 | tobex c: 91 r: 4.791208791208791 | head c: (chain:1208|255/276) av: 276 @ 3/281
+| (loop:[violet:61]:000052|Ex)
+
+[0m32s.199] avlen: 437 | chlen: 2 | s: 0 | c: 0 | tobex c: 91 r: 4.802197802197802 | head c: (chain:1243|255/282) av: 282 @ 28/281
+| (loop:[red:94]:001453|Ex)
+
+[0m32s.436] avlen: 437 | chlen: 2 | s: 0 | c: 0 | tobex c: 91 r: 4.802197802197802 | head c: (chain:1313|255/282) av: 282 @ 86/281
+| (loop:[blue:24]:010406|Ex)
+
+[0m32s.471] avlen: 438 | chlen: 2 | s: 0 | c: 0 | tobex c: 91 r: 4.813186813186813 | head c: (chain:1325|255/283) av: 283 @ 98/281
+| (loop:[red:68]:011344|Ex)
+
+[0m32s.722] avlen: 438 | chlen: 2 | s: 0 | c: 0 | tobex c: 91 r: 4.813186813186813 | head c: (chain:1392|255/277) av: 277 @ 146/281
+| (loop:[yellow:53]:020112|Ex)
+
+[0m33s.300] avlen: 438 | chlen: 2 | s: 0 | c: 0 | tobex c: 91 r: 4.813186813186813 | head c: (chain:1567|255/279) av: 279 @ 256/281
+| (loop:[blue:87]:111206|Ex)
+
