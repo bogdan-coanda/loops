@@ -1,3 +1,0 @@
-[0m17s.137] avlen: 194 | chlen: 2 | s: 0 | c: 0 | tobex c: 58 r: 3.3448275862068964 | head c: (chain:118|350/103) av: 103 @ 3/103
-| (loop:[violet:43]:010353|Ex)
-

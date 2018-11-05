@@ -102,7 +102,7 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	head_filename = '__ff28__'
+	head_filename = '__ff15__'
 	results_filename = head_filename + "results"
 	zeroes_filename = head_filename + "zeroes"
 	minim_filename = head_filename + "minim"
@@ -243,152 +243,19 @@ if __name__ == "__main__":
 	# @ 240/277
 	# | (loop:[yellow:88]:110013|Ex)
 	
-	extend('110013')
-	
-	# __ff15__zeroes__0__
-	# [0m7s.50] avlen: 277 | chlen: 0 | s: 16 | c: 28 | tobex c: 73 r: 3.7945205479452055 | head c: (chain:236|320/170) av: 170
-	# @ 128/272
-	# | (loop:[blue:37]:013206|Ex)
-	# 
-	# [0m7s.170] avlen: 310 | chlen: 0 | s: 10 | c: 17 | tobex c: 79 r: 3.9240506329113924 | head c: (chain:256|320/198) av: 198
-	# @ 133/272
-	# | (loop:[red:78]:013403|Ex)	
-	
-	unavail('013206')
-	unavail('013403')
+	# [decimate] avloops: 0
+	unavail('110013')
 
-	# __ff16__zeroes__0__		
-	# [0m6s.32] avlen: 135 | chlen: 0 | s: 37 | c: 45 | tobex c: 52 r: 2.5961538461538463 | head c: (chain:210|430/90) av: 90 @ 100/270
-	# | (loop:[green:33]:012032|Ex)
-	# 
-	# [0m6s.336] avlen: 67 | chlen: 0 | s: 50 | c: 41 | tobex c: 39 r: 1.7179487179487178 | head c: (chain:286|500/46) av: 46 @ 118/270
-	# | (loop:[green:37]:013023|Ex)
-
-	unavail('012032')
-	unavail('013023')
-
-	# __ff17__zeroes__0__
-	# [0m4s.952] avlen: 117 | chlen: 0 | s: 40 | c: 47 | tobex c: 49 r: 2.3877551020408165 | head c: (chain:105|460/76) av: 76 @ 19/268
-	# | (loop:[orange:37]:001143|Ex)
-	# 
-	# [0m6s.789] avlen: 221 | chlen: 0 | s: 22 | c: 20 | tobex c: 67 r: 3.298507462686567 | head c: (chain:480|370/153) av: 153 @ 230/268
-	# | (loop:[blue:77]:103206|Ex)			
-
-	unavail('001143')
-	unavail('103206')
-
-	# __ff18__zeroes__0__		
-	# [0m4s.3] avlen: 155 | chlen: 0 | s: 34 | c: 70 | tobex c: 55 r: 2.8181818181818183 | head c: (chain:110|395/111) av: 111 @ 24/266
-	# | (loop:[orange:55]:002001|Ex)
-	
-	unavail('002001')
-	
-	# __ff19__maxim__0__	
-	# [0m4s.387] avlen: 415 | chlen: 2 | s: 0 | c: 0 | tobex c: 89 r: 4.662921348314606 | head c: (chain:441|265/265) av: 265 @ 220/265
-	# | (loop:[orange:88]:102354|Ex)	
-	
+	# __ff14b__maxim__0__				
+	# [0m12s.94] avlen: 424 | chlen: 2 | s: 1 | c: 0 | tobex c: 89 r: 4.764044943820225 | head c: (chain:1078|260/273) av: 273
+	# @ 229/275
+	# | (loop:[orange:88]:102354|Ex)
+		
 	extend('102354')
+		
 
-	# __ff20__zeroes__0__				
-	# [0m4s.438] avlen: 242 | chlen: 0 | s: 17 | c: 32 | tobex c: 71 r: 3.408450704225352 | head c: (chain:283|355/157) av: 157 @ 128/265
-	# | (loop:[violet:59]:013453|Ex)
-	# 
-	# [0m5s.79] avlen: 306 | chlen: 0 | s: 9 | c: 18 | tobex c: 79 r: 3.8734177215189876 | head c: (chain:416|320/200) av: 200 @ 188/265
-	# | (loop:[orange:107]:100201|Ex)
-	# 
-	# [0m5s.483] avlen: 160 | chlen: 0 | s: 27 | c: 40 | tobex c: 61 r: 2.622950819672131 | head c: (chain:498|400/108) av: 108 @ 222/265
-	# | (loop:[orange:104]:102453|Ex)
-	# 
-	# [0m5s.652] avlen: 380 | chlen: 0 | s: 2 | c: 4 | tobex c: 86 r: 4.4186046511627906 | head c: (chain:529|280/242) av: 242 @ 237/265
-	# | (loop:[green:89]:111041|Ex)
 
-	unavail('013453')
-	unavail('100201')
-	unavail('102453')
-	unavail('111041')
-	
-	# __ff21__zeroes__0__					
-	# [0m5s.957] avlen: 236 | chlen: 0 | s: 19 | c: 26 | tobex c: 69 r: 3.420289855072464 | head c: (chain:468|360/154) av: 154 @ 219/261
-	# | (loop:[orange:89]:102444|Ex)	
 
-	unavail('102444')
-
-	# __ff22__maxim__0__														
-	# [0m4s.928] avlen: 399 | chlen: 2 | s: 1 | c: 0 | tobex c: 87 r: 4.586206896551724 | head c: (chain:483|270/255) av: 255 @ 233/260
-	# | (loop:[blue:87]:111206|Ex)
-
-	extend('111206')
-
-	# __ff23__zeroes__0__							
-	# [0m6s.891] avlen: 325 | chlen: 0 | s: 8 | c: 15 | tobex c: 78 r: 4.166666666666667 | head c: (chain:78|295/212) av: 212 @ 18/255
-	# | (loop:[red:93]:001402|Ex)
-	# 
-	# [0m7s.739] avlen: 200 | chlen: 0 | s: 24 | c: 33 | tobex c: 62 r: 3.225806451612903 | head c: (chain:241|365/133) av: 133 @ 105/255
-	# | (loop:[blue:34]:012406|Ex)
-	# 
-	# [0m7s.877] avlen: 265 | chlen: 0 | s: 15 | c: 21 | tobex c: 71 r: 3.732394366197183 | head c: (chain:264|335/178) av: 178 @ 107/255
-	# | (loop:[violet:34]:012430|Ex)
-	# 
-	# [0m8s.160] avlen: 85 | chlen: 0 | s: 43 | c: 42 | tobex c: 43 r: 1.9767441860465116 | head c: (chain:327|460/64) av: 64 @ 120/255
-	# | (loop:[violet:37]:013151|Ex)
-	# 
-	# [0m8s.355] avlen: 156 | chlen: 0 | s: 30 | c: 38 | tobex c: 56 r: 2.7857142857142856 | head c: (chain:366|395/114) av: 114 @ 125/255
-	# | (loop:[blue:38]:013306|Ex)
-	# 
-	# [0m8s.798] avlen: 168 | chlen: 0 | s: 27 | c: 43 | tobex c: 59 r: 2.847457627118644 | head c: (chain:477|395/122) av: 122 @ 167/255
-	# | (loop:[indigo:111]:023053|Ex)
-	# 
-	# [0m9s.414] avlen: 172 | chlen: 0 | s: 30 | c: 61 | tobex c: 56 r: 3.0714285714285716 | head c: (chain:597|375/113) av: 113 @ 215/255
-	# | (loop:[green:76]:103014|Ex)
-	# 
-	# [0m9s.650] avlen: 190 | chlen: 0 | s: 26 | c: 40 | tobex c: 60 r: 3.1666666666666665 | head c: (chain:641|370/118) av: 118 @ 222/255
-	# | (loop:[green:84]:110041|Ex)
-
-	unavail('001402')
-	unavail('012406')		
-	unavail('012430')
-	unavail('013151')		
-	unavail('013306')
-	unavail('023053')		
-	unavail('103014')
-	unavail('110041')		
-					
-	# __ff24__zeroes__0__												
-	# [0m6s.439] avlen: 123 | chlen: 0 | s: 36 | c: 38 | tobex c: 50 r: 2.46 | head c: (chain:150|435/84) av: 84 @ 38/247
-	# | (loop:[indigo:30]:003001|Ex)
-	# 
-	# [0m6s.559] avlen: 336 | chlen: 0 | s: 4 | c: 12 | tobex c: 82 r: 4.097560975609756 | head c: (chain:171|295/212) av: 212 @ 46/247
-	# | (loop:[violet:92]:003143|Ex)
-	# 
-	# [0m7s.563] avlen: 285 | chlen: 0 | s: 11 | c: 17 | tobex c: 75 r: 3.8 | head c: (chain:354|325/191) av: 191 @ 135/247
-	# | (loop:[yellow:43]:020310|Ex)
-	# 
-	# [0m8s.156] avlen: 125 | chlen: 0 | s: 36 | c: 35 | tobex c: 50 r: 2.5 | head c: (chain:469|430/77) av: 77 @ 168/247
-	# | (loop:[indigo:118]:023403|Ex)					
-
-	unavail('003001')
-	unavail('003143')		
-	unavail('020310')
-	unavail('023403')		
-
-	# __ff25__zeroes__0__												
-	# [0m2s.822] avlen: 273 | chlen: 0 | s: 12 | c: 24 | tobex c: 74 r: 3.689189189189189 | head c: (chain:151|325/170) av: 170 @ 48/243
-	# | (loop:[indigo:38]:003402|Ex)
-
-	unavail('003402')
-
-	# __ff26__maxim__0__												
-	# [0m4s.126] avlen: 383 | chlen: 2 | s: 0 | c: 0 | tobex c: 86 r: 4.453488372093023 | head c: (chain:287|275/244) av: 244 @ 116/242
-	# | (loop:[red:118]:013242|Ex)
-
-	extend('013242')
-
-	# __ff26__maxim__0__												
-	# [0m37s.668] avlen: 362 | chlen: 2 | s: 1 | c: 2 | tobex c: 84 r: 4.309523809523809 | head c: (chain:3093|280/230) av: 230
-	# @ 211/235
-	# | (loop:[green:93]:112032|Ex)
-
-	extend('112032')
 
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
@@ -401,49 +268,6 @@ if __name__ == "__main__":
 	filtered_results = [p for p in sorted_results if p[0] in diagram.startNode.cycle.chain.avloops]
 	input("filtered: " + str(len(filtered_results)) + "\n" + "\n".join([str(p) for p in filtered_results]))
 	
-	# __ff27__zeroes__0__														
-	# [0m12s.485] avlen: 109 | chlen: 0 | s: 36 | c: 40 | tobex c: 49 r: 2.2244897959183674 | head c: (chain:251|450/80) av: 80 @ 86/244
-	# | (loop:[red:32]:011311|Ex)
-	# 
-	# [0m13s.239] avlen: 236 | chlen: 0 | s: 17 | c: 29 | tobex c: 68 r: 3.4705882352941178 | head c: (chain:397|345/163) av: 163 @ 141/244
-	# | (loop:[indigo:52]:021311|Ex)
-	# 
-	# [0m13s.512] avlen: 133 | chlen: 0 | s: 33 | c: 35 | tobex c: 52 r: 2.5576923076923075 | head c: (chain:456|430/86) av: 86 @ 152/244
-	# | (loop:[indigo:95]:023011|Ex)
-	# 
-	# [0m13s.689] avlen: 129 | chlen: 0 | s: 35 | c: 35 | tobex c: 50 r: 2.58 | head c: (chain:500|435/89) av: 89 @ 159/244
-	# | (loop:[indigo:112]:023143|Ex)
-	# 
-	# [0m14s.395] avlen: 227 | chlen: 0 | s: 19 | c: 21 | tobex c: 66 r: 3.4393939393939394 | head c: (chain:632|355/167) av: 167 @ 214/244
-	# | (loop:[yellow:95]:110352|Ex)
-	# 
-	# [0m14s.838] avlen: 82 | chlen: 0 | s: 46 | c: 63 | tobex c: 39 r: 2.1025641025641026 | head c: (chain:714|450/60) av: 60 @ 236/244
-	# | (loop:[blue:110]:122006|Ex)
-	
-	# unavail('011311')
-	# unavail('021311')
-	# unavail('023011')
-	# unavail('023143')
-	# unavail('110352')
-	# unavail('122006')
-
-	# __ff28__zeroes__0__														
-	# [0m3s.439] avlen: 128 | chlen: 0 | s: 34 | c: 21 | tobex c: 51 r: 2.5098039215686274 | head c: (chain:384|440/89) av: 89 @ 141/238
-	# | (loop:[indigo:93]:021353|Ex)
-
-	# unavail('021353')
-
-	# __ff29__zeroes__0__														
-	# [0m4s.2] avlen: 216 | chlen: 0 | s: 20 | c: 23 | tobex c: 65 r: 3.3230769230769233 | head c: (chain:351|350/142) av: 142 @ 133/237
-	# | (loop:[indigo:89]:020453|Ex)
-	# 
-	# [0m4s.960] avlen: 263 | chlen: 0 | s: 13 | c: 12 | tobex c: 72 r: 3.6527777777777777 | head c: (chain:532|335/166) av: 166 @ 213/237
-	# | (loop:[blue:91]:112106|Ex)
-
-	# unavail('020453')
-	# unavail('112106')
-		
-	# min_chlenZ, singlesZ, coercedZ = coerce()
 	
 	headChainZ = diagram.startNode.cycle.chain
 	headLoopsZ = sorted(headChainZ.avloops, key = lambda l: l.firstAddress())

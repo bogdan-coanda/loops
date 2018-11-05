@@ -1,6 +1,0 @@
-[0m7s.173] avlen: 440 | chlen: 2 | s: 0 | c: 0 | tobex c: 99 r: 4.444444444444445 | head c: (chain:21|220/149) av: 149 @ 0/136
-| (loop:[violet:49]:012421|Ex)
-
-[1m18s.714] avlen: 404 | chlen: 2 | s: 5 | c: 10 | tobex c: 94 r: 4.297872340425532 | head c: (chain:40400|230/129) av: 129 @ 1/136
-| (loop:[green:110]:122005|Ex)
-
