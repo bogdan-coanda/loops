@@ -102,7 +102,7 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	head_filename = '__ff15__'
+	head_filename = '__ff13g__'
 	results_filename = head_filename + "results"
 	zeroes_filename = head_filename + "zeroes"
 	minim_filename = head_filename + "minim"
@@ -251,14 +251,42 @@ if __name__ == "__main__":
 	# @ 76/250
 	# | (loop:[blue:24]:010406|Ex)
 
-	extend('010406')
+	unavail('010406')
 
-	# __ff14__maxim__0__
-	# [0m22s.158] avlen: 362 | chlen: 2 | s: 3 | c: 1 | tobex c: 83 r: 4.36144578313253 | head c: (chain:4320|275/238) av: 238
-	# @ 23/241
+	# __ff13c__maxim__0__
+	# [0m24s.297] avlen: 385 | chlen: 2 | s: 1 | c: 1 | tobex c: 87 r: 4.425287356321839 | head c: (chain:2328|270/247) av: 247
+	# @ 27/249
 	# | (loop:[red:94]:001453|Ex)
+	
+	unavail('001453')
+	
+	# __ff13d__maxim__0__
+	# [0m17s.681] avlen: 384 | chlen: 2 | s: 1 | c: 0 | tobex c: 87 r: 4.413793103448276 | head c: (chain:2616|270/243) av: 243
+	# @ 144/248
+	# | (loop:[blue:54]:022406|Ex)
 
-	extend('001453')
+	unavail('022406')
+	
+	# __ff13e__maxim__0__
+	# [0m22s.681] avlen: 365 | chlen: 2 | s: 3 | c: 0 | tobex c: 85 r: 4.294117647058823 | head c: (chain:4138|270/229) av: 229
+	# @ 73/232
+	# | (loop:[red:24]:010420|Ex)
+	
+	unavail('010420')
+
+	# __ff13f__maxim__0__
+	# [0m36s.771] avlen: 355 | chlen: 2 | s: 5 | c: 4 | tobex c: 83 r: 4.27710843373494 | head c: (chain:4134|270/221) av: 221
+	# @ 71/230
+	# | (loop:[violet:24]:010410|Ex)
+
+	unavail('010410')
+	
+	# __ff13g__maxim__0__
+	# [2m6s.911] avlen: 365 | chlen: 2 | s: 2 | c: 0 | tobex c: 86 r: 4.244186046511628 | head c: (chain:4104|270/224) av: 224
+	# @ 36/228
+	# | (loop:[orange:44]:002453|Ex)
+	
+	#extend('002453')
 
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
