@@ -102,7 +102,7 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	head_filename = '__ff15__'
+	head_filename = '__ff16__'
 	results_filename = head_filename + "results"
 	zeroes_filename = head_filename + "zeroes"
 	minim_filename = head_filename + "minim"
@@ -253,9 +253,12 @@ if __name__ == "__main__":
 		
 	extend('102354')
 		
+	# __ff15__maxim__0__
+	# [0m38s.200] avlen: 414 | chlen: 2 | s: 0 | c: 0 | tobex c: 88 r: 4.704545454545454 | head c: (chain:1621|265/267) av: 267
+	# @ 157/271
+	# | (loop:[blue:46]:021106|Ex)
 
-
-
+	extend('021106')
 
 	min_chlenZ, singlesZ, coercedZ = coerce()
 	
@@ -284,7 +287,7 @@ if __name__ == "__main__":
 		
 	diagram.point()
 	show(diagram)
-	input("[base] avlen: " + str(avlenZ) + " | min chlen: " + str(min_chlenZ) + " | tobex count: " + str(tobex_countZ) + " ratio: " + str(tobex_ratioZ) + "\nsingles: " + str(singlesZ) + "\ncoerced: " + str(coercedZ) + " | head chain: " + str(headChainZ) + " | head loops: " + str(len(headLoopsZ)))
+	input("[base] avlen: " + str(avlenZ) + " | min chlen: " + str(min_chlenZ) + " | tobex count: " + str(tobex_countZ) + " ratio: " + str(tobex_ratioZ) + "\nsingles: " + str(singlesZ) + "\ncoerced: " + str(coercedZ) + "\ndecimated: " + str(len(zeroes)) + " | head chain: " + str(headChainZ) + " | head loops: " + str(len(headLoopsZ)))
 	
 #-### ~~~ lvl:0 ~~~ ###
 	for i0, loop0 in enumerate(headLoopsZ):
