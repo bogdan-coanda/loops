@@ -103,7 +103,7 @@ if __name__ == "__main__":
 	zeroes2 = []	
 
 	''' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '''
-	head_filename = '__ff13__'
+	head_filename = '__ff14__'
 	results_filename = head_filename + "results"
 	zeroes_filename = head_filename + "zeroes"
 	minim_filename = head_filename + "minim"
@@ -246,6 +246,13 @@ if __name__ == "__main__":
 	# | (loop:[blue:46]:021106|Ex)
 
 	extend('021106')
+
+	# __ff13__maxim__0__
+	# [0m13s.824] avlen: 405 | chlen: 2 | s: 0 | c: 0 | tobex c: 88 r: 4.6022727272727275 | head c: (chain:1427|270/263) av: 263
+	# @ 89/260
+	# | (loop:[red:68]:011344|Ex)
+
+	extend('011344')
 
 	''' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '''
 					
