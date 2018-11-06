@@ -103,7 +103,7 @@ if __name__ == "__main__":
 	zeroes2 = []	
 
 	''' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '''
-	head_filename = '__ff12__'
+	head_filename = '__ff13__'
 	results_filename = head_filename + "results"
 	zeroes_filename = head_filename + "zeroes"
 	minim_filename = head_filename + "minim"
@@ -240,24 +240,15 @@ if __name__ == "__main__":
 
 	extend('020112')
 
-	''' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '''
-			
 	# __ff12__maxim__0__
-	# [1m55s.331] avlen: 420 | chlen: 2 | s: 0 | c: 0 | tobex c: 90 r: 4.666666666666667 | head c: (chain:2510|260/267) av: 267
-	# @ 125/266
-	# | (loop:[red:118]:013242|Ex)
+	# [0m35s.694] avlen: 417 | chlen: 2 | s: 0 | c: 0 | tobex c: 89 r: 4.685393258426966 | head c: (chain:1494|265/265) av: 265
+	# @ 155/269
+	# | (loop:[blue:46]:021106|Ex)
 
-	#unavail('013242')
+	extend('021106')
 
-	# __ff12b__maxim__0__		
-	# [0m40s.489] avlen: 381 | chlen: 2 | s: 1 | c: 0 | tobex c: 87 r: 4.379310344827586 | head c: (chain:5480|265/234) av: 234
-	# @ 110/239
-	# | (loop:[red:37]:013200|Ex)
-	
-	#unavail('013200')
-	
 	''' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '''
-		
+					
 	def reduce():
 		# mandatory
 		curr_min_chlen, curr_singles, curr_coerced = coerce()
