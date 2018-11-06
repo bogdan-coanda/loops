@@ -103,7 +103,7 @@ if __name__ == "__main__":
 	zeroes2 = []	
 
 	''' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '''
-	head_filename = '__ff13__'
+	head_filename = '__ff12__'
 	results_filename = head_filename + "results"
 	zeroes_filename = head_filename + "zeroes"
 	minim_filename = head_filename + "minim"
@@ -231,21 +231,30 @@ if __name__ == "__main__":
 	# @ 256/281
 	# | (loop:[blue:87]:111206|Ex)
 
-	extend('111206')
-	
+	unavail('111206')
+
+	# __ff11b__maxim__0__
+	# [0m21s.46] avlen: 427 | chlen: 2 | s: 0 | c: 0 | tobex c: 90 r: 4.7444444444444445 | head c: (chain:1441|260/271) av: 271
+	# @ 143/275
+	# | (loop:[yellow:53]:020112|Ex)
+
+	extend('020112')
+
+	''' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '''
+			
 	# __ff12__maxim__0__
 	# [1m55s.331] avlen: 420 | chlen: 2 | s: 0 | c: 0 | tobex c: 90 r: 4.666666666666667 | head c: (chain:2510|260/267) av: 267
 	# @ 125/266
 	# | (loop:[red:118]:013242|Ex)
 
-	unavail('013242')
+	#unavail('013242')
 
 	# __ff12b__maxim__0__		
 	# [0m40s.489] avlen: 381 | chlen: 2 | s: 1 | c: 0 | tobex c: 87 r: 4.379310344827586 | head c: (chain:5480|265/234) av: 234
 	# @ 110/239
 	# | (loop:[red:37]:013200|Ex)
 	
-	extend('013200')
+	#unavail('013200')
 	
 	''' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '''
 		
