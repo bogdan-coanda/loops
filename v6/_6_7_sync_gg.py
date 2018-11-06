@@ -102,7 +102,8 @@ if __name__ == "__main__":
 	results2 = defaultdict(int)		
 	zeroes2 = []	
 
-	head_filename = '__ff13g__'
+	''' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '''
+	head_filename = '__ff13__'
 	results_filename = head_filename + "results"
 	zeroes_filename = head_filename + "zeroes"
 	minim_filename = head_filename + "minim"
@@ -237,57 +238,17 @@ if __name__ == "__main__":
 	# @ 125/266
 	# | (loop:[red:118]:013242|Ex)
 
-	extend('013242')
+	unavail('013242')
+
+	# __ff12b__maxim__0__		
+	# [0m40s.489] avlen: 381 | chlen: 2 | s: 1 | c: 0 | tobex c: 87 r: 4.379310344827586 | head c: (chain:5480|265/234) av: 234
+	# @ 110/239
+	# | (loop:[red:37]:013200|Ex)
 	
-	# __ff13__maxim__0__
-	# [0m20s.507] avlen: 411 | chlen: 2 | s: 0 | c: 0 | tobex c: 89 r: 4.617977528089888 | head c: (chain:1544|265/262) av: 262
-	# @ 59/265
-	# | (loop:[indigo:79]:003444|Ex)
-
-	unavail('003444')
-
-	# __ff13b__maxim__0__
-	# [0m23s.734] avlen: 387 | chlen: 2 | s: 1 | c: 0 | tobex c: 87 r: 4.448275862068965 | head c: (chain:2403|270/251) av: 251
-	# @ 76/250
-	# | (loop:[blue:24]:010406|Ex)
-
-	unavail('010406')
-
-	# __ff13c__maxim__0__
-	# [0m24s.297] avlen: 385 | chlen: 2 | s: 1 | c: 1 | tobex c: 87 r: 4.425287356321839 | head c: (chain:2328|270/247) av: 247
-	# @ 27/249
-	# | (loop:[red:94]:001453|Ex)
+	extend('013200')
 	
-	unavail('001453')
-	
-	# __ff13d__maxim__0__
-	# [0m17s.681] avlen: 384 | chlen: 2 | s: 1 | c: 0 | tobex c: 87 r: 4.413793103448276 | head c: (chain:2616|270/243) av: 243
-	# @ 144/248
-	# | (loop:[blue:54]:022406|Ex)
-
-	unavail('022406')
-	
-	# __ff13e__maxim__0__
-	# [0m22s.681] avlen: 365 | chlen: 2 | s: 3 | c: 0 | tobex c: 85 r: 4.294117647058823 | head c: (chain:4138|270/229) av: 229
-	# @ 73/232
-	# | (loop:[red:24]:010420|Ex)
-	
-	unavail('010420')
-
-	# __ff13f__maxim__0__
-	# [0m36s.771] avlen: 355 | chlen: 2 | s: 5 | c: 4 | tobex c: 83 r: 4.27710843373494 | head c: (chain:4134|270/221) av: 221
-	# @ 71/230
-	# | (loop:[violet:24]:010410|Ex)
-
-	unavail('010410')
-	
-	# __ff13g__maxim__0__
-	# [0m21s.491] avlen: 365 | chlen: 2 | s: 1 | c: 0 | tobex c: 86 r: 4.244186046511628 | head c: (chain:4836|270/224) av: 224
-	# @ 36/228
-	# | (loop:[orange:44]:002453|Ex)
-	
-	extend('002453')
-
+	''' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '''
+		
 	def reduce():
 		# mandatory
 		curr_min_chlen, curr_singles, curr_coerced = coerce()
