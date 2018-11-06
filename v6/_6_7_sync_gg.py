@@ -282,18 +282,50 @@ if __name__ == "__main__":
 	unavail('010410')
 	
 	# __ff13g__maxim__0__
-	# [2m6s.911] avlen: 365 | chlen: 2 | s: 2 | c: 0 | tobex c: 86 r: 4.244186046511628 | head c: (chain:4104|270/224) av: 224
+	# [0m21s.491] avlen: 365 | chlen: 2 | s: 1 | c: 0 | tobex c: 86 r: 4.244186046511628 | head c: (chain:4836|270/224) av: 224
 	# @ 36/228
 	# | (loop:[orange:44]:002453|Ex)
 	
-	#extend('002453')
+	extend('002453')
 
-	min_chlenZ, singlesZ, coercedZ = coerce()
+	def reduce():
+		# mandatory
+		curr_min_chlen, curr_singles, curr_coerced = coerce()
+		curr_zeroes, curr_results = decimate()
+		
+		min_chlen = curr_min_chlen
+		singles = list(curr_singles)
+		coerced = list(curr_coerced)
+		zeroes = list(curr_zeroes)
+		results = curr_results		
+		print("[reduce] curr | ch: " + str(curr_min_chlen) + " | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)) + " | z: " + str(len(curr_zeroes)))
+		
+		# additional
+		while True:
+			if len(curr_zeroes) > 0:
+				curr_min_chlen, curr_singles, curr_coerced = coerce()
+				min_chlen = curr_min_chlen
+				singles += curr_singles
+				coerced += curr_coerced			
+				print("[reduce] curr | ch: " + str(curr_min_chlen) + " | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
+				
+				if len(curr_singles) or len(curr_coerced):
+					curr_zeroes, curr_results = decimate()
+					zeroes += curr_zeroes
+					results = curr_results
+					print("[reduce] curr | z: " + str(len(curr_zeroes)))
+				else:
+					break
+			else:
+				break
+		print("[reduce] done | ch: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
+		return (min_chlen, singles, coerced, zeroes, results)
 	
-	zeroes, results = decimate()
-	input("zeroes: " + str(len(zeroes)) + "\n" + "\n".join([str(l) for l in zeroes]))
+	min_chlenZ, singlesZ, coercedZ, zeroesZ, resultsZ = reduce()
 	
-	sorted_results = sorted(results.items(), key = lambda pair: (0 if pair[1][1] == 0 else pair[1][-1], pair[1][-1], pair[1][0], pair[1][1]))
+	input("zeroes: " + str(len(zeroesZ)) + "\n" + "\n".join([str(l) for l in zeroesZ]))
+	
+	sorted_results = sorted(resultsZ.items(), key = lambda pair: (0 if pair[1][1] == 0 else pair[1][-1], pair[1][-1], pair[1][0], pair[1][1]))
 	input("results: " + str(len(sorted_results)) + "\n" + "\n".join([str(p) for p in sorted_results]))
 	
 	filtered_results = [p for p in sorted_results if p[0] in diagram.startNode.cycle.chain.avloops]
@@ -315,7 +347,7 @@ if __name__ == "__main__":
 		
 	diagram.point()
 	show(diagram)
-	input("[base] avlen: " + str(avlenZ) + " | min chlen: " + str(min_chlenZ) + " | tobex count: " + str(tobex_countZ) + " ratio: " + str(tobex_ratioZ) + "\nsingles: " + str(singlesZ) + "\ncoerced: " + str(coercedZ) + "\ndecimated: " + str(len(zeroes)) + " | head chain: " + str(headChainZ) + " | head loops: " + str(len(headLoopsZ)))
+	input("[base] avlen: " + str(avlenZ) + " | min chlen: " + str(min_chlenZ) + " | tobex count: " + str(tobex_countZ) + " ratio: " + str(tobex_ratioZ) + "\nsingles: " + str(singlesZ) + "\ncoerced: " + str(coercedZ) + "\ndecimated: " + str(len(zeroesZ)) + " | head chain: " + str(headChainZ) + " | head loops: " + str(len(headLoopsZ)))
 	
 #-### ~~~ lvl:0 ~~~ ###
 	for i0, loop0 in enumerate(headLoopsZ):
