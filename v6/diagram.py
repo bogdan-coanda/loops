@@ -23,7 +23,8 @@ class Diagram (object):
 		self.kernelSize = kernelSize
 		self.chainAutoInc = -1
 		self.hasRadialCoords = False
-		
+		self.q = 0
+			
 		self.generateGraph()
 
 		# subsets		
@@ -294,6 +295,9 @@ class Diagram (object):
 		# they're the chains that need to be added back on collapse
 		affected_chains = [node.cycle.chain for node in loop.nodes]
 		
+		ℓ = self.nodeByAddress['113106'].loop
+		assert not ℓ.availabled or ℓ.extended or ℓ.nodes[0].cycle.chain != ℓ.nodes[5].cycle.chain
+				
 		# affected loops are avloops set to unavailabled because we're connecting these chains together
 		# they're the loops that are re-availabled on collapse
 		new_chain, affected_loops = self.makeChain(affected_chains)				
@@ -309,7 +313,10 @@ class Diagram (object):
 		loop.extension_result.setExtensionDetails(new_chain, affected_loops, affected_chains)
 
 		##assert set(list(itertools.chain(*[chain.avloops for chain in diagram.chains]))) == set([loop for loop in diagram.loops if loop.availabled and len([n for n in loop.nodes if n.cycle.chain])])
-		
+
+		ℓ = self.nodeByAddress['113106'].loop
+		assert not ℓ.availabled or ℓ.extended or ℓ.nodes[0].cycle.chain != ℓ.nodes[5].cycle.chain
+						
 		return True
 	
 	
@@ -373,10 +380,15 @@ class Diagram (object):
 				if ichain is jchain:
 					return False
 		return True
-						
-										
+
+												
 	def setLoopAvailabled(self, loop):
-		#assert loop.availabled is False
+		# if loop.firstAddress() == '113106':
+		# 	self.q += 1
+		# 	print("[setLoopAvailabled] " + str(loop) + " | q: " + str(self.q))
+		#assert self.q != 283
+		assert len(set([node.cycle.chain for node in loop.nodes])) == len(loop.nodes)
+		assert loop.availabled is False
 		loop.availabled = True
 		for node in loop.nodes:
 			cycle = node.cycle
@@ -384,7 +396,7 @@ class Diagram (object):
 		
 		
 	def setLoopUnavailabled(self, loop):
-		#assert loop.availabled is True
+		assert loop.availabled is True
 		loop.availabled = False
 		for node in loop.nodes:
 			if loop in node.cycle.chain.avloops: # [~] why would the loop not be here ? got removed twice ? got debugged twice over already and proven correct ?
@@ -393,11 +405,15 @@ class Diagram (object):
 																											
 	def makeChain(self, affected_chains):
 
+		assert len(set(affected_chains)) == len(affected_chains), "broken affected chains"
+
 		# create new chain
 		self.chainAutoInc += 1
 		new_chain = Chain(self.chainAutoInc)
 		# print("creating new chain: " + str(new_chain))
 		affected_loops = []
+		
+		#assert new_chain.id != 40298
 		
 		# for each old chain
 		for index, old_chain in enumerate(affected_chains):
@@ -412,7 +428,7 @@ class Diagram (object):
 			self.chains.remove(old_chain)			
 			# if old_chain.id == 33013:
 			# 	print("removed old chain: 33013 | while making new chain: " + str(new_chain.id))
-						
+																		
 		# move/remember loops												
 		# for each old chain
 		for old_chain in affected_chains:												

@@ -60,8 +60,10 @@ if __name__ == "__main__":
 			found = False
 			results = {}
 			avloops = [l for l in diagram.loops if l.availabled]
-			print("[decimate] avloops: " + str(len(avloops)))
-			for loop in avloops:
+			print("..[decimate] curr | avloops: " + str(len(avloops)))
+			for index, loop in enumerate(avloops):
+				# if index == 348 and loop.firstAddress() == '113106':
+				# 	assert False
 				diagram.extendLoop(loop)
 				min_chlen, singles, coerced = coerce()
 				avlen = len([l for l in diagram.loops if l.availabled])
@@ -90,8 +92,9 @@ if __name__ == "__main__":
 					found = True
 			
 			if not found:
+				print("..[decimate] done | zeroes: " + str(len(zeroes)))
 				return (zeroes, results)
-			print("[decimate] zeroes so far: " + str(len(zeroes)))
+			print("..[decimate] curr | zeroes: " + str(len(zeroes)))
 				
 				
 																								
@@ -209,7 +212,7 @@ if __name__ == "__main__":
 	# @ 139/282
 	# | (loop:[violet:39]:013420|Ex)
 	
-	unavail('013420')
+	#unavail('013420')
 		
 	# __ff10__maxim__0__
 	# [0m7s.32] avlen: 448 | chlen: 2 | s: 0 | c: 0 | tobex c: 92 r: 4.869565217391305 | head c: (chain:369|250/283) av: 283
@@ -217,56 +220,58 @@ if __name__ == "__main__":
 	# | (loop:[yellow:84]:110004|Ex)
 	
 	# [decimate] avloops: 0
-	unavail('110004')
+	#unavail('110004')
 	
 	# __ff10b__maxim__0__
 	# [0m17s.469] avlen: 447 | chlen: 2 | s: 0 | c: 0 | tobex c: 92 r: 4.858695652173913 | head c: (chain:939|250/282) av: 282
 	# @ 236/280
 	# | (loop:[orange:88]:102354|Ex)
 
-	extend('102354')
+	#extend('102354')
 	
 	# __ff11__maxim__0__
 	# [0m33s.300] avlen: 438 | chlen: 2 | s: 0 | c: 0 | tobex c: 91 r: 4.813186813186813 | head c: (chain:1567|255/279) av: 279
 	# @ 256/281
 	# | (loop:[blue:87]:111206|Ex)
 
-	unavail('111206')
+	#unavail('111206')
 
 	# __ff11b__maxim__0__
 	# [0m21s.46] avlen: 427 | chlen: 2 | s: 0 | c: 0 | tobex c: 90 r: 4.7444444444444445 | head c: (chain:1441|260/271) av: 271
 	# @ 143/275
 	# | (loop:[yellow:53]:020112|Ex)
 
-	extend('020112')
+	#extend('020112')
 
 	# __ff12__maxim__0__
 	# [0m35s.694] avlen: 417 | chlen: 2 | s: 0 | c: 0 | tobex c: 89 r: 4.685393258426966 | head c: (chain:1494|265/265) av: 265
 	# @ 155/269
 	# | (loop:[blue:46]:021106|Ex)
 
-	extend('021106')
+	#extend('021106')
 
 	# __ff13__maxim__0__
 	# [0m13s.824] avlen: 405 | chlen: 2 | s: 0 | c: 0 | tobex c: 88 r: 4.6022727272727275 | head c: (chain:1427|270/263) av: 263
 	# @ 89/260
 	# | (loop:[red:68]:011344|Ex)
 
-	extend('011344')
+	#extend('011344')
 
 	''' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '''
 					
 	def reduce():
 		# mandatory
 		curr_min_chlen, curr_singles, curr_coerced = coerce()
+		print("[reduce] init | ch: " + str(curr_min_chlen) + " | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
 		curr_zeroes, curr_results = decimate()
+		print("[reduce] init | z: " + str(len(curr_zeroes)))
 		
 		min_chlen = curr_min_chlen
 		singles = list(curr_singles)
 		coerced = list(curr_coerced)
 		zeroes = list(curr_zeroes)
 		results = curr_results		
-		print("[reduce] curr | ch: " + str(curr_min_chlen) + " | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)) + " | z: " + str(len(curr_zeroes)))
+		#print("[reduce] init | ch: " + str(curr_min_chlen) + " | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)) + " | z: " + str(len(curr_zeroes)))
 		
 		# additional
 		while True:
@@ -288,6 +293,117 @@ if __name__ == "__main__":
 				break
 		print("[reduce] done | ch: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
 		return (min_chlen, singles, coerced, zeroes, results)
+	
+	
+	def clean(singles, coerced, zeroes):
+		for l in reversed(singles):
+			diagram.collapseBack(l)						
+		for l in coerced:
+			diagram.setLoopAvailabled(l)
+		for l in zeroes:
+			diagram.setLoopAvailabled(l)		
+	
+	
+	def detail():
+		avlen = len([l for l in diagram.loops if l.availabled])
+		tobex_count = diagram.measureTobex()
+		tobex_ratio = (avlen / tobex_count) if tobex_count is not 0 else 0		
+		return (avlen, tobex_count, tobex_ratio)
+					
+		
+	def measure():
+		min_chlen, singles, coerced, zeroes, results = reduce()			
+		avlen, tobex_count, tobex_ratio = detail()
+		
+		return (min_chlen, singles, coerced, zeroes, results, avlen, tobex_count, tobex_ratio)
+		
+	
+	def step(lvl=0, exloops=[]):
+		
+		def print_detail(label):	
+			avlen, tobex_count, tobex_ratio = detail()
+			print("["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"] " + label + " | avlen: " + str(avlen) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio))
+			return (avlen, tobex_count, tobex_ratio)
+		
+		print_detail("[step] init")
+		
+		min_chlen, singles, coerced, zeroes, results, avlen, tobex_count, tobex_ratio = measure()
+		
+		print("["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"] [step] after measure | avlen: " + str(avlen) + " | chlen: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio))
+												
+		if len(diagram.chains) == 1:
+			with open(sols_filename+"__0__.txt", 'a') as log:
+				log_line = ("["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"] avlen: " + str(avlen) + " | chlen: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "(")				
+				log.write(log_line)
+			show(diagram)
+			input("sol! " + log_line)
+			pass # will clean() and return
+						
+		elif min_chlen == 0:
+			pass # will clean() and return
+		
+		else:
+			seen_loops = []
+			
+			seen_singles = []
+			seen_coerced = []
+			seen_zeroes = []
+			
+			while True:
+				sorted_results = sorted(results.items(), key = lambda pair: (0 if pair[1][1] == 0 else pair[1][-1], pair[1][-1], pair[1][0], pair[1][1]))
+				filtered_results = [p for p in sorted_results if p[0] in diagram.startNode.cycle.chain.avloops]			
+				selected_loop = filtered_results[-1][0]
+
+				print("["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"] [step] extending: " + str(selected_loop) + " | " + str(filtered_results[-1][1]))
+
+				diagram.extendLoop(selected_loop)
+				#chk_before = detail()
+				chk_before = print_detail("[step] extended details")
+				step(lvl+1, exloops+[selected_loop])
+				chk_after = print_detail("[step] match after")
+				assert chk_before == chk_after
+				diagram.collapseBack(selected_loop)
+				
+				diagram.setLoopUnavailabled(selected_loop)
+				seen_loops.append(selected_loop)
+
+				print_detail("[step] seen details")
+												
+				min_chlen, curr_singles, curr_coerced, curr_zeroes, results, avlen, tobex_count, tobex_ratio = measure()
+				seen_singles += curr_singles
+				seen_coerced += curr_coerced
+				seen_zeroes += curr_zeroes
+
+				# [~] input
+				print("["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"] [step] after seen | avlen: " + str(avlen) + " | chlen: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio))
+
+				if len(diagram.chains) == 1:
+					with open(sols_filename+"__0__.txt", 'a') as log:
+						log_line = ("["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"] avlen: " + str(avlen) + " | chlen: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "(")				
+						log.write(log_line)
+					show(diagram)
+					input("sol! " + log_line)
+					break # will clean() and return
+								
+				elif min_chlen == 0:
+					break # will clean() and return
+
+			clean(seen_singles, seen_coerced, seen_zeroes)
+			for l in seen_loops:
+				diagram.setLoopAvailabled(l)																																																
+			pass # will clean() and return		
+			
+		clean(singles, coerced, zeroes)
+	
+	show(diagram)
+	input("----------")
+	lvl = 0
+	ass_before = detail()
+	step()
+	ass_after = detail()
+	assert ass_before == ass_after, "broken first step"
+	show(diagram)
+	input("==========")
 	
 	min_chlenZ, singlesZ, coercedZ, zeroesZ, resultsZ = reduce()
 	
@@ -464,7 +580,7 @@ if __name__ == "__main__":
 					# 	diagram.setLoopAvailabled(l)
 					# diagram.collapseBack(loop1)
 					# break # [~]
-#---### ~~~ lvl:1 ~~~ ###			
+#---### ~~~ lvl:1 ~~~ ###
 		for l in reversed(singles0):
 			diagram.collapseBack(l)						
 		for l in coerced0:
