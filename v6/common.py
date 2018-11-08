@@ -44,3 +44,14 @@ def unitRoots(root_count, radius, unit_angle_fraction_offset):
 		_unitRootsCache[(root_count, radius, unit_angle_fraction_offset)] = [(radius * math.cos(2 * math.pi * (i + unit_angle_fraction_offset) / root_count), radius * math.sin(2 * math.pi * (i + unit_angle_fraction_offset) / root_count))  for i in range(root_count)]
 	return _unitRootsCache[(root_count, radius, unit_angle_fraction_offset)]
 	
+def upper(number):
+	ups = "⁰¹²³⁴⁵⁶⁷⁸⁹"
+	return "".join([ups[int(x)] for x in str(number)])
+		
+		
+		
+		
+		
+		
+		
+		
