@@ -371,13 +371,15 @@ if __name__ == "__main__":
 				
 				selected_loop = filtered_results[-1][0]
 				expath[-1][0] += 1
+				expath[-1][1] = len(filtered_results)
+				expath[-1][2] = binary
 				
 				print("["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"#"+".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in expath])+"] [step] extending: " + str(selected_loop) + " | " + str(filtered_results[-1][1]))
 
 				diagram.extendLoop(selected_loop)
 				#chk_before = detail()
 				chk_before = print_detail("[step] extended details")
-				step(lvl+1, exloops+[selected_loop], expath+[[-1, len(filtered_results), binary]])
+				step(lvl+1, exloops+[selected_loop], expath+[[-1, 0, False]])
 				chk_after = print_detail("[step] match after")
 				assert chk_before == chk_after
 				diagram.collapseBack(selected_loop)
