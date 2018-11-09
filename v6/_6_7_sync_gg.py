@@ -106,7 +106,8 @@ if __name__ == "__main__":
 	zeroes2 = []	
 
 	''' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '''
-	head_filename = '__ff14__'
+	head_filename = '__smalls__'
+	running_filename = head_filename + "running"
 	results_filename = head_filename + "results"
 	zeroes_filename = head_filename + "zeroes"
 	minim_filename = head_filename + "minim"
@@ -126,9 +127,9 @@ if __name__ == "__main__":
 	# | (loop:[indigo:106]:021203|Ex)
 	# | (loop:[blue:47]:021206|Ex)
 	
-	extend('010100')
-	extend('021203')
-	extend('021206')
+	# extend('010100')
+	# extend('021203')
+	# extend('021206')
 
 	# __2____ff2__maxim
 	# [13m29s.226] avlen: 593 | chlen: 3 | s: 0 | c: 0 | tobex c: 113 r: 5.247787610619469 | head c: (chain:726492|155/183) av: 183
@@ -137,9 +138,9 @@ if __name__ == "__main__":
 	# | (loop:[violet:118]:013354|Ex)
 	# | (loop:[green:57]:023023|Ex)
 
-	extend('003453')
-	extend('013354')
-	extend('023023')
+	# extend('003453')
+	# extend('013354')
+	# extend('023023')
 
 	# __2____ff3__maxim
 	# 16m22s.953] avlen: 569 | chlen: 3 | s: 1 | c: 0 | tobex c: 109 r: 5.220183486238532 | head c: (chain:667263|170/211) av: 211
@@ -148,9 +149,9 @@ if __name__ == "__main__":
 	# | (loop:[indigo:78]:003354|Ex)
 	# | (loop:[blue:22]:010206|Ex)
 
-	extend('001412')
-	extend('003354')
-	extend('010206')
+	# extend('001412')
+	# extend('003354')
+	# extend('010206')
 
 	# __2____ff4__maxim
 	# [50m20s.125] avlen: 549 | chlen: 3 | s: 0 | c: 0 | tobex c: 106 r: 5.179245283018868 | head c: (chain:1957259|185/241) av: 241
@@ -159,9 +160,9 @@ if __name__ == "__main__":
 	# | (loop:[orange:112]:101152|Ex)
 	# | (loop:[green:97]:113023|Ex)
 
-	extend('100253')
-	extend('101152')
-	extend('113023')
+	# extend('100253')
+	# extend('101152')
+	# extend('113023')
 	
 	# __2____ff5__maxim
 	# [71m10s.701] avlen: 524 | chlen: 3 | s: 1 | c: 0 | tobex c: 102 r: 5.137254901960785 | head c: (chain:2152652|200/254) av: 254
@@ -170,9 +171,9 @@ if __name__ == "__main__":
 	# | (loop:[yellow:62]:100220|Ex)
 	# | (loop:[yellow:66]:100244|Ex)
 	
-	extend('010321')
-	extend('100220')
-	extend('100244')
+	# extend('010321')
+	# extend('100220')
+	# extend('100244')
 
 	# __2____ff6__maxim
 	# [55m13s.599] avlen: 503 | chlen: 2 | s: 0 | c: 0 | tobex c: 99 r: 5.08080808080808 | head c: (chain:1612294|215/269) av: 269
@@ -181,9 +182,9 @@ if __name__ == "__main__":
 	# | (loop:[yellow:68]:100013|Ex)
 	# | (loop:[blue:72]:102206|Ex)
 
-	extend('002403')
-	extend('100013')
-	extend('102206')
+	# extend('002403')
+	# extend('100013')
+	# extend('102206')
 	
 	# __2____ff7__maxim
 	# [272m53s.465] avlen: 479 | chlen: 2 | s: 0 | c: 0 | tobex c: 96 r: 4.989583333333333 | head c: (chain:5266113|230/274) av: 274
@@ -192,9 +193,9 @@ if __name__ == "__main__":
 	# | (loop:[blue:48]:021306|Ex)
 	# | (loop:[blue:49]:021406|Ex)
 	
-	extend('021005')
-	extend('021306')
-	extend('021406')
+	# extend('021005')
+	# extend('021306')
+	# extend('021406')
 	
 	# __2____ff8__maxim
 	# [347m58s.339] avlen: 457 | chlen: 2 | s: 0 | c: 0 | tobex c: 93 r: 4.913978494623656 | head c: (chain:5974271|245/282) av: 282
@@ -203,9 +204,9 @@ if __name__ == "__main__":
 	# | (loop:[yellow:41]:020130|Ex)
 	# | (loop:[yellow:118]:120211|Ex)
 	
-	extend('020121')
-	extend('020130')
-	extend('120211')
+	# extend('020121')
+	# extend('020130')
+	# extend('120211')
 	
 	# __ff9__zeroes__0__
 	# [0m6s.42] avlen: 406 | chlen: 0 | s: 3 | c: 9 | tobex c: 89 r: 4.561797752808989 | head c: (chain:206|260/242) av: 242
@@ -318,22 +319,30 @@ if __name__ == "__main__":
 		return (min_chlen, singles, coerced, zeroes, results, avlen, tobex_count, tobex_ratio)
 		
 	
+	step_index = -1
 	def step(lvl=0, exloops=[], expath=[[-1, 0, False]]):
-		
+		global step_index
+				
 		def print_detail(label):	
 			avlen, tobex_count, tobex_ratio = detail()
-			print("["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"#"+".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in expath])+"] " + label + " | avlen: " + str(avlen) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio))
+			print("[*"+str(step_index)+"*]["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"#"+".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in expath])+"] " + label + " | avlen: " + str(avlen) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio))
 			return (avlen, tobex_count, tobex_ratio)
 		
 		print_detail("[step] init")
 		
 		min_chlen, singles, coerced, zeroes, results, avlen, tobex_count, tobex_ratio = measure()
-		
+
+		step_index += 1
+		if step_index % 10 == 0:
+			with open(running_filename+"__0__.txt", 'a') as log:
+				avlen, tobex_count, tobex_ratio = detail()				
+				log.write(("[*"+str(step_index)+"*]["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"#"+"|".join([str(x)+"."+str(t)+("b" if b else "") for x,t,b in expath])+"] avlen: " + str(avlen) + " | chlen: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "("))		
+				
 		print("["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"#"+".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in expath])+"] [step] after measure | avlen: " + str(avlen) + " | chlen: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio))
 												
 		if len(diagram.chains) == 1:
 			with open(sols_filename+"__0__.txt", 'a') as log:
-				log_line = ("["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"#"+".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in expath])+"] avlen: " + str(avlen) + " | chlen: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "(")				
+				log_line = ("[*"+str(step_index)+"*]["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"#"+".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in expath])+"] avlen: " + str(avlen) + " | chlen: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "(")				
 				log.write(log_line)
 			show(diagram)
 			input("sol! " + log_line)
@@ -352,11 +361,11 @@ if __name__ == "__main__":
 			while True:
 				sorted_results = sorted(results.items(), key = lambda pair: (0 if pair[1][1] == 0 else pair[1][-1], pair[1][-1], pair[1][0], pair[1][1]))
 
-				diagram.point()
-				show(diagram)
-												
+				#diagram.point()
+				#show(diagram)
+											
 				av2loops = list(itertools.chain(*[list(chain.avloops) for chain in diagram.chains if len(chain.avloops) == 2]))
-				print("av2loops: "+str(len(av2loops))+"\n"+"\n".join([str(l) for l in av2loops]))
+				#print("av2loops: "+str(len(av2loops))+"\n"+"\n".join([str(l) for l in av2loops]))
 				filtered_results = None
 				binary = None
 				
@@ -369,12 +378,12 @@ if __name__ == "__main__":
 					binary = False
 					#input("filtered results: "+str(len(filtered_results))+"\n"+"\n".join([str(p) for p in filtered_results]))					
 				
-				selected_loop = filtered_results[-1][0]
+				selected_loop = filtered_results[0][0]
 				expath[-1][0] += 1
 				expath[-1][1] = len(filtered_results)
 				expath[-1][2] = binary
 				
-				print("["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"#"+".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in expath])+"] [step] extending: " + str(selected_loop) + " | " + str(filtered_results[-1][1]))
+				print("[*"+str(step_index)+"*]["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"#"+".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in expath])+"] [step] extending: " + str(selected_loop) + " | " + str(filtered_results[-1][1]))
 
 				diagram.extendLoop(selected_loop)
 				#chk_before = detail()
@@ -395,11 +404,11 @@ if __name__ == "__main__":
 				seen_zeroes += curr_zeroes
 
 				# [~] input
-				print("["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"#"+".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in expath])+"] [step] after seen | avlen: " + str(avlen) + " | chlen: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio))
+				print("[*"+str(step_index)+"*]["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"#"+".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in expath])+"] [step] after seen | avlen: " + str(avlen) + " | chlen: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio))
 
 				if len(diagram.chains) == 1:
 					with open(sols_filename+"__0__.txt", 'a') as log:
-						log_line = ("["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"#"+".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in expath])+"] avlen: " + str(avlen) + " | chlen: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "(")				
+						log_line = ("[*"+str(step_index)+"*]["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"#"+".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in expath])+"] avlen: " + str(avlen) + " | chlen: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "(")				
 						log.write(log_line)
 					show(diagram)
 					input("sol! " + log_line)
