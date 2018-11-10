@@ -4,7 +4,7 @@ import itertools
 
 class Loop (object):
 	
-	__slots__ = ['index', 'nodes', 'availabled', 'extended', '_root', 'head', 'extension_result', 'seen', '_firstNode', 'ktype', 'ktype_columnIndex', 'ktype_radialIndex', '_killingField']
+	__slots__ = ['index', 'nodes', 'availabled', 'extended', '_root', 'head', 'extension_result', 'seen', '_firstNode', 'ktype', 'ktype_columnIndex', 'ktype_radialIndex', '_killingField', 'tuple']
 	
 	def __init__(self, index):
 		self.index = index
@@ -20,8 +20,9 @@ class Loop (object):
 		self.ktype = None
 		self.ktype_columnIndex = None
 		self.ktype_radialIndex = None
-		
-		
+		self.tuple = None
+
+				
 	def root(self):
 		if self._root is not None:
 			return self._root

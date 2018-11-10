@@ -19,7 +19,9 @@ class Node (object):
 		self.py = None
 						
 		self.loop = None
-		
+
+		self.tuple = None
+						
 		spClass = len(perm)
 		self.ktype = spClass - 1		
 		for q in range(0, spClass - 1):
@@ -28,8 +30,6 @@ class Node (object):
 				δ = ( δ - int(address[-i]) ) % ( spClass + 1 - i )
 			if δ is 0:
 				self.ktype = q
-
-		self.tuple = None
 		
 																		
 	def __repr__(self):

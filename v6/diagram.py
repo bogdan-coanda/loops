@@ -57,7 +57,16 @@ class Diagram (object):
 		print("[diagram] tobex: " + str(self.tobex_base_count))
 			
 		self.cleanexCount = 0
-									
+		
+		if self.spClass == 6:
+			self.bases = [self.nodeByAddress[addr] for addr in ['00001', '00143', '00201', '00343']]						
+		elif self.spClass == 7:
+			self.bases = [self.nodeByAddress[addr] for addr in ['000001', '000101', '000201', '000301', '000401']]
+		elif self.spClass == 8:
+			self.bases = [self.nodeByAddress[addr] for addr in ['0000001', '0000165', '0000201', '0000365', '0000401', '0000565']]
+			
+		self.walk()
+
 	
 	def measureTobex(self):
 		return self.tobex_base_count - len([loop for loop in self.loops if loop.extended])
@@ -250,7 +259,6 @@ class Diagram (object):
 	def generateKernel(self):
 				
 		affected_chains = []
-		bases = []
 		
 		node = self.startNode.prevs[1].node # self.startNode.prevs[1].node
 		
@@ -467,11 +475,89 @@ class Diagram (object):
 		# re-available affected loops	(including coerced, if any)
 		for loop in extension_result.affected_loops:
 			self.setLoopAvailabled(loop)
-					
-					
-	### ~~~ pointers ~~~ ###																																																				
+	
+	### ~~~ walking tuples ~~~ ###	
 				
+	def walk(self):
+				
+		if self.spClass % 2 is 0:
 			
+			# define alternating movement methods
+			
+			def jmp(pointers, bid): # jmp(from 0 to len(loopBrethren)-1)
+				for i in range(len(pointers)):
+					if i % 2 == 0:
+						pointers[i] = pointers[i].loopBrethren[bid]
+					else:
+						pointers[i] = pointers[i].loopBrethren[-1-bid]				
+						
+			def adv(pointers, cid): # adv(0) advances once, to match jmp(0) which jumps once
+				for i in range(len(pointers)):
+					if i % 2 == 0:
+						for _ in range(1+cid):
+							pointers[i] = pointers[i].links[1].next
+					else:
+						for _ in range(1+cid):
+							pointers[i] = pointers[i].prevs[1].node
+						
+			# do the actual walking
+			self.__walk(self.bases, adv, jmp)
+		
+		else: # self.spClass % 2 is 1
+			
+			# define unidirectional movement methods
+
+			def jmp(pointers, bid): # jmp(from 0 to len(loopBrethren)-1)
+				for i in range(len(pointers)):
+					pointers[i] = pointers[i].loopBrethren[bid]
+						
+			def adv(pointers, cid): # adv(0) advances once, to match jmp(0) which jumps once
+				for i in range(len(pointers)):
+					for _ in range(1+cid):
+						pointers[i] = pointers[i].links[1].next
+							
+			# do the actual walking			
+			self.__walk(self.bases, adv, jmp)
+			
+											
+	def __walk(self, base_nodes, adv, jmp): # generate unidirectional tuple
+					
+		self.node_tuples = []
+		self.loop_tuples = []
+		queue = [list(base_nodes)]
+		
+		while len(queue) > 0:
+			
+			curr_node_tuple = queue.pop()
+			if curr_node_tuple[0].tuple is not None:
+				continue
+				
+			self.node_tuples.append(curr_node_tuple)			
+			for node in curr_node_tuple:
+				node.tuple = curr_node_tuple				
+								
+			curr_loop_tuple = [node.loop for node in curr_node_tuple]
+			if curr_loop_tuple[0].tuple is None:
+				self.loop_tuples.append(curr_loop_tuple)				
+				for loop in curr_loop_tuple:
+					loop.tuple = curr_loop_tuple				
+						
+				
+			pointers = list(curr_node_tuple)
+			adv(pointers, 1)
+			if pointers[0].tuple is None:
+				queue.append(pointers)
+	
+			pointers = list(curr_node_tuple)
+			jmp(pointers, 0)
+			if pointers[0].tuple is None:
+				queue.append(pointers)
+				
+		#assert len([n for n in self.nodes if n.tuple is None]) is 0
+		print("generated tuples")
+		
+	### ~~~ pointers ~~~ ###
+				
 	def pointToAddressTuple(self, address):
 		self.pointers = list(self.nodeByAddress[address].tuple)
 
@@ -534,7 +620,7 @@ def kstr(loops):
 
 if __name__ == "__main__":
 	
-	diagram = Diagram(6, 3)
+	diagram = Diagram(6, 1)
 	
 	def extend(addr):
 		assert diagram.extendLoop(diagram.nodeByAddress[addr].loop)
