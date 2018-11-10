@@ -6,12 +6,21 @@ from time import time
 from collections import defaultdict
 
 if __name__ == "__main__":
-	
+		
 	diagram = Diagram(6, 1)
 	# diagram = Diagram(6, 3)
 	# diagram = Diagram(7, 1)
 	# diagram = Diagram(7, 4)
-		
+
+	# SP(7,4): 58
+	# from ⁑⁑ avtuples:   64  | av:   636   | ch:  5  | s: 0 | c: 0 | z: 0 | tobex c: 120 r:    5.300
+	#  to  ⁑⁑ avtuples: 57…60 | av: 601…605 | ch: 3…4 | s: 0 | c: 0 | z: 0 | tobex c: 115 r: 5.226…5.260
+	# SP(7,1): 152
+	# from ⁑⁑ avtuples:   158   | av: 790 | ch:  5  | s: 0 | c: 0 | z: 0 | tobex c: 138 r:    5.725
+	#  to  ⁑⁑ avtuples: 149…152 | av: 790 | ch: 3…5 | s: 0 | c: 0 | z: 0 | tobex c: 133 r: 5.601…5.714
+	# SP(6,3): 0
+	# from ⁑⁑ avtuples: 3 | av: 54 | ch: 3 | s: 0 | c: 0 | z: 0 | tobex c: 15 r: 3.600
+					
 	def extend(addr):
 		assert diagram.extendLoop(diagram.nodeByAddress[addr].loop)
 	def collapse(addr):
@@ -158,28 +167,27 @@ if __name__ == "__main__":
 
 
 	def step(lvl=0, exloops=[], expath=[[-1, 0, False]]):
-		global step_index
+		global move_index
 				
 		def print_detail(label):	
 			avlen, tobex_count, tobex_ratio = detail()
-			print("[*"+str(step_index)+"*]["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"#"+".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in expath])+"] " + label + " | avlen: " + str(avlen) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio))
+			print("[*"+str(move_index)+"*]["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"#"+".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in expath])+"] " + label + " | avlen: " + str(avlen) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio))
 			return (avlen, tobex_count, tobex_ratio)
 		
 		print_detail("[step] init")
 		
 		min_chlen, singles, coerced, zeroes, results, avlen, tobex_count, tobex_ratio, _ = measure()
 
-		step_index += 1
-		if step_index % 10 == 0:
+		move_index += 1
+		if move_index % 10 == 0:
 			with open(running_filename+"__0__.txt", 'a') as log:
-				avlen, tobex_count, tobex_ratio = detail()				
-				log.write(("[*"+str(step_index)+"*]["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"#"+"|".join([str(x)+"."+str(t)+("b" if b else "") for x,t,b in expath])+"] avlen: " + str(avlen) + " | chlen: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "("))		
+				log.write(("[*"+str(move_index)+"*]["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"#"+"|".join([str(x)+"."+str(t)+("b" if b else "") for x,t,b in expath])+"] avlen: " + str(avlen) + " | chlen: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "("))		
 				
 		print("["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"#"+".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in expath])+"] [step] after measure | avlen: " + str(avlen) + " | chlen: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio))
 												
 		if len(diagram.chains) == 1:
 			with open(sols_filename+"__0__.txt", 'a') as log:
-				log_line = ("[*"+str(step_index)+"*]["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"#"+".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in expath])+"] avlen: " + str(avlen) + " | chlen: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "(")				
+				log_line = ("[*"+str(move_index)+"*]["+tstr(time() - startTime)+"][lvl:"+str(lvl)+"#"+".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in expath])+"] avlen: " + str(avlen) + " | chlen: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | tobex c: " + str(tobex_count) + " r: " + str(tobex_ratio) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "(")				
 				log.write(log_line)
 			show(diagram)
 			input("sol! " + log_line)
@@ -271,94 +279,118 @@ if __name__ == "__main__":
 	#	from ⁑⁑ avtuples:   28  | av:  112  | ch:  4  | s: 0 | c:  0  | z: 0 | tobex c: 25 r:   4.480
 	#	 to  ⁑⁑ avtuples: 21…23 | av: 84…92 | ch: 2-4 | s: 0 | c: 0…4 | z: 0 | tobex c: 21 r: 4.0…4.381
 	
-	for addr in ['01033', '01010', '02320', '02311']:
-		diagram.extendLoop(diagram.nodeByAddress[addr].loop)
+	# for addr in ['01033', '01010', '02320', '02311']:
+	# 	diagram.extendLoop(diagram.nodeByAddress[addr].loop)
 
 	# SP(6,1) | [lvl:1] | viable results: 11
 	#	from ⁑⁑ avtuples:   23  | av:   92  | ch:  4  | s: 0 | c:  0  | z: 0 | tobex c: 21 r:    4.381
 	#	 to  ⁑⁑ avtuples: 21…23 | av: 60…76 | ch: 2-4 | s: 0 | c: 0…8 | z: 0 | tobex c: 17 r: 3.529…4.470	
 
-	for addr in ['02031', '11031', '10004', '01004']:
-		diagram.extendLoop(diagram.nodeByAddress[addr].loop)
+	# for addr in ['02031', '11031', '10004', '01004']:
+	# 	diagram.extendLoop(diagram.nodeByAddress[addr].loop)
 	
 	# SP(6,1) | [lvl:2] | viable results: 1
 	#	from ⁑⁑ avtuples: 19 | av: 76 | ch: 4 | s: 0 | c: 0 | z: 0 | tobex c: 17 r: 4.471
 	#	 to  ⁑⁑ avtuples: 13 | av: 52 | ch: 2 | s: 0 | c: 4 | z: 0 | tobex c: 13 r: 4.000
 	
-	for addr in ['02100', '02042', '01302', '01141']:
-		diagram.extendLoop(diagram.nodeByAddress[addr].loop)
+	# for addr in ['02100', '02042', '01302', '01141']:
+	# 	diagram.extendLoop(diagram.nodeByAddress[addr].loop)
 	
 	# SP(6,1) | [lvl:3] | viable results: 0
 	#	from ⁑⁑ avtuples: 13 | av: 52 | ch: 2 | s: 0 | c: 4 | z: 0 | tobex c: 13 r: 4.000
 	
 	# ============================================================================================================================================================================ #
 
+	def jump(lvl=0, jump_path=[[-1,0]], extuples=[], seen_tuples=[]):
+		log_template = "[*{}*][{}][lvl:{}#{}] [jump] {} | avtuples: {} | chlen: {} | avlen: {} | s: {} | c: {} | z: {} | tobex c: {} r: {:.3f}"
 	
+		# initial measurement	
+		base_min_chlen, base_singles, base_coerced, base_zeroes, base_results, base_avlen, base_tobex_count, base_tobex_ratio, base_avtuples = measure()
+		base_avtuples = [t for t in base_avtuples if t not in seen_tuples]
+		jump_path[-1][1] = len(base_avtuples)
+						
+		move_index += 1
+		if move_index % 1 == 0:
+			with open(running_filename + ".txt", 'a') as log:
+				log.write((log_template.format(move_index, tstr(time() - startTime), lvl, "|".join([str(x)+"."+str(t) for x,t in jump_path]), "-- --", len(base_avtuples), base_min_chlen, base_avlen, len(base_singles), len(base_coerced), len(base_zeroes), base_tobex_count, base_tobex_ratio) + "\n" + "\n| ".join([" : ".join([str(l) for l in t]) for t in extuples]) + "\n\n").replace("⟩", ")").replace("⟨", "("))
 
-	min_chlen, singles, coerced, zeroes, results, avlen, tobex_count, tobex_ratio, avtuples = measure()
-		
-	diagram.point()
-	show(diagram)
-	
-	input("initial | avtuples: "+str(len(avtuples))+" | av: " + str(avlen) + " | ch: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | tobex c: " + str(tobex_count) + " r: " + "{0:.3f}".format(tobex_ratio)+"...")
-					
-	viable_results = []
-	
-	initial_avtuples = list(avtuples)
-	
-	for tindex, tuple in enumerate(initial_avtuples):
-		
-		exloops = []
-		for loop in tuple:
-			if diagram.extendLoop(loop):
-				exloops.append(loop)
-			else:
-				break				
-						
-						
-		if len(exloops) == len(tuple): 
-			min_chlen, singles, coerced, zeroes, results, avlen, tobex_count, tobex_ratio, avtuples = measure()			
+		diagram.point(); show(diagram)
+		input(log_template.format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), "-- init --", len(avtuples), min_chlen, avlen, len(singles), len(coerced), len(zeroes), tobex_count, tobex_ratio))
 			
-			if min_chlen != 0:
-				viable_results.append((tuple, min_chlen, len(singles), len(coerced), len(zeroes), avlen, tobex_count, tobex_ratio, len(avtuples)))
-				# diagram.point()
-				# show(diagram)
-				print("[tuple:"+str(tindex)+"] passed | avtuples: "+str(len(avtuples))+" | av: " + str(avlen) + " | ch: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | tobex c: " + str(tobex_count) + " r: " + "{0:.3f}".format(tobex_ratio))
-			else:
-				# diagram.point()
-				# show(diagram)				
-				print("[tuple:"+str(tindex)+"] failed after measure | avtuples: "+str(len(avtuples))+" | av: " + str(avlen) + " | ch: " + str(min_chlen) + " | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | tobex c: " + str(tobex_count) + " r: " + "{0:.3f}".format(tobex_ratio))				
+		# attempt to extend all tuples for viability and measurements
+		viable_results = []	
+	
+		for tindex, curr_tuple in enumerate(base_avtuples):
+		
+			# extend current tuple
+			curr_extended_loops = []
+			for loop in curr_tuple:
+				if diagram.extendLoop(loop):
+					curr_extended_loops.append(loop)
+				else:
+					break				
 				
-			clean(singles, coerced, zeroes)
-		else:
-			# diagram.point()
-			# show(diagram)			
-			print("[tuple:"+str(tindex)+"] failed ("+str(len(exloops))+"/"+str(len(tuple))+")")
+			# check tuple completeness
+			if len(curr_extended_loops) == len(curr_tuple):
+				# current measurement
+				curr_min_chlen, curr_singles, curr_coerced, curr_zeroes, curr_results, curr_avlen, curr_tobex_count, curr_tobex_ratio, curr_avtuples = measure()			
+				curr_avtuples = [t for t in curr_avtuples if t not in seen_tuples]
+				
+				# check tuple viability
+				if curr_min_chlen != 0:
+					viable_results.append((curr_tuple, curr_min_chlen, curr_avlen, len(curr_singles), len(curr_coerced), len(curr_zeroes), curr_tobex_count, curr_tobex_ratio, len(curr_avtuples)))
+					diagram.point()
+					show(diagram)
+					input(log_template.format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), "-- [tuple:"+str(tindex)+"] passed --", len(curr_avtuples), curr_min_chlen, curr_avlen, len(curr_singles), len(curr_coerced), len(curr_zeroes), curr_tobex_count, curr_tobex_ratio))								
+				else:
+					diagram.point()
+					show(diagram)
+					input(log_template.format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), "-- [tuple:"+str(tindex)+"] failed by measure --", len(curr_avtuples), curr_min_chlen, curr_avlen, len(curr_singles), len(curr_coerced), len(curr_zeroes), curr_tobex_count, curr_tobex_ratio))					
+					
+				# clean up after current measurement
+				clean(curr_singles, curr_coerced, curr_zeroes)
+			else:
+				diagram.point()
+				show(diagram)			
+				input(log_template.format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), "-- [tuple:"+str(tindex)+"] failed by "+str(len(curr_extended_loops))+"/"+str(len(curr_tuple))+" --", 0, 0, 0, 0, 0, 0, 0, 0))
+						
+			# collapse current tuple				
+			for loop in reversed(curr_extended_loops):
+				diagram.collapseBack(loop)
+												
+		# sort by len(avtuples), tobex_ratio, min_chlen
+		viable_results = sorted(viable_results, key = lambda pair: (pair[-1], pair[-2], pair[1]))
+		jump_path[-1][1] = len(viable_results)
+		input("viable results: " + str(len(viable_results)))
+		input("\n".join([str([loop.firstAddress() for loop in v[0]]) + ", " + str(v[1:]) for v in viable_results]))		
+
+		
+		for viable_index, viable_entry in enumerate(reversed(viable_results)):
+			viable_tuple = viable_entry[0]
+			viable_measurement = viable_entry[1:]
+		
+			# extend viable tuple
+			for loop in viable_tuple:
+				assert diagram.extendLoop(loop)
 			
-		for loop in reversed(exloops):
-			diagram.collapseBack(loop)
-			
-	print("viable results: " + str(len(viable_results))) 
-	# SP(7,4): 58
-	# from ⁑⁑ avtuples:   64  | av:   636   | ch:  5  | s: 0 | c: 0 | z: 0 | tobex c: 120 r:    5.300
-	#  to  ⁑⁑ avtuples: 57…60 | av: 601…605 | ch: 3…4 | s: 0 | c: 0 | z: 0 | tobex c: 115 r: 5.226…5.260
-	# SP(7,1): 152
-	# from ⁑⁑ avtuples:   158   | av: 790 | ch:  5  | s: 0 | c: 0 | z: 0 | tobex c: 138 r:    5.725
-	#  to  ⁑⁑ avtuples: 149…152 | av: 790 | ch: 3…5 | s: 0 | c: 0 | z: 0 | tobex c: 133 r: 5.601…5.714
-	# SP(6,3): 0
-	# from ⁑⁑ avtuples: 3 | av: 54 | ch: 3 | s: 0 | c: 0 | z: 0 | tobex c: 15 r: 3.600
+			jump(lvl+1, jump_path+[[-1,0]], extuples+[viable_tuple], seen_tuples+[r[0] for r in viable_results[0:viable_index]])
+				
+			# collapse viable tuple				
+			for loop in reversed(viable_tuple):
+				diagram.collapseBack(loop)				
+		
+		# clean up after initial measurement
+		clean(base_singles, base_coerced, base_zeroes)
 	
-	sorted_results = sorted(viable_results, key = lambda pair: (pair[-1], pair[-2], pair[1]))
-	print("\n".join([str([loop.firstAddress() for loop in v[0]]) + ", " + str(v[1:]) for v in sorted_results]))
 	
 	startTime = time()
-	step_index = -1
+	move_index = -1
 	
 	show(diagram)
 	input("----------")
 	lvl = 0
 	ass_before = detail()
-	step()
+	jump()
 	ass_after = detail()
 	assert ass_before == ass_after, "broken first step"
 	show(diagram)	
