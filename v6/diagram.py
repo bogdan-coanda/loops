@@ -302,10 +302,7 @@ class Diagram (object):
 		# affected chains are the ones that will be tied together by this extension
 		# they're the chains that need to be added back on collapse
 		affected_chains = [node.cycle.chain for node in loop.nodes]
-		
-		ℓ = self.nodeByAddress['113106'].loop
-		assert not ℓ.availabled or ℓ.extended or ℓ.nodes[0].cycle.chain != ℓ.nodes[5].cycle.chain
-				
+						
 		# affected loops are avloops set to unavailabled because we're connecting these chains together
 		# they're the loops that are re-availabled on collapse
 		new_chain, affected_loops = self.makeChain(affected_chains)				
@@ -321,9 +318,6 @@ class Diagram (object):
 		loop.extension_result.setExtensionDetails(new_chain, affected_loops, affected_chains)
 
 		##assert set(list(itertools.chain(*[chain.avloops for chain in diagram.chains]))) == set([loop for loop in diagram.loops if loop.availabled and len([n for n in loop.nodes if n.cycle.chain])])
-
-		ℓ = self.nodeByAddress['113106'].loop
-		assert not ℓ.availabled or ℓ.extended or ℓ.nodes[0].cycle.chain != ℓ.nodes[5].cycle.chain
 						
 		return True
 	
