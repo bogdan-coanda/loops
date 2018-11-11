@@ -68,7 +68,7 @@ if __name__ == "__main__":
 			found = False
 			results = {}
 			avloops = [l for l in diagram.loops if l.availabled]
-			print("..[decimate] curr | avloops: " + str(len(avloops)))
+			#print("..[decimate] curr | avloops: " + str(len(avloops)))
 			for index, loop in enumerate(avloops):
 				diagram.extendLoop(loop)
 				singles, coerced = coerce()
@@ -85,7 +85,7 @@ if __name__ == "__main__":
 					tobex_ratio
 				)
 				
-				print("..[decimate] " + str(loop) + " | " + str(results[loop]))
+				#print("..[decimate] " + str(loop) + " | " + str(results[loop]))
 				
 				for l in reversed(singles):
 					diagram.collapseBack(l)						
@@ -94,15 +94,15 @@ if __name__ == "__main__":
 				diagram.collapseBack(loop)				
 								
 				if min_chlen == 0 and chain_count > 1:
-					print("..[decimate] zeroing " + str(loop))
+					#print("..[decimate] zeroing " + str(loop))
 					zeroes.append(loop)
 					diagram.setLoopUnavailabled(loop)
 					found = True
 			
 			if not found:
-				print("..[decimate] done | zeroes: " + str(len(zeroes)))
+				#print("..[decimate] done | zeroes: " + str(len(zeroes)))
 				return (zeroes, results)
-			print("..[decimate] curr | zeroes: " + str(len(zeroes)))
+			#print("..[decimate] curr | zeroes: " + str(len(zeroes)))
 			
 	def reduce():
 		# mandatory
@@ -163,7 +163,7 @@ if __name__ == "__main__":
 
 
 	def step(jump_lvl=0, jump_path=[[-1,0]], extuples=[], step_lvl=0, step_path=[[-1,0,False]], exloops=[]):
-		global move_index						
+		global move_index, sol_count	
 		log_template = "[*{}*][{}][lvl:{}/{}#{}#{}] [step] {} | avtuples: {} | chlen: {} | avlen: {} | chains: {} | s: {} | c: {} | z: {} | r: {} | tobex c: {} r: {:.3f}"
 	
 		# initial measurement	
@@ -182,8 +182,9 @@ if __name__ == "__main__":
 		if len(diagram.chains) == 1:
 			with open(sols_filename + ".txt", 'a') as log:
 				log.write((log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, "|".join([str(x)+"."+str(t) for x,t in jump_path]), "|".join([str(x)+"."+str(t)+("b" if b else "") for x,t,b in step_path]), "-- --", len(base_avtuples), base_min_chlen, base_avlen, base_chain_count, len(base_singles), len(base_coerced), len(base_zeroes), len(results), base_tobex_count, base_tobex_ratio) + "\n" + "\n| ".join([" : ".join([str(l) for l in t]) for t in extuples]) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "("))
-			show(diagram)
-			input("sol!")
+			#show(diagram)
+			sol_count += 1
+			print("sol! " + str(sol_count))
 			pass # will clean() and return
 						
 		elif base_min_chlen == 0:
@@ -245,8 +246,9 @@ if __name__ == "__main__":
 				if len(diagram.chains) == 1:
 					with open(sols_filename + ".txt", 'a') as log:
 						log.write((log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, "|".join([str(x)+"."+str(t) for x,t in jump_path]), "|".join([str(x)+"."+str(t)+("b" if b else "") for x,t,b in step_path]), "-- --", len(curr_avtuples), curr_min_chlen, curr_avlen, curr_chain_count, len(curr_singles), len(curr_coerced), len(curr_zeroes), len(results), curr_tobex_count, curr_tobex_ratio) + "\n" + "\n| ".join([" : ".join([str(l) for l in t]) for t in extuples]) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "("))
-					show(diagram)
-					input("sol!")
+					#show(diagram)
+					sol_count += 1
+					print("sol! " + str(sol_count))
 					break # will clean() and return				
 																				
 				elif curr_min_chlen == 0:
@@ -397,6 +399,7 @@ if __name__ == "__main__":
 	
 	startTime = time()
 	move_index = -1
+	sol_count = 0
 	
 	show(diagram)
 	input("----------")
