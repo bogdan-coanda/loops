@@ -7,7 +7,7 @@ from collections import defaultdict
 
 if __name__ == "__main__":
 		
-	diagram = Diagram(6, 1)
+	diagram = Diagram(7, 1)
 	# diagram = Diagram(6, 3)
 	# diagram = Diagram(7, 1)
 	# diagram = Diagram(7, 4)
@@ -171,20 +171,20 @@ if __name__ == "__main__":
 		step_path[-1][1] = len(base_avtuples)
 								
 		move_index += 1
-		if move_index % 100 == 0:
+		if move_index % 1 == 0:
 			with open(running_filename + ".txt", 'a') as log:
 				log.write((log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, "|".join([str(x)+"."+str(t) for x,t in jump_path]), "|".join([str(x)+"."+str(t)+("b" if b else "") for x,t,b in step_path]), "-- --", len(base_avtuples), base_min_chlen, base_avlen, base_chain_count, len(base_singles), len(base_coerced), len(base_zeroes), len(results), base_tobex_count, base_tobex_ratio) + "\n" + "\n| ".join([" : ".join([str(l) for l in t]) for t in extuples]) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "("))
 
 		# diagram.point(); show(diagram)
-		# print(log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in step_path]), "-- init --", len(base_avtuples), base_min_chlen, base_avlen, base_chain_count, len(base_singles), len(base_coerced), len(base_zeroes), len(results), base_tobex_count, base_tobex_ratio))
+		print(log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in step_path]), "-- init --", len(base_avtuples), base_min_chlen, base_avlen, base_chain_count, len(base_singles), len(base_coerced), len(base_zeroes), len(results), base_tobex_count, base_tobex_ratio))
 					
 																		
 		if len(diagram.chains) == 1:
 			with open(sols_filename + ".txt", 'a') as log:
 				log.write((log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, "|".join([str(x)+"."+str(t) for x,t in jump_path]), "|".join([str(x)+"."+str(t)+("b" if b else "") for x,t,b in step_path]), "-- --", len(base_avtuples), base_min_chlen, base_avlen, base_chain_count, len(base_singles), len(base_coerced), len(base_zeroes), len(results), base_tobex_count, base_tobex_ratio) + "\n" + "\n| ".join([" : ".join([str(l) for l in t]) for t in extuples]) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "("))
-			#show(diagram)
+			show(diagram)
 			sol_count += 1
-			print("sol! " + str(sol_count))
+			input("sol! " + str(sol_count))
 			pass # will clean() and return
 						
 		elif base_min_chlen == 0:
@@ -246,9 +246,9 @@ if __name__ == "__main__":
 				if len(diagram.chains) == 1:
 					with open(sols_filename + ".txt", 'a') as log:
 						log.write((log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, "|".join([str(x)+"."+str(t) for x,t in jump_path]), "|".join([str(x)+"."+str(t)+("b" if b else "") for x,t,b in step_path]), "-- --", len(curr_avtuples), curr_min_chlen, curr_avlen, curr_chain_count, len(curr_singles), len(curr_coerced), len(curr_zeroes), len(results), curr_tobex_count, curr_tobex_ratio) + "\n" + "\n| ".join([" : ".join([str(l) for l in t]) for t in extuples]) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "("))
-					#show(diagram)
+					show(diagram)
 					sol_count += 1
-					print("sol! " + str(sol_count))
+					input("sol! " + str(sol_count))
 					break # will clean() and return				
 																				
 				elif curr_min_chlen == 0:
@@ -262,7 +262,7 @@ if __name__ == "__main__":
 		clean(base_singles, base_coerced, base_zeroes)
 		
 		
-	head_filename = '__walk_6.1__'
+	head_filename = '__walk_7.1__'
 	running_filename = head_filename + "running"
 	sols_filename = head_filename + "sols"
 	
@@ -318,7 +318,7 @@ if __name__ == "__main__":
 		jump_path[-1][1] = len(base_avtuples)
 						
 		move_index += 1
-		if move_index % 10 == 0:
+		if move_index % 1 == 0:
 			with open(running_filename + ".txt", 'a') as log:
 				log.write((log_template.format(move_index, tstr(time() - startTime), lvl, "|".join([str(x)+"."+str(t) for x,t in jump_path]), "-- --", len(base_avtuples), base_min_chlen, base_avlen, base_chain_count, len(base_singles), len(base_coerced), len(base_zeroes), len(base_results), base_tobex_count, base_tobex_ratio) + "\n" + "\n| ".join([" : ".join([str(l) for l in t]) for t in extuples]) + "\n\n").replace("⟩", ")").replace("⟨", "("))
 
