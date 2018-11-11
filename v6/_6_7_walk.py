@@ -152,7 +152,9 @@ if __name__ == "__main__":
 		chain_count = len(diagram.chains)
 		tobex_count = diagram.measureTobex()
 		tobex_ratio = (avlen / tobex_count) if tobex_count is not 0 else 0		
-		avtuples = [tuple for tuple in diagram.loop_tuples if len([loop for loop in tuple if loop.availabled]) == diagram.spClass-2]		
+		avtuples = [tuple for tuple in diagram.loop_tuples 
+			if len([loop for loop in tuple if loop.availabled]) == diagram.spClass-2
+			and len([loop for loop in tuple if len([node.cycle for node in loop.nodes if node.cycle.isKernel]) != 0]) == 0]
 		return (min_chlen, avlen, chain_count, tobex_count, tobex_ratio, avtuples)
 					
 		
@@ -275,9 +277,24 @@ if __name__ == "__main__":
 	# diagram.setLoopUnavailabled(diagram.nodeByAddress['00001'].loop)
 	# diagram.setLoopUnavailabled(diagram.nodeByAddress['00201'].loop)
 	# diagram.setLoopUnavailabled(diagram.nodeByAddress['00143'].loop)
+		
+	# ============================================================================================================================================================================ #
+	
+	log_template = "[{}] | avtuples: {} | chlen: {} | avlen: {} | chains: {} | s: {} | c: {} | z: {} | r: {} | tobex c: {} r: {:.3f}"
+	
+	# [-- 0 --] | avtuples: 146 | chlen: 5 | avlen: 790 | chains: 691 | s: 0 | c: 0 | z: 0 | r: 790 | tobex c: 138 r: 5.725
 
-	# diagram.point(); show(diagram)
-	# input("~~~")	
+	diagram.extendLoop(diagram.nodeByAddress['000001'].loop)
+	
+	# [-- 1 --] | avtuples: 142 | chlen: 4 | avlen: 783 | chains: 686 | s: 0 | c: 0 | z: 0 | r: 783 | tobex c: 137 r: 5.715
+	
+	mx_singles, mx_coerced, mx_zeroes, mx_results, mx_min_chlen, mx_avlen, mx_chain_count, mx_tobex_count, mx_tobex_ratio, mx_avtuples = measure()		
+	
+	print(log_template.format("-- --", len(mx_avtuples), mx_min_chlen, mx_avlen, mx_chain_count, len(mx_singles), len(mx_coerced), len(mx_zeroes), len(mx_results), mx_tobex_count, mx_tobex_ratio))
+		
+
+	diagram.point(); show(diagram)
+	input("~~~")	
 	
 
 	# ============================================================================================================================================================================ #
