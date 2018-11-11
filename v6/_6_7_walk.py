@@ -408,5 +408,6 @@ if __name__ == "__main__":
 	jump()
 	ass_after = detail()
 	assert ass_before == ass_after, "broken first step"
-	show(diagram)	
+	show(diagram)
+	print("[*{}*][{}] sols found: {}".format(move_index, tstr(time() - startTime), sol_count))
 	print("------------")
