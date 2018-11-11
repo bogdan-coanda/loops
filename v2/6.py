@@ -66,14 +66,14 @@ if __name__ == "__main__":
 	
 	bases = [H001, K143, H201, K343]
 	
-	#diagram.walk(bases)
+	# diagram.walk(bases)
 	
 	#node = diagram.nodeByAddress['00000']
 
 	# ~~~ walk ~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #	'''							
 			
-	#pointTo('10305'); extendPointers() # blue(α)
-	#pointTo('10105'); extendPointers() # blue(β)
+	# pointTo('10305'); extendPointers() # blue(α)
+	# pointTo('10105'); extendPointers() # blue(β)
 	# » 
 	#pointTo('10204'); extendPointers() # green(1)
 	# »» 
@@ -94,40 +94,40 @@ if __name__ == "__main__":
 				
 	# islands
 	# I.
-	# extend('11005') # blue(α)
-	# extend('11205') # blue(β)
-	# extend('11104') # green(1)
+	extend('11005') # blue(α)
+	extend('11205') # blue(β)
+	extend('11104') # green(1)
 	# » purple(5) » red(4) » orange(3)	
 	# II.
-	#extend('10105') # blue(β)
-	#extend('10305') # blue(α)
-	#extend('10204') # green(1)
+	extend('10105') # blue(β)
+	extend('10305') # blue(α)
+	extend('10204') # green(1)
 	# » orange(3) » red(4) » purple(5)
 	# III.
-	#extend('01105') # blue(α)
-	#extend('01305') # blue(β)
-	#extend('01204') # green(1)
+	extend('01105') # blue(α)
+	extend('01305') # blue(β)
+	extend('01204') # green(1)
 	# » orange(3) » yellow(2) » purple(5)
 	# IV.
-	#extend('02005') # blue(β)
-	#extend('02205') # blue(α)
-	#extend('02104') # green(1)
+	extend('02005') # blue(β)
+	extend('02205') # blue(α)
+	extend('02104') # green(1)
 	# » purple(5) » yellow(2) » orange(3)
 	
-	#extend('11310') # I.   | » x | purple
-	#extend('10020') # II.  | » x | orange	
-	#extend('10011') # III. | » x | orange
-	#extend('11333') # IV.  | » x | purple
+	extend('11310') # I.   | » x | purple
+	extend('10020') # II.  | » x | orange	
+	extend('10011') # III. | » x | orange
+	extend('11333') # IV.  | » x | purple
 	
-	#extend('01220') # I.   | » y | red
-	#extend('01211') # II.  | » y | red
-	#extend('10233') # III. | » y | yellow
-	#extend('10210') # IV.  | » y | yellow
+	extend('01220') # I.   | » y | red
+	extend('01211') # II.  | » y | red
+	extend('10233') # III. | » y | yellow
+	extend('10210') # IV.  | » y | yellow
 	
-	#extend('10043') # I.   | » z | orange
-	#extend('11301') # II.  | » z | purple	
-	#extend('11342') # III. | » z | purple
-	#extend('10002') # IV.  | » z | orange
+	extend('10043') # I.   | » z | orange
+	extend('11301') # II.  | » z | purple	
+	extend('11342') # III. | » z | purple
+	extend('10002') # IV.  | » z | orange
 #	
 	diagram.pointers = list(H001.loop.nodes)
 	
