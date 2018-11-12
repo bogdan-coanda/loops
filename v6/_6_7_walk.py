@@ -23,6 +23,16 @@ class Measurement (object):
 		return mx
 
 
+
+class Result (object):
+	
+	__slots__ = ['obj', 'mx']
+	
+	def __init__(self, obj, mx):
+		self.obj = obj
+		self.mx = mx
+
+
 if __name__ == "__main__":
 		
 	diagram = Diagram(7, 1)
@@ -361,7 +371,7 @@ if __name__ == "__main__":
 				
 				# check tuple viability
 				if curr_mx.min_chlen != 0 or curr_mx.chain_count == 1:
-					viable_results.append((curr_tuple, curr_mx.min_chlen, curr_mx.avlen, curr_mx.chain_count, len(curr_mx.singles), len(curr_mx.coerced), len(curr_mx.zeroes), len(curr_mx.results), curr_mx.tobex_count, curr_mx.tobex_ratio, len(curr_mx.avtuples)))
+					viable_results.append(Result(curr_tuple, curr_mx))
 					# diagram.point(); show(diagram)
 					# print(log_template.format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), "-- [tuple:"+str(tindex)+"] passed --", len(curr_mx.avtuples), curr_mx.min_chlen, curr_mx.avlen, curr_mx.chain_count, len(curr_mx.singles), len(curr_mx.coerced), len(curr_mx.zeroes), len(curr_mx.results), curr_mx.tobex_count, curr_mx.tobex_ratio))
 				else:
@@ -404,7 +414,7 @@ if __name__ == "__main__":
 		viable_results = measure_viables(base_mx.avtuples, seen_tuples)	
 	
 		# sort by len(avtuples), tobex_ratio, min_chlen
-		viable_results = sorted(viable_results, key = lambda pair: (pair[-1], pair[-2], pair[1]))
+		viable_results = sorted(viable_results, key = lambda result: (len(result.mx.avtuples), result.mx.tobex_ratio, result.mx.min_chlen))
 		jump_path[-1][1] = len(viable_results)
 		# print("viable results: " + str(len(viable_results)))
 		# print("\n".join([str([loop.firstAddress() for loop in v[0]]) + ", " + str(v[1:]) for v in viable_results]))		
@@ -417,8 +427,8 @@ if __name__ == "__main__":
 			for viable_index, viable_entry in enumerate(reversed(viable_results)):
 				jump_path[-1][0] = viable_index
 				
-				viable_tuple = viable_entry[0]
-				viable_measurement = viable_entry[1:]
+				viable_tuple = viable_entry.obj
+				viable_measurement = viable_entry.mx
 			
 				# extend viable tuple
 				for loop in viable_tuple:
@@ -453,30 +463,6 @@ if __name__ == "__main__":
 		# diagram.point(); show(diagram)
 		print(log_template.format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), "-- init --", len(base_mx.avtuples), base_mx.min_chlen, base_mx.avlen, base_mx.chain_count, len(base_mx.singles), len(base_mx.coerced), len(base_mx.zeroes), len(base_mx.results), base_mx.tobex_count, base_mx.tobex_ratio))
 		
-		diagram.point()
-		selected_chain = diagram.pointers[0].cycle.chain
-		diagram.pointers = selected_chain.avloops
-		show(diagram)
-		print(log_template.format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), "-- selecting chain --", len(base_mx.avtuples), base_mx.min_chlen, base_mx.avlen, base_mx.chain_count, len(base_mx.singles), len(base_mx.coerced), len(base_mx.zeroes), len(base_mx.results), base_mx.tobex_count, base_mx.tobex_ratio))
-		
-		jump_path[-1][1] = len(selected_chain.avloops)		
-		for curr_index, curr_loop in selected_chain.avloops:
-			if curr_loop.tuple in base_mx.avtuples:
-				curr_tuple = loop.tuple
-				jump_path[-1][0] = curr_index
-							
-				# extend viable tuple
-				for loop in viable_tuple:
-					assert diagram.extendLoop(loop)
-				
-				jump(lvl+1, jump_path+[[-1,0]], extuples+[viable_tuple], seen_tuples+[r[0] for r in viable_results[0:viable_index]])
-					
-				# collapse viable tuple				
-				for loop in reversed(viable_tuple):
-					diagram.collapseBack(loop)					
-			
-			# [~] get viable results
-			# viable results should touch **almost** all chains
 			
 	
 	startTime = time()
