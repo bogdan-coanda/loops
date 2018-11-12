@@ -5,6 +5,24 @@ from itertools import chain
 from time import time
 from collections import defaultdict
 
+
+class Measurement (object):
+	
+	__slots__ = ['diagram', 
+		'singles', 'coerced', 'zeroes', 'results', # from reduce() { singles/coerced + decimate loop }
+		'min_chlen', 'avlen', 'chain_count', 'tobex_count', 'tobex_ratio', 'avtuples' # from detail() { simple measurement }
+	]
+	
+	def __init__(self, diagram):
+		self.diagram = diagram
+		
+	def measure(diagram):
+		mx = Measurement(diagram)
+		mx.singles, mx.coerced, mx.zeroes, mx.results = reduce()			
+		mx.min_chlen, mx.avlen, mx.chain_count, mx.tobex_count, mx.tobex_ratio, mx.avtuples = detail()		
+		return mx
+
+
 if __name__ == "__main__":
 		
 	diagram = Diagram(7, 1)
@@ -158,39 +176,34 @@ if __name__ == "__main__":
 		return (min_chlen, avlen, chain_count, tobex_count, tobex_ratio, avtuples)
 					
 		
-	def measure():
-		singles, coerced, zeroes, results = reduce()			
-		min_chlen, avlen, chain_count, tobex_count, tobex_ratio, avtuples = detail()		
-		return (singles, coerced, zeroes, results, min_chlen, avlen, chain_count, tobex_count, tobex_ratio, avtuples)
-
 
 	def step(jump_lvl=0, jump_path=[[-1,0]], extuples=[], step_lvl=0, step_path=[[-1,0,False]], exloops=[]):
 		global move_index, sol_count	
 		log_template = "[*{}*][{}][lvl:{}/{}#{}#{}] [step] {} | avtuples: {} | chlen: {} | avlen: {} | chains: {} | s: {} | c: {} | z: {} | r: {} | tobex c: {} r: {:.3f}"
 	
 		# initial measurement	
-		base_singles, base_coerced, base_zeroes, results, base_min_chlen, base_avlen, base_chain_count, base_tobex_count, base_tobex_ratio, base_avtuples = measure()
-		step_path[-1][1] = len(base_avtuples)
+		base_mx = Measurement.measure(diagram)
+		step_path[-1][1] = len(base_mx.avtuples)
 								
 		move_index += 1
 		if move_index % 1 == 0:
 			with open(running_filename + ".txt", 'a') as log:
-				log.write((log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, "|".join([str(x)+"."+str(t) for x,t in jump_path]), "|".join([str(x)+"."+str(t)+("b" if b else "") for x,t,b in step_path]), "-- --", len(base_avtuples), base_min_chlen, base_avlen, base_chain_count, len(base_singles), len(base_coerced), len(base_zeroes), len(results), base_tobex_count, base_tobex_ratio) + "\n" + "\n| ".join([" : ".join([str(l) for l in t]) for t in extuples]) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "("))
+				log.write((log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, "|".join([str(x)+"."+str(t) for x,t in jump_path]), "|".join([str(x)+"."+str(t)+("b" if b else "") for x,t,b in step_path]), "-- --", len(base_mx.avtuples), base_mx.min_chlen, base_mx.avlen, base_mx.chain_count, len(base_mx.singles), len(base_mx.coerced), len(base_mx.zeroes), len(base_mx.results), base_mx.tobex_count, base_mx.tobex_ratio) + "\n" + "\n| ".join([" : ".join([str(l) for l in t]) for t in extuples]) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "("))
 
 		# diagram.point(); show(diagram)
-		print(log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in step_path]), "-- init --", len(base_avtuples), base_min_chlen, base_avlen, base_chain_count, len(base_singles), len(base_coerced), len(base_zeroes), len(results), base_tobex_count, base_tobex_ratio))
+		print(log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in step_path]), "-- init --", len(base_mx.avtuples), base_mx.min_chlen, base_mx.avlen, base_mx.chain_count, len(base_mx.singles), len(base_mx.coerced), len(base_mx.zeroes), len(base_mx.results), base_mx.tobex_count, base_mx.tobex_ratio))
 					
 																		
 		if len(diagram.chains) == 1:
 			with open(sols_filename + ".txt", 'a') as log:
-				log.write((log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, "|".join([str(x)+"."+str(t) for x,t in jump_path]), "|".join([str(x)+"."+str(t)+("b" if b else "") for x,t,b in step_path]), "-- --", len(base_avtuples), base_min_chlen, base_avlen, base_chain_count, len(base_singles), len(base_coerced), len(base_zeroes), len(results), base_tobex_count, base_tobex_ratio) + "\n" + "\n| ".join([" : ".join([str(l) for l in t]) for t in extuples]) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "("))
+				log.write((log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, "|".join([str(x)+"."+str(t) for x,t in jump_path]), "|".join([str(x)+"."+str(t)+("b" if b else "") for x,t,b in step_path]), "-- --", len(base_mx.avtuples), base_mx.min_chlen, base_mx.avlen, base_mx.chain_count, len(base_mx.singles), len(base_mx.coerced), len(base_mx.zeroes), len(base_mx.results), base_mx.tobex_count, base_mx.tobex_ratio) + "\n" + "\n| ".join([" : ".join([str(l) for l in t]) for t in extuples]) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "("))
 			show(diagram)
 			sol_count += 1
 			input("sol! " + str(sol_count))
 			pass # will clean() and return
 						
-		elif base_min_chlen == 0:
-			# print(log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in step_path]), "-- failed by measure --", len(base_avtuples), base_min_chlen, base_avlen, base_chain_count, len(base_singles), len(base_coerced), len(base_zeroes), len(results), base_tobex_count, base_tobex_ratio))			
+		elif base_mx.min_chlen == 0:
+			# print(log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in step_path]), "-- failed by measure --", len(base_mx.avtuples), base_mx.min_chlen, base_mx.avlen, base_mx.chain_count, len(base_mx.singles), len(base_mx.coerced), len(base_mx.zeroes), len(base_mx.results), base_mx.tobex_count, base_mx.tobex_ratio))			
 			pass # will clean() and return
 		
 		else:
@@ -198,8 +211,9 @@ if __name__ == "__main__":
 			
 			seen_singles = []
 			seen_coerced = []
-			seen_zeroes = []
-			
+			seen_zeroes = []			
+			results = base_mx.results # will be curr.results on the next while
+					
 			while True:
 				# sort by {0 if min_chlen == 0 else tobex_ratio}, tobex_ratio, avlen, min_chlen
 				sorted_results = sorted(results.items(), key = lambda pair: (0 if pair[1][1] == 0 else pair[1][-1], pair[1][-1], pair[1][0], pair[1][1]))
@@ -228,7 +242,7 @@ if __name__ == "__main__":
 				step_path[-1][2] = binary
 				
 				# diagram.point(); show(diagram)
-				# print(log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in step_path]), "-- extending " + str(selected_loop) + " | " + str(selected_result[1]) +  " --", len(base_avtuples), base_min_chlen, base_avlen, base_chain_count, len(base_singles), len(base_coerced), len(base_zeroes), len(results), base_tobex_count, base_tobex_ratio))
+				# print(log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in step_path]), "-- extending " + str(selected_loop) + " | " + str(selected_result[1]) +  " --", len(base_mx.avtuples), base_mx.min_chlen, base_mx.avlen, base_mx.chain_count, len(base_mx.singles), len(base_mx.coerced), len(base_mx.zeroes), len(results), base_mx.tobex_count, base_mx.tobex_ratio))
 
 				assert diagram.extendLoop(selected_loop)
 				step(jump_lvl, jump_path, extuples, step_lvl+1, step_path+[[-1, 0, False]], exloops+[selected_loop])
@@ -237,23 +251,24 @@ if __name__ == "__main__":
 				diagram.setLoopUnavailabled(selected_loop)
 				seen_loops.append(selected_loop)
 
-				curr_singles, curr_coerced, curr_zeroes, results, curr_min_chlen, curr_avlen, curr_chain_count, curr_tobex_count, curr_tobex_ratio, curr_avtuples = measure()
-				seen_singles += curr_singles
-				seen_coerced += curr_coerced
-				seen_zeroes += curr_zeroes
+				curr_mx = Measurement.measure(diagram)
+				seen_singles += curr_mx.singles
+				seen_coerced += curr_mx.coerced
+				seen_zeroes += curr_mx.zeroes
+				results = curr_mx.results
 
 				# diagram.point(); show(diagram)
-				# print(log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in step_path]), "-- after seen " + str(selected_loop) + " | " + str(selected_result[1]) +  " --", len(curr_avtuples), curr_min_chlen, curr_avlen, curr_chain_count, len(curr_singles), len(curr_coerced), len(curr_zeroes), len(results), curr_tobex_count, curr_tobex_ratio))
+				# print(log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t)+("ᵝ" if b else "") for x,t,b in step_path]), "-- after seen " + str(selected_loop) + " | " + str(selected_result[1]) +  " --", len(curr_mx.avtuples), curr_mx.min_chlen, curr_mx.avlen, curr_mx.chain_count, len(curr_mx.singles), len(curr_mx.coerced), len(curr_mx.zeroes), len(results), curr_mx.tobex_count, curr_mx.tobex_ratio))
 
 				if len(diagram.chains) == 1:
 					with open(sols_filename + ".txt", 'a') as log:
-						log.write((log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, "|".join([str(x)+"."+str(t) for x,t in jump_path]), "|".join([str(x)+"."+str(t)+("b" if b else "") for x,t,b in step_path]), "-- --", len(curr_avtuples), curr_min_chlen, curr_avlen, curr_chain_count, len(curr_singles), len(curr_coerced), len(curr_zeroes), len(results), curr_tobex_count, curr_tobex_ratio) + "\n" + "\n| ".join([" : ".join([str(l) for l in t]) for t in extuples]) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "("))
+						log.write((log_template.format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, "|".join([str(x)+"."+str(t) for x,t in jump_path]), "|".join([str(x)+"."+str(t)+("b" if b else "") for x,t,b in step_path]), "-- --", len(curr_mx.avtuples), curr_mx.min_chlen, curr_mx.avlen, curr_mx.chain_count, len(curr_mx.singles), len(curr_mx.coerced), len(curr_mx.zeroes), len(results), curr_mx.tobex_count, curr_mx.tobex_ratio) + "\n" + "\n| ".join([" : ".join([str(l) for l in t]) for t in extuples]) + "\n" + "\n| ".join([str(l) for l in exloops]) + "\n\n").replace("⟩", ")").replace("⟨", "("))
 					show(diagram)
 					sol_count += 1
 					input("sol! " + str(sol_count))
 					break # will clean() and return				
 																				
-				elif curr_min_chlen == 0:
+				elif curr_mx.min_chlen == 0:
 					break # will clean() and return
 
 			clean(seen_singles, seen_coerced, seen_zeroes)
@@ -261,7 +276,7 @@ if __name__ == "__main__":
 				diagram.setLoopAvailabled(l)																																																
 			pass # will clean() and return		
 			
-		clean(base_singles, base_coerced, base_zeroes)
+		clean(base_mx.singles, base_mx.coerced, base_mx.zeroes)
 		
 		
 	head_filename = '__walk_7.1__'
@@ -288,9 +303,9 @@ if __name__ == "__main__":
 	
 	# [-- 1 --] | avtuples: 142 | chlen: 4 | avlen: 783 | chains: 686 | s: 0 | c: 0 | z: 0 | r: 783 | tobex c: 137 r: 5.715
 	
-	mx_singles, mx_coerced, mx_zeroes, mx_results, mx_min_chlen, mx_avlen, mx_chain_count, mx_tobex_count, mx_tobex_ratio, mx_avtuples = measure()		
+	mx = Measurement.measure(diagram)
 	
-	print(log_template.format("-- --", len(mx_avtuples), mx_min_chlen, mx_avlen, mx_chain_count, len(mx_singles), len(mx_coerced), len(mx_zeroes), len(mx_results), mx_tobex_count, mx_tobex_ratio))
+	print(log_template.format("-- --", len(mx.avtuples), mx.min_chlen, mx.avlen, mx.chain_count, len(mx.singles), len(mx.coerced), len(mx.zeroes), len(mx.results), mx.tobex_count, mx.tobex_ratio))
 		
 
 	diagram.point(); show(diagram)
@@ -341,21 +356,21 @@ if __name__ == "__main__":
 			# check tuple completeness
 			if len(curr_extended_loops) == len(curr_tuple):
 				# current measurement
-				curr_singles, curr_coerced, curr_zeroes, curr_results, curr_min_chlen, curr_avlen, curr_chain_count, curr_tobex_count, curr_tobex_ratio, curr_avtuples = measure()
-				curr_avtuples = [t for t in curr_avtuples if t not in seen_tuples]
+				curr_mx = Measurement.measure(diagram)
+				curr_mx.avtuples = [t for t in curr_mx.avtuples if t not in seen_tuples]
 				
 				# check tuple viability
-				if curr_min_chlen != 0 or curr_chain_count == 1:
-					viable_results.append((curr_tuple, curr_min_chlen, curr_avlen, curr_chain_count, len(curr_singles), len(curr_coerced), len(curr_zeroes), len(curr_results), curr_tobex_count, curr_tobex_ratio, len(curr_avtuples)))
+				if curr_mx.min_chlen != 0 or curr_mx.chain_count == 1:
+					viable_results.append((curr_tuple, curr_mx.min_chlen, curr_mx.avlen, curr_mx.chain_count, len(curr_mx.singles), len(curr_mx.coerced), len(curr_mx.zeroes), len(curr_mx.results), curr_mx.tobex_count, curr_mx.tobex_ratio, len(curr_mx.avtuples)))
 					# diagram.point(); show(diagram)
-					# print(log_template.format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), "-- [tuple:"+str(tindex)+"] passed --", len(curr_avtuples), curr_min_chlen, curr_avlen, curr_chain_count, len(curr_singles), len(curr_coerced), len(curr_zeroes), len(curr_results), curr_tobex_count, curr_tobex_ratio))
+					# print(log_template.format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), "-- [tuple:"+str(tindex)+"] passed --", len(curr_mx.avtuples), curr_mx.min_chlen, curr_mx.avlen, curr_mx.chain_count, len(curr_mx.singles), len(curr_mx.coerced), len(curr_mx.zeroes), len(curr_mx.results), curr_mx.tobex_count, curr_mx.tobex_ratio))
 				else:
 					# diagram.point(); show(diagram)
-					# print(log_template.format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), "-- [tuple:"+str(tindex)+"] failed by measure --", len(curr_avtuples), curr_min_chlen, curr_avlen, curr_chain_count, len(curr_singles), len(curr_coerced), len(curr_zeroes), len(curr_results), curr_tobex_count, curr_tobex_ratio))					
+					# print(log_template.format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), "-- [tuple:"+str(tindex)+"] failed by measure --", len(curr_mx.avtuples), curr_mx.min_chlen, curr_mx.avlen, curr_mx.chain_count, len(curr_mx.singles), len(curr_mx.coerced), len(curr_mx.zeroes), len(curr_mx.results), curr_mx.tobex_count, curr_mx.tobex_ratio))					
 					pass
 					
 				# clean up after current measurement
-				clean(curr_singles, curr_coerced, curr_zeroes)
+				clean(curr_mx.singles, curr_mx.coerced, curr_mx.zeroes)
 			else:
 				# diagram.point(); show(diagram)			
 				# print(log_template.format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), "-- [tuple:"+str(tindex)+"] failed by "+str(len(curr_extended_loops))+"/"+str(len(curr_tuple))+" --", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
@@ -373,20 +388,20 @@ if __name__ == "__main__":
 		log_template = "[*{}*][{}][lvl:{}#{}] [jump] {} | avtuples: {} | chlen: {} | avlen: {} | chains: {} | s: {} | c: {} | z: {} | r: {} | tobex c: {} r: {:.3f}"
 	
 		# initial measurement	
-		base_singles, base_coerced, base_zeroes, base_results, base_min_chlen, base_avlen, base_chain_count, base_tobex_count, base_tobex_ratio, base_avtuples = measure()		
-		base_avtuples = [t for t in base_avtuples if t not in seen_tuples]
-		jump_path[-1][1] = len(base_avtuples)
+		base_mx = Measurement.measure(diagram)		
+		base_mx.avtuples = [t for t in base_mx.avtuples if t not in seen_tuples]
+		jump_path[-1][1] = len(base_mx.avtuples)
 						
 		move_index += 1
 		if move_index % 1 == 0:
 			with open(running_filename + ".txt", 'a') as log:
-				log.write((log_template.format(move_index, tstr(time() - startTime), lvl, "|".join([str(x)+"."+str(t) for x,t in jump_path]), "-- --", len(base_avtuples), base_min_chlen, base_avlen, base_chain_count, len(base_singles), len(base_coerced), len(base_zeroes), len(base_results), base_tobex_count, base_tobex_ratio) + "\n" + "\n| ".join([" : ".join([str(l) for l in t]) for t in extuples]) + "\n\n").replace("⟩", ")").replace("⟨", "("))
+				log.write((log_template.format(move_index, tstr(time() - startTime), lvl, "|".join([str(x)+"."+str(t) for x,t in jump_path]), "-- --", len(base_mx.avtuples), base_mx.min_chlen, base_mx.avlen, base_mx.chain_count, len(base_mx.singles), len(base_mx.coerced), len(base_mx.zeroes), len(base_mx.results), base_mx.tobex_count, base_mx.tobex_ratio) + "\n" + "\n| ".join([" : ".join([str(l) for l in t]) for t in extuples]) + "\n\n").replace("⟩", ")").replace("⟨", "("))
 
 		# diagram.point(); show(diagram)
-		print(log_template.format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), "-- init --", len(base_avtuples), base_min_chlen, base_avlen, base_chain_count, len(base_singles), len(base_coerced), len(base_zeroes), len(base_results), base_tobex_count, base_tobex_ratio))
+		print(log_template.format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), "-- init --", len(base_mx.avtuples), base_mx.min_chlen, base_mx.avlen, base_mx.chain_count, len(base_mx.singles), len(base_mx.coerced), len(base_mx.zeroes), len(base_mx.results), base_mx.tobex_count, base_mx.tobex_ratio))
 			
 		# attempt to extend all tuples for viability and measurements
-		viable_results = measure_viables(base_avtuples, seen_tuples)	
+		viable_results = measure_viables(base_mx.avtuples, seen_tuples)	
 	
 		# sort by len(avtuples), tobex_ratio, min_chlen
 		viable_results = sorted(viable_results, key = lambda pair: (pair[-1], pair[-2], pair[1]))
@@ -416,7 +431,7 @@ if __name__ == "__main__":
 					diagram.collapseBack(loop)				
 		
 		# clean up after initial measurement
-		clean(base_singles, base_coerced, base_zeroes)
+		clean(base_mx.singles, base_mx.coerced, base_mx.zeroes)
 	
 	
 	def jump2(lvl=0, jump_path=[[-1,0]], extuples=[], seen_tuples=[]):
@@ -424,29 +439,29 @@ if __name__ == "__main__":
 		log_template = "[*{}*][{}][lvl:{}#{}] [jump] {} | avtuples: {} | chlen: {} | avlen: {} | chains: {} | s: {} | c: {} | z: {} | r: {} | tobex c: {} r: {:.3f}"
 	
 		# initial measurement	
-		base_singles, base_coerced, base_zeroes, base_results, base_min_chlen, base_avlen, base_chain_count, base_tobex_count, base_tobex_ratio, base_avtuples = measure()		
-		base_avtuples = [t for t in base_avtuples if t not in seen_tuples]
-		jump_path[-1][1] = len(base_avtuples)
+		base_mx = Measurement.measure(diagram)		
+		base_mx.avtuples = [t for t in base_mx.avtuples if t not in seen_tuples]
+		jump_path[-1][1] = len(base_mx.avtuples)
 		
-		assert len(base_singles) is 0
+		assert len(base_mx.singles) is 0
 		
 		move_index += 1
 		if move_index % 1 == 0:
 			with open(running_filename + ".txt", 'a') as log:
-				log.write((log_template.format(move_index, tstr(time() - startTime), lvl, "|".join([str(x)+"."+str(t) for x,t in jump_path]), "-- --", len(base_avtuples), base_min_chlen, base_avlen, base_chain_count, len(base_singles), len(base_coerced), len(base_zeroes), len(base_results), base_tobex_count, base_tobex_ratio) + "\n" + "\n| ".join([" : ".join([str(l) for l in t]) for t in extuples]) + "\n\n").replace("⟩", ")").replace("⟨", "("))
+				log.write((log_template.format(move_index, tstr(time() - startTime), lvl, "|".join([str(x)+"."+str(t) for x,t in jump_path]), "-- --", len(base_mx.avtuples), base_mx.min_chlen, base_mx.avlen, base_mx.chain_count, len(base_mx.singles), len(base_mx.coerced), len(base_mx.zeroes), len(base_mx.results), base_mx.tobex_count, base_mx.tobex_ratio) + "\n" + "\n| ".join([" : ".join([str(l) for l in t]) for t in extuples]) + "\n\n").replace("⟩", ")").replace("⟨", "("))
 
 		# diagram.point(); show(diagram)
-		print(log_template.format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), "-- init --", len(base_avtuples), base_min_chlen, base_avlen, base_chain_count, len(base_singles), len(base_coerced), len(base_zeroes), len(base_results), base_tobex_count, base_tobex_ratio))
+		print(log_template.format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), "-- init --", len(base_mx.avtuples), base_mx.min_chlen, base_mx.avlen, base_mx.chain_count, len(base_mx.singles), len(base_mx.coerced), len(base_mx.zeroes), len(base_mx.results), base_mx.tobex_count, base_mx.tobex_ratio))
 		
 		diagram.point()
 		selected_chain = diagram.pointers[0].cycle.chain
 		diagram.pointers = selected_chain.avloops
 		show(diagram)
-		print(log_template.format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), "-- selecting chain --", len(base_avtuples), base_min_chlen, base_avlen, base_chain_count, len(base_singles), len(base_coerced), len(base_zeroes), len(base_results), base_tobex_count, base_tobex_ratio))
+		print(log_template.format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), "-- selecting chain --", len(base_mx.avtuples), base_mx.min_chlen, base_mx.avlen, base_mx.chain_count, len(base_mx.singles), len(base_mx.coerced), len(base_mx.zeroes), len(base_mx.results), base_mx.tobex_count, base_mx.tobex_ratio))
 		
 		jump_path[-1][1] = len(selected_chain.avloops)		
 		for curr_index, curr_loop in selected_chain.avloops:
-			if curr_loop.tuple in base_avtuples:
+			if curr_loop.tuple in base_mx.avtuples:
 				curr_tuple = loop.tuple
 				jump_path[-1][0] = curr_index
 							
@@ -459,6 +474,10 @@ if __name__ == "__main__":
 				# collapse viable tuple				
 				for loop in reversed(viable_tuple):
 					diagram.collapseBack(loop)					
+			
+			# [~] get viable results
+			# viable results should touch **almost** all chains
+			
 	
 	startTime = time()
 	move_index = -1
