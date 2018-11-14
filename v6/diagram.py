@@ -530,7 +530,7 @@ class Diagram (object):
 			for node in curr_node_tuple:
 				node.tuple = curr_node_tuple				
 								
-			curr_loop_tuple = [node.loop for node in curr_node_tuple]
+			curr_loop_tuple = tuple([node.loop for node in curr_node_tuple])
 			if curr_loop_tuple[0].tuple is None:
 				self.loop_tuples.append(curr_loop_tuple)				
 				for loop in curr_loop_tuple:
