@@ -4,3 +4,18 @@
 [*1*][2m17s.401][lvl:1#0.2|-1.0] [jump] -- -- | ((avtuples: 137 | chlen: 4 | avlen: 747 | chains: 661 | s: 0 | c: 0 | z: 0 | r: 747 | tobex c: 132 r: 5.659))
 (loop:[indigo:30]:003001|Ex) : (loop:[violet:13]:001401|Ex) : (loop:[red:21]:010100|Ex) : (loop:[orange:67]:101200|Ex) : (loop:[yellow:44]:020004|Ex)
 
+[*2*][4m26s.937][lvl:2#0.2|0.3|-1.0] [jump] -- -- | ((avtuples: 132 | chlen: 4 | avlen: 710 | chains: 636 | s: 0 | c: 0 | z: 0 | r: 710 | tobex c: 127 r: 5.591))
+(loop:[indigo:30]:003001|Ex) : (loop:[violet:13]:001401|Ex) : (loop:[red:21]:010100|Ex) : (loop:[orange:67]:101200|Ex) : (loop:[yellow:44]:020004|Ex)
+| (loop:[orange:22]:001224|Ex) : (loop:[yellow:68]:100013|Ex) : (loop:[indigo:40]:020010|Ex) : (loop:[violet:31]:012110|Ex) : (loop:[red:14]:002410|Ex)
+
+[*3*][6m11s.926][lvl:3#0.2|0.3|0.2|-1.0] [jump] -- -- | ((avtuples: 126 | chlen: 3 | avlen: 678 | chains: 611 | s: 0 | c: 0 | z: 0 | r: 678 | tobex c: 122 r: 5.557))
+(loop:[indigo:30]:003001|Ex) : (loop:[violet:13]:001401|Ex) : (loop:[red:21]:010100|Ex) : (loop:[orange:67]:101200|Ex) : (loop:[yellow:44]:020004|Ex)
+| (loop:[orange:22]:001224|Ex) : (loop:[yellow:68]:100013|Ex) : (loop:[indigo:40]:020010|Ex) : (loop:[violet:31]:012110|Ex) : (loop:[red:14]:002410|Ex)
+| (loop:[orange:11]:002100|Ex) : (loop:[yellow:24]:010004|Ex) : (loop:[indigo:65]:002002|Ex) : (loop:[violet:42]:010302|Ex) : (loop:[red:33]:011401|Ex)
+
+[*4*][7m56s.36][lvl:4#0.2|0.3|0.2|0.3|-1.0] [jump] -- -- | ((avtuples: 122 | chlen: 3 | avlen: 653 | chains: 586 | s: 0 | c: 0 | z: 0 | r: 653 | tobex c: 117 r: 5.581))
+(loop:[indigo:30]:003001|Ex) : (loop:[violet:13]:001401|Ex) : (loop:[red:21]:010100|Ex) : (loop:[orange:67]:101200|Ex) : (loop:[yellow:44]:020004|Ex)
+| (loop:[orange:22]:001224|Ex) : (loop:[yellow:68]:100013|Ex) : (loop:[indigo:40]:020010|Ex) : (loop:[violet:31]:012110|Ex) : (loop:[red:14]:002410|Ex)
+| (loop:[orange:11]:002100|Ex) : (loop:[yellow:24]:010004|Ex) : (loop:[indigo:65]:002002|Ex) : (loop:[violet:42]:010302|Ex) : (loop:[red:33]:011401|Ex)
+| (loop:[green:16]:003014|Ex) : (loop:[green:5]:001005|Ex) : (loop:[green:62]:100023|Ex) : (loop:[green:83]:110032|Ex) : (loop:[green:49]:021041|Ex)
+
