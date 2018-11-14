@@ -1,0 +1,6 @@
+[*0*][0m2s.32][lvl:0#-1.0] [jump] -- -- | ((avtuples: 142 | chlen: 4 | avlen: 783 | chains: 686 | s: 0 | c: 0 | z: 0 | r: 783 | tobex c: 137 r: 5.715))
+
+
+[*1*][2m17s.401][lvl:1#0.2|-1.0] [jump] -- -- | ((avtuples: 137 | chlen: 4 | avlen: 747 | chains: 661 | s: 0 | c: 0 | z: 0 | r: 747 | tobex c: 132 r: 5.659))
+(loop:[indigo:30]:003001|Ex) : (loop:[violet:13]:001401|Ex) : (loop:[red:21]:010100|Ex) : (loop:[orange:67]:101200|Ex) : (loop:[yellow:44]:020004|Ex)
+
