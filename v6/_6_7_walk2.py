@@ -324,7 +324,7 @@ if __name__ == "__main__":
 	
 	# ============================================================================================================================================================================ #
 
-	def measure_viables(avtuples, seen_tuples):
+	def measure_viables(avtuples):
 		viable_results = []	
 	
 		for tindex, curr_tuple in enumerate(avtuples):
@@ -341,7 +341,7 @@ if __name__ == "__main__":
 			if len(curr_extended_loops) == len(curr_tuple):
 				# current measurement
 				curr_mx = Measurement.measure(diagram)
-				curr_mx.avtuples = [t for t in curr_mx.avtuples if t not in seen_tuples]
+				curr_mx.avtuples = curr_mx.avtuples
 				
 				# check tuple viability
 				if curr_mx.min_chlen != 0 or curr_mx.chain_count == 1:
@@ -367,30 +367,31 @@ if __name__ == "__main__":
 		return viable_results
 		
 	
-	def jump2(lvl=0, jump_path=[[-1,0]], extuples=[], seen_tuples=[]):
+	def jump2(lvl=0, jump_path=[[-1,0]], extuples=[], prev_viables=None):
 		global move_index
-		log_template = "[*{}*][{}][lvl:{}#{}] [jump] {} | ⟨{}⟩"
+		log_template = "[*{}*][{}][lvl:{}#{}] [jump] {} | viables: {} | ⟨{}⟩"
 	
 		# initial measurement	
 		base_mx = Measurement.measure(diagram)		
-		base_mx.avtuples = [t for t in base_mx.avtuples if t not in seen_tuples]
+		if prev_viables is None:
+			prev_viables = base_mx.avtuples
 				
 		move_index += 1
 		if move_index % 1 == 0:
 			with open(running_filename + ".txt", 'a') as log:
-				log.write((log_template.format(move_index, tstr(time() - startTime), lvl, "|".join([str(x)+"."+str(t) for x,t in jump_path]), "-- --", str(base_mx)) + "\n|" + "\n| ".join([" : ".join([str(l) for l in t]) for t in extuples]) + "\n\n").replace("⟩", ")").replace("⟨", "("))
+				log.write((log_template.format(move_index, tstr(time() - startTime), lvl, "|".join([str(x)+"."+str(t) for x,t in jump_path]), "-- --", str(len(prev_viables)), str(base_mx)) + "\n|" + "\n| ".join([" : ".join([str(l) for l in t]) for t in extuples]) + "\n\n").replace("⟩", ")").replace("⟨", "("))
 
 		# diagram.point(); show(diagram)
-		print(log_template.format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), "-- init --", str(base_mx)))
+		print(log_template.format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), "-- init --", str(len(prev_viables)), str(base_mx)))
 		
 		# assert len(base_mx.singles) is 0
 				
 		#diagram.pointers = list(itertools.chain(*[loop.nodes for loop in itertools.chain(*base_mx.avtuples)]))
 		#show(diagram); print("avtuples\n")
 		
-		viable_results = measure_viables(base_mx.avtuples, seen_tuples)
+		viable_results = measure_viables(prev_viables)
 		viable_tuples = [r.obj for r in viable_results]		
-		print("viables: " + str(len(viable_results))) # + "\n".join([str(r.obj) + " | " + str(r.mx) for r in viable_results]) + "\n")
+		print("new viables: " + str(len(viable_results))) # + "\n".join([str(r.obj) + " | " + str(r.mx) for r in viable_results]) + "\n")
 		
 		#diagram.pointers = list(itertools.chain(*[loop.nodes for loop in itertools.chain(*[r.obj for r in viable_results])]))
 		#show(diagram); print("viables\n")
@@ -451,7 +452,7 @@ if __name__ == "__main__":
 				for loop in curr_tuple:
 					assert diagram.extendLoop(loop)
 				
-				jump2(lvl+1, jump_path+[[-1,0]], extuples+[curr_tuple], seen_tuples+chosen_tuples[0:curr_index])
+				jump2(lvl+1, jump_path+[[-1,0]], extuples+[curr_tuple], viable_tuples)
 					
 				# collapse viable tuple				
 				for loop in reversed(curr_tuple):
