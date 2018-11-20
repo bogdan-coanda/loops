@@ -89,7 +89,7 @@ def step(diagram, jump_lvl=0, jump_path=[], jump_tuples=[], step_lvl=0, step_pat
 	global move_index
 	move_index += 1
 	
-	if move_index % 2 == 0:
+	if move_index % 1 == 0:
 		print("[*{}*][{}][lvl:{}~{}] {}~{}".format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t) for x,t in step_path])))
 		
 	if len(diagram.chains) is 1:
