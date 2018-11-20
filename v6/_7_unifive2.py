@@ -44,7 +44,7 @@ def find_min_simple(diagram, unchained_cycles, avtuples):
 	#print("[find_min_blabla] unchained_cycles: " + str(len(unchained_cycles)))
 	for cycle in unchained_cycles:
 		curr_cycle_tuples = [node.loop.tuple for node in cycle.nodes if node.loop.availabled or node.loop.extended]
-		matched_tuples = tuple(sorted([t for t in avtuples if t in curr_cycle_tuples], key = lambda t: t[0].firstAddress()))
+		matched_tuples = tuple(sorted([t for t in avtuples if t in curr_cycle_tuples], key = lambda t: t[0].firstNode().ktype))
 		
 		if len(matched_tuples) < min_viable_tuple_count:
 			min_viable_tuple_count = len(matched_tuples)
