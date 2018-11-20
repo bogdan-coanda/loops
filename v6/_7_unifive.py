@@ -6,187 +6,7 @@ from time import time
 from collections import defaultdict
 
 
-class Measurement (object):
-	
-	__slots__ = ['diagram', 
-		'singles', 'coerced', 'zeroes', 'results', # from reduce() { singles/coerced + decimate loop }
-		'min_chlen', 'avlen', 'chain_count', 'tobex_count', 'tobex_ratio', 'avtuples' # from detail() { simple measurement }
-	]
-	
-	def __init__(self, diagram):
-		self.diagram = diagram
-		
-	def measure(diagram):
-		mx = Measurement(diagram)
-		mx.singles, mx.coerced, mx.zeroes, mx.results = Measurement.reduce(diagram)			
-		mx.min_chlen, mx.avlen, mx.chain_count, mx.tobex_count, mx.tobex_ratio, mx.avtuples = Measurement.detail(diagram)		
-		return mx
 
-	def zero(diagram):
-		mx = Measurement(diagram)
-		mx.singles, mx.coerced, mx.zeroes, mx.results = ([],[],[],[])			
-		mx.min_chlen, mx.avlen, mx.chain_count, mx.tobex_count, mx.tobex_ratio, mx.avtuples = (0, 0, 0, 0, 0, [])
-		return mx
-
-	def __repr__(self):
-		return "⟨avtuples: {} | chlen: {} | avlen: {} | chains: {} | s: {} | c: {} | z: {} | r: {} | tobex c: {} r: {:.3f}⟩".format(
-			len(self.avtuples), self.min_chlen, self.avlen, self.chain_count,
-			len(self.singles), len(self.coerced), len(self.zeroes), len(self.results), 
-			self.tobex_count, self.tobex_ratio
-		)				
-
-	def __iadd__(self, other):
-		self.singles += other.singles
-		self.coerced += other.coerced
-		self.zeroes += other.zeroes
-		self.results += other.results
-		self.tobex_count += other.tobex_count
-		self.tobex_ratio += other.tobex_ratio
-		self.avtuples += other.avtuples
-		self.min_chlen += other.min_chlen
-		self.avlen += other.avlen
-		self.chain_count += other.chain_count
-		return self
-		
-	# ============================================================================================================================================================================ #	
-
-	def coerce(diagram):
-		singles = []
-		coerced = []
-		
-		while True:
-			found = False
-			
-			for chain in diagram.chains:
-				avlen = len(chain.avloops)
-				
-				if avlen == 0:
-					return (singles, coerced) 
-
-				elif avlen == 1:
-					avloop = list(chain.avloops)[0]
-					singles.append(avloop)
-					diagram.extendLoop(avloop)
-					found = True
-					break
-				
-				elif avlen == 2:
-					killingFields = [loop.killingField() for loop in chain.avloops]
-					intersected = killingFields[0].intersection(killingFields[1])
-					if len(intersected):
-						for avloop in intersected:
-							coerced.append(avloop)
-							diagram.setLoopUnavailabled(avloop)
-						found = True
-						break
-																	
-			if not found:
-				return (singles, coerced)		
-		
-	def decimate(diagram):
-		zeroes = []
-		
-		while True:
-			found = False
-			results = {}
-			avloops = [l for l in diagram.loops if l.availabled]
-			#print("..[decimate] curr | avloops: " + str(len(avloops)))
-			for index, loop in enumerate(avloops):
-				diagram.extendLoop(loop)
-				singles, coerced = Measurement.coerce(diagram)
-				min_chlen, avlen, chain_count, tobex_count, tobex_ratio, avtuples = Measurement.detail(diagram)
-
-				results[loop] = (
-					avlen, 
-					min_chlen,
-					len(diagram.startNode.cycle.chain.avloops),
-					-(len(singles)), 
-					-(len(coerced)),
-					chain_count,
-					tobex_count,
-					tobex_ratio
-				)
-				
-				#print("..[decimate] " + str(loop) + " | " + str(results[loop]))
-				
-				for l in reversed(singles):
-					diagram.collapseBack(l)						
-				for l in coerced:
-					diagram.setLoopAvailabled(l)			
-				diagram.collapseBack(loop)				
-								
-				if min_chlen == 0 and chain_count > 1:
-					#print("..[decimate] zeroing " + str(loop))
-					zeroes.append(loop)
-					diagram.setLoopUnavailabled(loop)
-					found = True
-			
-			if not found:
-				#print("..[decimate] done | zeroes: " + str(len(zeroes)))
-				return (zeroes, results)
-			#print("..[decimate] curr | zeroes: " + str(len(zeroes)))
-			
-	def reduce(diagram):
-		# mandatory
-		curr_singles, curr_coerced = Measurement.coerce(diagram)
-		#print("[reduce] init | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
-		curr_zeroes, curr_results = Measurement.decimate(diagram)
-		#print("[reduce] init | z: " + str(len(curr_zeroes)) + " | r: " + str(len(curr_results)))
-		
-		singles = list(curr_singles)
-		coerced = list(curr_coerced)
-		zeroes = list(curr_zeroes)
-		results = curr_results		
-		
-		# additional
-		while True:
-			if len(curr_zeroes) > 0:
-				curr_singles, curr_coerced = Measurement.coerce(diagram)
-				singles += curr_singles
-				coerced += curr_coerced			
-				#print("[reduce] curr | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
-				
-				if len(curr_singles) or len(curr_coerced):
-					curr_zeroes, curr_results = Measurement.decimate(diagram)
-					zeroes += curr_zeroes
-					results = curr_results
-					#print("[reduce] curr | z: " + str(len(curr_zeroes)) + " | r: " + str(len(curr_results)))
-				else:
-					break
-			else:
-				break
-		#print("[reduce] done | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)) + " | r: " + str(len(results)))
-		return (singles, coerced, zeroes, results)		
-		
-	def clean(diagram, singles, coerced, zeroes):
-		for l in reversed(singles):
-			diagram.collapseBack(l)						
-		for l in coerced:
-			diagram.setLoopAvailabled(l)
-		for l in zeroes:
-			diagram.setLoopAvailabled(l)		
-	
-	
-	def detail(diagram):
-		min_chlen = min([len(chain.avloops) for chain in diagram.chains])
-		avlen = len([l for l in diagram.loops if l.availabled])
-		chain_count = len(diagram.chains)
-		tobex_count = diagram.measureTobex()
-		tobex_ratio = (avlen / tobex_count) if tobex_count is not 0 else 0		
-		avtuples = [tuple for tuple in diagram.loop_tuples 
-			if len([loop for loop in tuple if not loop.availabled and not loop.extended]) == 0
-			and len([loop for loop in tuple if len([node.cycle for node in loop.nodes if node.cycle.isKernel]) != 0]) == 0]
-		return (min_chlen, avlen, chain_count, tobex_count, tobex_ratio, avtuples)		
-		
-	# ============================================================================================================================================================================ #	
-
-class Result (object):
-	
-	__slots__ = ['obj', 'mx']
-	
-	def __init__(self, obj, mx):
-		self.obj = obj
-		self.mx = mx
 
 
 if __name__ == "__main__":
@@ -368,7 +188,7 @@ if __name__ == "__main__":
 		sorted_blabla = sorted(summed_matched_results_results, 
 			key = lambda result: (result.mx.min_chlen, result.mx.avlen, result.obj[0].mx.min_chlen, result.obj[0].mx.avlen))
 			
-		summed_result = sorted_blabla[0]
+		summed_result = sorted_blabla[0] if len(sorted_blabla) else Result([], Measurement.zero(diagram))
 		print("[find_min_blabla] chosen: \n\t==" + str(summed_result.mx) + "".join(["\n\t|~ " + str(r.obj) + "\n\t-- " + str(r.mx) for r in summed_result.obj]))
 								
 		return summed_result
@@ -443,13 +263,75 @@ if __name__ == "__main__":
 		
 	diagram = Diagram(7, 1)
 	
-	diagram.extendLoop(diagram.nodeByAddress['000001'].loop)
+	sol_addrs = "001224 001114 001014 001214 001005 001403 002020 002110 002200 002420 002444 002045 002140 002453 013115 013133 013322 013412 013445 022005 022014 022032 013053 112006 | 020200 012300 023100 103006 020000 003006 113030 122440 022340 021330 013410 001420 120230 100106 110210 020340 010040 111130"
+	taddrs, laddrs = sol_addrs.split(" | ")
+	sol_tuples = [diagram.nodeByAddress[addr].loop.tuple for addr in taddrs.split(" ")]
+	sol_loops = [diagram.nodeByAddress[addr].loop for addr in laddrs.split(" ")]
+	print("sol | tuples: " + str(len(sol_tuples)) + " | loops: " + str(len(sol_loops)))	
 	
-	startTime = time()
-	move_index = -1
-	sol_count = 0	
+	touched_cycles = list(itertools.chain(*[itertools.chain(*[[node.cycle for node in loop.nodes] for loop in sol_tuple]) for sol_tuple in sol_tuples])) 
+	unchained_cycles = [c for c in diagram.cycles if len(c.chain.cycles) is 1]
+	print("touched cycles: "+str(len(touched_cycles))+" | unchained cycles: "+str(len(unchained_cycles)))
 	
-	jump3(diagram)
+	for cycle in unchained_cycles:
+		touched_cycles.remove(cycle)
+		
+	print("remaining cycles: "+str(len(touched_cycles)))
+	
+	for index, sol_tuple in enumerate(sol_tuples):
+		tuple_cycles = itertools.chain(*[[node.cycle for node in loop.nodes] for loop in sol_tuple])
+		intersected_cycles = set(tuple_cycles).intersection(touched_cycles)
+		print("@"+str(index)+" | intersected cycles: "+str(len(intersected_cycles)))
+	
+	input("---")
+	'''
+	for tuple in sol_tuples:
+		for loop in tuple:
+			diagram.extendLoop(loop)
+
+	unchained_cycles = [c for c in diagram.cycles if len(c.chain.cycles) is 1]
+									
+	for loop in sol_loops:
+		diagram.extendLoop(loop)
+		
+	show(diagram); input("unchained cycles by tuples: " + str(len(unchained_cycles)))
+	'''
+			
+	diagram.extendLoop(diagram.nodeByAddress['000002'].loop)
+	
+	for index, addr in enumerate([
+		# '110005', '001014', '100005', '003014', # green blocks		
+		# '103014', '103032', '103041', # green blocks
+		'112106',	# blue middle block:1.1.2
+		'002453', '010042', '002020', '011221',	'011024', '010202', # middle block:0.1.1
+		'013151', '120130', '013020', '023020', '013010', '013100', # middle block:1.2.3
+		'100103', '002051' # '001224', '101430' # diag		
+	]):
+		t = diagram.nodeByAddress[addr].loop.tuple
+		for loop in t:
+			diagram.extendLoop(loop)
+		
+	
+	# for index, addr in enumerate([
+	# ]):
+	# 	tuple = diagram.nodeByAddress[addr].loop.tuple
+	# 	for loop in tuple:
+	# 		diagram.extendLoop(loop)
+	# 
+	# 	show(diagram); input("@" + str(index) + " | " + str(tuple))
+		
+	show(diagram);
+	
+	'''
+	'''
+		
+	# startTime = time()
+	# move_index = -1
+	# sol_count = 0	
+	
+	# jump3(diagram)
+	
+	# ___
 	
 	# ⟨001406, 001401⟩
 	# for loop in d.nodeByAddress['001406'].loop.tuple:
@@ -504,12 +386,14 @@ if __name__ == "__main__":
 	# 	assert d.extendLoop(loop)
 		
 						
-	# mx = Measurement.measure(d)		
-	# vr = measure_viables(d, mx.avtuples)
-			
-	#show(d)
-	# print("$ | extended: " + str(base_loop) + " | viables: " + str(len(vr)) + " | mx: " + str(mx))
+	mx = Measurement.measure(diagram)		
+	vr = measure_viables(diagram, mx.avtuples)
+				
+	summed_result = find_min_blabla(diagram, vr)
 	
-	# summed_result = find_min_blabla(d, vr)
-
-
+	#show(d)
+	print("[-] viables: " + str(len(vr)) + " | mx: " + str(mx))
+	for i,r in enumerate(summed_result.obj):
+		print("["+str(i)+"]"+str(r.obj in sol_tuples))
+	unchained_cycles = [c for c in diagram.cycles if len(c.chain.cycles) is 1]
+	print("unchained_cycles: "+str(len(unchained_cycles)))
