@@ -1,7 +1,6 @@
 from diagram import *
 from uicanvas import *
 from common import *
-from measurement import *
 from itertools import chain
 from time import time
 from collections import defaultdict
@@ -54,29 +53,56 @@ def find_min_simple(diagram, unchained_cycles, avtuples):
 				
 	return (min_cycle, min_matched_tuples)
 			
+class Measurement (object):
+	
+	__slots__ = ['diagram', 
+		'unchained_cycles', 'avloops', 'avtuples', 'tobex'
+	]
+
+	def init(diagram):
+		mx = Measurement()		
+		mx.diagram = diagram
+		mx.unchained_cycles = [cycle for cycle in diagram.cycles if len(cycle.chain.cycles) is 1]
+		mx.avloops = [l for l in diagram.loops if l.availabled]
+		mx.avtuples = [t for t in diagram.loop_tuples 
+			if len([loop for loop in t if not loop.availabled and not loop.extended]) == 0
+			and len([loop for loop in t if len([node.cycle for node in loop.nodes if node.cycle.isKernel]) != 0]) == 0]
+		mx.tobex = diagram.measureTobex()
+		return mx
+		
+	def measure(old_mx):
+		mx = Measurement()
+		mx.diagram = old_mx.diagram
+		mx.unchained_cycles = [cycle for cycle in old_mx.unchained_cycles if len(cycle.chain.cycles) is 1]
+		mx.avloops = [l for l in old_mx.avloops if l.availabled]
+		mx.avtuples = [t for t in old_mx.avtuples 
+			if len([loop for loop in t if not loop.availabled and not loop.extended]) == 0
+		]
+		mx.tobex = mx.diagram.measureTobex()
+		return mx
+			
 	# ============================================================================================================================================================================ #
 
-def jump(diagram, lvl=0, jump_path=[], jumped_tuples=[]):
+def jump(diagram, old_mx, lvl=0, jump_path=[], jumped_tuples=[]):
 	global move_index
 	move_index += 1
 	
 	if move_index % 100 == 0:
 		print("[*{}*][{}][lvl:{}] {}".format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])))
 		
-	mx = Measurement.measure(diagram)
-	uc = [cycle for cycle in diagram.cycles if len(cycle.chain.cycles) is 1]		
+	new_mx = Measurement.measure(old_mx)
 	
 	#print("[*{}*][{}][lvl:{}]  uc: {} | mx: {}".format(move_index, tstr(time() - startTime), lvl, len(uc), mx))
 	
-	if lvl >= 27 and mx.avlen >= 2:
-		diagram.point(); show(diagram); input("[*{}*][{}][lvl:{}] … uc: {} | tobex: {}".format(move_index, tstr(time() - startTime), lvl, len(uc), mx.tobex_count))
+	if lvl >= 27 and len(new_mx.avloops) >= 2:
+		diagram.point(); show(diagram); input("[*{}*][{}][lvl:{}] … uc: {} | tobex: {}".format(move_index, tstr(time() - startTime), lvl, len(new_mx.unchained_cycles), new_mx.tobex))
 		
-	if len(uc) is 0: # if all cycles have been looped	
-		if lvl >= 27 and mx.avlen >= 2:
-			diagram.point(); show(diagram); input("[*{}*][{}][lvl:{}] § uc: 0 | tobex: {}".format(move_index, tstr(time() - startTime), lvl, mx.tobex_count))
+	if len(new_mx.unchained_cycles) is 0: # if all cycles have been looped	
+		if lvl >= 27 and len(new_mx.avloops) >= 2:
+			diagram.point(); show(diagram); input("[*{}*][{}][lvl:{}] § uc: 0 | tobex: {}".format(move_index, tstr(time() - startTime), lvl, new_mx.tobex))
 			
 	else:				
-		mc, mt = find_min_simple(diagram, uc, mx.avtuples)
+		mc, mt = find_min_simple(diagram, new_mx.unchained_cycles, new_mx.avtuples)
 		
 		#print("[*{}*][{}][lvl:{}]  min | matched tuples: {} | cycle: {}".format(move_index, tstr(time() - startTime), lvl, len(mt), mc))
 	
@@ -90,7 +116,7 @@ def jump(diagram, lvl=0, jump_path=[], jumped_tuples=[]):
 	
 	
 			if ec == len(t): # if we've extended all of the tuple's loops
-				jump(diagram, lvl+1, jump_path+[(it,len(mt))], jumped_tuples+[t])
+				jump(diagram, new_mx, lvl+1, jump_path+[(it,len(mt))], jumped_tuples+[t])
 	
 			for l in reversed(t[:ec]):
 				diagram.collapseBack(l)
@@ -111,7 +137,8 @@ if __name__ == "__main__":
 				
 	# ============================================================================================================================================================================ #	
 
-	jump(diagram)
+	mx = Measurement.init(diagram)
+	jump(diagram, mx)
 
 	# mx = Measurement.measure(diagram)
 	# mc, mt, ac, mm = find_min_blabla(diagram, mx.avtuples)	
