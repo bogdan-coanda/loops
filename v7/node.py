@@ -33,9 +33,7 @@ class Node (object):
 		
 																		
 	def __repr__(self):
-		return "⟨node:"+self.perm+"@"+self.address+"§"+str(self.cycle.chain)+"|"+("λ" if self.cycle.chain is not None and self.cycle.chain.marker is not None else "")
-		#+("ε" if self.loop.extended else "")+("A" if self.loop.availabled else "")
-		+"⟩"
+		return "⟨node:"+self.perm+"@"+self.address+"§"+str(self.cycle.chain)+'|'+('Av' if self.loop.availabled else '')+('Ex' if self.loop.extended else '')+"⟩"
 		
 		
 	def __lt__(self, other):
