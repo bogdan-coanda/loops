@@ -72,6 +72,10 @@ class Diagram (object):
 		self.walk()
 		
 		
+	def measureTobex(self):
+		return self.tobex_base_count - len([loop for loop in self.loops if loop.extended])
+		
+		
 	def generateGraph(self):
 		
 		self.generateNodes()
@@ -314,12 +318,8 @@ class Diagram (object):
 		
 			
 	def setLoopAvailabled(self, loop):
-		# if loop.firstAddress() == '113106':
-		# 	self.q += 1
-		# 	print("[setLoopAvailabled] " + str(loop) + " | q: " + str(self.q))
-		#assert self.q != 283
-		assert len(set([node.cycle.chain for node in loop.nodes])) == len(loop.nodes)
-		assert loop.availabled is False
+		# assert len(set([node.cycle.chain for node in loop.nodes])) == len(loop.nodes)
+		# assert loop.availabled is False
 		loop.availabled = True
 		for node in loop.nodes:
 			cycle = node.cycle
@@ -327,7 +327,7 @@ class Diagram (object):
 		
 		
 	def setLoopUnavailabled(self, loop):
-		assert loop.availabled is True
+		# assert loop.availabled is True
 		loop.availabled = False
 		for node in loop.nodes:
 			if loop in node.cycle.chain.avloops: # [~] why would the loop not be here ? got removed twice ? got debugged twice over already and proven correct ?
@@ -336,7 +336,7 @@ class Diagram (object):
 	
 	def makeChain(self, affected_chains):
 
-		assert len(set(affected_chains)) == len(affected_chains), "broken affected chains"
+		# assert len(set(affected_chains)) == len(affected_chains), "broken affected chains"
 
 		# create new chain
 		self.chainAutoInc += 1
