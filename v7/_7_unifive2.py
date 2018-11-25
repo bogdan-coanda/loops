@@ -92,14 +92,29 @@ class Measurement (object):
 	# ============================================================================================================================================================================ #
 
 def step(diagram, jump_lvl=0, jump_path=[], jump_tuples=[], step_lvl=0, step_path=[], step_loops=[]):
-	global move_index
+	global move_index, sol_count
 	move_index += 1
 	
-	if move_index % 1000 == 0:
+	if move_index % 10000 == 0:
 		print("[*{}*][{}][lvl:{}~{}] {}~{}".format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t) for x,t in step_path])))
 		
 	if len(diagram.chains) is 1:
-		show(diagram); input("=== sol ===");
+		show(diagram); 
+		print("[*{}*][{}][lvl:{}~{}] {}~{}".format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t) for x,t in step_path])))		
+		
+		with open("__7__sols__path", 'a', encoding="utf8") as log:
+			log.write("[sol:{:>2}][*{:>7}*][{:>10}][lvl:{}~{}]  {} ~ {}\n".format(sol_count, move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t) for x,t in step_path])))
+
+		with open("__7__sols__addr", 'a', encoding="utf8") as log:
+			log.write("[sol:{:>2}][*{:>7}*][{:>10}][lvl:{}~{}]  {} ~ {}\n".format(sol_count, move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t) for x,t in step_path])))
+			for j,t in enumerate(jump_tuples):
+				log.write("T"+str(j)+" | "+str(t)+"\n")
+			for j,l in enumerate(step_loops):
+				log.write("L"+str(j)+" | "+str(l)+"\n")
+			log.write("\n")
+											
+		input("=== sol:"+str(sol_count)+" ===");
+		sol_count += 1
 		return
 		
 	min_chain = sorted(diagram.chains, key = lambda chain: (len(chain.avloops), chain.id))[0]
@@ -116,7 +131,7 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[]):
 	global move_index
 	move_index += 1
 	
-	if move_index % 100 == 0:
+	if move_index % 1000 == 0:
 		print("[*{}*][{}][lvl:{}] {}".format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])))
 		
 	new_mx = Measurement.measure(old_mx)
@@ -140,7 +155,7 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[]):
 				
 	if len(new_mx.unchained_cycles) is 0: # if all cycles have been looped	
 		if lvl >= 23:
-			step(diagram, lvl, jump_path, jump_tuples, len(sol_addrs))
+			step(diagram, lvl, jump_path, jump_tuples, len(sol_loops), [('§', len(sol_loops))], list(sol_loops))
 			
 	else:				
 		mc, mt = find_min_simple(diagram, new_mx.unchained_cycles, new_mx.avtuples)
@@ -172,7 +187,7 @@ if __name__ == "__main__":
 	# diagram.extendLoop(diagram.nodeByAddress['000001'].loop)
 	
 	#sol_addrs = "001224 001114 001014 001214 001005 001403 002020 002110 002200 002420 002444 002045 002140 002453 013115 013133 013322 013412 013445 022005 022014 022032 013053 112006 | 020200 012300 023100 103006 020000 003006 113030 122440 022340 021330 013410 001420 120230 100106 110210 020340 010040 111130"
-	sol_addrs = "001224 001114 001014 001214 001005 | "# 023100 103006 020000 003006 113030 122440 022340 021330 013410 001420 120230 100106 110210 020340 010040"# 111130"
+	sol_addrs = "001114 001014 001214 001005 | "# 023100 103006 020000 003006 113030 122440 022340 021330 013410 001420 120230 100106 110210 020340 010040"# 111130"
 	taddrs, laddrs = sol_addrs.split(" | ")
 	sol_tuples = [diagram.nodeByAddress[addr].loop.tuple for addr in taddrs.split(" ")]
 	if len(laddrs):
@@ -198,7 +213,7 @@ if __name__ == "__main__":
 	show(diagram)
 	print("mx: " + str(mx))
 	
-	jump(diagram, mx, len(sol_tuples))
+	jump(diagram, mx, len(sol_tuples), [('§', len(sol_tuples))], list(sol_tuples))
 
 	# mx = Measurement.measure(diagram)
 	# mc, mt, ac, mm = find_min_blabla(diagram, mx.avtuples)	
