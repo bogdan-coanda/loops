@@ -92,29 +92,30 @@ class Measurement (object):
 	# ============================================================================================================================================================================ #
 
 def step(diagram, jump_lvl=0, jump_path=[], jump_tuples=[], step_lvl=0, step_path=[], step_loops=[]):
-	global move_index, sol_count
+	global move_index, sols
 	move_index += 1
 	
 	if move_index % 10000 == 0:
 		print("[*{}*][{}][lvl:{}~{}] {}~{}".format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t) for x,t in step_path])))
 		
 	if len(diagram.chains) is 1:
-		show(diagram); 
-		print("[*{}*][{}][lvl:{}~{}] {}~{}".format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t) for x,t in step_path])))		
+		# found po
+		ts = " ".join(sorted([sorted([l.firstAddress() for l in t])[0] for t in jump_tuples]))
+		ls = " ".join(sorted([l.firstAddress() for l in step_loops]))
+		𝒮 = ts+" | "+ls
 		
-		with open("__7__sols__path", 'a', encoding="utf8") as log:
-			log.write("[sol:{:>2}][*{:>7}*][{:>10}][lvl:{}~{}]  {} ~ {}\n".format(sol_count, move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t) for x,t in step_path])))
-
-		with open("__7__sols__addr", 'a', encoding="utf8") as log:
-			log.write("[sol:{:>2}][*{:>7}*][{:>10}][lvl:{}~{}]  {} ~ {}\n".format(sol_count, move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t) for x,t in step_path])))
-			for j,t in enumerate(jump_tuples):
-				log.write("T"+str(j)+" | "+str(t)+"\n")
-			for j,l in enumerate(step_loops):
-				log.write("L"+str(j)+" | "+str(l)+"\n")
-			log.write("\n")
+		if 𝒮 not in sols:
+			#show(diagram); 
+			print("[*{}*][{}][lvl:{}~{}] {}~{}".format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t) for x,t in step_path])))		
+			
+			with open(sols_file, 'a', encoding="utf8") as log:
+				log.write("[sol:{:>2}][*{:>7}*][{:>11}][lvl:{}~{}]  {} ~ {}\n".format(len(sols), move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t) for x,t in step_path])))
+				log.write("tuples: " + ts + "\n")
+				log.write("loops: " + ls + "\n")
+				log.write("\n")
 											
-		input("=== sol:"+str(sol_count)+" ===");
-		sol_count += 1
+			print("=== sol:"+str(len(sols))+" ===");
+			sols += [𝒮]
 		return
 		
 	min_chain = sorted(diagram.chains, key = lambda chain: (len(chain.avloops), chain.id))[0]
@@ -154,8 +155,31 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[]):
 		#diagram.point(); show(diagram); input("[*{}*][{}][lvl:{}] … uc: {} | tobex: {}".format(move_index, tstr(time() - startTime), lvl, len(new_mx.unchained_cycles), new_mx.tobex))
 				
 	if len(new_mx.unchained_cycles) is 0: # if all cycles have been looped	
+	
+		old_sol_count = len(sols)
+	
+		if len(mx.avtuples) > 0: # if we still have tuples that can be extended
+						
+			for it, t in enumerate(mx.avtuples):
+				ec = 0
+				for lt, l in enumerate(t):
+					if diagram.extendLoop(l):
+						ec += 1
+					else:
+						break
+		
+				if ec == len(t): # if we've extended all of the tuple's loops
+					jump(diagram, new_mx, lvl+1, jump_path+[(it,len(mx.avtuples))], jump_tuples+[t])
+		
+				for l in reversed(t[:ec]):
+					diagram.collapseBack(l)
+	
 		if lvl >= 23:
 			step(diagram, lvl, jump_path, jump_tuples, len(sol_loops), [('§', len(sol_loops))], list(sol_loops))
+			
+		if len(sols) != old_sol_count:
+			with open(sols_file, 'a', encoding="utf8") as log:
+				log.write("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n\n")
 			
 	else:				
 		mc, mt = find_min_simple(diagram, new_mx.unchained_cycles, new_mx.avtuples)
@@ -163,8 +187,6 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[]):
 		#print("[*{}*][{}][lvl:{}]  min | matched tuples: {} | cycle: {}".format(move_index, tstr(time() - startTime), lvl, len(mt), mc))
 	
 		for it, t in enumerate(mt):
-			#if lvl is 0 and it < 4:
-				#continue
 			ec = 0
 			for lt, l in enumerate(t):
 				if diagram.extendLoop(l):
@@ -191,14 +213,17 @@ if __name__ == "__main__":
 	taddrs, laddrs = sol_addrs.split(" | ")
 	taddrs = taddrs.split(" ")
 	
-	taddrs = [ # '123006', '112006', '011006' # -- blue boxes
+	#'''
+	taddrs = [ '123011', '123021', '123034', '123044', '011021', '011034', '101430', '001224',
+	# '123006', '112006', '011006' # -- blue boxes
 	# '001042', '001224', '001403', '001454', # 001405 alts
-	# '112006' # 112 box
+	'112006', # 112 box
 	# '011003', '011013', '011021', '011030', '011034', '011054' # 011 box
 	# '123001', '123011', '123021', '123034', '123044', '123052' # 123 box
-	# '001005', '001105', '001205', '001305', # green
-	#	'022005', '022105', '022305' # green
+	'001005', '001105', '001205', '001305', # green
+	'022005', '022105', '022305' # green
 	]
+	#'''
 	
 	sol_tuples = [diagram.nodeByAddress[addr].loop.tuple for addr in taddrs]
 	if len(laddrs):
@@ -216,16 +241,21 @@ if __name__ == "__main__":
 		
 	startTime = time()
 	move_index = -1
-	sol_count = 0	
-				
+	sols = []
+	sols_file = "__7__sols__"
+	
 	# ============================================================================================================================================================================ #	
 
 	mx = Measurement.init(diagram)
 	show(diagram)
 	print("mx: " + str(mx))
 	
+								
 	jump(diagram, mx, len(sol_tuples), [('§', len(sol_tuples))], list(sol_tuples))
 
+	with open(sols_file, 'a', encoding="utf8") as log:
+		log.write("==================================================================================================================================================================================\n\n")
+				
 	# mx = Measurement.measure(diagram)
 	# mc, mt, ac, mm = find_min_blabla(diagram, mx.avtuples)	
 	# 

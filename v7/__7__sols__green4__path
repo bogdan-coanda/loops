@@ -12,3 +12,32 @@
 [sol:11][*15691374*][140m3s.180][lvl:24~18]  §⁴.2⁴.2³.3⁴.2³.2³.2³.0³.0².1³.2³.1³.2³.1³.2³.1³.1².1³.0².2³.0³ ~ §⁰.3⁵.1⁴.3⁴.2⁴.1⁴.1³.2⁴.1².1³.1³.0².0³.0².0¹.0¹.0¹.0¹.0¹
 [sol:12][*15700729*][140m7s.233][lvl:24~18]  §⁴.2⁴.2³.3⁴.2³.2³.2³.0³.0².1³.2³.1³.2³.1³.2³.1³.1².1³.0².2³.0³ ~ §⁰.3⁵.3⁴.3⁴.2³.2⁴.1⁴.1³.0².0².2³.0².0¹.0¹.0¹.0¹.0¹.0¹.0¹
 [sol:13][*15704515*][140m10s.446][lvl:24~18]  §⁴.2⁴.2³.3⁴.2³.2³.2³.0³.0².1³.2³.1³.2³.1³.2³.1³.1².1³.0².2³.0³ ~ §⁰.4⁵.0⁴.1⁴.0⁴.2⁴.3⁴.0³.3⁴.0³.0³.0².1³.0².0¹.0¹.0¹.0¹.0¹
+
+T6 | (⟨loop:[yellow:69]:100103|Ex⟩, ⟨loop:[indigo:41]:020100|Ex⟩, ⟨loop:[violet:32]:012200|Ex⟩, ⟨loop:[red:10]:002000|Ex⟩, ⟨loop:[orange:23]:001403|Ex⟩)
+T7 | (⟨loop:[yellow:34]:010202|Ex⟩, ⟨loop:[indigo:12]:002200|Ex⟩, ⟨loop:[violet:20]:010000|Ex⟩, ⟨loop:[red:66]:011203|Ex⟩, ⟨loop:[orange:43]:002402|Ex⟩)
+T8 | (⟨loop:[violet:25]:010042|Ex⟩, ⟨loop:[red:27]:011230|Ex⟩, ⟨loop:[orange:29]:002444|Ex⟩, ⟨loop:[yellow:26]:010244|Ex⟩, ⟨loop:[indigo:28]:002242|Ex⟩)
+T10 | (⟨loop:[red:11]:002051|Ex⟩, ⟨loop:[orange:24]:001454|Ex⟩, ⟨loop:[yellow:65]:100154|Ex⟩, ⟨loop:[indigo:42]:020151|Ex⟩, ⟨loop:[violet:33]:012251|Ex⟩)
+T11 | (⟨loop:[orange:44]:002453|Ex⟩, ⟨loop:[yellow:30]:010253|Ex⟩, ⟨loop:[indigo:13]:002251|Ex⟩, ⟨loop:[violet:21]:010051|Ex⟩, ⟨loop:[red:67]:011254|Ex⟩)
+T13 | (⟨loop:[red:65]:011024|Ex⟩, ⟨loop:[orange:42]:002312|Ex⟩, ⟨loop:[yellow:33]:010112|Ex⟩, ⟨loop:[indigo:11]:002110|Ex⟩, ⟨loop:[violet:24]:010410|Ex⟩)
+T14 | (⟨loop:[violet:36]:013100|Ex⟩, ⟨loop:[red:70]:013002|Ex⟩, ⟨loop:[orange:103]:102402|Ex⟩, ⟨loop:[yellow:114]:120202|Ex⟩, ⟨loop:[indigo:57]:023200|Ex⟩)
+T20 | (⟨loop:[violet:37]:013151|Ex⟩, ⟨loop:[red:71]:013053|Ex⟩, ⟨loop:[orange:104]:102453|Ex⟩, ⟨loop:[yellow:110]:120253|Ex⟩, ⟨loop:[indigo:58]:023251|Ex⟩)
+
+T6 | (⟨loop:[indigo:30]:003001|Ex⟩, ⟨loop:[violet:13]:001401|Ex⟩, ⟨loop:[red:21]:010100|Ex⟩, ⟨loop:[orange:67]:101200|Ex⟩, ⟨loop:[yellow:44]:020004|Ex⟩)
+T7 | (⟨loop:[orange:11]:002100|Ex⟩, ⟨loop:[yellow:24]:010004|Ex⟩, ⟨loop:[indigo:65]:002002|Ex⟩, ⟨loop:[violet:42]:010302|Ex⟩, ⟨loop:[red:33]:011401|Ex⟩)
+T10 | (⟨loop:[yellow:20]:010040|Ex⟩, ⟨loop:[indigo:66]:002053|Ex⟩, ⟨loop:[violet:43]:010353|Ex⟩, ⟨loop:[red:34]:011452|Ex⟩, ⟨loop:[orange:12]:002151|Ex⟩)
+T11 | (⟨loop:[yellow:40]:020040|Ex⟩, ⟨loop:[indigo:31]:003052|Ex⟩, ⟨loop:[violet:14]:001452|Ex⟩, ⟨loop:[red:22]:010151|Ex⟩, ⟨loop:[orange:68]:101251|Ex⟩)
+T12 | (⟨loop:[red:29]:011410|Ex⟩, ⟨loop:[orange:26]:002124|Ex⟩, ⟨loop:[yellow:28]:010013|Ex⟩, ⟨loop:[indigo:25]:002011|Ex⟩, ⟨loop:[violet:27]:010311|Ex⟩)
+T13 | (⟨loop:[violet:44]:010443|Ex⟩, ⟨loop:[red:30]:011042|Ex⟩, ⟨loop:[orange:13]:002330|Ex⟩, ⟨loop:[yellow:21]:010130|Ex⟩, ⟨loop:[indigo:67]:002143|Ex⟩)
+T16 | (⟨loop:[red:38]:013251|Ex⟩, ⟨loop:[orange:72]:102151|Ex⟩, ⟨loop:[yellow:100]:120040|Ex⟩, ⟨loop:[indigo:111]:023053|Ex⟩, ⟨loop:[violet:59]:013453|Ex⟩)
+T20 | (⟨loop:[yellow:104]:120004|Ex⟩, ⟨loop:[indigo:110]:023002|Ex⟩, ⟨loop:[violet:58]:013402|Ex⟩, ⟨loop:[red:37]:013200|Ex⟩, ⟨loop:[orange:71]:102100|Ex⟩)
+
+T14 | (⟨loop:[orange:101]:102133|Ex⟩, ⟨loop:[yellow:112]:120022|Ex⟩, ⟨loop:[indigo:55]:023020|Ex⟩, ⟨loop:[violet:39]:013420|Ex⟩, ⟨loop:[red:73]:013233|Ex⟩)
+T15 | (⟨loop:[red:35]:013020|Ex⟩, ⟨loop:[orange:74]:102420|Ex⟩, ⟨loop:[yellow:102]:120220|Ex⟩, ⟨loop:[indigo:113]:023233|Ex⟩, ⟨loop:[violet:56]:013133|Ex⟩)
+T9 | (⟨loop:[red:31]:011221|Ex⟩, ⟨loop:[orange:14]:002420|Ex⟩, ⟨loop:[yellow:22]:010220|Ex⟩, ⟨loop:[indigo:68]:002233|Ex⟩, ⟨loop:[violet:40]:010033|Ex⟩)
+T8 | (⟨loop:[indigo:10]:002020|Ex⟩, ⟨loop:[violet:23]:010320|Ex⟩, ⟨loop:[red:69]:011434|Ex⟩, ⟨loop:[orange:41]:002133|Ex⟩, ⟨loop:[yellow:32]:010022|Ex⟩)
+T18 | (⟨loop:[green:76]:103014|Ex⟩, ⟨loop:[green:85]:111005|Ex⟩, ⟨loop:[green:107]:121023|Ex⟩, ⟨loop:[green:99]:113041|Ex⟩, ⟨loop:[green:53]:022032|Ex⟩)
+T19 | (⟨loop:[green:78]:103032|Ex⟩, ⟨loop:[green:87]:111023|Ex⟩, ⟨loop:[green:109]:121041|Ex⟩, ⟨loop:[green:96]:113014|Ex⟩, ⟨loop:[green:50]:022005|Ex⟩)
+T18 | (⟨loop:[green:79]:103041|Ex⟩, ⟨loop:[green:88]:111032|Ex⟩, ⟨loop:[green:105]:121005|Ex⟩, ⟨loop:[green:97]:113023|Ex⟩, ⟨loop:[green:51]:022014|Ex⟩)
+T22 | (⟨loop:[yellow:101]:120130|Ex⟩, ⟨loop:[indigo:112]:023143|Ex⟩, ⟨loop:[violet:55]:013043|Ex⟩, ⟨loop:[red:39]:013430|Ex⟩, ⟨loop:[orange:73]:102330|Ex⟩)
+T17 | (⟨loop:[violet:35]:013010|Ex⟩, ⟨loop:[red:74]:013412|Ex⟩, ⟨loop:[orange:102]:102312|Ex⟩, ⟨loop:[yellow:113]:120112|Ex⟩, ⟨loop:[indigo:56]:023110|Ex⟩)
+T23 | (⟨loop:[blue:91]:112106|Ex⟩, ⟨loop:[blue:94]:112406|Ex⟩, ⟨loop:[blue:92]:112206|Ex⟩, ⟨loop:[blue:90]:112006|Ex⟩, ⟨loop:[blue:93]:112306|Ex⟩)
