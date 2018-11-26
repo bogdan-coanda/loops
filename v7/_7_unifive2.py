@@ -1,5 +1,5 @@
 from diagram import *
-from uicanvas import *
+#from uicanvas import *
 from common import *
 from itertools import chain
 from time import time
@@ -188,7 +188,7 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[]):
 	
 		for it, t in enumerate(mt):
 			
-			if (lvl == 0 and it > 0) or (lvl == 2 and jump_path[1][0] == 0 and jump_path[2][0] == 0 and it < 3):
+			if (lvl == 0 and it != 1):
 				continue
 			
 			ec = 0
@@ -266,12 +266,12 @@ if __name__ == "__main__":
 	startTime = time()
 	move_index = -1
 	sols = []
-	sols_file = "__7__sols__d0__003__"
+	sols_file = "__7__sols__d0__1__"
 	
 	# ============================================================================================================================================================================ #	
 
 	mx = Measurement.init(diagram)
-	show(diagram)
+	#show(diagram)
 	print("mx: " + str(mx))
 	
 								
