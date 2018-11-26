@@ -187,6 +187,10 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[]):
 		#print("[*{}*][{}][lvl:{}]  min | matched tuples: {} | cycle: {}".format(move_index, tstr(time() - startTime), lvl, len(mt), mc))
 	
 		for it, t in enumerate(mt):
+			
+			if lvl == 2 and jump_path[1][0] == 0 and jump_path[2][0] == 0 and it < 3:
+				continue
+			
 			ec = 0
 			for lt, l in enumerate(t):
 				if diagram.extendLoop(l):
