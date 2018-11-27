@@ -154,8 +154,8 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[]):
 	#if lvl >= 27:
 		#diagram.point(); show(diagram); input("[*{}*][{}][lvl:{}] … uc: {} | tobex: {}".format(move_index, tstr(time() - startTime), lvl, len(new_mx.unchained_cycles), new_mx.tobex))
 				
-	if len(new_mx.unchained_cycles) is 0: # if all cycles have been looped	
-	
+	if len(new_mx.unchained_cycles) is 0 or lvl > 23: # if all cycles have been looped	
+		#print("carrying on | uc: " + str(len(new_mx.unchained_cycles)) + " | lvl: " + str(lvl))
 		old_sol_count = len(sols)
 	
 		if len(mx.avtuples) > 0: # if we still have tuples that can be extended
@@ -188,8 +188,8 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[]):
 	
 		for it, t in enumerate(mt):
 			
-			if (lvl == 0 and it != 1):
-				continue
+			#if (lvl == 0 and it != 1):
+				#continue
 			
 			ec = 0
 			for lt, l in enumerate(t):
@@ -219,6 +219,10 @@ if __name__ == "__main__":
 	
 	#'''
 	taddrs = [ 
+		
+		#'002020', '002233', # 011 diag box ((1)) / ((2))
+		#'013020', '013233', # 123 box ((1)) / ((3))	/ ((2)) / ((4))	
+				
 		#'001006', '001106', '001206', '001306', # 001 blue box-1
 		
 		# '001403', '001410', '001430', '001454', # 0014 blue fillers ((1))
@@ -266,7 +270,7 @@ if __name__ == "__main__":
 	startTime = time()
 	move_index = -1
 	sols = []
-	sols_file = "__7__sols__d0__1__"
+	sols_file = "__7__sols__zzz__"
 	
 	# ============================================================================================================================================================================ #	
 
