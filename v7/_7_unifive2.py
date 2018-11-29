@@ -188,7 +188,7 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[]):
 	
 		for it, t in enumerate(mt):
 			
-			if (lvl == 0 and it != 3):
+			if (lvl == 0 and it != 4):
 				continue
 			
 			ec = 0
@@ -270,7 +270,7 @@ if __name__ == "__main__":
 	startTime = time()
 	move_index = -1
 	sols = []
-	sols_file = "__7__sols__z3__"
+	sols_file = "__7__sols__z4__"
 	
 	# ============================================================================================================================================================================ #	
 
