@@ -85,6 +85,8 @@ def color_string(ktype):
 		return "violet"
 	elif ktype is 6:
 		return "indigo"		
+	elif ktype is 7:
+		return "black"				
 	else:
 		return "«·??·»"
 		
