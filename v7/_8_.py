@@ -127,17 +127,21 @@ if __name__ == "__main__":
 	]
 	
 	taddrs += [ # 1010 filler purple
-		'1010304', '1010313'#, '1010322'
+		#'1010304', '1010313'#, '1010322'
 	]
 	
 	taddrs += [ # path
-		'1002067', # 1/2 # … 1002063
-		'1010320', # 0/3 # … 1010321 1010321
-		'0032202', # 0/3 # mt: (3) 0032202 0032204 0032205
-		'0033541', # 0/3 # mt: (3) 0033541 0033542 0033547
-		'0033367', # 1/2 # mt: (2) 0033364 0033367
-		'0034316', # 0/3 # mt: (3) 0034312 0034316 0034317
+		# '1002067', # 1/2 # … 1002063
+		# '1010320', # 0/3 # … 1010321 1010321
+		# '0032202', # 0/3 # mt: (3) 0032202 0032204 0032205
+		# '0033541', # 0/3 # mt: (3) 0033541 0033542 0033547
+		# '0033367', # 1/2 # mt: (2) 0033364 0033367
+		# '0034316', # 0/3 # mt: (3) 0034312 0034316 0034317
 		# '0032261', # 0/3 # mt: (3) 0032261 0032263 0032266
+	]
+	
+	taddrs += [ # columns
+		#'0002522'
 	]
 	
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- #	
@@ -208,15 +212,18 @@ if __name__ == "__main__":
 		move_index += 1
 		
 		if move_index % 1 == 0:
+			#show(diagram)			
 			print("[*{}*][{}][lvl:{}] {}".format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])))
 			
 		new_mx = Measurement.measure(old_mx)
 	
 		if len(diagram.chains) is 1:
-			show(diagram); input("=== sol ===");
+			show(diagram); print("[*{}*][{}][lvl:{}] {}".format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]))); input("=== sol ===");
 			return
 	
 		if new_mx.min_chlen is 0: # can't further connect chains
+			# show(diagram)			
+			print("[*{}*][{}][lvl:{}] failed min chlen: 0".format(move_index, tstr(time() - startTime), lvl))		
 			return
 			
 		assert len(new_mx.avloops) >= new_mx.tobex, "can't join all chains"
@@ -226,34 +233,34 @@ if __name__ == "__main__":
 		
 		#print("[*{}*][{}][lvl:{}]  uc: {} | mx: {}".format(move_index, tstr(time() - startTime), lvl, len(uc), mx))
 		
-		#if lvl >= 27:
-			#diagram.point(); show(diagram); input("[*{}*][{}][lvl:{}] … uc: {} | tobex: {}".format(move_index, tstr(time() - startTime), lvl, len(new_mx.unchained_cycles), new_mx.tobex))
+		if lvl >= 95:
+			diagram.point(); show(diagram); input("[*{}*][{}][lvl:{}] … uc: {} | tobex: {}".format(move_index, tstr(time() - startTime), lvl, len(new_mx.unchained_cycles), new_mx.tobex))
 					
 		if len(new_mx.unchained_cycles) is 0: # if all cycles have been looped	
 			show(diagram)
-			input("found smth")
-		else:				
+			print("[*{}*][{}][lvl:{}] {}".format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])))
+			input("~~~ found smth ~~~")
+		else:							
 			mc, mt = find_min_simple(diagram, new_mx.unchained_cycles, new_mx.avtuples)
-			
-			mc, mt = find_min_simple(diagram, mx.unchained_cycles, mx.avtuples)
 			mn = sorted([n for n in mc.nodes if n.loop.tuple in mt], key = lambda n: n.ktype)
 			mt = [n.loop.tuple for n in mn]
 						
 			# diagram.pointers = list(itertools.chain(*[itertools.chain(*[l.nodes for l in t]) for t in mt]))
 			# show(diagram)
-			# 
-			print("[*{}*][{}][lvl:{}]  mt: ({}) {}".format(move_index, tstr(time() - startTime), lvl, len(mt), " ".join(["⟨" + n.address + "|" + color_string(n.ktype) + ":" + str(n.loop.ktype_radialIndex) + "⟩" for n in mn])))
+			
+			print("[*{}*][{}][lvl:{}] uc: {} | mt: ({}) {}".format(move_index, tstr(time() - startTime), lvl, len(new_mx.unchained_cycles), len(mt), " ".join(["⟨" + n.address + "|" + color_string(n.ktype) + ":" + str(n.loop.ktype_radialIndex) + "⟩" for n in mn])))
 		
 			for it, t in enumerate(mt):
 					
 				#if (lvl == 0 and it != 2):
 					#continue
-				
+								
 				ec = 0
 				for lt, l in enumerate(t):
 					if diagram.extendLoop(l):
 						ec += 1
 					else:
+						print("[*{}*][{}][lvl:{}] failed extending it: {}".format(move_index, tstr(time() - startTime), lvl, it))
 						break
 		
 				if ec == len(t): # if we've extended all of the tuple's loops
