@@ -193,11 +193,12 @@ if __name__ == "__main__":
 			print("[*{}*][{}][lvl:{}] {}".format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])))
 			
 		new_mx = old_mx.remeasure()
-		print("•metric: " + str(new_mx))
-		new_mx.reduce()
-		print("•reduce: " + str(new_mx))	
-		new_mx.measure_viable_tuples()
-		print("•viable: " + str(new_mx))	
+		if lvl % 36 == 0: # move_index % 10 == 0:
+			print("•metric: " + str(new_mx))
+			new_mx.reduce()
+			print("•reduce: " + str(new_mx))	
+			new_mx.measure_viable_tuples()
+			print("•viable: " + str(new_mx))	
 		mt = new_mx.find_min_simple()
 		#diagram.pointers = new_mx.mn; show(diagram); 
 		print("•simple: " + str(new_mx))

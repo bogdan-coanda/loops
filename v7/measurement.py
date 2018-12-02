@@ -63,11 +63,11 @@ class Measurement (object):
 		
 	
 	def clean(self):
-		assert self.reduced
-		# clean
-		Measurement.__clean(self.diagram, self.singles, self.coerced, self.zeroes)
-		# leave self in a flawed state (but still printable)
-		del self.reduced
+		if self.reduced:
+			# clean
+			Measurement.__clean(self.diagram, self.singles, self.coerced, self.zeroes)
+			# leave self in a flawed state (but still printable)
+			del self.reduced
 			
 	
 	def measure_viable_tuples(self):
