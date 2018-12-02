@@ -9,7 +9,7 @@ class Loop (object):
 		'availabled', 'extended', 'extension_result', 'seen', 
 		'ktype', 'ktype_radialIndex',
 		#'ktype_columnIndex'
-		#'_killingField', 
+		'_killingField', 
 		'tuple']
 	
 	def __init__(self, index):
@@ -44,7 +44,6 @@ class Loop (object):
 	def __repr__(self):
 		return '⟨loop:['+color_string(self.ktype)+":"+str(self.ktype_radialIndex)+"]:"+self.firstAddress()+'|'+('Av' if self.availabled else '')+('Ex' if self.extended else '')+"⟩"#self.root()+'|'+':'.join([n.address[len(self._root):] for n in self.nodes])
 				
-	'''
 	def adjacentLoops(self):
 		return [node.links[1].next.links[1].next.prevs[2].node.loop for node in self.nodes]
 		
@@ -66,7 +65,7 @@ class Loop (object):
 		self._killingField.remove(self)
 		
 		return self._killingField 
-	'''
+
 	def chain(self):
 		return self.nodes[0].cycle.chain
 		

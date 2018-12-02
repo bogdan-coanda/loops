@@ -38,7 +38,7 @@ class Cycle (object):
 		return rc[0] if len(rc) > 0 else self		
 				
 	def __repr__(self):
-		return "⟨cycle:"+str(self.index)+"@"+self.address+"§"+str(self.chain)+"⟩"
+		return "⟨cycle:"+str(self.index)+"@"+self.address+("§"+str(self.chain) if len(self.chain.cycles) > 1 else "")+"⟩"
 		
 		
 	def __lt__(self, other):

@@ -1,6 +1,7 @@
 from diagram import *
 from uicanvas import *
 from common import *
+from measurement import *
 from itertools import chain
 from time import time
 from collections import defaultdict
@@ -24,36 +25,6 @@ def find_min_simple(diagram, unchained_cycles, avtuples):
 	return (min_cycle, min_matched_tuples)
 			
 			
-class Measurement (object):
-	
-	__slots__ = ['diagram', 
-		'min_chlen', 'unchained_cycles', 'avloops', 'avtuples', 'tobex'
-	]
-
-	def init(diagram):
-		mx = Measurement()		
-		mx.diagram = diagram
-		mx.min_chlen = min([len(chain.avloops) for chain in diagram.chains])
-		mx.unchained_cycles = [cycle for cycle in diagram.cycles if len(cycle.chain.cycles) is 1]
-		mx.avloops = [l for l in diagram.loops if l.availabled]
-		mx.avtuples = [t for t in diagram.loop_tuples 
-			if len([loop for loop in t if not loop.availabled and not loop.extended]) == 0
-			and len([loop for loop in t if len([node.cycle for node in loop.nodes if node.cycle.isKernel]) != 0]) == 0]
-		mx.tobex = diagram.measureTobex()
-		return mx
-		
-	def measure(old_mx):
-		mx = Measurement()
-		mx.diagram = old_mx.diagram
-		mx.min_chlen = min([len(chain.avloops) for chain in diagram.chains])
-		mx.unchained_cycles = [cycle for cycle in old_mx.unchained_cycles if len(cycle.chain.cycles) is 1]
-		mx.avloops = [l for l in old_mx.avloops if l.availabled]
-		mx.avtuples = [t for t in old_mx.avtuples 
-			if len([loop for loop in t if not loop.availabled and not loop.extended]) == 0
-		]
-		mx.tobex = mx.diagram.measureTobex()
-		return mx
-
 if __name__ == "__main__":
 
 	# ============================================================================================================================================================================ #
@@ -144,6 +115,12 @@ if __name__ == "__main__":
 		#'0002522'
 	]
 	
+	taddrs += [ # mx.simple
+		'0034267', # 0/1
+		'0034316', # 0/1
+		'0034052', # 0/2 … 0034055
+	]
+	
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- #	
 
 	laddrs = []
@@ -215,15 +192,25 @@ if __name__ == "__main__":
 			#show(diagram)			
 			print("[*{}*][{}][lvl:{}] {}".format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])))
 			
-		new_mx = Measurement.measure(old_mx)
-	
-		if len(diagram.chains) is 1:
+		new_mx = old_mx.remeasure()
+		print("•metric: " + str(new_mx))
+		new_mx.reduce()
+		print("•reduce: " + str(new_mx))	
+		new_mx.measure_viable_tuples()
+		print("•viable: " + str(new_mx))	
+		mt = new_mx.find_min_simple()
+		#diagram.pointers = new_mx.mn; show(diagram); 
+		print("•simple: " + str(new_mx))
+		
+		if len(diagram.chains) is 1:			
 			show(diagram); print("[*{}*][{}][lvl:{}] {}".format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]))); input("=== sol ===");
+			new_mx.clean()
 			return
 	
-		if new_mx.min_chlen is 0: # can't further connect chains
+		if len(new_mx.mt) is 0: # can't further connect chains
 			# show(diagram)			
 			print("[*{}*][{}][lvl:{}] failed min chlen: 0".format(move_index, tstr(time() - startTime), lvl))		
+			new_mx.clean()
 			return
 			
 		assert len(new_mx.avloops) >= new_mx.tobex, "can't join all chains"
@@ -240,16 +227,15 @@ if __name__ == "__main__":
 			show(diagram)
 			print("[*{}*][{}][lvl:{}] {}".format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])))
 			input("~~~ found smth ~~~")
+			new_mx.clean()
 		else:							
-			mc, mt = find_min_simple(diagram, new_mx.unchained_cycles, new_mx.avtuples)
-			mn = sorted([n for n in mc.nodes if n.loop.tuple in mt], key = lambda n: n.ktype)
-			mt = [n.loop.tuple for n in mn]
+			# mc, mt = find_min_simple(diagram, new_mx.unchained_cycles, new_mx.avtuples)
+			# mn = sorted([n for n in mc.nodes if n.loop.tuple in mt], key = lambda n: n.ktype)
+			# mt = [n.loop.tuple for n in mn]
 						
 			# diagram.pointers = list(itertools.chain(*[itertools.chain(*[l.nodes for l in t]) for t in mt]))
 			# show(diagram)
-			
-			print("[*{}*][{}][lvl:{}] uc: {} | mt: ({}) {}".format(move_index, tstr(time() - startTime), lvl, len(new_mx.unchained_cycles), len(mt), " ".join(["⟨" + n.address + "|" + color_string(n.ktype) + ":" + str(n.loop.ktype_radialIndex) + "⟩" for n in mn])))
-		
+					
 			for it, t in enumerate(mt):
 					
 				#if (lvl == 0 and it != 2):
@@ -268,6 +254,8 @@ if __name__ == "__main__":
 		
 				for l in reversed(t[:ec]):
 					diagram.collapseBack(l)
+					
+			new_mx.clean()					
 		
 	# ============================================================================================================================================================================ #	
 					
@@ -285,8 +273,18 @@ if __name__ == "__main__":
 	# ============================================================================================================================================================================ #	
 	
 	# diagram.point()
-	# show(diagram)	
+	# show(diagram)						
+	#input("~~~")
 	
-	mx = Measurement.init(diagram)
+	# mx0 = Measurement(diagram)	
+	# print(mx0)
+	# mx0.reduce()
+	# print(mx0)	
+	# mx0.measure_viable_tuples()
+	# print(mx0)	
+	# mt0 = mx0.find_min_simple()
+	# diagram.pointers = mx0.mn; show(diagram); input(mx0)
+	
+	mx = Measurement(diagram)
 	
 	jump(diagram, mx, len(sol_tuples), [('§', len(sol_tuples))], list(sol_tuples))	
