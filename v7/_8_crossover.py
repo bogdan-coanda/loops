@@ -110,7 +110,7 @@ if __name__ == "__main__":
 		if lvl > len(D):
 			#diagram.point(); show(diagram); 
 			D = [n.address for n in jump_nodes]
-			print("[*{}*][{}][lvl:{}] {}".format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]))); print(" ".join([n.address for n in jump_nodes])); print("--- ∘ ---");
+			print("[*{}*][{}][lvl:{}] {}".format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]))); print(" ".join([n.address for n in jump_nodes])); input("--- ∘ ---");
 					
 		if len(new_mx.unchained_cycles) is 0: # if all cycles have been looped	
 			show(diagram)
