@@ -27,12 +27,16 @@ def find_min_simple(diagram, unchained_cycles, avtuples):
 # ============================================================================================================================================================================== #	
 
 def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[], jump_nodes=[]):
-	global move_index, D, startTime
+	global move_index, D, startTime, seed_index
 	move_index += 1
 	
 	if move_index % 1 == 0:
 		#show(diagram)			
-		print("[*{}*][{}][lvl:{}] {}".format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])))
+		print("[-{}-][*{}*][{}][lvl:{}] {}".format(seed_index, move_index, tstr(time() - startTime), lvl, 
+".".join([str(x)+upper(t) for 
+x,t 
+in 
+jump_path])))
 		
 	new_mx = old_mx.remeasure()
 	# if lvl % 36 == 0: # move_index % 10 == 0:
@@ -47,7 +51,7 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[], jump_nodes=[]):
 	
 	if len(diagram.chains) is 1:			
 		show(diagram); 
-		print("[*{}*][{}][lvl:{}] {}".format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])));
+		print("[-{}-][*{}*][{}][lvl:{}] {}".format(seed_index, move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])));
 		print(" ".join([n.address for n in jump_nodes]))
 		new_mx.clean()
 		input("=== sol ===");
@@ -69,11 +73,13 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[], jump_nodes=[]):
 	if lvl > len(D):
 		#diagram.point(); show(diagram); 
 		D = [n.address for n in jump_nodes]
-		print("[*{}*][{}][lvl:{}] {}".format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]))); print(" ".join([n.address for n in jump_nodes])); input("--- ∘ ---");
+		print("[-{}-][*{}*][{}][lvl:{}] {}".format(seed_index, move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]))); 
+		print(" ".join([n.address for n in jump_nodes])); 
+		input("--- ∘ ---");
 				
 	if len(new_mx.unchained_cycles) is 0: # if all cycles have been looped	
 		show(diagram)
-		print("[*{}*][{}][lvl:{}] {}".format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])))
+		print("[-{}-][*{}*][{}][lvl:{}] {}".format(seed_index, move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])))
 		input("~~~ found smth ~~~")
 		new_mx.clean()
 	else:							
@@ -112,19 +118,29 @@ if __name__ == "__main__":
 	move_index = -1
 	D = []
 	startTime = 0
+	seed_index = -1
 
 	# ============================================================================================================================================================================ #
 				
-	def run(__seed__, __miss__):
+	def run(__seed__, __miss__, __blue__=False):
 		global move_index, D, startTime
 		
 		diagram = Diagram(8, 1)	
 	
 		seed(__seed__)	
 				
-		S = '0024107 0001337 0034211 0121524 0024317 0023323 0033536 0134042 0123015 0211361 0121206 0123033 0010217 0011027 0023517 0034201 0033427 0034017 0020117 0122421 0032047 0034250 0002247 0211240 0023407 1123251 0014107 0002167 0130037 0134101 0034301 0032547 0122542 0010462 0112255 0010117 0113116 1033435 0010125 1033520 0010037 0001467 0112554 1033324 0011417 0010307 0011157 0024037 1123245 0034352 0211352 0024301 1033315 0032137 0011354 0002007 0122412 0024267 0112457 0033564 0211203 0033516 0034314 0033167 0224005 1033165 0014032 0033337 0112047 0122442 0121231 0032467 1033063 0123042 0224152 0001207 0023247 0033544 0001537 0002437 0034246 0001057 0001157 0033207 0211263 0002367 0002507 0010546 0010554 0011247 0010521 0010512 0024417 1033255 0010502 0011536 0011554 0011563 0020067 0023057 0033057 0112247 0034330 0113234 0014247 0024517 0023147 0112357 0112517 0131560 0224542 0032237 0134115 0134120'.split(' ')
+		S = '0024107 0034211 0121524 0024317 0023323 0033536 0134042 0123015 0211361 0121206 0123033 0034201 0034017 0122421 0032047 0034250 0211240 0023407 1123251 0014107 0002167 0130037 0134101 0034301 0122542 0010462 0112255 0113116 1033435 0010125 1033520 0001467 0112554 1033324 0011417 0024037 1123245 0034352 0211352 0024301 1033315 0011354 0002007 0122412 0024267 0112457 0033564 0211203 0033516 0034314 0033167 0224005 1033165 0014032 0112047 0122442 0121231 1033063 0123042 0224152 0001207 0023247 0033544 0001537 0034246 0001157 0211263 0002507 0010546 0010554 0010521 0010512 1033255 0010502 0011536 0011554 0011563 0020067 0033057 0112247 0034330 0113234 0014247 0024517 0023147 0112357 0112517 0131560 0224542 0032237 0134115 0134120 0002417 0011227 0002317 0023314 0032517 0032417 0032127 0001317 0002227 0011037 0032366 0033237 0033307 0033437 0001007 0010037 0010332 0010367 0011117 0020147 0023547 0024417 0023037 0010107'.split(' ')
 		
-		T = sample(S, len(S) - __miss__)
+		if __blue__:
+			B = sample([addr for addr in S if addr[-1] == '7'], __miss__)
+			print("B: " + str(len(B)) + " | " + str(B))
+			T = [addr for addr in S if addr not in B]
+			print("T: " + str(len(T)) + " | " + str(T))			
+		else:
+			T = sample(S, len(S) - __miss__)			
+
+		print("[__sample__] remaining {} out of {}".format(len(T), len(S)))
+					
 		D = S
 				
 		taddrs = T
@@ -165,9 +181,10 @@ if __name__ == "__main__":
 		return D is not S
 		
 # ============================================================================================================================================================================== #	
-
-	for i in range(16):
-		if run(i, 16):
+	
+	for i in range(1296*3, 1296*4):
+		seed_index = i
+		if run(i, 32):
 			break
 	print("=== === ===")
 
