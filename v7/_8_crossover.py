@@ -27,12 +27,16 @@ def find_min_simple(diagram, unchained_cycles, avtuples):
 # ============================================================================================================================================================================== #	
 
 def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[], jump_nodes=[]):
-	global move_index, D, startTime
+	global move_index, D, startTime, seed_index
 	move_index += 1
 	
 	if move_index % 1 == 0:
 		#show(diagram)			
-		print("[*{}*][{}][lvl:{}] {}".format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])))
+		print("[-{}-][*{}*][{}][lvl:{}] {}".format(seed_index, move_index, tstr(time() - startTime), lvl, 
+".".join([str(x)+upper(t) for 
+x,t 
+in 
+jump_path])))
 		
 	new_mx = old_mx.remeasure()
 	# if lvl % 36 == 0: # move_index % 10 == 0:
@@ -47,7 +51,7 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[], jump_nodes=[]):
 	
 	if len(diagram.chains) is 1:			
 		show(diagram); 
-		print("[*{}*][{}][lvl:{}] {}".format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])));
+		print("[-{}-][*{}*][{}][lvl:{}] {}".format(seed_index, move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])));
 		print(" ".join([n.address for n in jump_nodes]))
 		new_mx.clean()
 		input("=== sol ===");
@@ -69,11 +73,13 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[], jump_nodes=[]):
 	if lvl > len(D):
 		#diagram.point(); show(diagram); 
 		D = [n.address for n in jump_nodes]
-		print("[*{}*][{}][lvl:{}] {}".format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]))); print(" ".join([n.address for n in jump_nodes])); input("--- ∘ ---");
+		print("[-{}-][*{}*][{}][lvl:{}] {}".format(seed_index, move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]))); 
+		print(" ".join([n.address for n in jump_nodes])); 
+		input("--- ∘ ---");
 				
 	if len(new_mx.unchained_cycles) is 0: # if all cycles have been looped	
 		show(diagram)
-		print("[*{}*][{}][lvl:{}] {}".format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])))
+		print("[-{}-][*{}*][{}][lvl:{}] {}".format(seed_index, move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])))
 		input("~~~ found smth ~~~")
 		new_mx.clean()
 	else:							
@@ -112,6 +118,7 @@ if __name__ == "__main__":
 	move_index = -1
 	D = []
 	startTime = 0
+	seed_index = -1
 
 	# ============================================================================================================================================================================ #
 				
@@ -130,7 +137,7 @@ if __name__ == "__main__":
 			T = [addr for addr in S if addr not in B]
 			print("T: " + str(len(T)) + " | " + str(T))			
 		else:
-			T = sample(R, len(R) - __miss__)			
+			T = sample(S, len(S) - __miss__)			
 
 		print("[__sample__] remaining {} out of {}".format(len(T), len(S)))
 					
@@ -174,9 +181,10 @@ if __name__ == "__main__":
 		return D is not S
 		
 # ============================================================================================================================================================================== #	
-
-	for i in range(32, 1296):
-		if run(i, 32, True):
+	
+	for i in range(1296*3, 1296*4):
+		seed_index = i
+		if run(i, 32):
 			break
 	print("=== === ===")
 
