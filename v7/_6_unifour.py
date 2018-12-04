@@ -95,7 +95,7 @@ def step(diagram, jump_lvl=0, jump_path=[], jump_tuples=[], step_lvl=0, step_pat
 	global move_index, sols
 	move_index += 1
 	
-	if move_index % 10000 == 0:
+	if move_index % 1 == 0:
 		print("[*{}*][{}][lvl:{}~{}] {}~{}".format(move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t) for x,t in step_path])))
 		
 	if len(diagram.chains) is 1:
@@ -132,7 +132,7 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[]):
 	global move_index
 	move_index += 1
 	
-	if move_index % 1000 == 0:
+	if move_index % 1 == 0:
 		print("[*{}*][{}][lvl:{}] {}".format(move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])))
 		
 	new_mx = Measurement.measure(old_mx)
@@ -154,12 +154,12 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[]):
 	#if lvl >= 27:
 		#diagram.point(); show(diagram); input("[*{}*][{}][lvl:{}] … uc: {} | tobex: {}".format(move_index, tstr(time() - startTime), lvl, len(new_mx.unchained_cycles), new_mx.tobex))
 				
-	if len(new_mx.unchained_cycles) is 0 or lvl > 23: # if all cycles have been looped	
+	if len(new_mx.unchained_cycles) is 0 or lvl >= 6: # if all cycles have been looped	
 		#print("carrying on | uc: " + str(len(new_mx.unchained_cycles)) + " | lvl: " + str(lvl))
 		old_sol_count = len(sols)
 	
 		if len(mx.avtuples) > 0: # if we still have tuples that can be extended
-						
+	
 			for it, t in enumerate(mx.avtuples):
 				ec = 0
 				for lt, l in enumerate(t):
@@ -174,7 +174,7 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[]):
 				for l in reversed(t[:ec]):
 					diagram.collapseBack(l)
 	
-		if lvl >= 23:
+		if lvl >= 6:
 			step(diagram, lvl, jump_path, jump_tuples, len(sol_loops), [('§', len(sol_loops))], list(sol_loops))
 			
 		if len(sols) != old_sol_count:
@@ -187,9 +187,9 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[]):
 		#print("[*{}*][{}][lvl:{}]  min | matched tuples: {} | cycle: {}".format(move_index, tstr(time() - startTime), lvl, len(mt), mc))
 	
 		for it, t in enumerate(mt):
-			
-			if (lvl == 0 and it != 4):
-				continue
+				
+			#if (lvl == 0 and it != 2):
+				#continue
 			
 			ec = 0
 			for lt, l in enumerate(t):
@@ -209,54 +209,20 @@ if __name__ == "__main__":
 
 	# ============================================================================================================================================================================ #
 		
-	diagram = Diagram(7, 1)
+	diagram = Diagram(6, 1)
 	# diagram.extendLoop(diagram.nodeByAddress['000001'].loop)
 	
 	#sol_addrs = "001005 001105 001205 001305 011003 011013 011021 011030 011034 011054 123001 123011 123021 123034 123044 123052 022005 022105 022305 112006 001042 001224 001403 001454 | 020200 012300 023100 103006 020000 003006 113030 122440 022340 021330 013410 001420 120230 100106 110210 020340 010040 111130"
-	sol_addrs = "001005 001105 001205 001305 011003 011013 011021 011030 011034 011054 123001 123011 123021 123034 123044 123052 022005 022105 022305 112006 001042 001224 001403 001454 | "# 023100 103006 020000 003006 113030 122440 022340 021330 013410 001420 120230 100106 110210 020340 010040"# 111130"
+	sol_addrs = " | "
+	#"001005 001105 001205 001305 011003 011013 011021 011030 011034 011054 123001 123011 123021 123034 123044 123052 022005 022105 022305 112006 001042 001224 001403 001454
+	# 023100 103006 020000 003006 113030 122440 022340 021330 013410 001420 120230 100106 110210 020340 010040"# 111130"
 	taddrs, laddrs = sol_addrs.split(" | ")
 	taddrs = taddrs.split(" ")
 	
 	#'''
 	taddrs = [ 
-
-		# 001 box-1		
-		# 001 fillers ((1)) // ((2))
-		'002020', '002233', # 011 diag box ((1)) / ((2))
-		'013020', '013233', # 123 box ((1)) / ((3))	/ ((2)) / ((4))	
-		# 022 box-2
-		# 112 diag box		
-				
-		#'002020', '002233', # 011 diag box ((1)) / ((2))
-		#'013020', '013233', # 123 box ((1)) / ((3))	/ ((2)) / ((4))	
-				
-		#'001006', '001106', '001206', '001306', # 001 blue box-1
-		
-		# '001403', '001410', '001430', '001454', # 0014 blue fillers ((1))
-		# '001401', '001410', '001430', '001452', # 0014 blue fillers ((2))		
-		#'001410', '001430', # 0014 blue fillers ((∘))
-				
-		# '002020', '002110', '002200', '002233', '002242', '002251', # 011 diag box ((1))
-		# '002002', '002011', '002020', '002053', '002143', '002233', # 011 diag box ((2))
-		#'002020', '002233', # 011 diag box ((∘))
-								
-		# '013002', '013020', '013044', '013053', '013224', '013233', # 123 box ((1))
-		# '013020', '013044', '013200', '013224', '013233', '013251', # 123 box ((2))
-		#'013020', '013044', '013224', '013233', # 123 box ((∘))
-				
-		#'022006', '022106', '022306', # 022 blue box-2
-		#'112005' # 112 green diag box
-				
-	#'123011', '123021', '123034', '123044', 
-	#'011021', '011034', 
-	#'101430', '001224', # common to 10 sols, along with 112 box and the 2 greens
-	# '123006', '112006', '011006' # -- blue boxes
-	# '001042', '001224', '001403', '001454', # 001405 alts
-	#'112006', # 112 box
-	# '011003', '011013', '011021', '011030', '011034', '011054' # 011 box
-	# '123001', '123011', '123021', '123034', '123044', '123052' # 123 box
-	#'001005', '001105', '001205', '001305', # green
-	#'022005', '022105', '022305' # green
+		#'01000', '01023', '01032', '01041', '01205'
+		#'12000', '12012', '12023', '01105', '01305',# '01204'
 	]
 	#'''
 	
@@ -277,13 +243,13 @@ if __name__ == "__main__":
 	startTime = time()
 	move_index = -1
 	sols = []
-	sols_file = "__7__sols__z4__"
+	sols_file = "__6__sols__xxx__"
 	
 	# ============================================================================================================================================================================ #	
 
 	mx = Measurement.init(diagram)
-	#show(diagram)
-	print("mx: " + str(mx))
+	show(diagram)
+	input("mx: " + str(mx))
 	
 								
 	jump(diagram, mx, len(sol_tuples), [('§', len(sol_tuples))], list(sol_tuples))
