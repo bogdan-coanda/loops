@@ -217,9 +217,13 @@ if __name__ == "__main__":
 		
 # ============================================================================================================================================================================== #	
 	
-	for i in range(0, 1):
+	for i in range(0, 24):
 		seed_index = i
-		if run(i, 0):
+		with open("__8__xo__", 'a', encoding="utf8") as log:
+			log.write('--- seed:{} ---\n'.format(seed_index))					
+		if run(i, 24):
 			break
 	print("=== === ===")
+	with open("__8__xo__", 'a', encoding="utf8") as log:
+		log.write('=== === ===\n')				
 
