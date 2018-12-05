@@ -27,12 +27,12 @@ def find_min_simple(diagram, unchained_cycles, avtuples):
 # ============================================================================================================================================================================== #	
 
 def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[], jump_nodes=[]):
-	global move_index, D, startTime, seed_index
+	global move_index, D, startTime, seed_index, min_uc#, __choices__
 	move_index += 1
 	
 	if move_index % 1 == 0:
 		#show(diagram)			
-		print("[-{}-][*{}*][{}][lvl:{}] {}".format(seed_index, move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])))
+		print("[-{}-][*{}*][{:>11}][lvl:{}][uc:{}] {}".format(seed_index, move_index, tstr(time() - startTime), lvl, len(old_mx.unchained_cycles), ".".join([str(x)+upper(t) for x,t in jump_path])))
 		
 	new_mx = old_mx.remeasure()
 	# if lvl % 36 == 0: # move_index % 10 == 0:
@@ -45,9 +45,16 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[], jump_nodes=[]):
 	#diagram.pointers = new_mx.mn; show(diagram); 
 	#print("•simple: " + str(new_mx))
 	
+	if len(new_mx.unchained_cycles) <= min_uc:
+		min_uc = len(new_mx.unchained_cycles)
+		with open("__8__xo__", 'a', encoding="utf8") as log:
+			log.write("[-{}-][*{}*][{:>11}][lvl:{}][uc:{}] {}\n".format(seed_index, move_index, tstr(time() - startTime), lvl, len(new_mx.unchained_cycles), ".".join([str(x)+upper(t) for x,t in jump_path])))
+			log.write(" ".join([n.address for n in jump_nodes])+'\n')
+			
+					
 	if len(diagram.chains) is 1:			
 		show(diagram); 
-		print("[-{}-][*{}*][{}][lvl:{}] {}".format(seed_index, move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])));
+		print("[-{}-][*{}*][{:>11}][lvl:{}][uc:{}] {}".format(seed_index, move_index, tstr(time() - startTime), lvl, len(new_mx.unchained_cycles), ".".join([str(x)+upper(t) for x,t in jump_path])));
 		print(" ".join([n.address for n in jump_nodes]))
 		new_mx.clean()
 		input("=== sol ===");
@@ -69,13 +76,13 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[], jump_nodes=[]):
 	if lvl > len(D):
 		#diagram.point(); show(diagram); 
 		D = [n.address for n in jump_nodes]
-		print("[-{}-][*{}*][{}][lvl:{}] {}".format(seed_index, move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path]))); 
+		print("[-{}-][*{}*][{:>11}][lvl:{}][uc:{}] {}".format(seed_index, move_index, tstr(time() - startTime), lvl, len(new_mx.unchained_cycles), ".".join([str(x)+upper(t) for x,t in jump_path]))); 
 		print(" ".join([n.address for n in jump_nodes])); 
 		input("--- ∘ ---");
 				
 	if len(new_mx.unchained_cycles) is 0: # if all cycles have been looped	
 		show(diagram)
-		print("[-{}-][*{}*][{}][lvl:{}] {}".format(seed_index, move_index, tstr(time() - startTime), lvl, ".".join([str(x)+upper(t) for x,t in jump_path])))
+		print("[-{}-][*{}*][{:>11}][lvl:{}][uc:{}] {}".format(seed_index, move_index, tstr(time() - startTime), lvl, len(new_mx.unchained_cycles), ".".join([str(x)+upper(t) for x,t in jump_path])))
 		input("~~~ found smth ~~~")
 		new_mx.clean()
 	else:							
@@ -85,9 +92,12 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[], jump_nodes=[]):
 					
 		# diagram.pointers = list(itertools.chain(*[itertools.chain(*[l.nodes for l in t]) for t in mt]))
 		# show(diagram)
-				
+								
 		for it, t in enumerate(mt):
-				
+			# if len(__choices__) > lvl-60:
+			# 	it = __choices__[lvl-60]
+			# 	t = mt[it]
+					
 			#if (lvl == 0 and it != 2):
 				#continue
 							
@@ -115,26 +125,43 @@ if __name__ == "__main__":
 	D = []
 	startTime = 0
 	seed_index = -1
+	overlapped = True
+	min_uc = 99999999999
 
+	S = '0011563 0131532 0032367 0002437 0123015 0033516 0010521 0023517 0134120 0123033 0122421 0131560 0034246 1033324 0011257 0121030 0001205 0122134 0032507 0131304 0001214 1123251 0001547 0010027 0001223 0001232 0113234 0010512 0032417 0024427 0112047 0224542 0023047 0121142 0134002 0001250 0113116 0011354 0001337 0033337 0024027 0014127 0134243 0010462 0001057 0032056 0010502 0011117 0023147 0034225 0024332 0024305 0024366 0023200 0113222 0112517 0023240 0134426 0134314 0121407 0033427 0001407 0113023 0002007 0121554 0010357 0010433 0010207 0010444 0023234 0113153 0224040 0023404 0224220 0224241 0023417 0010110 0224426 0224130 0224502 0224511 1033333 1033133 0034251 0002247 0002157 0002337 0034260 0002547 0024540 0024532 0014227 0011007 0023263 0122547 0024314 0131246 0024127 0020047 0024504 0024563 0020157 0034035 0011467 0011554 0033216 0033022 0032237 0033226 0033251 0033263 1123447 0121307'.split(' ')
+		
+	#__choices__ = [0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0]
+		
+	if overlapped:
+		diagram = Diagram(8, 1)			
+		ts = [diagram.nodeByAddress[addr].loop.tuple for addr in S]
+		for i,t in enumerate(ts):
+			for j,l in enumerate(t):
+				assert diagram.extendLoop(l)
+		oc = [c for c in diagram.cycles if len([n for n in c.nodes if n.loop.extended]) > 1]
+		print("overlapping cycles: " + str(len(oc)))
+		ot = set(itertools.chain(*[[n.loop.tuple for n in c.nodes if n.loop.extended] for c in oc]))
+		print("overlapping tuples: " + str(len(ot)))
+		on = list(itertools.chain(*[itertools.chain(*[[n.address for n in l.nodes] for l in t]) for t in ot]))
+		O = [addr for addr in S if addr in on]
+						
+						
 	# ============================================================================================================================================================================ #
 				
-	def run(__seed__, __miss__, __blue__=False):
+	def run(__seed__, __miss__, __blue__=False, __over__=False):
 		global move_index, D, startTime
 		
 		diagram = Diagram(8, 1)	
 			
-		seed(__seed__)	
-				
-		S = '0014247 0034250 0011563 0131532 0032367 0211263 0032147 0002437 0123015 0033516 0002507 0010521 0023517 0002167 0134120 0123033 0122421 0122442 0131560 0034246 0010444 1033324 0034301 0121125 0011257 0121524 0020067 0121030 0001205 0122134 0032507 0033564 0024507 0134063 0131304 0001214 1123251 0001547 0011417 0010554 0010027 0020117 0001223 0001232 0123042 0113234 0010512 0033057 0010217 0023323 0032417 0002227 0024427 0112047 0112255 0023407 0224542 0023047 0122412 0034201 0011027 0011554 0034352 0121142 0134153 0131540 0134002 0001250 0113116 0011354 1123201 0001337 0032237 0033207 1033520 0033337 0024027 0002327 0023314 0014127 0010117 0134243 0010462 0034211 0134252 0001057 0002057 0033427 0034330 0122542 0001427 0032056 1033246 0033520 0010304 0010347 0010502 0011117 0023147 0034017 0034225 0121060 1033331 0024332 0024305 0024366 0023200 0113222 0024323 0112247 0112517 0023240 0134426 0134314 0113023 0134260 0024147 0112407 0121407'.split(' ')
+		seed(__seed__)				
 		
 		if __blue__:
-			B = sample([addr for addr in S if addr[-1] == '7'], __miss__)
-			print("B: " + str(len(B)) + " | " + str(B))
-			T = [addr for addr in S if addr not in B]
-			print("T: " + str(len(T)) + " | " + str(T))			
+			C = sample([addr for addr in (O if __over__ else S) if addr[-1] == '7'], __miss__)
 		else:
-			T = sample(S, len(S) - __miss__)			
-
+			C  = sample(O if __over__ else S, __miss__)				
+	
+		T = [addr for addr in S if addr not in C]
+			
 		print("[__sample__] remaining {} out of {}".format(len(T), len(S)))
 					
 		D = S
@@ -158,7 +185,7 @@ if __name__ == "__main__":
 		startTime = time()
 		move_index = -1
 		sols = []
-		sols_file = "__8__sols__xxx__"
+		sols_file = "__8__sols__xo__"
 			
 		# mc, mt = find_min_simple(diagram, mx.unchained_cycles, mx.avtuples)
 		# mn = sorted([n for n in mc.nodes if n.loop.tuple in mt], key = lambda n: n.address)
@@ -166,10 +193,15 @@ if __name__ == "__main__":
 		# diagram.pointers = list(itertools.chain(*[itertools.chain(*[l.nodes for l in t]) for t in mt]))
 		# show(diagram)
 
-		mx = Measurement(diagram)
-		print(str(mx))
-		print("overlap: " + str(len([c for c in diagram.cycles if len([n for n in c.nodes if n.loop.extended]) > 1])))
-		print(" [~] need to remove overlapping tuples (all tuples involved) as it seems solutions have low overlap")
+		# mx = Measurement(diagram)
+		# print(str(mx))
+		# print("overlap: " + str(len([c for c in diagram.cycles if len([n for n in c.nodes if n.loop.extended]) > 1])))
+		# print(" [~] need to remove overlapping tuples (all tuples involved) as it seems solutions have low overlap")
+		# 
+		# overlaps = set(itertools.chain(*[[n.loop.tuple for n in c.nodes if n.loop.extended] for c in diagram.cycles if len([n for n in c.nodes if n.loop.extended]) > 1]))
+		# print(str(len(overlaps)) + "/" + str(len(set(sol_tuples))))
+		# assert set(sol_tuples).issuperset(overlaps)
+		
 		# show(diagram)
 		# input()	
 																		
@@ -185,9 +217,9 @@ if __name__ == "__main__":
 		
 # ============================================================================================================================================================================== #	
 	
-	for i in range(0, 1296):
+	for i in range(0, 1):
 		seed_index = i
-		if run(i, 59):
+		if run(i, 0):
 			break
 	print("=== === ===")
 

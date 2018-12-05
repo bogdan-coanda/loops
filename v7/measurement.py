@@ -31,7 +31,7 @@ class Measurement (object):
 			
 		# 5. find number of loops that still need to be extended to reach a `potential` solution
 		self.tobex = diagram.measureTobex()
-		
+				
 		# 6. not yet reduced (as reducing is costly)
 		self.reduced = False
 								
