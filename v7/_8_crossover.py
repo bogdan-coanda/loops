@@ -78,7 +78,7 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[], jump_nodes=[]):
 		D = [n.address for n in jump_nodes]
 		print("[-{}-][*{}*][{:>11}][lvl:{}][uc:{}] {}".format(seed_index, move_index, tstr(time() - startTime), lvl, len(new_mx.unchained_cycles), ".".join([str(x)+upper(t) for x,t in jump_path]))); 
 		print(" ".join([n.address for n in jump_nodes])); 
-		input("--- ∘ ---");
+		print("--- ∘ ---");
 				
 	if len(new_mx.unchained_cycles) is 0: # if all cycles have been looped	
 		show(diagram)
@@ -130,6 +130,8 @@ if __name__ == "__main__":
 
 	S = '0011563 0131532 0032367 0002437 0123015 0033516 0010521 0023517 0134120 0123033 0122421 0131560 0034246 1033324 0011257 0121030 0001205 0122134 0032507 0131304 0001214 1123251 0001547 0010027 0001223 0001232 0113234 0010512 0032417 0024427 0112047 0224542 0023047 0121142 0134002 0001250 0113116 0011354 0001337 0033337 0024027 0014127 0134243 0010462 0001057 0032056 0010502 0011117 0023147 0034225 0024332 0024305 0024366 0023200 0113222 0112517 0023240 0134426 0134314 0121407 0033427 0001407 0113023 0002007 0121554 0010357 0010433 0010207 0010444 0023234 0113153 0224040 0023404 0224220 0224241 0023417 0010110 0224426 0224130 0224502 0224511 1033333 1033133 0034251 0002247 0002157 0002337 0034260 0002547 0024540 0024532 0014227 0011007 0023263 0122547 0024314 0131246 0024127 0020047 0024504 0024563 0020157 0034035 0011467 0011554 0033216 0033022 0032237 0033226 0033251 0033263 1123447 0121307'.split(' ')
 		
+	#S = S[12:]
+		
 	#__choices__ = [0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0]
 		
 	if overlapped:
@@ -148,21 +150,23 @@ if __name__ == "__main__":
 						
 	# ============================================================================================================================================================================ #
 				
-	def run(__seed__, __miss__, __blue__=False, __over__=False):
+	def run(__seed__, __miss__, __blue__=False, __over__=False, __skip__=0):
 		global move_index, D, startTime
 		
 		diagram = Diagram(8, 1)	
 			
 		seed(__seed__)				
 		
+		P = (O if __over__ else S)[__skip__:]
+
 		if __blue__:
-			C = sample([addr for addr in (O if __over__ else S) if addr[-1] == '7'], __miss__)
+			C = sample([addr for addr in P if addr[-1] == '7'], __miss__)
 		else:
-			C  = sample(O if __over__ else S, __miss__)				
+			C  = sample(P, __miss__)				
 	
-		T = [addr for addr in S if addr not in C]
+		T = [addr for addr in P if addr not in C]
 			
-		print("[__sample__] remaining {} out of {}".format(len(T), len(S)))
+		print("[__sample__] remaining [T]:{} out of [P]:{} ([S]:{})".format(len(T), len(P), len(S)))
 					
 		D = S
 				
@@ -217,11 +221,11 @@ if __name__ == "__main__":
 		
 # ============================================================================================================================================================================== #	
 	
-	for i in range(0, 24):
+	for i in range(0, 32):
 		seed_index = i
 		with open("__8__xo__", 'a', encoding="utf8") as log:
 			log.write('--- seed:{} ---\n'.format(seed_index))					
-		if run(i, 24):
+		if run(i, 20, False, False, 12):
 			break
 	print("=== === ===")
 	with open("__8__xo__", 'a', encoding="utf8") as log:
