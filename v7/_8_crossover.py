@@ -64,7 +64,7 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[], jump_nodes=[]):
 		# show(diagram)			
 		#print("[*{}*][{}][lvl:{}] failed min chlen: 0".format(move_index, tstr(time() - startTime), lvl))		
 		new_mx.clean()
-		print("[jump][returning] can't further connect chains | new_mx.min_chlen: " + str(new_mx.min_chlen) + " | len(new_mx.mt): " + str(len(new_mx.mt)))
+		#print("[jump][returning] can't further connect chains | new_mx.min_chlen: " + str(new_mx.min_chlen) + " | len(new_mx.mt): " + str(len(new_mx.mt)))
 		return
 		
 	assert len(new_mx.avloops) >= new_mx.tobex, "can't join all chains"
@@ -107,7 +107,7 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[], jump_nodes=[]):
 				if diagram.extendLoop(l):
 					ec += 1
 				else:
-					print("[*{}*][{}][lvl:{}] failed extending it: {} | mc: {}".format(move_index, tstr(time() - startTime), lvl, it, new_mx.mc))
+					# print("[*{}*][{}][lvl:{}] failed extending it: {} | mc: {}".format(move_index, tstr(time() - startTime), lvl, it, new_mx.mc))
 					break
 	
 			if ec == len(t): # if we've extended all of the tuple's loops
@@ -117,7 +117,7 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[], jump_nodes=[]):
 				diagram.collapseBack(l)
 				
 		new_mx.clean()					
-	print("[jump][returning] @end")
+	# print("[jump][returning] @end")
 					
 # ============================================================================================================================================================================== #	
 
