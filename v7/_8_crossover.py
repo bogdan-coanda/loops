@@ -64,7 +64,7 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[], jump_nodes=[]):
 		# show(diagram)			
 		#print("[*{}*][{}][lvl:{}] failed min chlen: 0".format(move_index, tstr(time() - startTime), lvl))		
 		new_mx.clean()
-		print("[jump][returning] can't further connect chains | new_mx.min_chlen: " + str(new_mx.min_chlen) + " | len(new_mx.mt): " + str(len(new_mx.mt)))
+		# print("[jump][returning] can't further connect chains | new_mx.min_chlen: " + str(new_mx.min_chlen) + " | len(new_mx.mt): " + str(len(new_mx.mt)))
 		return
 		
 	assert len(new_mx.avloops) >= new_mx.tobex, "can't join all chains"
@@ -107,7 +107,7 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[], jump_nodes=[]):
 				if diagram.extendLoop(l):
 					ec += 1
 				else:
-					print("[*{}*][{}][lvl:{}] failed extending it: {} | mc: {}".format(move_index, tstr(time() - startTime), lvl, it, new_mx.mc))
+					# print("[*{}*][{}][lvl:{}] failed extending it: {} | mc: {}".format(move_index, tstr(time() - startTime), lvl, it, new_mx.mc))
 					break
 	
 			if ec == len(t): # if we've extended all of the tuple's loops
@@ -117,7 +117,7 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[], jump_nodes=[]):
 				diagram.collapseBack(l)
 				
 		new_mx.clean()					
-	print("[jump][returning] @end")
+	# print("[jump][returning] @end")
 					
 # ============================================================================================================================================================================== #	
 
@@ -130,7 +130,7 @@ if __name__ == "__main__":
 	overlapped = True
 	min_uc = 99999999999
 
-	S = '0011257 0113234 0023047 0113116 0010462 0001057 0023147 0024305 0224502 0011007 0131246 0011467 0010135 0112247 0121106 0033030 0010357 0010153 0010110 0010444 0011502 0014014 0023527 0024261 0032065 0113213 0122232 0113135 0113126 0024167 0131412 0023457 0014147 0001223 0001327 0002430 0002455 0121464 0121554 0224001 0034330 0010160 0134255 0010057 0024443 0020006 0112027 0112517 0002202 0002214 0001100 0001430 0001421 0001464 0001455 0010502 0023207 0024027 0032557 0011167 0001546 0010267 0131567 0001412 0033245 0032321 0034030 0034211 0034245 0002241 0002250 0033013 0211364 0123103 0122563 0032417'.split(' ')
+	S = '0011257 0010444 0113213 0113126 0014147 0121464 0224001 0020006 0112027 0112517 0001455 0001412 0002241 0123103 0122563 0032417 0002223 0001214 0002114 0034221 0034243 0024511 0033013 0112357 0113225 0002443 0121453 0002235 0002430 0033344 0122113 0130335 0002062 0024341 0001421 0001241 0024323 0033353 0033362 0023314 0033556 0002523 0002016 0002250 0002347 0001017 0001250 0001100 0001317 0001402 0001553 0002204 0131412 0002054 0001510 0002030 0001223 0011516 0010017 0010357 0010527 0011534 0024353 0011554 0023417'.split(' ')
 		
 	#S = S[12:]
 		
