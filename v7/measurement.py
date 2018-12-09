@@ -6,8 +6,11 @@ class Measurement (object):
 	__slots__ = ['diagram', 
 		'min_chlen', 'unchained_cycles', 'avloops', 'avtuples', 'tobex',
 		'reduced', 'singles', 'coerced', 'zeroes', # from reduce() { singles/coerced + decimate loop } # reduced: if reduce() was ran
-		'avtuples_before_viability',
-		'mc', 'mn', 'mt'
+		'avtuples_before_viability', 'avtuples_before_untouched',
+		'mc', 'mn', 'mt' 
+		# mc holds either a cycle or a chains
+		# mn holds the nodes whose loops will be tested
+		# mt holds either the tuples belonging to the nodes tested, or is undefined
 	]
 
 
@@ -52,6 +55,15 @@ class Measurement (object):
 		)
 			
 			
+	def single(self):
+		assert not self.reduced		
+		self.singles, _ = Measurement.__coerce(self.diagram, False)
+		self.coerced = []
+		self.zeroes = []
+		self.__init__(self.diagram, self)		
+		self.reduced = True
+		
+			
 	def reduce(self):
 		assert not self.reduced
 		# reduce
@@ -74,15 +86,27 @@ class Measurement (object):
 		self.avtuples_before_viability = self.avtuples
 		self.avtuples = Measurement.__measure_viable_tuples(self.diagram, self.avtuples)		
 		return self.avtuples
+	
+	
+	def measure_untouched_tuples(self):
+		self.avtuples_before_untouched = self.avtuples
+		self.avtuples = Measurement.__measure_untouched_tuples(self.diagram, self.avtuples)
+		return self.avtuples
 			
 			
 	def find_min_simple(self):
-		self.mc, self.mn, self.mt = Measurement.__find_min_simple(self.diagram, self.unchained_cycles, self.avtuples)
+		self.mc, self.mn, self.mt = Measurement._find_min_simple(self.diagram, self.unchained_cycles, self.avtuples)
 		return self.mt
+		
+	
+	def find_min_chain(self):
+		self.mc, self.mn = Measurement.__find_min_chain(self.diagram)
+		return self.mn
+		
 			
 	# === internal =============================================================================================================================================================== #	
 
-	def __coerce(diagram):
+	def __coerce(diagram, doCoerce=True):
 		singles = []
 		coerced = []
 		
@@ -102,7 +126,7 @@ class Measurement (object):
 					found = True
 					break
 				
-				elif avlen == 2:
+				elif avlen == 2 and doCoerce:
 					killingFields = [loop.killingField() for loop in chain.avloops]
 					intersected = killingFields[0].intersection(killingFields[1])
 					if len(intersected):
@@ -214,7 +238,19 @@ class Measurement (object):
 	
 		return viable_tuples
 
-	def __find_min_simple(diagram, unchained_cycles, avtuples):
+
+	def __measure_untouched_tuples(diagram, avtuples):
+		return [t for t in avtuples # all tuples # with no connected loops
+							if len( # having no loops # if we have no connected loops
+								[l for l in t # which # if we have connected loops
+										if len( # having nodes # if we have connected nodes
+											[n for n in l.nodes # which # if we have connected nodes
+													if len(n.cycle.chain.cycles) is not 1] # are in cycles tied to other cycles (extended through by another node) # if we have a connected node
+										) is not 0]
+							) is 0]								
+
+
+	def _find_min_simple(diagram, unchained_cycles, avtuples):
 		min_viable_tuple_count = diagram.spClass
 		min_cycle = None
 		min_matched_tuples = []
@@ -235,6 +271,29 @@ class Measurement (object):
 		min_matched_tuples = [n.loop.tuple for n in min_nodes]
 		
 		return (min_cycle, min_nodes, min_matched_tuples)
+																							
+
+	def __find_min_chain(diagram):
+		
+		min_chain = diagram.startNode.cycle.chain
+		min_avlen = len(min_chain.avloops)
+		min_address = sorted(min_chain.cycles, key = lambda cycle: cycle.address)[0].address
+				
+		for curr_chain in diagram.chains:
+			if len(curr_chain.avloops) <= min_avlen:
+				curr_address = sorted(curr_chain.cycles, key = lambda cycle: cycle.address)[0].address
+				if len(curr_chain.avloops) < min_avlen or curr_address < min_address:
+					min_chain = curr_chain
+					min_avlen = len(min_chain.avloops)
+					min_address = curr_address
+		
+		min_nodes = []
+		for loop in min_chain.avloops:
+			ns = [node for node in loop.nodes if node.cycle.chain is min_chain]
+			assert len(ns) is 1
+			min_nodes.append(ns.pop())
+		
+		return (min_chain, sorted(min_nodes, key = lambda node: (node.ktype, node.address)))
 																							
 # ============================================================================================================================================================================== #	
 # ============================================================================================================================================================================== #	

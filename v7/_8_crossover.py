@@ -61,10 +61,11 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[], jump_nodes=[]):
 		return
 
 	if new_mx.min_chlen is 0 or len(new_mx.mt) is 0: # can't further connect chains
-		# show(diagram)			
-		#print("[*{}*][{}][lvl:{}] failed min chlen: 0".format(move_index, tstr(time() - startTime), lvl))		
 		new_mx.clean()
 		# print("[jump][returning] can't further connect chains | new_mx.min_chlen: " + str(new_mx.min_chlen) + " | len(new_mx.mt): " + str(len(new_mx.mt)))
+		#diagram.pointers = [new_mx.mc]; 
+		#diagram.point()
+		#show(diagram); input(" === @ can't {},{} === ".format(new_mx.min_chlen, len(new_mx.mt))) 		
 		return
 		
 	assert len(new_mx.avloops) >= new_mx.tobex, "can't join all chains"
@@ -117,6 +118,13 @@ def jump(diagram, old_mx, lvl=0, jump_path=[], jump_tuples=[], jump_nodes=[]):
 				diagram.collapseBack(l)
 				
 		new_mx.clean()					
+		
+	print("[-{}-][*{}*][{:>11}][lvl:{}][uc:{}] {}".format(seed_index, move_index, tstr(time() - startTime), lvl, len(new_mx.unchained_cycles), ".".join([str(x)+upper(t) for x,t in jump_path]))); 
+	print(" ".join([n.address for n in jump_nodes]));		
+	#diagram.pointers = [new_mx.mc]; show(diagram); 
+	with open("__8__xo__", 'a', encoding="utf8") as log:
+		log.write(" === @ end | mc: "+str(new_mx.mc)+" === ")	
+	input(" === @ end | mc: "+str(new_mx.mc)+" === ")
 	# print("[jump][returning] @end")
 					
 # ============================================================================================================================================================================== #	
@@ -130,7 +138,7 @@ if __name__ == "__main__":
 	overlapped = True
 	min_uc = 99999999999
 
-	S = '0011257 0010444 0113213 0113126 0014147 0121464 0224001 0020006 0112027 0112517 0001455 0001412 0002241 0123103 0122563 0032417 0002223 0001214 0002114 0034221 0034243 0024511 0033013 0112357 0113225 0002443 0121453 0002235 0002430 0033344 0122113 0130335 0002062 0024341 0001421 0001241 0024323 0033353 0033362 0023314 0033556 0002523 0002016 0002250 0002347 0001017 0001250 0001100 0001317 0001402 0001553 0002204 0131412 0002054 0001510 0002030 0001223 0011516 0010017 0010357 0010527 0011534 0024353 0011554 0023417'.split(' ')
+	S = '0001007 0001407 0001517 0002007 0002157 0002507 0010037 0010307 0010547 0010127 0010217 0010453 0010462 0010435 0014107 0014227 0020007 0020117 0011007 0011157 0011207 0011427 0011507 0023047 0023157 0023207 0023337 0023407 0023517 0032467 0032047 0032307 0024037 0024307 0024457 0024547 0112037 0112527 0113007 0113147 0113237 0033137 0033536 0033516 0033544 0034346 0130037 0121311 0001337 0001237 0034352 0002322 0032247 0112407 1123106 0002331 0134036 0122337 0122546 0131547 0112256 1033565 0112107 0131417 0112343 0024137 0131137 0131007 0131207 0130327 0224563 0002365 0032537 0034007 0122123 0122457 0122047'.split(' ')
 		
 	#S = S[12:]
 		
@@ -223,7 +231,11 @@ if __name__ == "__main__":
 		
 # ============================================================================================================================================================================== #	
 	
-	for i in range(0, 1):
+	for i in range(7, 8):
+		
+		# === @ end | mc: ⟨cycle:1322@012126⟩ === 		
+		S.append('012126'+str(i))
+		
 		seed_index = i
 		with open("__8__xo__", 'a', encoding="utf8") as log:
 			log.write('--- seed:{} ---\n'.format(seed_index))					
