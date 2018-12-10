@@ -9,6 +9,10 @@ from random import *
 
 FORCED_FREQUENCY = -1
 
+def input2(text):
+	input(text+"  |  » ∘ «")
+	
+
 def wtc(diagram, mx, move_path, jump_lvl, step_lvl=None, move_nodes=None, frequency=1):
 	global move_index, startTime
 		
@@ -82,7 +86,7 @@ def step(diagram, old_mx, move_path, move_nodes, jump_lvl, step_lvl=0):
 		wtf(diagram, new_mx, move_path, jump_lvl, step_lvl, move_nodes, '[sol]')
 		wtc(diagram, new_mx, move_path, jump_lvl, step_lvl, move_nodes, FORCED_FREQUENCY)
 		show(diagram)
-		input("[found a solution]")
+		input2("[found a solution]")
 		return
 	
 	if len(min_nodes) is 0: # can't further connect chains
@@ -119,22 +123,31 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 
 	if new_mx.min_chlen is 1: # we found a `single`
 		# extend singles
-		new_mx.single()
+		new_mx.reduce()
 		
 		# append path
 		move_path += [('|', len(new_mx.singles))]
 		
 		# diagram.point()
 		# show(diagram)
-				
-		#print(new_mx)		
-		#print("=== -1- ===")
+		
+		wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, f'[mx|s:{len(new_mx.singles)}|c:{len(new_mx.coerced)}|z:{len(new_mx.zeroes)}]')							
+		print(new_mx)		
+		print("=== -1- ===")
 
 	if len(new_mx.unchained_cycles) is 0: # all cycles have been looped	
-		wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, '[smth]')	
+		wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, '[smth]')		
 		# show(diagram)
 		wtc(diagram, new_mx, move_path, jump_lvl, None, move_nodes, FORCED_FREQUENCY)
-		print("~~~ found smth ~~~")
+		
+		if not new_mx.reduced:
+			new_mx.reduce()
+			move_path += [('|', len(new_mx.singles))]
+			wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, f'[smth:mx|s:{len(new_mx.singles)}|c:{len(new_mx.coerced)}|z:{len(new_mx.zeroes)}]')							
+			print(new_mx)		
+			print("=== +1+ ===")		
+			
+		input2("~~~ found smth ~~~")
 		# start stepping
 		step(diagram, new_mx, move_path+[("~","")], move_nodes, jump_lvl)		
 		
@@ -176,6 +189,6 @@ if __name__ == "__main__":
 			
 	jump(diagram, mx)
 
-	input("⇒ done !?!!?!!??!??!?!?!??!")					
+	input2("⇒ done !?!!?!!??!??!?!?!??!")					
 	# diagram.point()
 	# show(diagram)	
