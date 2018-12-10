@@ -57,7 +57,7 @@ class Measurement (object):
 			
 	def single(self):
 		assert not self.reduced		
-		self.singles, _ = Measurement.__coerce(self.diagram, False)
+		self.min_chlen, self.singles, _ = Measurement.__coerce(self.diagram, self.min_chlen, False)
 		self.coerced = []
 		self.zeroes = []
 		self.__init__(self.diagram, self)		
@@ -67,7 +67,7 @@ class Measurement (object):
 	def reduce(self):
 		assert not self.reduced
 		# reduce
-		self.singles, self.coerced, self.zeroes = Measurement.__reduce(self.diagram)
+		self.min_chlen, self.singles, self.coerced, self.zeroes = Measurement.__reduce(self.diagram, self.min_chlen)
 		# remeasure self
 		self.__init__(self.diagram, self)
 		# retain state
@@ -106,7 +106,7 @@ class Measurement (object):
 			
 	# === internal =============================================================================================================================================================== #	
 
-	def __coerce(diagram, doCoerce=True):
+	def __coerce(diagram, min_chlen, doCoerce=True):
 		singles = []
 		coerced = []
 		
@@ -117,12 +117,18 @@ class Measurement (object):
 				avlen = len(chain.avloops)
 				
 				if avlen == 0:
-					return (singles, coerced) 
+					return (0, singles, coerced) 
 
 				elif avlen == 1:
 					avloop = list(chain.avloops)[0]
 					singles.append(avloop)
 					diagram.extendLoop(avloop)
+					
+					min_chlen = min([len(chain.avloops) for chain in diagram.chains])
+					if min_chlen is 0:
+						# input(".[coerce] dead @ extend | singles: " + str(len(singles)) + ", coerced: " + str(len(coerced)))
+						return (0, singles, coerced)						
+					
 					found = True
 					break
 				
@@ -133,15 +139,23 @@ class Measurement (object):
 						for avloop in intersected:
 							coerced.append(avloop)
 							diagram.setLoopUnavailabled(avloop)
+							
+							affected_min_chlen = min([len(n.cycle.chain.avloops) for n in avloop.nodes])
+							if affected_min_chlen < min_chlen:
+								min_chlen = affected_min_chlen
+								if min_chlen is 0:
+									# input(".[coerce] dead @ coerce | singles: " + str(len(singles)) + ", coerced: " + str(len(coerced)))
+									return (0, singles, coerced)
+							
 						found = True
 						break
 																	
 			if not found:
-				return (singles, coerced)		
+				return (min_chlen, singles, coerced)
 		
 		
-	def __decimate(diagram):
-		zeroes = []
+	def __decimate(diagram, min_chlen):
+		zeroes = []		
 		
 		while True:
 			found = False
@@ -149,34 +163,47 @@ class Measurement (object):
 			# print("..[decimate] curr | avloops: " + str(len(avloops)))
 			for index, loop in enumerate(avloops):
 				diagram.extendLoop(loop)
-				singles, coerced = Measurement.__coerce(diagram)
-				min_chlen = min([len(chain.avloops) for chain in diagram.chains])
-				chain_count = len(diagram.chains) # retain `current` chain count
-													
-				for l in reversed(singles):
-					diagram.collapseBack(l)						
-				for l in coerced:
-					diagram.setLoopAvailabled(l)			
-				diagram.collapseBack(loop)				
-								
-				if min_chlen == 0 and chain_count > 1:
+				next_min_chlen, next_singles, next_coerced = Measurement.__coerce(diagram, min_chlen)
+				next_chain_count = len(diagram.chains) # retain `current` chain count
+				
+				Measurement.__clean(diagram, next_singles, next_coerced, [])
+				diagram.collapseBack(loop)
+												
+				if next_min_chlen == 0 and next_chain_count > 1:
 					# print("..[decimate] zeroing " + str(loop) + " after s: " + str(len(singles)) + " | c: " + str(len(coerced)))
 					zeroes.append(loop)
 					diagram.setLoopUnavailabled(loop)
+					
+					affected_min_chlen = min([len(n.cycle.chain.avloops) for n in loop.nodes])
+					if affected_min_chlen < min_chlen:
+						min_chlen = affected_min_chlen
+						if min_chlen is 0:
+							# input("..[decimate] dead | zeroes: " + str(len(zeroes)))
+							return (0, zeroes)
+					
 					found = True
 			
 			if not found:
 				#print("..[decimate] done | zeroes: " + str(len(zeroes)))
-				return (zeroes)
+				return (min_chlen, zeroes)
 			#print("..[decimate] curr | zeroes: " + str(len(zeroes)))
 			
 			
-	def __reduce(diagram):
+	def __reduce(diagram, min_chlen):
 		# mandatory
-		curr_singles, curr_coerced = Measurement.__coerce(diagram)
-		# print("[reduce] init | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
-		curr_zeroes = Measurement.__decimate(diagram)
-		# print("[reduce] init | z: " + str(len(curr_zeroes)))
+		min_chlen, curr_singles, curr_coerced = Measurement.__coerce(diagram, min_chlen)
+		print("[reduce] init | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
+				
+		if min_chlen is 0:
+			# input("[reduce] dead @ init coerce | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)) + " | z: 0")
+			return (0, curr_singles, curr_coerced, [])
+							
+		min_chlen, curr_zeroes = Measurement.__decimate(diagram, min_chlen)
+		print("[reduce] init | z: " + str(len(curr_zeroes)))
+		
+		if min_chlen is 0:
+			# input("[reduce] dead @ init decimate | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)) + " | z: " + str(len(curr_zeroes)))
+			return (0, curr_singles, curr_coerced, curr_zeroes)		
 		
 		singles = list(curr_singles)
 		coerced = list(curr_coerced)
@@ -185,21 +212,31 @@ class Measurement (object):
 		# additional
 		while True:
 			if len(curr_zeroes) > 0:
-				curr_singles, curr_coerced = Measurement.__coerce(diagram)
+				min_chlen, curr_singles, curr_coerced = Measurement.__coerce(diagram, min_chlen)
 				singles += curr_singles
 				coerced += curr_coerced			
-				# print("[reduce] curr | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
+				print("[reduce] curr | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
 				
+				if min_chlen is 0:
+					# input("[reduce] dead @ curr coerce | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
+					return (0, singles, coerced, zeroes)
+											
 				if len(curr_singles) or len(curr_coerced):
-					curr_zeroes = Measurement.__decimate(diagram)
+					min_chlen, curr_zeroes = Measurement.__decimate(diagram, min_chlen)
 					zeroes += curr_zeroes
-					# print("[reduce] curr | z: " + str(len(curr_zeroes)))
+					print("[reduce] curr | z: " + str(len(curr_zeroes)))
+					
+					if min_chlen is 0:
+						# input("[reduce] dead @ curr decimate | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
+						return (0, singles, coerced, zeroes)
+										
 				else:
 					break
 			else:
 				break
-		# print("[reduce] done | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
-		return (singles, coerced, zeroes)		
+				
+		print("[reduce] done | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
+		return (min_chlen, singles, coerced, zeroes)		
 				
 				
 	def __clean(diagram, singles, coerced, zeroes):

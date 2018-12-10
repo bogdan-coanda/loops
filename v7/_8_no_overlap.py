@@ -122,8 +122,8 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 		return
 
 	if new_mx.min_chlen is 1: # we found a `single`
-		# extend singles
-		new_mx.reduce()
+		# extend just singles (faster…)
+		new_mx.single()
 		
 		# append path
 		move_path += [('|', len(new_mx.singles))]
@@ -142,14 +142,25 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 		
 		if not new_mx.reduced:
 			new_mx.reduce()
+		else:
+			newer_mx = new_mx.remeasure()
+			newer_mx.reduce()
+			newer_mx.singles = new_mx.singles + newer_mx.singles
+			new_mx = newer_mx
+
+		if len(new_mx.singles) or len(new_mx.coerced) or len(new_mx.zeroes):
 			move_path += [('|', len(new_mx.singles))]
 			wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, f'[smth:mx|s:{len(new_mx.singles)}|c:{len(new_mx.coerced)}|z:{len(new_mx.zeroes)}]')							
 			print(new_mx)		
-			print("=== +1+ ===")		
-			
-		input2("~~~ found smth ~~~")
-		# start stepping
-		step(diagram, new_mx, move_path+[("~","")], move_nodes, jump_lvl)		
+			print("=== +1+ ===")			
+								
+		if new_mx.min_chlen is 0:
+			wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, "±±± didn't find anything ±±±")			
+			print("±±± didn't find anything ±±±")			
+		else:
+			print("~~~ found smth ~~~")
+			# start stepping
+			step(diagram, new_mx, move_path+[("~","")], move_nodes, jump_lvl)		
 		
 	else:															
 		# go through all choices
