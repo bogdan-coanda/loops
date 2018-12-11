@@ -98,7 +98,7 @@ def test_min_cc(diagram, mx, move_path, jump_lvl, step_lvl, move_nodes):
 def step(diagram, old_mx, move_path, move_nodes, jump_lvl, step_lvl=0):
 	
 	# write to console
-	wtc(diagram, old_mx, move_path, jump_lvl, step_lvl, frequency=100)
+	wtc(diagram, old_mx, move_path, jump_lvl, step_lvl, frequency=1000)
 	
 	# remeasure
 	new_mx = old_mx.remeasure()
@@ -131,7 +131,7 @@ def step(diagram, old_mx, move_path, move_nodes, jump_lvl, step_lvl=0):
 def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 	
 	# write to console
-	wtc(diagram, old_mx, move_path, jump_lvl, frequency=100)
+	wtc(diagram, old_mx, move_path, jump_lvl, frequency=1000)
 			
 	# remeasure
 	new_mx = old_mx.remeasure()
