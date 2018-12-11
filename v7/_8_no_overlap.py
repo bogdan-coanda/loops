@@ -132,8 +132,8 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 		# show(diagram)
 		
 		wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, f'[mx|s:{len(new_mx.singles)}|c:{len(new_mx.coerced)}|z:{len(new_mx.zeroes)}]')							
-		print(new_mx)		
-		print("=== -1- ===")
+		#print(new_mx)		
+		#print("=== -1- ===")
 
 	if len(new_mx.unchained_cycles) is 0: # all cycles have been looped	
 		wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, '[smth]')		
