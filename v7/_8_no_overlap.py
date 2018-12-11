@@ -12,6 +12,33 @@ FORCED_FREQUENCY = -1
 def input2(text):
 	input(text+"  |  » ∘ «")
 	
+history = True
+history_move_index = 14530013
+history_raw_jumps = "0⁶.0⁴.0⁴.0⁴.0⁴.0⁴.0².0².0³.0².0⁴.0³.0⁵.0³.0³.0¹.0³.0⁶.0⁴.0³.0³.0³.0⁴.0⁴.0².0³.0³.0².0³.0³.0².0².0³.0².0².0².0¹.0².0³.0¹.0¹.0².0¹.0².0⁴.0³.0³.0⁴.0².0³.0².0².0².0³.0¹.0¹.0².0¹.0².3⁵.1³.0¹.1².0¹.0¹.0¹.0¹.0¹.0¹.1².0¹.1².1².1².0¹.0¹.1².0¹.1².1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.1³.1².0¹.0².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0².0¹.0¹.0¹.0¹.0¹.0¹.0².0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0¹.0¹.|⁶.|⁶"
+history_raw_steps = "0².0¹.0².0¹.1².0².0².0².1².0¹.1².0².1².1².0².0².1².1².0².0².0¹.1².0².0².0².0².0¹.0¹.1².0².1².1².0¹.0².0².0¹.1².1².0¹.0¹.1².0².1².0¹.0².0¹.0¹.0¹.1².0².0².1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹"
+history_jumps = [int(n) for n in "".join([x for x in history_raw_jumps if x in ".0123456789"]).split('.') if len(n)]
+history_steps = [int(n) for n in "".join([x for x in history_raw_steps if x in ".0123456789"]).split('.') if len(n)]
+
+def historic_jump(jump_lvl, min_matched_tuples):
+	if history:
+		it = history_jumps[jump_lvl]
+		return list(enumerate(min_matched_tuples))[it:]
+	else:
+		return enumerate(min_matched_tuples)
+
+def historic_step(step_lvl, min_nodes):
+	global history, move_index
+	
+	if history:
+		j = history_steps[step_lvl]
+		if step_lvl == len(history_steps) - 1:
+			history = False
+			move_index = history_move_index - 1
+			print("[history] turning off…")
+		return list(enumerate(min_nodes))[j:]			
+	else:
+		return enumerate(min_nodes)
+	
 
 def wtc(diagram, mx, move_path, jump_lvl, step_lvl=None, move_nodes=None, frequency=1):
 	global move_index, startTime
@@ -36,7 +63,7 @@ def wtc(diagram, mx, move_path, jump_lvl, step_lvl=None, move_nodes=None, freque
 def wtf(diagram, mx, move_path, jump_lvl, step_lvl=None, move_nodes=None, msg=None):
 	global move_index, startTime
 		
-	with open("__8__js__", 'a', encoding="utf8") as log:
+	with open("__8__js_14m__", 'a', encoding="utf8") as log:
 		log.write("[*{}*][{:>11}][lvl:{}{}][uc:{}][𝒞:{}] {}{}\n".format(
 			move_index, tstr(time() - startTime), 
 			jump_lvl, '~'+str(step_lvl) if step_lvl else '',
@@ -94,7 +121,7 @@ def step(diagram, old_mx, move_path, move_nodes, jump_lvl, step_lvl=0):
 		return
 		
 	# go through all choices
-	for j,n in enumerate(min_nodes):		
+	for j,n in historic_step(step_lvl, min_nodes):		
 		if diagram.extendLoop(n.loop):		
 			step(diagram, new_mx, move_path+[(j,len(min_nodes))], move_nodes+[n], jump_lvl, step_lvl+1)
 			diagram.collapseBack(n.loop)		
@@ -164,7 +191,7 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 		
 	else:															
 		# go through all choices
-		for it, t in enumerate(min_matched_tuples):
+		for it, t in historic_jump(jump_lvl, min_matched_tuples):
 							
 			ec = 0
 			for lt, l in enumerate(t):
