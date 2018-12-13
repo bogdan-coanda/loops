@@ -1,11 +1,12 @@
 from loop import color_string
+from common import input2
 
 
 class Measurement (object):
 	
 	__slots__ = ['diagram', 
 		'min_chlen', 'unchained_cycles', 'avloops', 'avtuples', 'tobex',
-		'reduced', 'singles', 'coerced', 'zeroes', # from reduce() { singles/coerced + decimate loop } # reduced: if reduce() was ran
+		'reduced', 'singles', 'coerced', 'zeroes', 'results', # from reduce() { singles/coerced + decimate loop } # reduced: if reduce() was ran
 		'avtuples_before_viability', 'avtuples_before_untouched',
 		'mc', 'mn', 'mt' 
 		# mc holds either a cycle or a chains
@@ -48,7 +49,7 @@ class Measurement (object):
 			self.min_chlen, len(self.avloops), len(self.avtuples), 
 			"" if not hasattr(self, 'avtuples_before_viability') else "/"+str(len(self.avtuples_before_viability)),
 			len(self.diagram.chains), len(self.unchained_cycles), self.tobex,
-		) + ("" if not hasattr(self, 'reduced') or not self.reduced else "\n | s: {} | c: {} | z: {}".format(
+		) + ("" if hasattr(self, 'reduced') and not self.reduced else "\n | s: {} | c: {} | z: {}".format(
 				len(self.singles), len(self.coerced), len(self.zeroes))
 		) + ("" if not hasattr(self, 'mc') else "\n | mc: {} | mt: ({}) {}".format(
 			self.mc, len(self.mn), "".join(["["+n.address+":"+color_string(n.loop.ktype)+"]" for n in self.mn]))
@@ -60,14 +61,24 @@ class Measurement (object):
 		self.min_chlen, self.singles, _ = Measurement.__coerce(self.diagram, self.min_chlen, False)
 		self.coerced = []
 		self.zeroes = []
+		self.results = {}
 		self.__init__(self.diagram, self)		
 		self.reduced = True
 		
-			
-	def reduce(self):
+		
+	def coerce(self):
+		assert not self.reduced		
+		self.min_chlen, self.singles, self.coerced = Measurement.__coerce(self.diagram, self.min_chlen, True)
+		self.zeroes = []
+		self.results = {}
+		self.__init__(self.diagram, self)		
+		self.reduced = True
+		
+								
+	def reduce(self, second_pass=False):
 		assert not self.reduced
 		# reduce
-		self.min_chlen, self.singles, self.coerced, self.zeroes = Measurement.__reduce(self.diagram, self.min_chlen)
+		self.min_chlen, self.singles, self.coerced, self.zeroes, self.results = Measurement.__reduce(self.diagram, self.min_chlen, second_pass)
 		# remeasure self
 		self.__init__(self.diagram, self)
 		# retain state
@@ -154,60 +165,78 @@ class Measurement (object):
 				return (min_chlen, singles, coerced)
 		
 		
-	def __decimate(diagram, min_chlen):
-		zeroes = []		
+	def __decimate(diagram, min_chlen, second_pass=False):
+		zeroes = []
+		results = {}
 		
 		while True:
 			found = False
 			avloops = [l for l in diagram.loops if l.availabled]
-			# print("..[decimate] curr | avloops: " + str(len(avloops)))
+			if second_pass:
+				print("..[decimate] curr | avloops: " + str(len(avloops)))
+				
 			for index, loop in enumerate(avloops):
+				if second_pass:
+					print("..[decimate] @ " + str(index) + " / " + str(len(avloops)))
 				diagram.extendLoop(loop)
-				next_min_chlen, next_singles, next_coerced = Measurement.__coerce(diagram, min_chlen)
+				next_mx = Measurement(diagram)
+				if second_pass:
+					next_mx.reduce()
+				else:
+					next_mx.coerce()
 				next_chain_count = len(diagram.chains) # retain `current` chain count
 				
-				Measurement.__clean(diagram, next_singles, next_coerced, [])
+				next_mx.clean()
 				diagram.collapseBack(loop)
 												
-				if next_min_chlen == 0 and next_chain_count > 1:
-					# print("..[decimate] zeroing " + str(loop) + " after s: " + str(len(singles)) + " | c: " + str(len(coerced)))
+				if next_mx.min_chlen == 0 and next_chain_count > 1:
 					zeroes.append(loop)
 					diagram.setLoopUnavailabled(loop)
-					
+					if second_pass:
+						print("..[decimate] zeroed " + str(loop) + " | so far: " + str(len(zeroes)))
+										
 					affected_min_chlen = min([len(n.cycle.chain.avloops) for n in loop.nodes])
 					if affected_min_chlen < min_chlen:
 						min_chlen = affected_min_chlen
 						if min_chlen is 0:
 							# input("..[decimate] dead | zeroes: " + str(len(zeroes)))
-							return (0, zeroes)
+							return (0, zeroes, {})
 					
 					found = True
-			
+					
+				else:
+					results[loop] = next_mx
+											
 			if not found:
-				#print("..[decimate] done | zeroes: " + str(len(zeroes)))
-				return (min_chlen, zeroes)
-			#print("..[decimate] curr | zeroes: " + str(len(zeroes)))
+				if second_pass:
+					print("..[decimate] done | zeroes: " + str(len(zeroes)))
+				return (min_chlen, zeroes, results)
+			if second_pass:
+				print("..[decimate] curr | zeroes: " + str(len(zeroes)))
 			
 			
-	def __reduce(diagram, min_chlen):
+	def __reduce(diagram, min_chlen, second_pass=False):
 		# mandatory
 		min_chlen, curr_singles, curr_coerced = Measurement.__coerce(diagram, min_chlen)
-		print("[reduce] init | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
+		if second_pass:
+			input2("[reduce] init | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
 				
 		if min_chlen is 0:
 			# input("[reduce] dead @ init coerce | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)) + " | z: 0")
-			return (0, curr_singles, curr_coerced, [])
+			return (0, curr_singles, curr_coerced, [], {})
 							
-		min_chlen, curr_zeroes = Measurement.__decimate(diagram, min_chlen)
-		print("[reduce] init | z: " + str(len(curr_zeroes)))
+		min_chlen, curr_zeroes, curr_results = Measurement.__decimate(diagram, min_chlen, second_pass)
+		if second_pass:
+			input2("[reduce] init | z: " + str(len(curr_zeroes)))
 		
 		if min_chlen is 0:
 			# input("[reduce] dead @ init decimate | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)) + " | z: " + str(len(curr_zeroes)))
-			return (0, curr_singles, curr_coerced, curr_zeroes)		
+			return (0, curr_singles, curr_coerced, curr_zeroes, {})		
 		
 		singles = list(curr_singles)
 		coerced = list(curr_coerced)
 		zeroes = list(curr_zeroes)
+		results = curr_results
 		
 		# additional
 		while True:
@@ -215,30 +244,34 @@ class Measurement (object):
 				min_chlen, curr_singles, curr_coerced = Measurement.__coerce(diagram, min_chlen)
 				singles += curr_singles
 				coerced += curr_coerced			
-				print("[reduce] curr | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
+				if second_pass:
+					input2("[reduce] curr | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
 				
 				if min_chlen is 0:
 					# input("[reduce] dead @ curr coerce | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
-					return (0, singles, coerced, zeroes)
+					return (0, singles, coerced, zeroes, {})
 											
 				if len(curr_singles) or len(curr_coerced):
-					min_chlen, curr_zeroes = Measurement.__decimate(diagram, min_chlen)
+					min_chlen, curr_zeroes, curr_results = Measurement.__decimate(diagram, min_chlen, second_pass)
 					zeroes += curr_zeroes
-					print("[reduce] curr | z: " + str(len(curr_zeroes)))
+					results = curr_results
+					if second_pass:
+						input2("[reduce] curr | z: " + str(len(curr_zeroes)))
 					
 					if min_chlen is 0:
 						# input("[reduce] dead @ curr decimate | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
-						return (0, singles, coerced, zeroes)
+						return (0, singles, coerced, zeroes, {})
 										
 				else:
 					break
 			else:
 				break
+			
+		if second_pass:	
+			print("[reduce] done | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
+		return (min_chlen, singles, coerced, zeroes, results)						
 				
-		print("[reduce] done | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
-		return (min_chlen, singles, coerced, zeroes)		
-				
-				
+
 	def __clean(diagram, singles, coerced, zeroes):
 		for l in reversed(singles):
 			diagram.collapseBack(l)						
@@ -333,6 +366,15 @@ class Measurement (object):
 		return (min_chain, sorted(min_nodes, key = lambda node: (node.ktype, node.address)))
 																							
 # ============================================================================================================================================================================== #	
+
+# class Result (object):
+# 
+# 	__slots__ = ['obj', 'mx']
+# 
+# 	def __init__(self, obj, mx):
+# 		self.obj = obj
+# 		self.mx = mx
+	
 # ============================================================================================================================================================================== #	
 
 if __name__ == "__main__":	

@@ -8,14 +8,11 @@ from collections import defaultdict
 from random import *
 
 FORCED_FREQUENCY = -1
-
-def input2(text):
-	input(text+"  |  » ∘ «")
 	
 history = True
-history_move_index = 14530013
-history_raw_jumps = "0⁶.0⁴.0⁴.0⁴.0⁴.0⁴.0².0².0³.0².0⁴.0³.0⁵.0³.0³.0¹.0³.0⁶.0⁴.0³.0³.0³.0⁴.0⁴.0².0³.0³.0².0³.0³.0².0².0³.0².0².0².0¹.0².0³.0¹.0¹.0².0¹.0².0⁴.0³.0³.0⁴.0².0³.0².0².0².0³.0¹.0¹.0².0¹.0².3⁵.1³.0¹.1².0¹.0¹.0¹.0¹.0¹.0¹.1².0¹.1².1².1².0¹.0¹.1².0¹.1².1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.1³.1².0¹.0².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0².0¹.0¹.0¹.0¹.0¹.0¹.0².0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0¹.0¹.|⁶.|⁶"
-history_raw_steps = "0².0¹.0².0¹.1².0².0².0².1².0¹.1².0².1².1².0².0².1².1².0².0².0¹.1².0².0².0².0².0¹.0¹.1².0².1².1².0¹.0².0².0¹.1².1².0¹.0¹.1².0².1².0¹.0².0¹.0¹.0¹.1².0².0².1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹"
+history_move_index = 17371506
+history_raw_jumps = "0⁶.0⁴.0⁴.0⁴.0⁴.0⁴.0².0².0³.0².0⁴.0³.0⁵.0³.0³.0¹.0³.0⁶.0⁴.0³.0³.0³.0⁴.0⁴.0².0³.0³.0².0³.0³.0².0².0³.0².0².0².0¹.0².0³.0¹.0¹.0².0¹.0².0⁴.0³.0³.0⁴.0².0³.0².0².0².0³.0¹.0¹.0².0¹.0².3⁵.2³.1³.1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.1².1².1².0¹.0¹.1².1².1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.1³.1².0¹.0².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0².0¹.0¹.0¹.0¹.0¹.0¹.0².0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0¹.0¹.|⁶.|⁶"
+history_raw_steps = "0"
 history_jumps = [int(n) for n in "".join([x for x in history_raw_jumps if x in ".0123456789"]).split('.') if len(n)]
 history_steps = [int(n) for n in "".join([x for x in history_raw_steps if x in ".0123456789"]).split('.') if len(n)]
 
@@ -63,7 +60,7 @@ def wtc(diagram, mx, move_path, jump_lvl, step_lvl=None, move_nodes=None, freque
 def wtf(diagram, mx, move_path, jump_lvl, step_lvl=None, move_nodes=None, msg=None):
 	global move_index, startTime
 		
-	with open("__8__js_14m__", 'a', encoding="utf8") as log:
+	with open("__8__js_17m__", 'a', encoding="utf8") as log:
 		log.write("[*{}*][{:>11}][lvl:{}{}][uc:{}][𝒞:{}] {}{}\n".format(
 			move_index, tstr(time() - startTime), 
 			jump_lvl, '~'+str(step_lvl) if step_lvl else '',
@@ -74,6 +71,12 @@ def wtf(diagram, mx, move_path, jump_lvl, step_lvl=None, move_nodes=None, msg=No
 			log.write(f'jumps: {" ".join([n.address for n in move_nodes[:jump_lvl]])}\n')
 			if step_lvl is not None:
 				log.write(f'steps: {" ".join([n.address for n in move_nodes[jump_lvl:]])}\n')		
+				
+				
+def log(txt):
+	print(txt)
+	with open("__8__js_17m__log__", 'a', encoding="utf8") as log:
+		log.write(str(txt)+'\n')
 
 
 def test_min_uc(diagram, mx, move_path, jump_lvl, move_nodes):
@@ -98,13 +101,54 @@ def test_min_cc(diagram, mx, move_path, jump_lvl, step_lvl, move_nodes):
 def step(diagram, old_mx, move_path, move_nodes, jump_lvl, step_lvl=0):
 	
 	# write to console
-	wtc(diagram, old_mx, move_path, jump_lvl, step_lvl, frequency=1000)
+	wtc(diagram, old_mx, move_path, jump_lvl, step_lvl, frequency=1)
 	
 	# remeasure
 	new_mx = old_mx.remeasure()
 	
-	# find current choices
-	min_nodes = new_mx.find_min_chain()
+	new_mx.reduce(True)
+			
+	if len(new_mx.singles) or len(new_mx.coerced) or len(new_mx.zeroes):
+		# append path
+		move_path += [('|', len(new_mx.singles))]
+		wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, f'[smth:mx|s:{len(new_mx.singles)}|c:{len(new_mx.coerced)}|z:{len(new_mx.zeroes)}]')							
+		print(new_mx)
+
+	# find current choices												
+	rpc = {}		
+	if new_mx.min_chlen is not 0:
+		for chain in diagram.chains:
+			rpc[chain] = sorted([(loop, new_mx.results[loop]) for loop in chain.avloops], key = lambda r: (len(r[1].avloops), r[0].firstNode().address))
+		rpc = sorted(rpc.items(), key = lambda p: (sum([len(q[1].avloops) for q in p[1]]) / len(p[1]), len(p[1]), p[0].id))
+
+	#'''		
+	with open("__8__js_17m__avloops__", 'a', encoding="utf8") as log:
+		log.write("loops: " + str(len(new_mx.results)) + "\n")
+		log.write("=======================\n")
+		for loop, mx in sorted(new_mx.results.items(), key = lambda r: len(r[1].avloops)):
+			log.write(str(loop) + "\n")
+			log.write(str(sorted([n.cycle.chain for n in loop.nodes], key = lambda chain: (len(chain.avloops), chain.id))) + "\n")
+			log.write(str(mx) + "\n")
+			log.write("-----------------------\n")
+		log.write("=======================\n")		
+	with open("__8__js_17m__chains__", 'a', encoding="utf8") as log:		
+		log.write("chains: " + str(len(diagram.chains)) + "\n")
+		log.write("=======================\n")				
+		for chain, lrs in rpc:
+			log.write("chain: " + str(chain) + " | avg avloops: " + str(sum([len(q[1].avloops) for q in lrs]) / len(lrs)) + "\n")
+			for lr in lrs:
+				log.write("-- " + str(lr[0]) + "\n")
+				log.write(str(lr[1]) + "\n")
+			log.write("-----------------------\n")
+		log.write("=======================\n")			
+	input2("=======================\n")
+	#'''
+	
+	min_loops = [p[0] for p in rpc[0][1]] if len(rpc) else []
+	#print("selected min loops: " + str(min_loops))
+	
+	# find current choices								
+	#min_nodes = new_mx.find_min_chain()
 	
 	# test for minimum number of chains found so far
 	test_min_cc(diagram, new_mx, move_path, jump_lvl, step_lvl, move_nodes)
@@ -116,22 +160,33 @@ def step(diagram, old_mx, move_path, move_nodes, jump_lvl, step_lvl=0):
 		input2("[found a solution]")
 		return
 	
-	if len(min_nodes) is 0: # can't further connect chains
+	elif len(min_loops) is 0: # can't further connect chains
 		# diagram.point(); show(diagram); input(f"[step] === @ can't {min_nodes} ===")
-		return
+		pass
 		
-	# go through all choices
-	for j,n in historic_step(step_lvl, min_nodes):		
-		if diagram.extendLoop(n.loop):		
-			step(diagram, new_mx, move_path+[(j,len(min_nodes))], move_nodes+[n], jump_lvl, step_lvl+1)
-			diagram.collapseBack(n.loop)		
+	else:
+		# go through all choices		
+		lvl_seen = []
 		
+		for j,loop in historic_step(step_lvl, min_loops):		
+			if diagram.extendLoop(loop):		
+				step(diagram, new_mx, move_path+[(j,len(min_loops))], move_nodes+[loop.firstNode()], jump_lvl, step_lvl+1)
+				diagram.collapseBack(loop)		
+				
+			lvl_seen.append(loop)
+			diagram.setLoopUnavailabled(loop)
+			
+		for loop in lvl_seen:
+			diagram.setLoopAvailabled(loop)	
+			
+	# we might have reduced stuff				
+	new_mx.clean()		
 		
 
 def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 	
 	# write to console
-	wtc(diagram, old_mx, move_path, jump_lvl, frequency=1000)
+	wtc(diagram, old_mx, move_path, jump_lvl, frequency=1)
 			
 	# remeasure
 	new_mx = old_mx.remeasure()
