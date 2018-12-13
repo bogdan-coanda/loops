@@ -47,6 +47,9 @@ def unitRoots(root_count, radius, unit_angle_fraction_offset):
 def upper(number):
 	ups = "⁰¹²³⁴⁵⁶⁷⁸⁹"
 	return "".join([ups[int(x)] for x in str(number)])
+	
+def input2(text):
+	input(text+"  |  » ∘ «")	
 		
 		
 		

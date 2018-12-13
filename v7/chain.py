@@ -13,6 +13,6 @@ class Chain (object):
 		
 		
 	def __repr__(self):
-		return "⟨chain:"+str(self.id)+"|"+str(len(self.cycles))+"/"+str(len(self.avloops))+"⟩"
+		return f"⟨chain:{self.id}|av:{len(self.avloops)}|cy:{len(self.cycles)}⟩"
 		
 						
