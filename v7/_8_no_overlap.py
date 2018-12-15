@@ -9,12 +9,14 @@ from random import *
 
 FORCED_FREQUENCY = -1
 	
-history = True
+history = False#True
 history_move_index = 17371506
 history_raw_jumps = "0⁶.0⁴.0⁴.0⁴.0⁴.0⁴.0².0².0³.0².0⁴.0³.0⁵.0³.0³.0¹.0³.0⁶.0⁴.0³.0³.0³.0⁴.0⁴.0².0³.0³.0².0³.0³.0².0².0³.0².0².0².0¹.0².0³.0¹.0¹.0².0¹.0².0⁴.0³.0³.0⁴.0².0³.0².0².0².0³.0¹.0¹.0².0¹.0².3⁵.2³.1³.1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.1².1².1².0¹.0¹.1².1².1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.1³.1².0¹.0².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0².0¹.0¹.0¹.0¹.0¹.0¹.0².0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0¹.0¹.|⁶.|⁶"
 history_raw_steps = "0"
 history_jumps = [int(n) for n in "".join([x for x in history_raw_jumps if x in ".0123456789"]).split('.') if len(n)]
 history_steps = [int(n) for n in "".join([x for x in history_raw_steps if x in ".0123456789"]).split('.') if len(n)]
+
+FILE_ROOT = "__8__jj__"
 
 def historic_jump(jump_lvl, min_matched_tuples):
 	if history:
@@ -60,7 +62,7 @@ def wtc(diagram, mx, move_path, jump_lvl, step_lvl=None, move_nodes=None, freque
 def wtf(diagram, mx, move_path, jump_lvl, step_lvl=None, move_nodes=None, msg=None):
 	global move_index, startTime
 		
-	with open("__8__js_17m__", 'a', encoding="utf8") as log:
+	with open(FILE_ROOT, 'a', encoding="utf8") as log:
 		log.write("[*{}*][{:>11}][lvl:{}{}][uc:{}][𝒞:{}] {}{}\n".format(
 			move_index, tstr(time() - startTime), 
 			jump_lvl, '~'+str(step_lvl) if step_lvl else '',
@@ -75,7 +77,7 @@ def wtf(diagram, mx, move_path, jump_lvl, step_lvl=None, move_nodes=None, msg=No
 				
 def log(txt):
 	print(txt)
-	with open("__8__js_17m__log__", 'a', encoding="utf8") as log:
+	with open(FILE_ROOT+"__log__", 'a', encoding="utf8") as log:
 		log.write(str(txt)+'\n')
 
 
@@ -111,8 +113,8 @@ def step(diagram, old_mx, move_path, move_nodes, jump_lvl, step_lvl=0):
 	if len(new_mx.singles) or len(new_mx.coerced) or len(new_mx.zeroes):
 		# append path
 		move_path += [('|', len(new_mx.singles))]
-		wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, f'[smth:mx|s:{len(new_mx.singles)}|c:{len(new_mx.coerced)}|z:{len(new_mx.zeroes)}]')							
-		print(new_mx)
+		#wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, f'[smth:mx|s:{len(new_mx.singles)}|c:{len(new_mx.coerced)}|z:{len(new_mx.zeroes)}]')							
+		#print(new_mx)
 
 	# find current choices												
 	rpc = {}		
@@ -122,7 +124,7 @@ def step(diagram, old_mx, move_path, move_nodes, jump_lvl, step_lvl=0):
 		rpc = sorted(rpc.items(), key = lambda p: (sum([len(q[1].avloops) for q in p[1]]) / len(p[1]), len(p[1]), p[0].id))
 
 	#'''		
-	with open("__8__js_17m__avloops__", 'a', encoding="utf8") as log:
+	with open(FILE_ROOT+"__avloops__", 'a', encoding="utf8") as log:
 		log.write("loops: " + str(len(new_mx.results)) + "\n")
 		log.write("=======================\n")
 		for loop, mx in sorted(new_mx.results.items(), key = lambda r: len(r[1].avloops)):
@@ -131,7 +133,7 @@ def step(diagram, old_mx, move_path, move_nodes, jump_lvl, step_lvl=0):
 			log.write(str(mx) + "\n")
 			log.write("-----------------------\n")
 		log.write("=======================\n")		
-	with open("__8__js_17m__chains__", 'a', encoding="utf8") as log:		
+	with open(FILE_ROOT+"__chains__", 'a', encoding="utf8") as log:		
 		log.write("chains: " + str(len(diagram.chains)) + "\n")
 		log.write("=======================\n")				
 		for chain, lrs in rpc:
@@ -186,7 +188,7 @@ def step(diagram, old_mx, move_path, move_nodes, jump_lvl, step_lvl=0):
 def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 	
 	# write to console
-	wtc(diagram, old_mx, move_path, jump_lvl, frequency=1)
+	wtc(diagram, old_mx, move_path, jump_lvl, frequency=100)
 			
 	# remeasure
 	new_mx = old_mx.remeasure()
@@ -213,12 +215,12 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 		# diagram.point()
 		# show(diagram)
 		
-		wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, f'[mx|s:{len(new_mx.singles)}|c:{len(new_mx.coerced)}|z:{len(new_mx.zeroes)}]')							
+		#wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, f'[mx|s:{len(new_mx.singles)}|c:{len(new_mx.coerced)}|z:{len(new_mx.zeroes)}]')							
 		#print(new_mx)		
 		#print("=== -1- ===")
 
 	if len(new_mx.unchained_cycles) is 0: # all cycles have been looped	
-		wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, '[smth]')		
+		wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, f'[smth|min_chlen:{new_mx.min_chlen}]')		
 		# show(diagram)
 		wtc(diagram, new_mx, move_path, jump_lvl, None, move_nodes, FORCED_FREQUENCY)
 		
@@ -232,17 +234,18 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 
 		if len(new_mx.singles) or len(new_mx.coerced) or len(new_mx.zeroes):
 			move_path += [('|', len(new_mx.singles))]
-			wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, f'[smth:mx|s:{len(new_mx.singles)}|c:{len(new_mx.coerced)}|z:{len(new_mx.zeroes)}]')							
-			print(new_mx)		
-			print("=== +1+ ===")			
+			wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, f'[smth:mx|min_chlen:{new_mx.min_chlen}|s:{len(new_mx.singles)}|c:{len(new_mx.coerced)}|z:{len(new_mx.zeroes)}]')							
+			#print(new_mx)		
+			#print("=== +1+ ===")			
 								
 		if new_mx.min_chlen is 0:
-			wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, "±±± didn't find anything ±±±")			
+			#wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, "±±± didn't find anything ±±±")			
 			print("±±± didn't find anything ±±±")			
 		else:
-			print("~~~ found smth ~~~")
+			wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, "$$$ found something $$$")
+			print("$$$ found something $$$")
 			# start stepping
-			step(diagram, new_mx, move_path+[("~","")], move_nodes, jump_lvl)		
+			# step(diagram, new_mx, move_path+[("~","")], move_nodes, jump_lvl)		
 		
 	else:															
 		# go through all choices
