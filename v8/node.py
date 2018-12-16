@@ -1,6 +1,6 @@
 class Node (object):
 	
-	__slots__ = ['index', 'perm', 'address', 'cycle', 'nextLink', 'prevLink', 'loopBrethren', 'chainID', 'px', 'py', 'loop', 'links', 'prevs', 'cycle', 'cycleBrethren', 'ktype', 'tuple']
+	__slots__ = ['index', 'perm', 'address', 'cycle', 'chain', 'cycleBrethren', 'nextLink', 'prevLink', 'loopBrethren', 'px', 'py', 'loop', 'links', 'prevs', 'ktype', 'tuple']
 	
 	def __init__(self, index, perm, address):
 		self.index = index
@@ -8,7 +8,8 @@ class Node (object):
 		self.address = address
 		
 		self.cycle = None # set by cycle.__init__(nodes)
-		
+		self.chain = None
+				
 		self.nextLink = None
 		self.prevLink = None
 																	
@@ -33,7 +34,7 @@ class Node (object):
 		
 																		
 	def __repr__(self):
-		return "⟨node:"+self.perm+"@"+self.address+"§"+str(self.cycle.chain)+'|'+('Av' if self.loop.availabled else '')+('Ex' if self.loop.extended else '')+"⟩"
+		return "⟨node:"+self.perm+"@"+self.address+"§"+str(self.chain)#+'|'+('Av' if self.loop.availabled else '')+('Ex' if self.loop.extended else '')+"⟩"
 		
 		
 	def __lt__(self, other):

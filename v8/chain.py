@@ -1,11 +1,12 @@
 class Chain (object):
 	
-	__slots__ = ['id', 'cycles', 'avloops']
+	__slots__ = ['id', 'avnodes'] #, 'cycles', 'avloops']
 	
 	def __init__(self, id):
 		self.id = id
-		self.cycles = []
-		self.avloops = set()
+		self.avnodes = []
+		#self.cycles = []
+		#self.avloops = set()
 		
 
 	def __hash__(self):
@@ -13,6 +14,6 @@ class Chain (object):
 		
 		
 	def __repr__(self):
-		return f"⟨chain:{self.id}|av:{len(self.avloops)}|cy:{len(self.cycles)}⟩"
+		return f"⟨chain:{self.id}|av:{len(self.avnodes)}⟩"
 		
 						

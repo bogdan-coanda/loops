@@ -4,11 +4,10 @@ import math
 
 class Cycle (object):
 	
-	__slots__ = ['index', 'address', 'nodes', 'px', 'py', 'isKernel', 'chain']
+	__slots__ = ['index', 'address', 'nodes', 'firstNode', 'px', 'py', 'isKernel']#, 'chain']
 	
 	def __init__(self, index, address, nodes):
 		self.index = index
-		
 		self.nodes = nodes
 		for node in self.nodes:
 			# everyone holds a link to its cycle center
@@ -22,7 +21,8 @@ class Cycle (object):
 		self.px = 0
 		self.py = 0
 		self.isKernel = False
-		self.chain = None
+		
+		#self.chain = None
 		# [!unused!] self.inner_roots = None
 		# [!unused!] self.outer_roots = None
 
@@ -38,7 +38,7 @@ class Cycle (object):
 		return rc[0] if len(rc) > 0 else self		
 				
 	def __repr__(self):
-		return "⟨cycle:"+str(self.index)+"@"+self.address+("§"+str(self.chain) if len(self.chain.cycles) > 1 else "")+"⟩"
+		return "⟨cycle:"+str(self.index)+"@"+self.address+"⟩"
 		
 		
 	def __lt__(self, other):
@@ -62,3 +62,5 @@ class Cycle (object):
 			self.nodes[i].px = self.px + inner_roots[i][0]
 			self.nodes[i].py = self.py + inner_roots[i][1]
 		
+	def isUnchained(self):
+		return len([node for node in self.nodes if node.loop.extended]) is 0
