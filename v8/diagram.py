@@ -330,7 +330,7 @@ class Diagram (object):
 		# assert loop.availabled is True
 		loop.availabled = False
 		for node in loop.nodes:
-			if loop in node.cycle.chain.avloops: # [~] why would the loop not be here ? got removed twice ? got debugged twice over already and proven correct ? as is it needed during makeChain ?
+			if loop in node.cycle.chain.avloops: # [~] why would the loop not be here ? got removed twice ? got debugged twice over already and proven correct ?
 				node.cycle.chain.avloops.remove(loop)
 									
 	
