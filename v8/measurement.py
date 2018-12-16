@@ -125,7 +125,7 @@ class Measurement (object):
 			found = False
 			
 			for chain in diagram.chains:
-				avlen = len(chain.nodes)
+				avlen = len(chain.avnodes)
 				
 				if avlen == 0:
 					return (0, singles, coerced) 

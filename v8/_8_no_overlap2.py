@@ -214,8 +214,9 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 			
 	if new_mx.min_chlen is 0 or len(min_matched_tuples) is 0: # can't further connect chains
 		# diagram.pointers = list(itertools.chain(*[chain.cycles for chain in diagram.chains if not len(chain.avloops)])) if min_chlen is 0 else [min_cycle]
-		# show(diagram); input("[jump] === @ can't {},{} === ".format(min_chlen, len(min_matched_tuples)))
-		return
+		# show(diagram); 
+		input("[jump] === @ can't {},{} === ".format(min_chlen, len(min_matched_tuples)))
+		return new_mx
 
 	if new_mx.min_chlen is 1: # we found a `single`
 		# extend just singles (faster…)
