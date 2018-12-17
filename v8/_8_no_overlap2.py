@@ -208,14 +208,15 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 							
 	# find current choices
 	min_cycle, min_nodes, min_matched_tuples = Measurement._find_min_simple(diagram, new_mx.unchained_cycles, new_mx.avtuples)
-		
+	print(f"__find_min_simple: mc: {min_cycle} | mn: {min_nodes} | mt: {min_matched_tuples}")
+	
 	# test for minimum number of unchained cycles found so far		
 	test_min_uc(diagram, new_mx, move_path, jump_lvl, move_nodes)
 			
 	if new_mx.min_chlen is 0 or len(min_matched_tuples) is 0: # can't further connect chains
 		# diagram.pointers = list(itertools.chain(*[chain.cycles for chain in diagram.chains if not len(chain.avloops)])) if min_chlen is 0 else [min_cycle]
 		# show(diagram); 
-		input("[jump] === @ can't {},{} === ".format(min_chlen, len(min_matched_tuples)))
+		input("[jump] === @ can't {},{} === ".format(new_mx.min_chlen, len(min_matched_tuples)))
 		return new_mx
 
 	if new_mx.min_chlen is 1: # we found a `single`
@@ -280,6 +281,7 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 
 	# we might have extended singles
 	new_mx.clean()
+	return new_mx
 
 
 if __name__ == "__main__":

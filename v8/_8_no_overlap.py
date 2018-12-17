@@ -205,8 +205,8 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 	new_mx.measure_untouched_tuples()
 							
 	# find current choices
-	min_cycle, min_nodes, min_matched_tuples = Measurement._find_min_simple(diagram, new_mx.unchained_cycles, new_mx.avtuples)
-		
+	min_cycle, min_nodes, min_matched_tuples = Measurement._find_min_simple(diagram, new_mx.unchained_cycles, new_mx.avtuples)	
+	
 	# test for minimum number of unchained cycles found so far		
 	test_min_uc(diagram, new_mx, move_path, jump_lvl, move_nodes)
 			

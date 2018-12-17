@@ -319,23 +319,22 @@ class Diagram (object):
 					return False
 		return True
 		
-	'''
+		
 	def setLoopAvailabled(self, loop):
 		# assert len(set([node.cycle.chain for node in loop.nodes])) == len(loop.nodes)
 		# assert loop.availabled is False
 		loop.availabled = True
 		for node in loop.nodes:
-			cycle = node.cycle
-			cycle.chain.avloops.add(loop)
+			node.chain.avnodes.append(node)
 		
 		
 	def setLoopUnavailabled(self, loop):
 		# assert loop.availabled is True
 		loop.availabled = False
 		for node in loop.nodes:
-			if loop in node.cycle.chain.avloops: # [~] why would the loop not be here ? got removed twice ? got debugged twice over already and proven correct ?
-				node.cycle.chain.avloops.remove(loop)
-	'''								
+			if node in node.chain.avnodes: # [~] why would the loop not be here ? got removed twice ? got debugged twice over already and proven correct ?
+				node.chain.avnodes.remove(node)
+	
 	
 	def makeChain(self, affected_chains):
 
@@ -372,8 +371,8 @@ class Diagram (object):
 					else:
 						# seen more
 						seenOnceLoops.remove(loop)
-						# set loop unavailabled, but don't go through removing from chains.avloops as we'll reuse these chains on breakChain()
-						loop.availabled = False
+						# set loop unavailabled
+						self.setLoopUnavailabled(loop)
 						# remember erased loop						
 						affected_loops.append(loop)
 
@@ -409,8 +408,7 @@ class Diagram (object):
 			
 		# re-available affected loops	(including coerced, if any)
 		for loop in extension_result.affected_loops:
-			#self.setLoopAvailabled(loop)
-			loop.availabled = True
+			self.setLoopAvailabled(loop)
 			
 															
 	# --- extending -------------------------------------------------------------------------------------------------------------------------------------------------------------- #
