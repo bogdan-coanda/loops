@@ -198,17 +198,17 @@ def draw(diagram):
 				#print("draw " + node.address + " | " + str((node.px - RR/2, node.py - RR/2, RR, RR)))
 
 			# § drawing chained node color fills
-			if node.cycle.chain is not None and len(node.cycle.chain.cycles) > 1:
+			if node.chain is not None and not node.cycle.isUnchained():
 				sh_looped_count += 1
-				if node.cycle.chain.id not in chainColors:
-					chainColors[node.cycle.chain.id] = 'white' if node.cycle.chain.id == (0 if diagram.startNode.cycle.chain is None else diagram.startNode.cycle.chain.id) else hls_to_rgb(random(), 0.5, 1)
-				ui.set_color(chainColors[node.cycle.chain.id])
+				if node.chain.id not in chainColors:
+					chainColors[node.chain.id] = 'white' if node.chain.id == (0 if diagram.startNode.chain is None else diagram.startNode.chain.id) else hls_to_rgb(random(), 0.5, 1)
+				ui.set_color(chainColors[node.chain.id])
 			else:
 				ui.set_color('white')
 			oval.fill()
 
 			# § drawing chained node strokes
-			if node.cycle.chain is not None and (node.loop.extended or node.prevs[2].node.loop.extended):
+			if node.chain is not None and (node.loop.extended or node.prevs[2].node.loop.extended):
 				# getting personal				
 				# ui.set_color(ℓ(diagram, node)) # 𝒞(node))
 				# oval.line_width = 4*DH
@@ -227,7 +227,7 @@ def draw(diagram):
 				#ui.set_color(ℓ(diagram, node))
 				#oval.line_width = DH
 				#oval.set_line_dash([1,1.05])
-			elif node.cycle.chain is not None and len(node.cycle.chain.cycles) > 1:
+			elif node.chain is not None and not node.cycle.isUnchained():
 				ui.set_color('black')
 				oval.line_width = 0.2
 				oval.set_line_dash([1,0])
@@ -238,7 +238,7 @@ def draw(diagram):
 			oval.stroke()			
 			
 			# § drawing links
-			if node.cycle.chain is not None and len(node.cycle.chain.cycles) > 1:
+			if node.chain is not None and not node.cycle.isUnchained():
 				nextLink = node.nextLink if node.nextLink else (node.links[2] if node.loop.extended else node.links[1])
 				if nextLink.type is 2:
 					line = ui.Path()
@@ -301,7 +301,7 @@ def draw(diagram):
 			
 		img = ctx.get_image()
 		#img.show()
-		print("[show] chain count: " + str(len([c for c in diagram.chains if len(c.cycles) > 1])) + " | available loops: " + str(len([l for l in diagram.loops if l.availabled]))  + " | looped: " + str(sh_looped_count) + "/" + str(len(diagram.nodes)) + " (" + "{0:.2f}".format(sh_looped_count*100.0/len(diagram.nodes)) + "%)" + " | remaining: " + str(len(diagram.nodes) - sh_looped_count))
+		print("[show] chain count: " + str(len([c for c in diagram.chains if not c.avnodes[0].cycle.isUnchained()])) + " | available loops: " + str(len([l for l in diagram.loops if l.availabled]))  + " | looped: " + str(sh_looped_count) + "/" + str(len(diagram.nodes)) + " (" + "{0:.2f}".format(sh_looped_count*100.0/len(diagram.nodes)) + "%)" + " | remaining: " + str(len(diagram.nodes) - sh_looped_count))
 		return img
 
 def drawCircledText(text, centerX, centerY, radius, textSize, color, borderWidth):
