@@ -261,7 +261,7 @@ class Diagram (object):
 																							
 		self.chainAutoInc = -1
 		new_chain, affected_loops = self.makeChain(affected_chains)
-		
+		# print(f'[kernel] new chain: {new_chain} | affected loops: {len(affected_loops)} | affected chains: {len(affected_chains)}')
 
 	# --- generating ------------------------------------------------------------------------------------------------------------------------------------------------------------- #
 	# --- extending -------------------------------------------------------------------------------------------------------------------------------------------------------------- #
@@ -311,9 +311,9 @@ class Diagram (object):
 				
 	def checkAvailability(self, loop):
 		for i in range(1, len(loop.nodes)):
-			ichain = loop.nodes[i].cycle.chain
+			ichain = loop.nodes[i].chain
 			for j in range(0, i):
-				jchain = loop.nodes[j].cycle.chain
+				jchain = loop.nodes[j].chain
 				# if the loop would link back to the same chain
 				if ichain is jchain:
 					return False
@@ -353,23 +353,27 @@ class Diagram (object):
 								
 		# for each old chain
 		for index, old_chain in enumerate(affected_chains):
+			# print(f'[makeChain] for old chain @ {index}: {old_chain}')
 			
 			# for each available node
-			for node in old_chain.avnodes:
+			for node in list(old_chain.avnodes):
 				loop = node.loop
+				# print(f'[makeChain] for node: {node} | loop: {loop} in old chain avnodes: {len(old_chain.avnodes)}')
 				
 				# if still available
 				if loop.availabled:
-					
+										
 					# if not yet seen
 					if loop not in seenOnceLoops:
 						# seen once
+						# print(f'[makeChain] ⇒ seen once')						
 						seenOnceLoops.append(loop)
 						seenNodes.append(node)
 							
 					# if seen once (seen more condition not possible as we're guarded by loop.availabled)
 					else:
 						# seen more
+						# print(f'[makeChain] ⇒ seen more')												
 						seenOnceLoops.remove(loop)
 						# set loop unavailabled
 						self.setLoopUnavailabled(loop)
@@ -381,9 +385,12 @@ class Diagram (object):
 			self.chains.remove(old_chain)									
 																		
 		# filter all corresponding remaining avnodes
+		# print(f'[makeChain] seenNodes: ({len(seenNodes)})\n{seenNodes}')
 		new_chain.avnodes = [node for node in seenNodes if node.loop.availabled]
+		# print(f'[makeChain] new chain avnodes: ({len(new_chain.avnodes)})\n{new_chain.avnodes}')
 		assert len(new_chain.avnodes) is len(seenOnceLoops), "counts should match, one available node for each seen once loop"
-		
+		# print(f'[makeChain] seenOnceLoops: ({len(seenOnceLoops)})\n{seenOnceLoops}')
+				
 		# move remaining avnodes to the new chain (will have to be undone on breakChain())
 		for node in new_chain.avnodes:
 			node.chain = new_chain
