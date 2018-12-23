@@ -258,6 +258,7 @@ class Diagram (object):
 																							
 		self.chainAutoInc = -1
 		new_chain, affected_loops = self.makeChain(affected_chains)
+		print(f'[kernel] new chain: {new_chain} | affected loops: {len(affected_loops)} | affected chains: {len(affected_chains)}')
 		
 
 	# --- generating ------------------------------------------------------------------------------------------------------------------------------------------------------------- #
