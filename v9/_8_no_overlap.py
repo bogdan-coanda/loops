@@ -240,6 +240,7 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 			newer_mx = new_mx.remeasure()
 			newer_mx.reduce()
 			newer_mx.singles = new_mx.singles + newer_mx.singles
+			newer_mx.opslog = new_mx.opslog + newer_mx.opslog
 			new_mx = newer_mx
 
 		if len(new_mx.singles) or len(new_mx.coerced) or len(new_mx.zeroes):

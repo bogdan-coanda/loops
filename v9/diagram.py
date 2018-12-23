@@ -23,7 +23,8 @@ class Diagram (object):
 		'pointers', 'pointer_avlen',
 		'tobex_base_count',
 		'bases', 'node_tuples', 'loop_tuples',
-		'radialLoopsByKType'
+		'radialLoopsByKType',
+		'changelog'
 	]
 	
 	def __init__(self, N, kernelSize=1):
@@ -31,6 +32,7 @@ class Diagram (object):
 		self.spClass = N
 		self.kernelSize = kernelSize
 		self.chainAutoInc = -1
+		self.changelog = []
 		# [!radial!] self.hasRadialCoords = False
 		
 		self.generateGraph()
@@ -276,6 +278,7 @@ class Diagram (object):
 			return False
 			
 		loop.extended = True
+		self.changelog.append(('extended', loop))
 						
 		# affected chains are the ones that will be tied together by this extension
 		# they're the chains that need to be added back on collapse
@@ -301,9 +304,12 @@ class Diagram (object):
 			
 																						
 	def collapseBack(self, loop):	
-		#print("[collapse] loop: " + str(loop))
+		print(f"[collapse] loop: {loop}")		
 		self.breakChain(loop.extension_result)
 		loop.extended = False
+		
+		assert self.changelog[-1][0] == 'extended' and self.changelog[-1][1] == loop, self.changelog[-1]
+		self.changelog.pop()		
 		
 				
 	def checkAvailability(self, loop):
@@ -320,6 +326,10 @@ class Diagram (object):
 	def setLoopAvailabled(self, loop):
 		# assert len(set([node.cycle.chain for node in loop.nodes])) == len(loop.nodes)
 		# assert loop.availabled is False
+		print(f"[availabled] loop: {loop}")
+		assert self.changelog[-1][0] == 'unavailabled' and self.changelog[-1][1] == loop, self.changelog[-1]
+		self.changelog.pop()
+		
 		loop.availabled = True
 		for node in loop.nodes:
 			cycle = node.cycle
@@ -329,6 +339,8 @@ class Diagram (object):
 	def setLoopUnavailabled(self, loop):
 		# assert loop.availabled is True
 		loop.availabled = False
+		self.changelog.append(('unavailabled', loop))
+		
 		for node in loop.nodes:
 			if loop in node.cycle.chain.avloops: # [~] why would the loop not be here ? got removed twice ? got debugged twice over already and proven correct ? as is it needed during makeChain ?
 				node.cycle.chain.avloops.remove(loop)
@@ -391,7 +403,7 @@ class Diagram (object):
 				cycle.chain = chain
 			
 		# re-available affected loops	(including coerced, if any)
-		for loop in extension_result.affected_loops:
+		for loop in reversed(extension_result.affected_loops):
 			self.setLoopAvailabled(loop)
 			
 															

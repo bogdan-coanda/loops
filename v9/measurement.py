@@ -8,14 +8,15 @@ class Measurement (object):
 		'min_chlen', 'unchained_cycles', 'avloops', 'avtuples', 'tobex',
 		'reduced', 'singles', 'coerced', 'zeroes', 'results', # from reduce() { singles/coerced + decimate loop } # reduced: if reduce() was ran
 		'avtuples_before_viability', 'avtuples_before_untouched',
-		'mc', 'mn', 'mt' 
+		'mc', 'mn', 'mt',
+		'opslog'
 		# mc holds either a cycle or a chains
 		# mn holds the nodes whose loops will be tested
 		# mt holds either the tuples belonging to the nodes tested, or is undefined
 	]
 
 
-	def __init__(self, diagram, old_mx = None):
+	def __init__(self, diagram, old_mx = None, old_opslog = None):
 		# 0. tie to diagram
 		self.diagram = diagram
 		
@@ -38,7 +39,7 @@ class Measurement (object):
 				
 		# 6. not yet reduced (as reducing is costly)
 		self.reduced = False
-								
+		self.opslog = old_opslog if old_opslog else []					
 		
 	def remeasure(self):
 		return Measurement(self.diagram, self)
@@ -58,29 +59,33 @@ class Measurement (object):
 			
 	def single(self):
 		assert not self.reduced		
-		self.min_chlen, self.singles, _ = Measurement.__coerce(self.diagram, self.min_chlen, False)
+		self.min_chlen, self.singles, _ = Measurement.__coerce(self.diagram, self.opslog, self.min_chlen, False)
+		assert len(self.opslog) == len(self.singles)
 		self.coerced = []
 		self.zeroes = []
 		self.results = {}
-		self.__init__(self.diagram, self)		
+		self.__init__(self.diagram, self, self.opslog)		
 		self.reduced = True
 		
 		
 	def coerce(self):
 		assert not self.reduced		
-		self.min_chlen, self.singles, self.coerced = Measurement.__coerce(self.diagram, self.min_chlen, True)
+		self.min_chlen, self.singles, self.coerced = Measurement.__coerce(self.diagram, self.opslog, self.min_chlen, True)
+		assert len(self.opslog) == len(self.singles) + len(self.coerced)
+		print(f"[coerce] singles: {len(self.singles)} | coerced: {len(self.coerced)} | opslog: {len(self.opslog)}")
 		self.zeroes = []
 		self.results = {}
-		self.__init__(self.diagram, self)		
+		self.__init__(self.diagram, self, self.opslog)		
 		self.reduced = True
 		
 								
 	def reduce(self, second_pass=False):
 		assert not self.reduced
 		# reduce
-		self.min_chlen, self.singles, self.coerced, self.zeroes, self.results = Measurement.__reduce(self.diagram, self.min_chlen, second_pass)
+		self.min_chlen, self.singles, self.coerced, self.zeroes, self.results = Measurement.__reduce(self.diagram, self.opslog, self.min_chlen, second_pass)
+		assert len(self.opslog) == len(self.singles) + len(self.coerced) + len(self.zeroes)
 		# remeasure self
-		self.__init__(self.diagram, self)
+		self.__init__(self.diagram, self, self.opslog)
 		# retain state
 		self.reduced = True		
 		
@@ -88,7 +93,7 @@ class Measurement (object):
 	def clean(self):
 		if self.reduced:
 			# clean
-			Measurement.__clean(self.diagram, self.singles, self.coerced, self.zeroes)
+			Measurement.__clean(self.diagram, self.opslog)
 			# leave self in a flawed state (but still printable)
 			del self.reduced
 			
@@ -117,7 +122,7 @@ class Measurement (object):
 			
 	# === internal =============================================================================================================================================================== #	
 
-	def __coerce(diagram, min_chlen, doCoerce=True):
+	def __coerce(diagram, opslog, min_chlen, doCoerce=True):
 		singles = []
 		coerced = []
 		
@@ -134,6 +139,8 @@ class Measurement (object):
 					avloop = list(chain.avloops)[0]
 					singles.append(avloop)
 					diagram.extendLoop(avloop)
+					opslog.append(('singled', avloop))
+					print(f"[coerce] singles: {len(singles)} | opslog: {len(opslog)}")
 					
 					min_chlen = min([len(chain.avloops) for chain in diagram.chains])
 					if min_chlen is 0:
@@ -150,6 +157,7 @@ class Measurement (object):
 						for avloop in intersected:
 							coerced.append(avloop)
 							diagram.setLoopUnavailabled(avloop)
+							opslog.append(('coerced', avloop))
 							
 							affected_min_chlen = min([len(n.cycle.chain.avloops) for n in avloop.nodes])
 							if affected_min_chlen < min_chlen:
@@ -165,7 +173,7 @@ class Measurement (object):
 				return (min_chlen, singles, coerced)
 		
 		
-	def __decimate(diagram, min_chlen, second_pass=False, prev_results=None):
+	def __decimate(diagram, opslog, min_chlen, second_pass=False, prev_results=None):
 		zeroes = []
 		results = {}
 		
@@ -195,6 +203,7 @@ class Measurement (object):
 				if next_mx.min_chlen == 0 and next_chain_count > 1:
 					zeroes.append(loop)
 					diagram.setLoopUnavailabled(loop)
+					opslog.append(('zeroed', loop))
 					if second_pass:
 						print(f"..[decimate] zeroed {loop} | so far: {len(zeroes)}")
 										
@@ -217,9 +226,9 @@ class Measurement (object):
 			if second_pass:
 				print(f"..[decimate] curr | zeroes: {len(zeroes)}")
 			
-	def __reduce(diagram, min_chlen, second_pass=False):
+	def __reduce(diagram, opslog, min_chlen, second_pass=False):
 		# mandatory
-		min_chlen, curr_singles, curr_coerced = Measurement.__coerce(diagram, min_chlen)
+		min_chlen, curr_singles, curr_coerced = Measurement.__coerce(diagram, opslog, min_chlen)
 		if second_pass:
 			print("[reduce] init | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
 				
@@ -227,7 +236,7 @@ class Measurement (object):
 			# input("[reduce] dead @ init coerce | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)) + " | z: 0")
 			return (0, curr_singles, curr_coerced, [], {})
 							
-		min_chlen, curr_zeroes, curr_results = Measurement.__decimate(diagram, min_chlen)		
+		min_chlen, curr_zeroes, curr_results = Measurement.__decimate(diagram, opslog, min_chlen)		
 		if second_pass:
 			print("[reduce] init | z: " + str(len(curr_zeroes)))
 		
@@ -245,7 +254,7 @@ class Measurement (object):
 		# additional
 		while True:
 			if len(curr_zeroes) > 0 or doOnce:
-				min_chlen, curr_singles, curr_coerced = Measurement.__coerce(diagram, min_chlen)
+				min_chlen, curr_singles, curr_coerced = Measurement.__coerce(diagram, opslog, min_chlen)
 				singles += curr_singles
 				coerced += curr_coerced			
 				if second_pass:
@@ -256,7 +265,7 @@ class Measurement (object):
 					return (0, singles, coerced, zeroes, {})
 											
 				if len(curr_singles) or len(curr_coerced) or doOnce:
-					min_chlen, curr_zeroes, curr_results = Measurement.__decimate(diagram, min_chlen, second_pass, curr_results)
+					min_chlen, curr_zeroes, curr_results = Measurement.__decimate(diagram, opslog, min_chlen, second_pass, curr_results)
 					zeroes += curr_zeroes
 					results = curr_results
 					if second_pass:
@@ -278,13 +287,13 @@ class Measurement (object):
 		return (min_chlen, singles, coerced, zeroes, results)						
 				
 
-	def __clean(diagram, singles, coerced, zeroes):
-		for l in reversed(singles):
-			diagram.collapseBack(l)						
-		for l in coerced:
-			diagram.setLoopAvailabled(l)
-		for l in zeroes:
-			diagram.setLoopAvailabled(l)		
+	def __clean(diagram, opslog):
+		print(f"[mx:clean] opslog: {len(opslog)}")
+		for optype, oploop in reversed(opslog):
+			if optype == 'singled':
+				diagram.collapseBack(oploop)
+			else: # coerced / zeroed
+				diagram.setLoopAvailabled(oploop)
 	
 	
 	def __measure_viable_tuples(diagram, avtuples):
