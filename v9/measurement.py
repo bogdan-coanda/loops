@@ -72,7 +72,7 @@ class Measurement (object):
 		assert not self.reduced		
 		self.min_chlen, self.singles, self.coerced = Measurement.__coerce(self.diagram, self.opslog, self.min_chlen, True)
 		assert len(self.opslog) == len(self.singles) + len(self.coerced)
-		print(f"[coerce] singles: {len(self.singles)} | coerced: {len(self.coerced)} | opslog: {len(self.opslog)}")
+		# print(f"[coerce] singles: {len(self.singles)} | coerced: {len(self.coerced)} | opslog: {len(self.opslog)}")
 		self.zeroes = []
 		self.results = {}
 		self.__init__(self.diagram, self, self.opslog)		
@@ -140,7 +140,7 @@ class Measurement (object):
 					singles.append(avloop)
 					diagram.extendLoop(avloop)
 					opslog.append(('singled', avloop))
-					print(f"[coerce] singles: {len(singles)} | opslog: {len(opslog)}")
+					# print(f"[coerce] singles: {len(singles)} | opslog: {len(opslog)}")
 					
 					min_chlen = min([len(chain.avloops) for chain in diagram.chains])
 					if min_chlen is 0:
@@ -288,7 +288,7 @@ class Measurement (object):
 				
 
 	def __clean(diagram, opslog):
-		print(f"[mx:clean] opslog: {len(opslog)}")
+		#print(f"[mx:clean] opslog: {len(opslog)}")
 		for optype, oploop in reversed(opslog):
 			if optype == 'singled':
 				diagram.collapseBack(oploop)

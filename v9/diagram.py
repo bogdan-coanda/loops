@@ -304,7 +304,7 @@ class Diagram (object):
 			
 																						
 	def collapseBack(self, loop):	
-		print(f"[collapse] loop: {loop}")		
+		#print(f"[collapse] loop: {loop}")		
 		self.breakChain(loop.extension_result)
 		loop.extended = False
 		
@@ -326,24 +326,28 @@ class Diagram (object):
 	def setLoopAvailabled(self, loop):
 		# assert len(set([node.cycle.chain for node in loop.nodes])) == len(loop.nodes)
 		# assert loop.availabled is False
-		print(f"[availabled] loop: {loop}")
+		# print(f"[availabled] loop: {loop}")
 		assert self.changelog[-1][0] == 'unavailabled' and self.changelog[-1][1] == loop, self.changelog[-1]
-		self.changelog.pop()
+		_, _, updated_chains = self.changelog.pop()
 		
 		loop.availabled = True
-		for node in loop.nodes:
-			cycle = node.cycle
-			cycle.chain.avloops.add(loop)
+		# for node in loop.nodes:
+		# 	cycle = node.cycle
+		# 	cycle.chain.avloops.add(loop)
+		for ch, l in updated_chains:
+			ch.avloops.add(l)
 		
 		
 	def setLoopUnavailabled(self, loop):
 		# assert loop.availabled is True
 		loop.availabled = False
-		self.changelog.append(('unavailabled', loop))
+		updated_chains = []		
+		self.changelog.append(('unavailabled', loop, updated_chains))
 		
 		for node in loop.nodes:
 			if loop in node.cycle.chain.avloops: # [~] why would the loop not be here ? got removed twice ? got debugged twice over already and proven correct ? as is it needed during makeChain ?
 				node.cycle.chain.avloops.remove(loop)
+				updated_chains.append((node.cycle.chain, loop))
 									
 	
 	def makeChain(self, affected_chains):
