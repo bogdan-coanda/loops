@@ -8,23 +8,22 @@ class Measurement (object):
 		'min_chlen', 'unchained_cycles', 'avloops', 'avtuples', 'tobex',
 		'reduced', 'singles', 'coerced', 'zeroes', 'results', # from reduce() { singles/coerced + decimate loop } # reduced: if reduce() was ran
 		'avtuples_before_viability', 'avtuples_before_untouched',
-		'mc', 'mn', 'mt'
+		'mc', 'mn', 'mt' 
 		# mc holds either a cycle or a chains
 		# mn holds the nodes whose loops will be tested
 		# mt holds either the tuples belonging to the nodes tested, or is undefined
 	]
 
-	dbg_decimate_index = 0
 
 	def __init__(self, diagram, old_mx = None):
 		# 0. tie to diagram
 		self.diagram = diagram
 		
-		# 1. find minimum chain avnodes length
-		self.min_chlen = min([len(chain.avnodes) for chain in diagram.chains])
+		# 1. find minimum chain avloops length
+		self.min_chlen = min([len(chain.avloops) for chain in diagram.chains])
 		
 		# 2. find cycles not chained to any other
-		self.unchained_cycles = [cycle for cycle in (old_mx.unchained_cycles if old_mx else diagram.cycles) if cycle.isUnchained()]
+		self.unchained_cycles = [cycle for cycle in (old_mx.unchained_cycles if old_mx else diagram.cycles) if len(cycle.chain.cycles) is 1]
 		
 		# 3. find available loops 
 		self.avloops = [l for l in (old_mx.avloops if old_mx else diagram.loops) if l.availabled]
@@ -122,82 +121,66 @@ class Measurement (object):
 		singles = []
 		coerced = []
 		
-		print(f".[coerce] starting | min_chlen: {min_chlen} | doCoerce: {doCoerce} | dbg decimate index: {Measurement.dbg_decimate_index}")
-		
 		while True:
 			found = False
 			
-			for index, chain in enumerate(diagram.chains):
-				avlen = len(chain.avnodes)
-				if Measurement.dbg_decimate_index == 67:
-					print(f".[coerce:67] @ {index}/{len(diagram.chains)} | chain: {chain} | avlen: {avlen} | all avloops: {len([l for l in diagram.loops if l.availabled])}")
+			for chain in diagram.chains:
+				avlen = len(chain.avloops)
 				
 				if avlen == 0:
-					print(".[coerce] dead @ avlen: 0")
 					return (0, singles, coerced) 
 
 				elif avlen == 1:
-					avloop = chain.avnodes[0].loop
-					print(f".[coerce] found single: {avloop} ")
+					avloop = list(chain.avloops)[0]
 					singles.append(avloop)
-					assert diagram.extendLoop(avloop)
+					diagram.extendLoop(avloop)
 					
-					min_chlen = min([len(chain.avnodes) for chain in diagram.chains])
+					min_chlen = min([len(chain.avloops) for chain in diagram.chains])
 					if min_chlen is 0:
 						# input(".[coerce] dead @ extend | singles: " + str(len(singles)) + ", coerced: " + str(len(coerced)))
 						return (0, singles, coerced)						
-										
-					# print('.[coerce] found a single')	
+					
 					found = True
 					break
 				
 				elif avlen == 2 and doCoerce:
-					killingFields = [node.loop.killingField() for node in chain.avnodes]
+					killingFields = [loop.killingField() for loop in chain.avloops]
 					intersected = killingFields[0].intersection(killingFields[1])
 					if len(intersected):
-						print(f'.[coerce] found killing fields intersection: {len(intersected)}')
-						if Measurement.dbg_decimate_index == 67:
-							print(f"intersected: {intersected}")
-						
 						for avloop in intersected:
 							coerced.append(avloop)
 							diagram.setLoopUnavailabled(avloop)
 							
-							affected_min_chlen = min([len(n.chain.avnodes) for n in avloop.nodes])
+							affected_min_chlen = min([len(n.cycle.chain.avloops) for n in avloop.nodes])
 							if affected_min_chlen < min_chlen:
 								min_chlen = affected_min_chlen
 								if min_chlen is 0:
 									# input(".[coerce] dead @ coerce | singles: " + str(len(singles)) + ", coerced: " + str(len(coerced)))
 									return (0, singles, coerced)
 							
-						# print('.[coerce] found a coerce')								
 						found = True
 						break
 																	
 			if not found:
-				print(f".[coerce] done @ min_chlen: {min_chlen} | singles: {len(singles)} | coerced: {len(coerced)}")
 				return (min_chlen, singles, coerced)
 		
 		
 	def __decimate(diagram, min_chlen, second_pass=False, prev_results=None):
 		zeroes = []
 		results = {}
-
-		print(f"..[decimate] starting | min_chlen: {min_chlen} | second_pass: {second_pass}")
-						
+		
 		while True:
 			found = False
 			avloops = [l for l in (
-				[r[0] for r in sorted(prev_results.items(), key = lambda r: (len(r[1].avnodes), r[0].firstNode().address))] if prev_results else diagram.loops
+				[r[0] for r in sorted(prev_results.items(), key = lambda r: (len(r[1].avloops), r[0].firstNode().address))] if prev_results else diagram.loops
 			) if l.availabled]
 				
-			#if second_pass:
-			print(f"..[decimate] curr | avloops: {len(avloops)}")
+			if second_pass:
+				print(f"..[decimate] curr | avloops: {len(avloops)}")
 				
 			for index, loop in enumerate(avloops):
-				#if second_pass:
-				print(f"..[decimate] @ {index} / {len(avloops)} | min_chlen: {min([len(chain.avnodes) for chain in diagram.chains])}")				
-				Measurement.dbg_decimate_index = index
+				if second_pass:
+					print(f"..[decimate] @ {index} / {len(avloops)} | min_chlen: {min([len(chain.avloops) for chain in diagram.chains])}")				
 				diagram.extendLoop(loop)
 				next_mx = Measurement(diagram)				
 				if second_pass:
@@ -212,10 +195,10 @@ class Measurement (object):
 				if next_mx.min_chlen == 0 and next_chain_count > 1:
 					zeroes.append(loop)
 					diagram.setLoopUnavailabled(loop)
-					#if second_pass:
-					print(f"..[decimate] zeroed {loop} | so far: {len(zeroes)}")
+					if second_pass:
+						print(f"..[decimate] zeroed {loop} | so far: {len(zeroes)}")
 										
-					affected_min_chlen = min([len(n.cycle.chain.avnodes) for n in loop.nodes])
+					affected_min_chlen = min([len(n.cycle.chain.avloops) for n in loop.nodes])
 					if affected_min_chlen < min_chlen:
 						min_chlen = affected_min_chlen
 						if min_chlen is 0:
@@ -228,25 +211,25 @@ class Measurement (object):
 					results[loop] = next_mx
 											
 			if not found:
-				#if second_pass:
-				print(f"..[decimate] done | zeroes: {len(zeroes)}")
+				if second_pass:
+					print(f"..[decimate] done | zeroes: {len(zeroes)}")
 				return (min_chlen, zeroes, results)
-			#if second_pass:
-			print(f"..[decimate] curr | zeroes: {len(zeroes)}")
+			if second_pass:
+				print(f"..[decimate] curr | zeroes: {len(zeroes)}")
 			
 	def __reduce(diagram, min_chlen, second_pass=False):
 		# mandatory
 		min_chlen, curr_singles, curr_coerced = Measurement.__coerce(diagram, min_chlen)
-		#if second_pass:
-		input2("[reduce] init | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
+		if second_pass:
+			print("[reduce] init | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
 				
 		if min_chlen is 0:
 			# input("[reduce] dead @ init coerce | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)) + " | z: 0")
 			return (0, curr_singles, curr_coerced, [], {})
 							
 		min_chlen, curr_zeroes, curr_results = Measurement.__decimate(diagram, min_chlen)		
-		#if second_pass:
-		input2("[reduce] init | z: " + str(len(curr_zeroes)))
+		if second_pass:
+			print("[reduce] init | z: " + str(len(curr_zeroes)))
 		
 		if min_chlen is 0:
 			# input("[reduce] dead @ init decimate | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)) + " | z: " + str(len(curr_zeroes)))
@@ -265,8 +248,8 @@ class Measurement (object):
 				min_chlen, curr_singles, curr_coerced = Measurement.__coerce(diagram, min_chlen)
 				singles += curr_singles
 				coerced += curr_coerced			
-				#if second_pass:
-				print("[reduce] curr | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
+				if second_pass:
+					print("[reduce] curr | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
 				
 				if min_chlen is 0:
 					# input("[reduce] dead @ curr coerce | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
@@ -276,8 +259,8 @@ class Measurement (object):
 					min_chlen, curr_zeroes, curr_results = Measurement.__decimate(diagram, min_chlen, second_pass, curr_results)
 					zeroes += curr_zeroes
 					results = curr_results
-					#if second_pass:
-					print("[reduce] curr | z: " + str(len(curr_zeroes)))
+					if second_pass:
+						print("[reduce] curr | z: " + str(len(curr_zeroes)))
 					
 					if min_chlen is 0:
 						# input("[reduce] dead @ curr decimate | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
@@ -290,8 +273,8 @@ class Measurement (object):
 			else:
 				break
 			
-		#if second_pass:	
-		print("[reduce] done | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
+		if second_pass:	
+			print("[reduce] done | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
 		return (min_chlen, singles, coerced, zeroes, results)						
 				
 
@@ -319,7 +302,7 @@ class Measurement (object):
 	
 			# check tuple completeness
 			if len(curr_extended_loops) == len(curr_tuple):
-				min_chlen = min([len(chain.avnodes) for chain in diagram.chains])
+				min_chlen = min([len(chain.avloops) for chain in diagram.chains])
 				
 				# check tuple viability
 				if min_chlen != 0 or len(diagram.chains) == 1:
@@ -338,7 +321,7 @@ class Measurement (object):
 								[l for l in t # which # if we have connected loops
 										if len( # having nodes # if we have connected nodes
 											[n for n in l.nodes # which # if we have connected nodes
-													if not n.cycle.isUnchained()] # are in cycles tied to other cycles (extended through by another node) # if we have a connected node
+													if len(n.cycle.chain.cycles) is not 1] # are in cycles tied to other cycles (extended through by another node) # if we have a connected node
 										) is not 0]
 							) is 0]								
 
@@ -369,20 +352,20 @@ class Measurement (object):
 	def __find_min_chain(diagram):
 		
 		min_chain = diagram.startNode.cycle.chain
-		min_avlen = len(min_chain.avnodes)
-		min_address = sorted(min_chain.avnodes, key = lambda node: node.address)[0].address
+		min_avlen = len(min_chain.avloops)
+		min_address = sorted(min_chain.cycles, key = lambda cycle: cycle.address)[0].address
 				
 		for curr_chain in diagram.chains:
-			if len(curr_chain.avnodes) <= min_avlen:
-				curr_address = sorted(curr_chain.avnodes, key = lambda node: node.address)[0].address
-				if len(curr_chain.avnodes) < min_avlen or curr_address < min_address:
+			if len(curr_chain.avloops) <= min_avlen:
+				curr_address = sorted(curr_chain.cycles, key = lambda cycle: cycle.address)[0].address
+				if len(curr_chain.avloops) < min_avlen or curr_address < min_address:
 					min_chain = curr_chain
-					min_avlen = len(min_chain.avnodes)
+					min_avlen = len(min_chain.avloops)
 					min_address = curr_address
 		
 		min_nodes = []
-		for node in min_chain.avnodes:
-			ns = [n for n in node.loop.nodes if n.cycle.chain is min_chain]
+		for loop in min_chain.avloops:
+			ns = [node for node in loop.nodes if node.cycle.chain is min_chain]
 			assert len(ns) is 1
 			min_nodes.append(ns.pop())
 		
