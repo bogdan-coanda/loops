@@ -48,9 +48,9 @@ class Diagram (object):
 			new_chain = Chain(self.chainAutoInc)
 																			
 			# move cycle
-			cycle.chain = new_chain
-			new_chain.cycles.append(cycle)								
-			new_chain.avloops = set([node.loop for node in cycle.nodes])
+			new_chain.avnodes = list(cycle.nodes)
+			for node in cycle.nodes:
+				node.chain = new_chain
 																																					
 			# a new chain is born
 			self.chains.add(new_chain)
@@ -248,7 +248,7 @@ class Diagram (object):
 				node.loop.extended = True
 			
 				for n in node.loop.nodes:				
-					affected_chains.append(n.cycle.chain)
+					affected_chains.append(n.chain)
 					n.cycle.isKernel = True
 
 				# connect last bro
@@ -282,7 +282,7 @@ class Diagram (object):
 						
 		# affected chains are the ones that will be tied together by this extension
 		# they're the chains that need to be added back on collapse
-		affected_chains = [node.cycle.chain for node in loop.nodes]
+		affected_chains = [node.chain for node in loop.nodes]
 						
 		# affected loops are avloops set to unavailabled because we're connecting these chains together
 		# they're the loops that are re-availabled on collapse
@@ -314,9 +314,9 @@ class Diagram (object):
 				
 	def checkAvailability(self, loop):
 		for i in range(1, len(loop.nodes)):
-			ichain = loop.nodes[i].cycle.chain
+			ichain = loop.nodes[i].chain
 			for j in range(0, i):
-				jchain = loop.nodes[j].cycle.chain
+				jchain = loop.nodes[j].chain
 				# if the loop would link back to the same chain
 				if ichain is jchain:
 					return False
@@ -334,8 +334,8 @@ class Diagram (object):
 		# for node in loop.nodes:
 		# 	cycle = node.cycle
 		# 	cycle.chain.avloops.add(loop)
-		for ch, l in updated_chains:
-			ch.avloops.add(l)
+		for ch, n in updated_chains:
+			ch.avnodes.add(n)
 		
 		
 	def setLoopUnavailabled(self, loop):
@@ -345,9 +345,9 @@ class Diagram (object):
 		self.changelog.append(('unavailabled', loop, updated_chains))
 		
 		for node in loop.nodes:
-			if loop in node.cycle.chain.avloops: # [~] why would the loop not be here ? got removed twice ? got debugged twice over already and proven correct ? as is it needed during makeChain ?
-				node.cycle.chain.avloops.remove(loop)
-				updated_chains.append((node.cycle.chain, loop))
+			if loop in node.chain.avnodes: # [~] why would the loop not be here ? got removed twice ? got debugged twice over already and proven correct ? as is it needed during makeChain ?
+				node.chain.avnodes.remove(node)
+				updated_chains.append((node.chain, node))
 									
 	
 	def makeChain(self, affected_chains):
@@ -360,34 +360,46 @@ class Diagram (object):
 		# print("creating new chain: " + str(new_chain))
 		affected_loops = []
 		
-		#assert new_chain.id != 40298
-		
+		# gather together all non-repeating avnodes.loops, this is checkAvailability() behaviour
+		seenOnceLoops = []
+		# seen at least once nodes cache (for faster filtering after the gathering)
+		seenNodes = []
+																	
 		# for each old chain
 		for index, old_chain in enumerate(affected_chains):
+			
+			# for each available node
+			for node in list(old_chain.avnodes):
+				loop = node.loop
+				
+				# if still available
+				if loop.availabled:
+					
+					# if not yet seen
+					if loop not in seenOnceLoops:
+						# seen once
+						seenOnceLoops.append(loop)
+						seenNodes.append(node)							
 							
-			# move cycles to new chain
-			for cycle in old_chain.cycles:
-				cycle.chain = new_chain
-				new_chain.cycles.append(cycle)
+					# if seen once (seen more condition not possible as we're guarded by loop.availabled)
+					else:
+						# seen more
+						seenOnceLoops.remove(loop)
+						self.setLoopUnavailabled(loop)
+						# remember erased loop						
+						affected_loops.append(loop)
 										
 			# kill chain
 			#print("[makeChain] removing: " + str(old_chain))
 			self.chains.remove(old_chain)			
-			# if old_chain.id == 33013:
-			# 	print("removed old chain: 33013 | while making new chain: " + str(new_chain.id))
 																		
-		# move/remember loops												
-		# for each old chain
-		for old_chain in affected_chains:												
-			for loop in old_chain.avloops:
-				if loop.availabled:
-					if not self.checkAvailability(loop):
-						# remember erased loop
-						self.setLoopUnavailabled(loop)
-						affected_loops.append(loop)
-					else:
-						# move still available loop to new chain
-						new_chain.avloops.add(loop)
+		# filter all corresponding remaining avnodes
+		new_chain.avnodes = [node for node in seenNodes if node.loop.availabled]
+		assert len(new_chain.avnodes) is len(seenOnceLoops), "counts should match, one available node for each seen once loop"
+		
+		# move remaining avnodes to the new chain (will have to be undone on breakChain())
+		for node in new_chain.avnodes:
+			node.chain = new_chain
 																																					
 		# a new chain is born
 		#print("[makeChain] adding: " + str(new_chain))
@@ -401,11 +413,11 @@ class Diagram (object):
 		# remove/add chains
 		self.chains.remove(extension_result.new_chain)
 		for chain in extension_result.affected_chains:
-			self.chains.add(chain)
-			# remap cycles
-			for cycle in chain.cycles:
-				cycle.chain = chain
-			
+			self.chains.add(chain)			
+			# remap nodes
+			for node in chain.avnodes:
+				node.chain = chain
+							
 		# re-available affected loops	(including coerced, if any)
 		for loop in reversed(extension_result.affected_loops):
 			self.setLoopAvailabled(loop)

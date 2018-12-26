@@ -4,7 +4,7 @@ import math
 
 class Cycle (object):
 	
-	__slots__ = ['index', 'address', 'nodes', 'px', 'py', 'isKernel', 'chain']
+	__slots__ = ['index', 'address', 'nodes', 'px', 'py', 'isKernel']
 	
 	def __init__(self, index, address, nodes):
 		self.index = index
@@ -22,7 +22,7 @@ class Cycle (object):
 		self.px = 0
 		self.py = 0
 		self.isKernel = False
-		self.chain = None
+		
 		# [!unused!] self.inner_roots = None
 		# [!unused!] self.outer_roots = None
 
@@ -32,13 +32,15 @@ class Cycle (object):
 		rc = [node for node in nodes if node.loop.availabled]
 		return rc[0] if len(rc) > 0 else nodes[0]
 		
+		
 	def avnode_or_self(self):
 		nodes = sorted(self.nodes, key = lambda n: n.address)
 		rc = [node for node in nodes if node.loop.availabled]
 		return rc[0] if len(rc) > 0 else self		
 				
+				
 	def __repr__(self):
-		return "⟨cycle:"+str(self.index)+"@"+self.address+("§"+str(self.chain) if len(self.chain.cycles) > 1 else "")+"⟩"
+		return "⟨cycle:"+str(self.index)+"@"+self.address+("§"+str(self.chain) if not self.isUnchained() else "")+"⟩"
 		
 		
 	def __lt__(self, other):
@@ -61,4 +63,8 @@ class Cycle (object):
 		for i in range(len(self.nodes)):
 			self.nodes[i].px = self.px + inner_roots[i][0]
 			self.nodes[i].py = self.py + inner_roots[i][1]
+		
+		
+	def isUnchained(self):
+		return len([node for node in self.nodes if node.loop.extended]) is 0
 		

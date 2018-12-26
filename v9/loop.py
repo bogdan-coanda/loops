@@ -49,7 +49,7 @@ class Loop (object):
 		
 	def killingField(self):
 		# gather around all avloops for chains tied to this loop (including multiples)
-		all_avloops = list(itertools.chain(*[n.cycle.chain.avloops for n in self.nodes]))
+		all_avloops = list(itertools.chain(*[[ncn.loop for ncn in n.chain.avnodes] for n in self.nodes]))
 		
 		# one of each avloop instance
 		unique_avloops = set(all_avloops)
@@ -67,7 +67,7 @@ class Loop (object):
 		return self._killingField 
 
 	def chain(self):
-		return self.nodes[0].cycle.chain
+		return self.nodes[0].chain
 		
 def color_string(ktype):
 	if ktype is 0:
