@@ -58,9 +58,9 @@ class Measurement (object):
 			
 			
 	def single(self):
-		assert not self.reduced		
+		# assert not self.reduced		
 		self.min_chlen, self.singles, _ = Measurement.__coerce(self.diagram, self.opslog, self.min_chlen, False)
-		assert len(self.opslog) == len(self.singles)
+		# assert len(self.opslog) == len(self.singles)
 		self.coerced = []
 		self.zeroes = []
 		self.results = {}
@@ -69,9 +69,9 @@ class Measurement (object):
 		
 		
 	def coerce(self):
-		assert not self.reduced		
+		# assert not self.reduced		
 		self.min_chlen, self.singles, self.coerced = Measurement.__coerce(self.diagram, self.opslog, self.min_chlen, True)
-		assert len(self.opslog) == len(self.singles) + len(self.coerced)
+		# assert len(self.opslog) == len(self.singles) + len(self.coerced)
 		# print(f"[coerce] singles: {len(self.singles)} | coerced: {len(self.coerced)} | opslog: {len(self.opslog)}")
 		self.zeroes = []
 		self.results = {}
@@ -80,10 +80,10 @@ class Measurement (object):
 		
 								
 	def reduce(self, second_pass=False):
-		assert not self.reduced
+		# assert not self.reduced
 		# reduce
 		self.min_chlen, self.singles, self.coerced, self.zeroes, self.results = Measurement.__reduce(self.diagram, self.opslog, self.min_chlen, second_pass)
-		assert len(self.opslog) == len(self.singles) + len(self.coerced) + len(self.zeroes)
+		# assert len(self.opslog) == len(self.singles) + len(self.coerced) + len(self.zeroes)
 		# remeasure self
 		self.__init__(self.diagram, self, self.opslog)
 		# retain state
@@ -352,7 +352,7 @@ class Measurement (object):
 				
 		# reorder by ktype	
 		min_nodes = sorted([n for n in min_cycle.nodes if n.loop.tuple in min_matched_tuples], key = lambda n: n.ktype) if min_cycle is not None else []
-		assert len(min_nodes) == len(min_matched_tuples)
+		# assert len(min_nodes) == len(min_matched_tuples)
 		min_matched_tuples = [n.loop.tuple for n in min_nodes]
 		
 		return (min_cycle, min_nodes, min_matched_tuples)
@@ -375,7 +375,7 @@ class Measurement (object):
 		min_nodes = []
 		for node in min_chain.avnodes:
 			ns = [n for n in node.loop.nodes if n.cycle.chain is min_chain]
-			assert len(ns) is 1
+			# assert len(ns) is 1
 			min_nodes.append(ns.pop())
 		
 		return (min_chain, sorted(min_nodes, key = lambda node: (node.ktype, node.address)))

@@ -308,7 +308,7 @@ class Diagram (object):
 		self.breakChain(loop.extension_result)
 		loop.extended = False
 		
-		assert self.changelog[-1][0] == 'extended' and self.changelog[-1][1] == loop, self.changelog[-1]
+		# assert self.changelog[-1][0] == 'extended' and self.changelog[-1][1] == loop, self.changelog[-1]
 		self.changelog.pop()		
 		
 				
@@ -327,7 +327,7 @@ class Diagram (object):
 		# assert len(set([node.cycle.chain for node in loop.nodes])) == len(loop.nodes)
 		# assert loop.availabled is False
 		# print(f"[availabled] loop: {loop}")
-		assert self.changelog[-1][0] == 'unavailabled' and self.changelog[-1][1] == loop, self.changelog[-1]
+		# assert self.changelog[-1][0] == 'unavailabled' and self.changelog[-1][1] == loop, self.changelog[-1]
 		_, _, updated_chains = self.changelog.pop()
 		
 		loop.availabled = True
@@ -396,7 +396,7 @@ class Diagram (object):
 		# filter all corresponding remaining avnodes
 		new_chain.avnodes = [node for node in seenNodes if node.loop.availabled]
 		#print(f"[makeChain] new_chain.avnodes: {len(new_chain.avnodes)} ({len(set(new_chain.avnodes))}) | seenOnceLoops: {len(seenOnceLoops)} ({len(set(seenOnceLoops))})")
-		assert len(new_chain.avnodes) == len(seenOnceLoops), "counts should match, one available node for each seen once loop"
+		# assert len(new_chain.avnodes) == len(seenOnceLoops), "counts should match, one available node for each seen once loop"
 		
 		# move remaining avnodes to the new chain (will have to be undone on breakChain())
 		for node in new_chain.avnodes:
