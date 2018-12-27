@@ -66,5 +66,6 @@ class Cycle (object):
 		
 		
 	def isUnchained(self):
+		#return sum(node.loop.extended for node in self.nodes) == 0
 		return len([node for node in self.nodes if node.loop.extended]) is 0
 		
