@@ -339,11 +339,13 @@ class Measurement (object):
 		min_viable_tuple_count = diagram.spClass
 		min_cycle = None
 		min_matched_tuples = []
+		avtuples = set(avtuples)
 			
 		#print("[find_min_blabla] unchained_cycles: " + str(len(unchained_cycles)))
 		for cycle in unchained_cycles:
 			curr_cycle_tuples = [node.loop.tuple for node in cycle.nodes if node.loop.availabled or node.loop.extended]
-			matched_tuples = [t for t in avtuples if t in curr_cycle_tuples]
+			matched_tuples = avtuples.intersection(curr_cycle_tuples)
+			#matched_tuples = [t for t in avtuples if t in curr_cycle_tuples]
 			
 			if len(matched_tuples) < min_viable_tuple_count:
 				min_viable_tuple_count = len(matched_tuples)
