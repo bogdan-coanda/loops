@@ -4,7 +4,7 @@ import math
 
 class Cycle (object):
 	
-	__slots__ = ['index', 'address', 'nodes', 'px', 'py', 'isKernel']
+	__slots__ = ['index', 'address', 'nodes', 'px', 'py', 'isKernel', 'isUnchained']
 	
 	def __init__(self, index, address, nodes):
 		self.index = index
@@ -22,6 +22,7 @@ class Cycle (object):
 		self.px = 0
 		self.py = 0
 		self.isKernel = False
+		self.isUnchained = True
 		
 		# [!unused!] self.inner_roots = None
 		# [!unused!] self.outer_roots = None
@@ -40,7 +41,7 @@ class Cycle (object):
 				
 				
 	def __repr__(self):
-		return "⟨cycle:"+str(self.index)+"@"+self.address+("§"+str(self.chain) if not self.isUnchained() else "")+"⟩"
+		return "⟨cycle:"+str(self.index)+"@"+self.address+("§"+str(self.chain) if not self.isUnchained else "")+"⟩"
 		
 		
 	def __lt__(self, other):
@@ -65,6 +66,6 @@ class Cycle (object):
 			self.nodes[i].py = self.py + inner_roots[i][1]
 		
 		
-	def isUnchained(self):
-		return len([node for node in self.nodes if node.loop.extended]) is 0
+	#def isUnchained(self):
+		#return len([node for node in self.nodes if node.loop.extended]) is 0
 		

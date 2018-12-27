@@ -24,7 +24,7 @@ class Measurement (object):
 		self.min_chlen = min([len(chain.avnodes) for chain in diagram.chains])
 		
 		# 2. find cycles not chained to any other
-		self.unchained_cycles = [cycle for cycle in (old_mx.unchained_cycles if old_mx else diagram.cycles) if cycle.isUnchained()]
+		self.unchained_cycles = [cycle for cycle in (old_mx.unchained_cycles if old_mx else diagram.cycles) if cycle.isUnchained]
 		
 		# 3. find available loops 
 		self.avloops = [l for l in (old_mx.avloops if old_mx else diagram.loops) if l.availabled]
@@ -330,7 +330,7 @@ class Measurement (object):
 								[l for l in t # which # if we have connected loops
 										if len( # having nodes # if we have connected nodes
 											[n for n in l.nodes # which # if we have connected nodes
-													if not n.cycle.isUnchained()] # are in cycles tied to other cycles (extended through by another node) # if we have a connected node
+													if not n.cycle.isUnchained] # are in cycles tied to other cycles (extended through by another node) # if we have a connected node
 										) is not 0]
 							) is 0]								
 
