@@ -1,0 +1,192 @@
+[generateLoops] ktype[0][0]: ⟨loop:[blue:None]:00005|Av⟩ | 00005
+[makeChain] for old chain @ 0: ⟨chain:0|av:6⟩
+[makeChain] for node: ⟨node:012345@00000§⟨chain:0|av:6⟩ | loop: ⟨loop:[violet:0]:00000|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:123450@00001§⟨chain:0|av:6⟩ | loop: ⟨loop:[red:12]:00001|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:234501@00002§⟨chain:0|av:6⟩ | loop: ⟨loop:[orange:8]:00002|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:345012@00003§⟨chain:0|av:6⟩ | loop: ⟨loop:[yellow:3]:00003|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:450123@00004§⟨chain:0|av:6⟩ | loop: ⟨loop:[green:0]:00004|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:501234@00005§⟨chain:0|av:6⟩ | loop: ⟨loop:[blue:0]:00005|AvEx⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for old chain @ 1: ⟨chain:1|av:6⟩
+[makeChain] for node: ⟨node:123405@00010§⟨chain:1|av:6⟩ | loop: ⟨loop:[red:0]:00010|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:234051@00011§⟨chain:1|av:6⟩ | loop: ⟨loop:[orange:16]:00011|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:340512@00012§⟨chain:1|av:6⟩ | loop: ⟨loop:[yellow:6]:00012|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:405123@00013§⟨chain:1|av:6⟩ | loop: ⟨loop:[green:1]:00013|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:051234@00014§⟨chain:1|av:6⟩ | loop: ⟨loop:[violet:0]:00000|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen more
+[makeChain] for old chain @ 2: ⟨chain:2|av:6⟩
+[makeChain] for node: ⟨node:234015@00020§⟨chain:2|av:6⟩ | loop: ⟨loop:[orange:0]:00020|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:340152@00021§⟨chain:2|av:6⟩ | loop: ⟨loop:[yellow:9]:00021|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:401523@00022§⟨chain:2|av:6⟩ | loop: ⟨loop:[green:2]:00022|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:015234@00023§⟨chain:2|av:6⟩ | loop: ⟨loop:[violet:12]:00023|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:152340@00024§⟨chain:2|av:6⟩ | loop: ⟨loop:[red:0]:00010|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen more
+[makeChain] for old chain @ 3: ⟨chain:3|av:6⟩
+[makeChain] for node: ⟨node:340125@00030§⟨chain:3|av:6⟩ | loop: ⟨loop:[yellow:0]:00030|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:401253@00031§⟨chain:3|av:6⟩ | loop: ⟨loop:[green:3]:00031|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:012534@00032§⟨chain:3|av:6⟩ | loop: ⟨loop:[violet:4]:00032|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:125340@00033§⟨chain:3|av:6⟩ | loop: ⟨loop:[red:16]:00033|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:253401@00034§⟨chain:3|av:6⟩ | loop: ⟨loop:[orange:0]:00020|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen more
+[makeChain] for old chain @ 4: ⟨chain:4|av:6⟩
+[makeChain] for node: ⟨node:401235@00040§⟨chain:4|av:6⟩ | loop: ⟨loop:[green:0]:00004|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen more
+[makeChain] for node: ⟨node:123540@00042§⟨chain:4|av:5⟩ | loop: ⟨loop:[red:13]:00042|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:235401@00043§⟨chain:4|av:5⟩ | loop: ⟨loop:[orange:9]:00043|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:354012@00044§⟨chain:4|av:5⟩ | loop: ⟨loop:[yellow:0]:00030|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen more
+[makeChain] for old chain @ 5: ⟨chain:5|av:5⟩
+[makeChain] for node: ⟨node:123045@00100§⟨chain:5|av:5⟩ | loop: ⟨loop:[red:1]:00100|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:230451@00101§⟨chain:5|av:5⟩ | loop: ⟨loop:[orange:17]:00101|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:304512@00102§⟨chain:5|av:5⟩ | loop: ⟨loop:[yellow:7]:00102|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:451230@00104§⟨chain:5|av:5⟩ | loop: ⟨loop:[green:1]:00013|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen more
+[makeChain] for old chain @ 6: ⟨chain:6|av:6⟩
+[makeChain] for node: ⟨node:230415@00110§⟨chain:6|av:6⟩ | loop: ⟨loop:[orange:1]:00110|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:304152@00111§⟨chain:6|av:6⟩ | loop: ⟨loop:[yellow:10]:00111|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:041523@00112§⟨chain:6|av:6⟩ | loop: ⟨loop:[violet:12]:00023|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen more
+[makeChain] for node: ⟨node:152304@00114§⟨chain:6|av:5⟩ | loop: ⟨loop:[red:1]:00100|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen more
+[makeChain] for old chain @ 7: ⟨chain:7|av:6⟩
+[makeChain] for node: ⟨node:304125@00120§⟨chain:7|av:6⟩ | loop: ⟨loop:[yellow:1]:00120|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:041253@00121§⟨chain:7|av:6⟩ | loop: ⟨loop:[violet:4]:00032|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen more
+[makeChain] for node: ⟨node:125304@00123§⟨chain:7|av:5⟩ | loop: ⟨loop:[red:17]:00123|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:253041@00124§⟨chain:7|av:5⟩ | loop: ⟨loop:[orange:1]:00110|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen more
+[makeChain] for old chain @ 8: ⟨chain:8|av:5⟩
+[makeChain] for node: ⟨node:041235@00130§⟨chain:8|av:5⟩ | loop: ⟨loop:[violet:1]:00041|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:123504@00132§⟨chain:8|av:5⟩ | loop: ⟨loop:[red:14]:00132|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:235041@00133§⟨chain:8|av:5⟩ | loop: ⟨loop:[orange:10]:00133|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:350412@00134§⟨chain:8|av:5⟩ | loop: ⟨loop:[yellow:1]:00120|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen more
+[makeChain] for old chain @ 9: ⟨chain:9|av:5⟩
+[makeChain] for node: ⟨node:123054@00141§⟨chain:9|av:5⟩ | loop: ⟨loop:[red:2]:00141|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:230541@00142§⟨chain:9|av:5⟩ | loop: ⟨loop:[orange:18]:00142|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:305412@00143§⟨chain:9|av:5⟩ | loop: ⟨loop:[yellow:4]:00143|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:054123@00144§⟨chain:9|av:5⟩ | loop: ⟨loop:[violet:1]:00041|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen more
+[makeChain] for old chain @ 10: ⟨chain:10|av:5⟩
+[makeChain] for node: ⟨node:230145@00200§⟨chain:10|av:5⟩ | loop: ⟨loop:[orange:2]:00200|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:301452@00201§⟨chain:10|av:5⟩ | loop: ⟨loop:[yellow:11]:00201|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:014523@00202§⟨chain:10|av:5⟩ | loop: ⟨loop:[violet:13]:00202|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:452301@00204§⟨chain:10|av:5⟩ | loop: ⟨loop:[green:2]:00022|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen more
+[makeChain] for old chain @ 11: ⟨chain:11|av:6⟩
+[makeChain] for node: ⟨node:301425@00210§⟨chain:11|av:6⟩ | loop: ⟨loop:[yellow:2]:00210|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:014253@00211§⟨chain:11|av:6⟩ | loop: ⟨loop:[violet:5]:00211|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:142530@00212§⟨chain:11|av:6⟩ | loop: ⟨loop:[red:17]:00123|Av⟩ in old chain avnodes: 6
+[makeChain] ⇒ seen more
+[makeChain] for node: ⟨node:253014@00214§⟨chain:11|av:5⟩ | loop: ⟨loop:[orange:2]:00200|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen more
+[makeChain] for old chain @ 12: ⟨chain:12|av:5⟩
+[makeChain] for node: ⟨node:014235@00220§⟨chain:12|av:5⟩ | loop: ⟨loop:[violet:2]:00220|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:142350@00221§⟨chain:12|av:5⟩ | loop: ⟨loop:[red:14]:00132|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen more
+[makeChain] for node: ⟨node:350142@00224§⟨chain:12|av:4⟩ | loop: ⟨loop:[yellow:2]:00210|Av⟩ in old chain avnodes: 4
+[makeChain] ⇒ seen more
+[makeChain] for old chain @ 13: ⟨chain:13|av:5⟩
+[makeChain] for node: ⟨node:142305@00230§⟨chain:13|av:5⟩ | loop: ⟨loop:[red:2]:00141|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen more
+[makeChain] for node: ⟨node:305142@00233§⟨chain:13|av:4⟩ | loop: ⟨loop:[yellow:5]:00233|Av⟩ in old chain avnodes: 4
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:051423@00234§⟨chain:13|av:4⟩ | loop: ⟨loop:[violet:2]:00220|Av⟩ in old chain avnodes: 4
+[makeChain] ⇒ seen more
+[makeChain] for old chain @ 14: ⟨chain:14|av:4⟩
+[makeChain] for node: ⟨node:230154@00241§⟨chain:14|av:4⟩ | loop: ⟨loop:[orange:3]:00241|Av⟩ in old chain avnodes: 4
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:301542@00242§⟨chain:14|av:4⟩ | loop: ⟨loop:[yellow:8]:00242|Av⟩ in old chain avnodes: 4
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:015423@00243§⟨chain:14|av:4⟩ | loop: ⟨loop:[violet:14]:00243|Av⟩ in old chain avnodes: 4
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:542301@00245§⟨chain:14|av:4⟩ | loop: ⟨loop:[blue:2]:00205|AvEx⟩ in old chain avnodes: 4
+[makeChain] ⇒ seen once
+[makeChain] for old chain @ 15: ⟨chain:15|av:5⟩
+[makeChain] for node: ⟨node:301245@00300§⟨chain:15|av:5⟩ | loop: ⟨loop:[yellow:3]:00003|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen more
+[makeChain] for node: ⟨node:124530@00302§⟨chain:15|av:4⟩ | loop: ⟨loop:[red:18]:00302|Av⟩ in old chain avnodes: 4
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:453012@00304§⟨chain:15|av:4⟩ | loop: ⟨loop:[green:3]:00031|Av⟩ in old chain avnodes: 4
+[makeChain] ⇒ seen more
+[makeChain] for old chain @ 16: ⟨chain:16|av:4⟩
+[makeChain] for node: ⟨node:012435@00310§⟨chain:16|av:4⟩ | loop: ⟨loop:[violet:3]:00310|Av⟩ in old chain avnodes: 4
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:124350@00311§⟨chain:16|av:4⟩ | loop: ⟨loop:[red:15]:00311|Av⟩ in old chain avnodes: 4
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:243501@00312§⟨chain:16|av:4⟩ | loop: ⟨loop:[orange:11]:00223|Av⟩ in old chain avnodes: 4
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:501243@00315§⟨chain:16|av:4⟩ | loop: ⟨loop:[blue:3]:00305|AvEx⟩ in old chain avnodes: 4
+[makeChain] ⇒ seen once
+[makeChain] for old chain @ 17: ⟨chain:17|av:5⟩
+[makeChain] for node: ⟨node:124305@00320§⟨chain:17|av:5⟩ | loop: ⟨loop:[red:3]:00320|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:243051@00321§⟨chain:17|av:5⟩ | loop: ⟨loop:[orange:19]:00232|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:305124@00323§⟨chain:17|av:5⟩ | loop: ⟨loop:[yellow:6]:00012|Av⟩ in old chain avnodes: 5
+[makeChain] ⇒ seen more
+[makeChain] for node: ⟨node:512430@00325§⟨chain:17|av:4⟩ | loop: ⟨loop:[blue:3]:00305|AvEx⟩ in old chain avnodes: 4
+[makeChain] ⇒ seen more
+[makeChain] for old chain @ 18: ⟨chain:18|av:4⟩
+[makeChain] for node: ⟨node:243015@00330§⟨chain:18|av:4⟩ | loop: ⟨loop:[orange:3]:00241|Av⟩ in old chain avnodes: 4
+[makeChain] ⇒ seen more
+[makeChain] for node: ⟨node:015243@00333§⟨chain:18|av:3⟩ | loop: ⟨loop:[violet:15]:00333|Av⟩ in old chain avnodes: 3
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:152430@00334§⟨chain:18|av:3⟩ | loop: ⟨loop:[red:3]:00320|Av⟩ in old chain avnodes: 3
+[makeChain] ⇒ seen more
+[makeChain] for old chain @ 19: ⟨chain:19|av:2⟩
+[makeChain] for node: ⟨node:012543@00342§⟨chain:19|av:2⟩ | loop: ⟨loop:[violet:7]:00342|Av⟩ in old chain avnodes: 2
+[makeChain] ⇒ seen once
+[makeChain] for node: ⟨node:125430@00343§⟨chain:19|av:2⟩ | loop: ⟨loop:[red:19]:00343|Av⟩ in old chain avnodes: 2
+[makeChain] ⇒ seen once
+[makeChain] seenNodes: (54)
+[⟨node:012345@00000§⟨chain:0|av:3⟩, ⟨node:123450@00001§⟨chain:0|av:3⟩, ⟨node:234501@00002§⟨chain:0|av:3⟩, ⟨node:345012@00003§⟨chain:0|av:3⟩, ⟨node:450123@00004§⟨chain:0|av:3⟩, ⟨node:501234@00005§⟨chain:0|av:3⟩, ⟨node:123405@00010§⟨chain:1|av:2⟩, ⟨node:234051@00011§⟨chain:1|av:2⟩, ⟨node:340512@00012§⟨chain:1|av:2⟩, ⟨node:405123@00013§⟨chain:1|av:2⟩, ⟨node:234015@00020§⟨chain:2|av:2⟩, ⟨node:340152@00021§⟨chain:2|av:2⟩, ⟨node:401523@00022§⟨chain:2|av:2⟩, ⟨node:015234@00023§⟨chain:2|av:2⟩, ⟨node:340125@00030§⟨chain:3|av:2⟩, ⟨node:401253@00031§⟨chain:3|av:2⟩, ⟨node:012534@00032§⟨chain:3|av:2⟩, ⟨node:125340@00033§⟨chain:3|av:2⟩, ⟨node:123540@00042§⟨chain:4|av:3⟩, ⟨node:235401@00043§⟨chain:4|av:3⟩, ⟨node:123045@00100§⟨chain:5|av:3⟩, ⟨node:230451@00101§⟨chain:5|av:3⟩, ⟨node:304512@00102§⟨chain:5|av:3⟩, ⟨node:230415@00110§⟨chain:6|av:2⟩, ⟨node:304152@00111§⟨chain:6|av:2⟩, ⟨node:304125@00120§⟨chain:7|av:1⟩, ⟨node:125304@00123§⟨chain:7|av:1⟩, ⟨node:041235@00130§⟨chain:8|av:2⟩, ⟨node:123504@00132§⟨chain:8|av:2⟩, ⟨node:235041@00133§⟨chain:8|av:2⟩, ⟨node:123054@00141§⟨chain:9|av:3⟩, ⟨node:230541@00142§⟨chain:9|av:3⟩, ⟨node:305412@00143§⟨chain:9|av:3⟩, ⟨node:230145@00200§⟨chain:10|av:3⟩, ⟨node:301452@00201§⟨chain:10|av:3⟩, ⟨node:014523@00202§⟨chain:10|av:3⟩, ⟨node:301425@00210§⟨chain:11|av:2⟩, ⟨node:014253@00211§⟨chain:11|av:2⟩, ⟨node:014235@00220§⟨chain:12|av:2⟩, ⟨node:305142@00233§⟨chain:13|av:3⟩, ⟨node:230154@00241§⟨chain:14|av:3⟩, ⟨node:301542@00242§⟨chain:14|av:3⟩, ⟨node:015423@00243§⟨chain:14|av:3⟩, ⟨node:542301@00245§⟨chain:14|av:3⟩, ⟨node:124530@00302§⟨chain:15|av:2⟩, ⟨node:012435@00310§⟨chain:16|av:3⟩, ⟨node:124350@00311§⟨chain:16|av:3⟩, ⟨node:243501@00312§⟨chain:16|av:3⟩, ⟨node:501243@00315§⟨chain:16|av:3⟩, ⟨node:124305@00320§⟨chain:17|av:2⟩, ⟨node:243051@00321§⟨chain:17|av:2⟩, ⟨node:015243@00333§⟨chain:18|av:2⟩, ⟨node:012543@00342§⟨chain:19|av:2⟩, ⟨node:125430@00343§⟨chain:19|av:2⟩]
+[makeChain] new chain avnodes: (29)
+[⟨node:123450@00001§⟨chain:0|av:3⟩, ⟨node:234501@00002§⟨chain:0|av:3⟩, ⟨node:501234@00005§⟨chain:0|av:3⟩, ⟨node:234051@00011§⟨chain:1|av:2⟩, ⟨node:340152@00021§⟨chain:2|av:2⟩, ⟨node:125340@00033§⟨chain:3|av:2⟩, ⟨node:123540@00042§⟨chain:4|av:3⟩, ⟨node:235401@00043§⟨chain:4|av:3⟩, ⟨node:230451@00101§⟨chain:5|av:3⟩, ⟨node:304512@00102§⟨chain:5|av:3⟩, ⟨node:304152@00111§⟨chain:6|av:2⟩, ⟨node:235041@00133§⟨chain:8|av:2⟩, ⟨node:230541@00142§⟨chain:9|av:3⟩, ⟨node:305412@00143§⟨chain:9|av:3⟩, ⟨node:301452@00201§⟨chain:10|av:3⟩, ⟨node:014523@00202§⟨chain:10|av:3⟩, ⟨node:014253@00211§⟨chain:11|av:2⟩, ⟨node:305142@00233§⟨chain:13|av:3⟩, ⟨node:301542@00242§⟨chain:14|av:3⟩, ⟨node:015423@00243§⟨chain:14|av:3⟩, ⟨node:542301@00245§⟨chain:14|av:3⟩, ⟨node:124530@00302§⟨chain:15|av:2⟩, ⟨node:012435@00310§⟨chain:16|av:3⟩, ⟨node:124350@00311§⟨chain:16|av:3⟩, ⟨node:243501@00312§⟨chain:16|av:3⟩, ⟨node:243051@00321§⟨chain:17|av:2⟩, ⟨node:015243@00333§⟨chain:18|av:2⟩, ⟨node:012543@00342§⟨chain:19|av:2⟩, ⟨node:125430@00343§⟨chain:19|av:2⟩]
+[makeChain] seenOnceLoops: (29)
+[⟨loop:[red:12]:00001|Av⟩, ⟨loop:[orange:8]:00002|Av⟩, ⟨loop:[blue:0]:00005|AvEx⟩, ⟨loop:[orange:16]:00011|Av⟩, ⟨loop:[yellow:9]:00021|Av⟩, ⟨loop:[red:16]:00033|Av⟩, ⟨loop:[red:13]:00042|Av⟩, ⟨loop:[orange:9]:00043|Av⟩, ⟨loop:[orange:17]:00101|Av⟩, ⟨loop:[yellow:7]:00102|Av⟩, ⟨loop:[yellow:10]:00111|Av⟩, ⟨loop:[orange:10]:00133|Av⟩, ⟨loop:[orange:18]:00142|Av⟩, ⟨loop:[yellow:4]:00143|Av⟩, ⟨loop:[yellow:11]:00201|Av⟩, ⟨loop:[violet:13]:00202|Av⟩, ⟨loop:[violet:5]:00211|Av⟩, ⟨loop:[yellow:5]:00233|Av⟩, ⟨loop:[yellow:8]:00242|Av⟩, ⟨loop:[violet:14]:00243|Av⟩, ⟨loop:[blue:2]:00205|AvEx⟩, ⟨loop:[red:18]:00302|Av⟩, ⟨loop:[violet:3]:00310|Av⟩, ⟨loop:[red:15]:00311|Av⟩, ⟨loop:[orange:11]:00223|Av⟩, ⟨loop:[orange:19]:00232|Av⟩, ⟨loop:[violet:15]:00333|Av⟩, ⟨loop:[violet:7]:00342|Av⟩, ⟨loop:[red:19]:00343|Av⟩]
+[kernel] new chain: ⟨chain:0|av:29⟩ | affected loops: 25 | affected chains: 20
+[diagram] tobex: 29
+generated tuples
+[show] chain count: 1 | available loops: 119 | looped: 120/720 (16.67%) | remaining: 600
+
+
+￼⟨mx | min chlen: 4 | avloops: 119 | avtuples: 22 | chains: 101 | unicycles: 100 | tobex: 25⟩

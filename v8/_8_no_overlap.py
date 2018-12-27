@@ -8,19 +8,19 @@ from collections import defaultdict
 from random import *
 
 FORCED_FREQUENCY = -1
-FILE_ROOT = "__8__jj__stepping__"
 
 '''
-[*474971*][ 60m12s.233][lvl:118][uc:0][𝒞:679] --- $$$ found something $$$ --- 0⁶.0⁴.0⁴.0⁴.0⁴.0⁴.0².0².0³.0².0⁴.0³.0⁵.0³.0³.0¹.0³.0⁶.0⁴.0³.0³.0³.0⁴.0⁴.0².0³.0³.0².0³.0³.0².0².0³.0².0².0².0¹.0².0³.0¹.0¹.0².0¹.0².0⁴.0³.0³.0⁴.0².0³.0².0².0².0³.0¹.0¹.0².0¹.0².3⁵.2³.2³.1².0¹.1².1³.0¹.1².0¹.0¹.0².1².0¹.0¹.0¹.1².0¹.0³.1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0³.0².0².1².0¹.0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.|¹².|¹²
-»»» ∘ ««« 
-[*436661*][   53m41s.2][lvl:118][uc:0][𝒞:715] --- [smth:mx|min_chlen:2|s:6|c:0|z:0] --- 0⁶.0⁴.0⁴.0⁴.0⁴.0⁴.0².0².0³.0².0⁴.0³.0⁵.0³.0³.0¹.0³.0⁶.0⁴.0³.0³.0³.0⁴.0⁴.0².0³.0³.0².0³.0³.0².0².0³.0².0².0².0¹.0².0³.0¹.0¹.0².0¹.0².0⁴.0³.0³.0⁴.0².0³.0².0².0².0³.0¹.0¹.0².0¹.0².3⁵.2³.1³.1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.1².1².1².0¹.0¹.1².1².1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.1³.1².0¹.0².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0².0¹.0¹.0¹.0¹.0¹.0¹.0².0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0¹.0¹.|⁶.|⁶
-'''	
+[*2335859*][489m18s.602][lvl:117][uc:0][𝒞:715] --- $$$ found something $$$ --- 0⁶.0⁴.0⁴.0⁴.0⁴.0⁴.0².0².0³.0².0⁴.0³.0⁵.0³.0³.0¹.0³.0⁶.0⁴.0³.0³.0³.0⁴.0⁴.0².0³.0³.0².0³.0³.0².0².0³.0².0².0².0¹.0².0³.0¹.0¹.0².0¹.0².0⁴.0³.0³.0⁴.0².0³.0².0².0².2³.0¹.0¹.1².0¹.1².1².0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.1².1³.0¹.1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0².0¹.0¹.1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.|⁶.0¹.0¹.0².0¹.|⁶.|⁶
+'''		
+			
 history = True
-history_move_index = 474971
-history_raw_jumps = "0⁶.0⁴.0⁴.0⁴.0⁴.0⁴.0².0².0³.0².0⁴.0³.0⁵.0³.0³.0¹.0³.0⁶.0⁴.0³.0³.0³.0⁴.0⁴.0².0³.0³.0².0³.0³.0².0².0³.0².0².0².0¹.0².0³.0¹.0¹.0².0¹.0².0⁴.0³.0³.0⁴.0².0³.0².0².0².0³.0¹.0¹.0².0¹.0².3⁵.2³.2³.1².0¹.1².1³.0¹.1².0¹.0¹.0².1².0¹.0¹.0¹.1².0¹.0³.1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0³.0².0².1².0¹.0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.|¹².|¹²"
+history_move_index = 2335859
+history_raw_jumps = "0⁶.0⁴.0⁴.0⁴.0⁴.0⁴.0².0².0³.0².0⁴.0³.0⁵.0³.0³.0¹.0³.0⁶.0⁴.0³.0³.0³.0⁴.0⁴.0².0³.0³.0².0³.0³.0².0².0³.0².0².0².0¹.0².0³.0¹.0¹.0².0¹.0².0⁴.0³.0³.0⁴.0².0³.0².0².0².2³.0¹.0¹.1².0¹.1².1².0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.1².1³.0¹.1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0².0¹.0¹.1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.|⁶.0¹.0¹.0².0¹.|⁶.|⁶"
 history_raw_steps = ""
 history_jumps = [int(n) for n in "".join([x for x in history_raw_jumps if x in ".0123456789"]).split('.') if len(n)]
 history_steps = [int(n) for n in "".join([x for x in history_raw_steps if x in ".0123456789"]).split('.') if len(n)]
+
+FILE_ROOT = "__8__jj_2m__"
 
 def historic_jump(jump_lvl, min_matched_tuples):
 	global history, move_index
@@ -34,7 +34,7 @@ def historic_jump(jump_lvl, min_matched_tuples):
 		return list(enumerate(min_matched_tuples))[it:]
 	else:
 		return enumerate(min_matched_tuples)
-		
+
 def historic_step(step_lvl, min_nodes):
 	global history, move_index
 	
@@ -119,8 +119,6 @@ def step(diagram, old_mx, move_path, move_nodes, jump_lvl, step_lvl=0):
 	new_mx = old_mx.remeasure()
 	
 	new_mx.reduce(True)
-	
-	return new_mx # .min_chlen != 0 # [~]
 			
 	if len(new_mx.singles) or len(new_mx.coerced) or len(new_mx.zeroes):
 		# append path
@@ -155,7 +153,7 @@ def step(diagram, old_mx, move_path, move_nodes, jump_lvl, step_lvl=0):
 				log.write(str(lr[1]) + "\n")
 			log.write("-----------------------\n")
 		log.write("=======================\n")			
-	input2("=== wrote avloops/chains ====================\n")
+	input2("=======================\n")
 	#'''
 	
 	min_loops = [p[0] for p in rpc[0][1]] if len(rpc) else []
@@ -200,16 +198,15 @@ def step(diagram, old_mx, move_path, move_nodes, jump_lvl, step_lvl=0):
 def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 	
 	# write to console
-	wtc(diagram, old_mx, move_path, jump_lvl, frequency=1)
+	wtc(diagram, old_mx, move_path, jump_lvl, frequency=100)
 			
 	# remeasure
 	new_mx = old_mx.remeasure()
 	new_mx.measure_untouched_tuples()
 							
 	# find current choices
-	min_cycle, min_nodes, min_matched_tuples = Measurement._find_min_simple(diagram, new_mx.unchained_cycles, new_mx.avtuples)
-	print(f"__find_min_simple: mc: {min_cycle} | mn: {min_nodes} | mt: {min_matched_tuples}")		
-		
+	min_cycle, min_nodes, min_matched_tuples = Measurement._find_min_simple(diagram, new_mx.unchained_cycles, new_mx.avtuples)	
+	
 	# test for minimum number of unchained cycles found so far		
 	test_min_uc(diagram, new_mx, move_path, jump_lvl, move_nodes)
 			
@@ -258,7 +255,7 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 			wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, "$$$ found something $$$")
 			print("$$$ found something $$$")
 			# start stepping
-			return step(diagram, new_mx, move_path+[("~","")], move_nodes, jump_lvl)		
+			# step(diagram, new_mx, move_path+[("~","")], move_nodes, jump_lvl)		
 		
 	else:															
 		# go through all choices
@@ -273,7 +270,7 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 					break
 	
 			if ec == len(t): # if we've extended all of the tuple's loops
-				return jump(diagram, new_mx, move_path+[(it,len(min_matched_tuples))], move_nodes+[min_nodes[it]], jump_lvl+1)
+				jump(diagram, new_mx, move_path+[(it,len(min_matched_tuples))], move_nodes+[min_nodes[it]], jump_lvl+1)
 	
 			for l in reversed(t[:ec]):
 				diagram.collapseBack(l)
@@ -284,33 +281,20 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 
 if __name__ == "__main__":
 	
-	k = 0
-	
-	with open('__8__jj__', 'r', encoding="utf8") as loglines:
-		for line in loglines:
-			if " --- $$$ found something $$$ --- " in line:
-				history_move_index = int(line.split('[*')[1].split('*]')[0])
-				if True:#history_move_index > 474971:
-					history_raw_jumps = line.split(' --- $$$ found something $$$ --- ')[1]
-					history_jumps = [int(n) for n in "".join([x for x in history_raw_jumps if x in ".0123456789"]).split('.') if len(n)]				
-					history = True		
+	diagram = Diagram(8, 1)
 						
-					diagram = Diagram(8, 1)
-										
-					print(f"### starting | move index: {history_move_index}")
-					
-					startTime = time()
-					move_index = -1
-					min_uc = len(diagram.cycles)
-					min_cc = len(diagram.chains)
-							
-					mx = Measurement(diagram)
-					mx.measure_untouched_tuples()	
-							
-					new_mx = jump(diagram, mx)
-					
-					log(f'[k:{k}][*{history_move_index}*][{tstr(time() - startTime):>11}] ⇒ {new_mx.min_chlen != 0} [min_chlen:{new_mx.min_chlen}|𝒞:{len(diagram.chains)}|s:{len(new_mx.singles)}|c:{len(new_mx.coerced)}|z:{len(new_mx.zeroes)}] ')
-				k += 1
+	print("diagram.loop_tuples: " + str(len(diagram.loop_tuples)))
+	
+	startTime = time()
+	move_index = -1
+	min_uc = len(diagram.cycles)
+	min_cc = len(diagram.chains)
 			
-	input2("⇒ done !?!!?!!??!??!?!?!??!")					
+	mx = Measurement(diagram)
+	mx.measure_untouched_tuples()	
+			
+	jump(diagram, mx)
 
+	input2("⇒ done !?!!?!!??!??!?!?!??!")					
+	# diagram.point()
+	# show(diagram)	
