@@ -180,7 +180,7 @@ class Measurement (object):
 		while True:
 			found = False
 			avloops = [l for l in (
-				[r[0] for r in sorted(prev_results.items(), key = lambda r: (len(r[1].avnodes), r[0].firstNode().address))] if prev_results else diagram.loops
+				[r[0] for r in sorted(prev_results.items(), key = lambda r: (len(r[1].avloops), r[0].firstNode().address))] if prev_results else diagram.loops
 			) if l.availabled]
 				
 			if second_pass:
