@@ -48,23 +48,24 @@ class Loop (object):
 		return [node.links[1].next.links[1].next.prevs[2].node.loop for node in self.nodes]
 		
 	def killingField(self):
-		# gather around all avloops for chains tied to this loop (including multiples)
-		all_avloops = list(itertools.chain(*[[ncn.loop for ncn in n.chain.avnodes] for n in self.nodes]))
-		
-		# one of each avloop instance
-		unique_avloops = set(all_avloops)
-		
-		# remove an avloop instance for each unique
-		for avloop in unique_avloops:
-			all_avloops.remove(avloop)
-	
-		# what remains are multiples of some avloops 
-		self._killingField = set(all_avloops)
+		# find loops with multiple appearances
+		seen = set() # unique seen once loops
+		dups = set() # unique seen more loops
+
+		# gather around all avloops for chains tied to this loop (including multiples)				
+		for n in self.nodes:
+			for ncn in n.chain.avnodes:
+				loop = ncn.loop
+				if loop in seen:
+					if loop not in dups:
+						dups.add(loop)
+				else:
+					seen.add(loop)
 		
 		# remove self
-		self._killingField.remove(self)
-		
-		return self._killingField 
+		dups.remove(self)
+		self._killingField = dups			
+		return self._killingField
 
 	def chain(self):
 		return self.nodes[0].chain
