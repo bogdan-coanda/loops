@@ -295,7 +295,6 @@ if __name__ == "__main__":
 				N += 1
 				
 	log(f"[{file}] N: {N}")
-	input2()
 				
 	with open(file, 'r', encoding="utf8") as loglines:
 		for line in loglines:
@@ -322,5 +321,6 @@ if __name__ == "__main__":
 					
 					log(f'[k:{k}][*{history_move_index}*][{tstr(time() - startTime):>11}] ⇒ {new_mx.min_chlen != 0} [min_chlen:{new_mx.min_chlen}|𝒞:{len(diagram.chains)}|s:{len(new_mx.singles)}|c:{len(new_mx.coerced)}|z:{len(new_mx.zeroes)}] ')
 				k += 1
-			
+				assert k < 5, "breaking after 5 found somethings"
+
 	input2("⇒ done !?!!?!!??!??!?!?!??!")					
