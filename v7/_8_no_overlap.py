@@ -196,6 +196,11 @@ def step(diagram, old_mx, move_path, move_nodes, jump_lvl, step_lvl=0):
 		
 
 def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
+	global startTime
+
+	# drop dead for cProfile
+	if time() - startTime > 600:
+		assert False, "ran for more than 10 minutes"
 	
 	# write to console
 	wtc(diagram, old_mx, move_path, jump_lvl, frequency=100)
