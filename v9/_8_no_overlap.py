@@ -215,6 +215,7 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 		# show(diagram); input("[jump] === @ can't {},{} === ".format(min_chlen, len(min_matched_tuples)))
 		return
 
+	#wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, f"[min_chlen:{new_mx.min_chlen}]")
 	if new_mx.min_chlen is 1: # we found a `single`
 		# extend just singles (faster…)
 		new_mx.single()

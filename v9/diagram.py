@@ -335,7 +335,7 @@ class Diagram (object):
 		# 	cycle = node.cycle
 		# 	cycle.chain.avloops.add(loop)
 		for ch, n in updated_chains:
-			ch.avnodes.add(n)
+			ch.avnodes.append(n)
 		
 		
 	def setLoopUnavailabled(self, loop):
@@ -345,7 +345,7 @@ class Diagram (object):
 		self.changelog.append(('unavailabled', loop, updated_chains))
 		
 		for node in loop.nodes:
-			if loop in node.chain.avnodes: # [~] why would the loop not be here ? got removed twice ? got debugged twice over already and proven correct ? as is it needed during makeChain ?
+			if node in node.chain.avnodes: # [~] why would the loop not be here ? got removed twice ? got debugged twice over already and proven correct ? as is it needed during makeChain ?
 				node.chain.avnodes.remove(node)
 				updated_chains.append((node.chain, node))
 									
@@ -395,7 +395,8 @@ class Diagram (object):
 																		
 		# filter all corresponding remaining avnodes
 		new_chain.avnodes = [node for node in seenNodes if node.loop.availabled]
-		assert len(new_chain.avnodes) is len(seenOnceLoops), "counts should match, one available node for each seen once loop"
+		#print(f"[makeChain] new_chain.avnodes: {len(new_chain.avnodes)} ({len(set(new_chain.avnodes))}) | seenOnceLoops: {len(seenOnceLoops)} ({len(set(seenOnceLoops))})")
+		assert len(new_chain.avnodes) == len(seenOnceLoops), "counts should match, one available node for each seen once loop"
 		
 		# move remaining avnodes to the new chain (will have to be undone on breakChain())
 		for node in new_chain.avnodes:
