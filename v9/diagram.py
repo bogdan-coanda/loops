@@ -250,6 +250,7 @@ class Diagram (object):
 				for n in node.loop.nodes:				
 					affected_chains.append(n.chain)
 					n.cycle.isKernel = True
+					n.cycle.isUnchained = False
 
 				# connect last bro
 				node.loopBrethren[-1].nextLink = node.loopBrethren[-1].nextLink.next.prevLink = (
@@ -278,8 +279,15 @@ class Diagram (object):
 			return False
 			
 		loop.extended = True
-		self.changelog.append(('extended', loop))
 						
+		updated_cycles = []
+		for node in loop.nodes:
+			if node.cycle.isUnchained:
+				node.cycle.isUnchained = False
+				updated_cycles.append(node.cycle)
+				
+		self.changelog.append(('extended', loop, updated_cycles))
+								
 		# affected chains are the ones that will be tied together by this extension
 		# they're the chains that need to be added back on collapse
 		affected_chains = [node.chain for node in loop.nodes]
@@ -309,7 +317,9 @@ class Diagram (object):
 		loop.extended = False
 		
 		# assert self.changelog[-1][0] == 'extended' and self.changelog[-1][1] == loop, self.changelog[-1]
-		self.changelog.pop()		
+		_, _, updated_cycles = self.changelog.pop()
+		for cycle in updated_cycles:
+			cycle.isUnchained = True
 		
 				
 	def checkAvailability(self, loop):
