@@ -285,8 +285,19 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 if __name__ == "__main__":
 	
 	k = 0
-	
-	with open('__8__jj__', 'r', encoding="utf8") as loglines:
+	N = 0
+
+	file = '__8__jj__'
+
+	with open(file, 'r', encoding="utf8") as loglines:
+		for line in loglines:
+			if " --- $$$ found something $$$ --- " in line:
+				N += 1
+				
+	log(f"[{file}] N: {N}")
+	input2()
+				
+	with open(file, 'r', encoding="utf8") as loglines:
 		for line in loglines:
 			if " --- $$$ found something $$$ --- " in line:
 				history_move_index = int(line.split('[*')[1].split('*]')[0])
