@@ -10,14 +10,11 @@ from random import *
 FORCED_FREQUENCY = -1
 FILE_ROOT = "__8__jj__stepping__"
 
-'''
-[*474971*][ 60m12s.233][lvl:118][uc:0][𝒞:679] --- $$$ found something $$$ --- 0⁶.0⁴.0⁴.0⁴.0⁴.0⁴.0².0².0³.0².0⁴.0³.0⁵.0³.0³.0¹.0³.0⁶.0⁴.0³.0³.0³.0⁴.0⁴.0².0³.0³.0².0³.0³.0².0².0³.0².0².0².0¹.0².0³.0¹.0¹.0².0¹.0².0⁴.0³.0³.0⁴.0².0³.0².0².0².0³.0¹.0¹.0².0¹.0².3⁵.2³.2³.1².0¹.1².1³.0¹.1².0¹.0¹.0².1².0¹.0¹.0¹.1².0¹.0³.1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0³.0².0².1².0¹.0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.|¹².|¹²
-»»» ∘ ««« 
-[*436661*][   53m41s.2][lvl:118][uc:0][𝒞:715] --- [smth:mx|min_chlen:2|s:6|c:0|z:0] --- 0⁶.0⁴.0⁴.0⁴.0⁴.0⁴.0².0².0³.0².0⁴.0³.0⁵.0³.0³.0¹.0³.0⁶.0⁴.0³.0³.0³.0⁴.0⁴.0².0³.0³.0².0³.0³.0².0².0³.0².0².0².0¹.0².0³.0¹.0¹.0².0¹.0².0⁴.0³.0³.0⁴.0².0³.0².0².0².0³.0¹.0¹.0².0¹.0².3⁵.2³.1³.1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.1².1².1².0¹.0¹.1².1².1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.1³.1².0¹.0².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0².0¹.0¹.0¹.0¹.0¹.0¹.0².0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0¹.0¹.|⁶.|⁶
-'''	
+# ============================================================================================================================================================================== #
+
 history = True
-history_move_index = 474971
-history_raw_jumps = "0⁶.0⁴.0⁴.0⁴.0⁴.0⁴.0².0².0³.0².0⁴.0³.0⁵.0³.0³.0¹.0³.0⁶.0⁴.0³.0³.0³.0⁴.0⁴.0².0³.0³.0².0³.0³.0².0².0³.0².0².0².0¹.0².0³.0¹.0¹.0².0¹.0².0⁴.0³.0³.0⁴.0².0³.0².0².0².0³.0¹.0¹.0².0¹.0².3⁵.2³.2³.1².0¹.1².1³.0¹.1².0¹.0¹.0².1².0¹.0¹.0¹.1².0¹.0³.1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0³.0².0².1².0¹.0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0¹.0¹.0¹.1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.|¹².|¹²"
+history_move_index = 0
+history_raw_jumps = ""
 history_raw_steps = ""
 history_jumps = [int(n) for n in "".join([x for x in history_raw_jumps if x in ".0123456789"]).split('.') if len(n)]
 history_steps = [int(n) for n in "".join([x for x in history_raw_steps if x in ".0123456789"]).split('.') if len(n)]
@@ -108,94 +105,8 @@ def test_min_cc(diagram, mx, move_path, jump_lvl, step_lvl, move_nodes):
 	if len(diagram.chains) <= min_cc:
 		min_cc = len(diagram.chains)
 		wtf(diagram, mx, move_path, jump_lvl, step_lvl, move_nodes, 'cc')
-					
-
-def step(diagram, old_mx, move_path, move_nodes, jump_lvl, step_lvl=0):
-	
-	# write to console
-	wtc(diagram, old_mx, move_path, jump_lvl, step_lvl, frequency=1)
-	
-	# remeasure
-	new_mx = old_mx.remeasure()
-	
-	new_mx.reduce(True)
-	
-	return new_mx # .min_chlen != 0 # [~]
-			
-	if len(new_mx.singles) or len(new_mx.coerced) or len(new_mx.zeroes):
-		# append path
-		move_path += [('|', len(new_mx.singles))]
-		#wtf(diagram, new_mx, move_path, jump_lvl, None, move_nodes, f'[smth:mx|s:{len(new_mx.singles)}|c:{len(new_mx.coerced)}|z:{len(new_mx.zeroes)}]')							
-		#print(new_mx)
-
-	# find current choices												
-	rpc = {}		
-	if new_mx.min_chlen is not 0:
-		for chain in diagram.chains:
-			rpc[chain] = sorted([(loop, new_mx.results[loop]) for loop in chain.avloops], key = lambda r: (len(r[1].avloops), r[0].firstNode().address))
-		rpc = sorted(rpc.items(), key = lambda p: (sum([len(q[1].avloops) for q in p[1]]) / len(p[1]), len(p[1]), p[0].id))
-
-	#'''		
-	with open(FILE_ROOT+"__avloops__", 'a', encoding="utf8") as log:
-		log.write("loops: " + str(len(new_mx.results)) + "\n")
-		log.write("=======================\n")
-		for loop, mx in sorted(new_mx.results.items(), key = lambda r: len(r[1].avloops)):
-			log.write(str(loop) + "\n")
-			log.write(str(sorted([n.cycle.chain for n in loop.nodes], key = lambda chain: (len(chain.avloops), chain.id))) + "\n")
-			log.write(str(mx) + "\n")
-			log.write("-----------------------\n")
-		log.write("=======================\n")		
-	with open(FILE_ROOT+"__chains__", 'a', encoding="utf8") as log:		
-		log.write("chains: " + str(len(diagram.chains)) + "\n")
-		log.write("=======================\n")				
-		for chain, lrs in rpc:
-			log.write("chain: " + str(chain) + " | avg avloops: " + str(sum([len(q[1].avloops) for q in lrs]) / len(lrs)) + "\n")
-			for lr in lrs:
-				log.write("-- " + str(lr[0]) + "\n")
-				log.write(str(lr[1]) + "\n")
-			log.write("-----------------------\n")
-		log.write("=======================\n")			
-	input2("=== wrote avloops/chains ====================\n")
-	#'''
-	
-	min_loops = [p[0] for p in rpc[0][1]] if len(rpc) else []
-	#print("selected min loops: " + str(min_loops))
-	
-	# find current choices								
-	#min_nodes = new_mx.find_min_chain()
-	
-	# test for minimum number of chains found so far
-	test_min_cc(diagram, new_mx, move_path, jump_lvl, step_lvl, move_nodes)
-	
-	if len(diagram.chains) is 1: # we found a solution
-		wtf(diagram, new_mx, move_path, jump_lvl, step_lvl, move_nodes, '[sol]')
-		wtc(diagram, new_mx, move_path, jump_lvl, step_lvl, move_nodes, FORCED_FREQUENCY)
-		show(diagram)
-		input2("[found a solution]")
-		return
-	
-	elif len(min_loops) is 0: # can't further connect chains
-		# diagram.point(); show(diagram); input(f"[step] === @ can't {min_nodes} ===")
-		pass
 		
-	else:
-		# go through all choices		
-		lvl_seen = []
-		
-		for j,loop in historic_step(step_lvl, min_loops):		
-			if diagram.extendLoop(loop):		
-				step(diagram, new_mx, move_path+[(j,len(min_loops))], move_nodes+[loop.firstNode()], jump_lvl, step_lvl+1)
-				diagram.collapseBack(loop)		
-				
-			lvl_seen.append(loop)
-			diagram.setLoopUnavailabled(loop)
-			
-		for loop in lvl_seen:
-			diagram.setLoopAvailabled(loop)	
-			
-	# we might have reduced stuff				
-	new_mx.clean()		
-		
+# ============================================================================================================================================================================== #
 
 def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 	
@@ -204,6 +115,16 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 			
 	# remeasure
 	new_mx = old_mx.remeasure()
+	grx = groupby(diagram.chains, K = lambda chain: len(chain.avnodes), G = lambda g: len(g))
+	print(f"[new_mx] chains: {len(diagram.chains)}")
+	print(f"{' '.join([str(x[0])+': '+str(x[1]) for x in sorted(grx.items())])}")
+	input2("[new_mx] before reduce()")			
+	
+	new_mx.reduce()
+	input2(f"[new_mx] reduce() done | mx: {new_mx}")	
+	
+	
+	
 	new_mx.measure_untouched_tuples()
 							
 	# find current choices
@@ -286,7 +207,8 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 
 	# we might have extended singles
 	new_mx.clean()
-
+	
+# ============================================================================================================================================================================== #
 
 if __name__ == "__main__":
 	
@@ -306,7 +228,9 @@ if __name__ == "__main__":
 		for line in loglines:
 			if " --- $$$ found something $$$ --- " in line:
 				history_move_index = int(line.split('[*')[1].split('*]')[0])
+				
 				if True:#history_move_index > 474971:
+					
 					history_raw_jumps = line.split(' --- $$$ found something $$$ --- ')[1]
 					history_jumps = [int(n) for n in "".join([x for x in history_raw_jumps if x in ".0123456789"]).split('.') if len(n)]				
 					history = True		
@@ -326,6 +250,7 @@ if __name__ == "__main__":
 					new_mx = jump(diagram, mx)
 					
 					log(f'[k:{k}][*{history_move_index}*][{tstr(time() - startTime):>11}] ⇒ {new_mx.min_chlen != 0} [min_chlen:{new_mx.min_chlen}|𝒞:{len(diagram.chains)}|s:{len(new_mx.singles)}|c:{len(new_mx.coerced)}|z:{len(new_mx.zeroes)}] ')
+					
 				k += 1
 			
 	input2("⇒ done !?!!?!!??!??!?!?!??!")					

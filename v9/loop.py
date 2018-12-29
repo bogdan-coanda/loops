@@ -12,6 +12,11 @@ class Loop (object):
 		'_killingField', 
 		'tuple']
 	
+	killingFieldRecalcCount = 0
+	killingFieldAllCount = 0
+	killingFieldCacheCount = 0
+	killingFieldUnneededCount = 0
+	
 	def __init__(self, index):
 		self.index = index
 		self.nodes = None # comes as a pre-ordered list, we just shuffle it to start at the smallest address
@@ -24,6 +29,8 @@ class Loop (object):
 		self.ktype_radialIndex = None
 		# @walk		
 		self.tuple = None
+		# killingField cache
+		self._killingField = None
 						
 
 	def setNodes(self, nodes):
@@ -48,7 +55,10 @@ class Loop (object):
 		return [node.links[1].next.links[1].next.prevs[2].node.loop for node in self.nodes]
 		
 	def killingField(self):
-		# find loops with multiple appearances
+		
+		Loop.killingFieldAllCount += 1
+								
+		# find loops with just multiple appearances - these nodes would get killed when extending this (self) loop, as they tie to at least two of the self's new connected chains
 		seen = set() # unique seen once loops
 		dups = set() # unique seen more loops
 
@@ -64,7 +74,24 @@ class Loop (object):
 		
 		# remove self
 		dups.remove(self)
-		self._killingField = dups			
+
+		if self._killingField == dups:
+			Loop.killingFieldUnneededCount += 1
+																				
+		# check cache
+		# if self._killingField:
+		# 	Loop.killingFieldCacheCount += 1
+		# 	assert self._killingField == dups
+			#return self._killingField				
+		# else:			
+		# 	Loop.killingFieldRecalcCount += 1
+		# 	if self._killingField == dups:
+		# 		Loop.killingFieldUnneededCount += 1
+		self._killingField = dups
+											
+		if Loop.killingFieldAllCount % 100000 == 0:	
+			print(f"[killingField] {self} | unneeded: {Loop.killingFieldUnneededCount} | recalc: {Loop.killingFieldRecalcCount} / cache: {Loop.killingFieldCacheCount} | all: {Loop.killingFieldAllCount}")
+		
 		return self._killingField 
 
 	def chain(self):

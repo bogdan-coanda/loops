@@ -140,7 +140,7 @@ class Measurement (object):
 					singles.append(avloop)
 					diagram.extendLoop(avloop)
 					opslog.append(('singled', avloop))
-					# print(f"[coerce] singles: {len(singles)} | opslog: {len(opslog)}")
+					#print(f"[coerce] singled {avloop} | s: {len(singles)} c: {len(coerced)}")
 					
 					min_chlen = min([len(chain.avnodes) for chain in diagram.chains])
 					if min_chlen is 0:
@@ -150,15 +150,21 @@ class Measurement (object):
 					found = True
 					break
 				
-				elif avlen == 2 and doCoerce:
-					killingFields = [node.loop.killingField() for node in chain.avnodes]
-					intersected = killingFields[0].intersection(killingFields[1])
-					if len(intersected):
+				elif avlen >= 2 and doCoerce: # check for coerced loops for avlen ≥ 2
+					intersected = chain.avnodes[0].loop.killingField() 
+					y = 1
+					while len(intersected) and y < len(chain.avnodes):
+						intersected = intersected.intersection(chain.avnodes[y].loop.killingField())
+						y += 1 
+										
+					if len(intersected): # these nodes would get killed anyhow, whichever node got extended to keep this chain connected
+						if avlen > 2:
+							print(f"[coerce] intersected: {len(intersected)} | avlen: {avlen} | s: {len(singles)} c: {len(coerced)}")
 						for avloop in intersected:
 							coerced.append(avloop)
 							diagram.setLoopUnavailabled(avloop)
 							opslog.append(('coerced', avloop))
-							
+							#print(f"[coerce] coerced {avloop}")
 							affected_min_chlen = min([len(n.chain.avnodes) for n in avloop.nodes])
 							if affected_min_chlen < min_chlen:
 								min_chlen = affected_min_chlen
@@ -168,7 +174,7 @@ class Measurement (object):
 							
 						found = True
 						break
-																	
+																							
 			if not found:
 				return (min_chlen, singles, coerced)
 		
@@ -183,12 +189,12 @@ class Measurement (object):
 				[r[0] for r in sorted(prev_results.items(), key = lambda r: (len(r[1].avloops), r[0].firstNode().address))] if prev_results else diagram.loops
 			) if l.availabled]
 				
-			if second_pass:
-				print(f"..[decimate] curr | avloops: {len(avloops)}")
+			#if second_pass:
+			print(f"..[decimate] curr | avloops: {len(avloops)}")
 				
 			for index, loop in enumerate(avloops):
-				if second_pass:
-					print(f"..[decimate] @ {index} / {len(avloops)} | min_chlen: {min([len(chain.avnodes) for chain in diagram.chains])}")				
+				#if second_pass:
+				print(f"..[decimate] @ {index} / {len(avloops)} | min_chlen: {min([len(chain.avnodes) for chain in diagram.chains])}")				
 				diagram.extendLoop(loop)
 				next_mx = Measurement(diagram)				
 				if second_pass:
@@ -204,8 +210,8 @@ class Measurement (object):
 					zeroes.append(loop)
 					diagram.setLoopUnavailabled(loop)
 					opslog.append(('zeroed', loop))
-					if second_pass:
-						print(f"..[decimate] zeroed {loop} | so far: {len(zeroes)}")
+					#if second_pass:
+					print(f"..[decimate] zeroed {loop} | so far: {len(zeroes)}")
 										
 					affected_min_chlen = min([len(n.chain.avnodes) for n in loop.nodes])
 					if affected_min_chlen < min_chlen:
@@ -220,25 +226,25 @@ class Measurement (object):
 					results[loop] = next_mx
 											
 			if not found:
-				if second_pass:
-					print(f"..[decimate] done | zeroes: {len(zeroes)}")
+				#if second_pass:
+				print(f"..[decimate] done | zeroes: {len(zeroes)}")
 				return (min_chlen, zeroes, results)
-			if second_pass:
-				print(f"..[decimate] curr | zeroes: {len(zeroes)}")
+			#if second_pass:
+			print(f"..[decimate] curr | zeroes: {len(zeroes)}")
 			
 	def __reduce(diagram, opslog, min_chlen, second_pass=False):
 		# mandatory
 		min_chlen, curr_singles, curr_coerced = Measurement.__coerce(diagram, opslog, min_chlen)
-		if second_pass:
-			print("[reduce] init | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
+		#if second_pass:
+		print("[reduce] init | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
 				
 		if min_chlen is 0:
 			# input("[reduce] dead @ init coerce | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)) + " | z: 0")
 			return (0, curr_singles, curr_coerced, [], {})
 							
 		min_chlen, curr_zeroes, curr_results = Measurement.__decimate(diagram, opslog, min_chlen)		
-		if second_pass:
-			print("[reduce] init | z: " + str(len(curr_zeroes)))
+		#if second_pass:
+		print("[reduce] init | z: " + str(len(curr_zeroes)))
 		
 		if min_chlen is 0:
 			# input("[reduce] dead @ init decimate | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)) + " | z: " + str(len(curr_zeroes)))
@@ -257,8 +263,8 @@ class Measurement (object):
 				min_chlen, curr_singles, curr_coerced = Measurement.__coerce(diagram, opslog, min_chlen)
 				singles += curr_singles
 				coerced += curr_coerced			
-				if second_pass:
-					print("[reduce] curr | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
+				#if second_pass:
+				print("[reduce] curr | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
 				
 				if min_chlen is 0:
 					# input("[reduce] dead @ curr coerce | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
@@ -268,8 +274,8 @@ class Measurement (object):
 					min_chlen, curr_zeroes, curr_results = Measurement.__decimate(diagram, opslog, min_chlen, second_pass, curr_results)
 					zeroes += curr_zeroes
 					results = curr_results
-					if second_pass:
-						print("[reduce] curr | z: " + str(len(curr_zeroes)))
+					#if second_pass:
+					print("[reduce] curr | z: " + str(len(curr_zeroes)))
 					
 					if min_chlen is 0:
 						# input("[reduce] dead @ curr decimate | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
@@ -282,8 +288,8 @@ class Measurement (object):
 			else:
 				break
 			
-		if second_pass:	
-			print("[reduce] done | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
+		#if second_pass:	
+		print("[reduce] done | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
 		return (min_chlen, singles, coerced, zeroes, results)						
 				
 
