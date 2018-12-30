@@ -295,7 +295,6 @@ if __name__ == "__main__":
 				N += 1
 				
 	log(f"[{file}] N: {N}")
-	input2()
 				
 	with open(file, 'r', encoding="utf8") as loglines:
 		for line in loglines:
