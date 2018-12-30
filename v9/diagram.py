@@ -54,9 +54,15 @@ class Diagram (object):
 																																					
 			# a new chain is born
 			self.chains.add(new_chain)
-								
+
+		# generate initial kernel if needed								
 		if self.kernelSize > 0:
 			self.generateKernel()
+
+		# generate loop killing fields
+		for loop in self.loops:
+			if loop.availabled:
+				loop.killingField = KillingField(loop)
 
 		# tobex = number of chains to be brought together /over/ number of chains added by an extension loop 
 		self.tobex_base_count = int((len(self.chains) - 1) / (self.spClass - 2)) # [~] int conversion is always correct here (we can always fully divide)
