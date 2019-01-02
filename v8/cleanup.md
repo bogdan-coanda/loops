@@ -1,2 +1,3 @@
 - remove asserts
 - remove prints
+- remove extra sorting meant for deterministic running

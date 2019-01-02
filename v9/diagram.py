@@ -9,6 +9,7 @@ from measures import *
 from uicanvas import *
 import pickle
 import sys
+from time import time
 
 
 class Diagram (object):
@@ -24,11 +25,13 @@ class Diagram (object):
 		'tobex_base_count',
 		'bases', 'node_tuples', 'loop_tuples',
 		'radialLoopsByKType',
-		'changelog'
+		'changelog',
+		'startTime'
 	]
 	
 	def __init__(self, N, kernelSize=1):
 		
+		self.startTime = time()
 		self.spClass = N
 		self.kernelSize = kernelSize
 		self.chainAutoInc = -1
@@ -54,7 +57,13 @@ class Diagram (object):
 																																					
 			# a new chain is born
 			self.chains.add(new_chain)
-								
+
+		# generate loop killing fields
+		for loop in self.loops:
+			if loop.availabled:
+				loop.killingField = KillingField(loop)
+				
+		# generate initial kernel if needed								
 		if self.kernelSize > 0:
 			self.generateKernel()
 
@@ -260,7 +269,10 @@ class Diagram (object):
 				node = node.loopBrethren[-1].nextLink.next.prevs[1].node																		
 																							
 		self.chainAutoInc = -1
-		new_chain, affected_loops = self.makeChain(affected_chains)
+		new_chain, affected_loops, updated_chains = self.makeChain(affected_chains)
+		
+		KillingField.fixGenerateKernel(new_chain)
+		KillingField.assessAllLoops(self)
 		
 
 	# --- generating ------------------------------------------------------------------------------------------------------------------------------------------------------------- #
@@ -294,7 +306,7 @@ class Diagram (object):
 						
 		# affected loops are avloops set to unavailabled because we're connecting these chains together
 		# they're the loops that are re-availabled on collapse
-		new_chain, affected_loops = self.makeChain(affected_chains)				
+		new_chain, affected_loops, updated_chains = self.makeChain(affected_chains)				
 				
 		#for node in loop.nodes:
 			#assert not node.links[1].next.loop.availabled and not node.prevs[1].node.loop.availabled, "broken extension neighbours!!!"
@@ -304,24 +316,33 @@ class Diagram (object):
 				#assert self.checkAvailability(lp), "broken checked loops"
 				
 		#assert len([node for node in loop.nodes if node.links[1].next.loop.availabled or node.prevs[1].node.loop.availabled]) is 0, "broken extension neighbours!!!"		
-		loop.extension_result.setExtensionDetails(new_chain, affected_loops, affected_chains)
+
+		loop.extension_result.setExtensionDetails(new_chain, affected_loops, affected_chains, updated_chains)
+
+		loop.extension_result.kfPreviousFields = KillingField.fixExtendLoop(loop)
+		#KillingField.assessAllLoops(self)
 
 		##assert set(list(itertools.chain(*[chain.avloops for chain in diagram.chains]))) == set([loop for loop in diagram.loops if loop.availabled and len([n for n in loop.nodes if n.cycle.chain])])
-						
+												
 		return True
 			
 																						
 	def collapseBack(self, loop):	
 		#print(f"[collapse] loop: {loop}")		
+		
+		KillingField.fixCollapseBack(loop.extension_result.kfPreviousFields)				
+				
 		self.breakChain(loop.extension_result)
 		loop.extended = False
 		
 		# assert self.changelog[-1][0] == 'extended' and self.changelog[-1][1] == loop, self.changelog[-1]
 		_, _, updated_cycles = self.changelog.pop()
 		for cycle in updated_cycles:
-			cycle.isUnchained = True
-		
-				
+			cycle.isUnchained = True			
+			
+		#KillingField.assessAllLoops(self)			
+					
+					
 	def checkAvailability(self, loop):
 		for i in range(1, len(loop.nodes)):
 			ichain = loop.nodes[i].chain
@@ -338,27 +359,37 @@ class Diagram (object):
 		# assert loop.availabled is False
 		# print(f"[availabled] loop: {loop}")
 		# assert self.changelog[-1][0] == 'unavailabled' and self.changelog[-1][1] == loop, self.changelog[-1]
-		_, _, updated_chains = self.changelog.pop()
-		
+		_, _, unavailabled_chain_node_pairs, kfRemovedLoops = self.changelog.pop()
+				
 		loop.availabled = True
 		# for node in loop.nodes:
 		# 	cycle = node.cycle
 		# 	cycle.chain.avloops.add(loop)
-		for ch, n in updated_chains:
+		for ch, n in unavailabled_chain_node_pairs:
 			ch.avnodes.append(n)
-		
-		
+
+		KillingField.fixSetLoopAvailabled(kfRemovedLoops)				
+		#KillingField.assessAllLoops(self)
+				
+										
 	def setLoopUnavailabled(self, loop):
 		# assert loop.availabled is True
 		loop.availabled = False
-		updated_chains = []		
-		self.changelog.append(('unavailabled', loop, updated_chains))
+		unavailabled_chain_node_pairs = []
+		kfRemovedLoops = KillingField.fixSetLoopUnavailabled(loop)
+		#KillingField.assessAllLoops(self)
+		
+		self.changelog.append(('unavailabled', loop, unavailabled_chain_node_pairs, kfRemovedLoops))		
+		updated_chains = set()
 		
 		for node in loop.nodes:
 			if node in node.chain.avnodes: # [~] why would the loop not be here ? got removed twice ? got debugged twice over already and proven correct ? as is it needed during makeChain ?
 				node.chain.avnodes.remove(node)
-				updated_chains.append((node.chain, node))
-									
+				unavailabled_chain_node_pairs.append((node.chain, node))
+				updated_chains.add(node.chain)
+								
+		return updated_chains
+	
 	
 	def makeChain(self, affected_chains):
 
@@ -369,6 +400,7 @@ class Diagram (object):
 		new_chain = Chain(self.chainAutoInc)
 		# print("creating new chain: " + str(new_chain))
 		affected_loops = []
+		updated_chains = set()
 		
 		# gather together all non-repeating avnodes.loops, this is checkAvailability() behaviour
 		seenOnceLoops = []
@@ -395,7 +427,7 @@ class Diagram (object):
 					else:
 						# seen more
 						seenOnceLoops.remove(loop)
-						self.setLoopUnavailabled(loop)
+						updated_chains.update(self.setLoopUnavailabled(loop))
 						# remember erased loop						
 						affected_loops.append(loop)
 										
@@ -415,7 +447,9 @@ class Diagram (object):
 		# a new chain is born
 		#print("[makeChain] adding: " + str(new_chain))
 		self.chains.add(new_chain)
-		return (new_chain, affected_loops)	
+		updated_chains.add(new_chain)
+		updated_chains.difference_update(affected_chains)
+		return (new_chain, affected_loops, updated_chains)	
 	
 
 	def breakChain(self, extension_result):
@@ -525,7 +559,7 @@ class Diagram (object):
 		self.pointers = list(self.nodeByAddress[address].tuple)
 
 	def measure_avlen(self):
-		self.pointer_avlen = min(*[len(chain.avloops) for chain in self.chains])
+		self.pointer_avlen = min(*[len(chain.avnodes) for chain in self.chains])
 		return self.pointer_avlen
 
 	def point(self):
@@ -535,12 +569,12 @@ class Diagram (object):
 			return
 				
 		chain_avlen, smallest_chain_group = (len(self.cycles), [])
-		sorted_chain_groups = sorted(groupby(self.chains, K = lambda chain: len(chain.avloops)).items())
+		sorted_chain_groups = sorted(groupby(self.chains, K = lambda chain: len(chain.avnodes)).items())
 		if len(sorted_chain_groups) > 0:
 			chain_avlen, smallest_chain_group	= sorted_chain_groups[0]		
 		
 		self.pointer_avlen = chain_avlen
-		self.pointers += itertools.chain(*[[[n for n in loop.nodes if n.cycle.chain is chain][0] for loop in chain.avloops] if chain_avlen is not 0 else chain.cycles for chain in smallest_chain_group])																				
+		self.pointers += itertools.chain(*[[[n for n in node.loop.nodes if n.chain is chain][0] for node in chain.avnodes] if chain_avlen is not 0 else chain.cycles for chain in smallest_chain_group])																				
 		#print("[pointing] chain avlen: " + str(chain_avlen))
 
 

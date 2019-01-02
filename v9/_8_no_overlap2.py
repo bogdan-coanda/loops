@@ -216,7 +216,7 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 	if new_mx.min_chlen is 0 or len(min_matched_tuples) is 0: # can't further connect chains
 		# diagram.pointers = list(itertools.chain(*[chain.cycles for chain in diagram.chains if not len(chain.avloops)])) if min_chlen is 0 else [min_cycle]
 		# show(diagram); input("[jump] === @ can't {},{} === ".format(min_chlen, len(min_matched_tuples)))
-		return
+		return new_mx
 
 	if new_mx.min_chlen is 1: # we found a `single`
 		# extend just singles (faster…)
@@ -241,7 +241,13 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 			new_mx.reduce()
 		else:
 			newer_mx = new_mx.remeasure()
+			grx = groupby(diagram.chains, K = lambda chain: len(chain.avnodes), G = lambda g: len(g))
+			print(f"[newer_mx] chains: {len(diagram.chains)}")
+			print(f"{' '.join([str(x[0])+': '+str(x[1]) for x in sorted(grx.items())])}")
+			#input2("[newer_mx] before reduce()")			
+			
 			newer_mx.reduce()
+			#input2("[newer_mx] reduce() done.")
 			newer_mx.singles = new_mx.singles + newer_mx.singles
 			new_mx = newer_mx
 
@@ -280,6 +286,7 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 
 	# we might have extended singles
 	new_mx.clean()
+	return new_mx
 
 
 if __name__ == "__main__":
@@ -318,6 +325,8 @@ if __name__ == "__main__":
 					mx.measure_untouched_tuples()	
 							
 					new_mx = jump(diagram, mx)
+					
+					KillingField.assessAllLoops(diagram)
 					
 					log(f'[k:{k}][*{history_move_index}*][{tstr(time() - startTime):>11}] ⇒ {new_mx.min_chlen != 0} [min_chlen:{new_mx.min_chlen}|𝒞:{len(diagram.chains)}|s:{len(new_mx.singles)}|c:{len(new_mx.coerced)}|z:{len(new_mx.zeroes)}] ')
 				k += 1

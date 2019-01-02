@@ -198,7 +198,7 @@ def draw(diagram):
 				#print("draw " + node.address + " | " + str((node.px - RR/2, node.py - RR/2, RR, RR)))
 
 			# § drawing chained node color fills
-			if node.chain is not None and not node.cycle.isUnchained():
+			if node.chain is not None and not node.cycle.isUnchained:
 				sh_looped_count += 1
 				if node.chain.id not in chainColors:
 					chainColors[node.chain.id] = 'white' if node.chain.id == (0 if diagram.startNode.chain is None else diagram.startNode.chain.id) else hls_to_rgb(random(), 0.5, 1)
@@ -227,7 +227,7 @@ def draw(diagram):
 				#ui.set_color(ℓ(diagram, node))
 				#oval.line_width = DH
 				#oval.set_line_dash([1,1.05])
-			elif node.chain is not None and not node.cycle.isUnchained():
+			elif node.chain is not None and not node.cycle.isUnchained:
 				ui.set_color('black')
 				oval.line_width = 0.2
 				oval.set_line_dash([1,0])
@@ -238,7 +238,7 @@ def draw(diagram):
 			oval.stroke()			
 			
 			# § drawing links
-			if node.chain is not None and not node.cycle.isUnchained():
+			if node.chain is not None and not node.cycle.isUnchained:
 				nextLink = node.nextLink if node.nextLink else (node.links[2] if node.loop.extended else node.links[1])
 				if nextLink.type is 2:
 					line = ui.Path()
@@ -301,7 +301,7 @@ def draw(diagram):
 			
 		img = ctx.get_image()
 		#img.show()
-		print("[show] chain count: " + str(len([c for c in diagram.chains if not c.avnodes[0].cycle.isUnchained()])) + " | available loops: " + str(len([l for l in diagram.loops if l.availabled]))  + " | looped: " + str(sh_looped_count) + "/" + str(len(diagram.nodes)) + " (" + "{0:.2f}".format(sh_looped_count*100.0/len(diagram.nodes)) + "%)" + " | remaining: " + str(len(diagram.nodes) - sh_looped_count))
+		print("[show] chain count: " + str(len([c for c in diagram.chains if not c.avnodes[0].cycle.isUnchained])) + " | available loops: " + str(len([l for l in diagram.loops if l.availabled]))  + " | looped: " + str(sh_looped_count) + "/" + str(len(diagram.nodes)) + " (" + "{0:.2f}".format(sh_looped_count*100.0/len(diagram.nodes)) + "%)" + " | remaining: " + str(len(diagram.nodes) - sh_looped_count))
 		return img
 
 def drawCircledText(text, centerX, centerY, radius, textSize, color, borderWidth):

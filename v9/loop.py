@@ -1,4 +1,5 @@
 from extension_result import *
+from killing_field import *
 import itertools
 
 
@@ -9,9 +10,10 @@ class Loop (object):
 		'availabled', 'extended', 'extension_result', 'seen', 
 		'ktype', 'ktype_radialIndex',
 		#'ktype_columnIndex'
-		'_killingField', 
+		'killingField', 
 		'tuple']
 	
+			
 	def __init__(self, index):
 		self.index = index
 		self.nodes = None # comes as a pre-ordered list, we just shuffle it to start at the smallest address
@@ -24,6 +26,8 @@ class Loop (object):
 		self.ktype_radialIndex = None
 		# @walk		
 		self.tuple = None
+		# killingField
+		self.killingField = None
 						
 
 	def setNodes(self, nodes):
@@ -42,33 +46,14 @@ class Loop (object):
 		return self._firstAddress
 		
 	def __repr__(self):
-		return '⟨loop:['+color_string(self.ktype)+":"+str(self.ktype_radialIndex)+"]:"+self.firstAddress()+'|'+('Av' if self.availabled else '')+('Ex' if self.extended else '')+"⟩"#self.root()+'|'+':'.join([n.address[len(self._root):] for n in self.nodes])
+		return '⟨loop:['+color_string(self.ktype)+":"+str(self.ktype_radialIndex)+"]:"+self.firstAddress()+'|'+('Av' if self.availabled else '')+('Ex' if self.extended else '')+(f"|kF:{len(self.killingField)}" if self.killingField and self.availabled else '') + "⟩"#self.root()+'|'+':'.join([n.address[len(self._root):] for n in self.nodes])
 				
 	def adjacentLoops(self):
 		return [node.links[1].next.links[1].next.prevs[2].node.loop for node in self.nodes]
 		
-	def killingField(self):
-		# find loops with multiple appearances
-		seen = set() # unique seen once loops
-		dups = set() # unique seen more loops
-
-		# gather around all avloops for chains tied to this loop (including multiples)				
-		for n in self.nodes:
-			for ncn in n.chain.avnodes:
-				loop = ncn.loop
-				if loop in seen:
-					if loop not in dups:
-						dups.add(loop)
-				else:
-					seen.add(loop)
-		
-		# remove self
-		dups.remove(self)
-		self._killingField = dups			
-		return self._killingField 
-
 	def chain(self):
 		return self.nodes[0].chain
+		
 		
 def color_string(ktype):
 	if ktype is 0:
