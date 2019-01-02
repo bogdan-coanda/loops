@@ -1,3 +1,102 @@
+--- [CUMULATIVE TIME] ---
+
+Thu Jan  3 00:11:39 2019    __cProfile__
+
+         545924534 function calls (545073956 primitive calls) in 322.364 seconds
+
+   Ordered by: cumulative time
+   List reduced from 370 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     21/1    0.000    0.000  354.529  354.529 {built-in method builtins.exec}
+        1    0.010    0.010  354.529  354.529 _8_no_overlap2.py:1(<module>)
+    119/1    0.018    0.000  333.697  333.697 _8_no_overlap2.py:200(jump)
+    172/2    0.001    0.000  330.154  165.077 measurement.py:87(reduce)
+    172/2    0.058    0.000  330.152  165.076 measurement.py:266(__reduce)
+     87/3    0.369    0.004  330.128  110.043 measurement.py:207(__decimate)
+        1    0.000    0.000  314.613  314.613 _8_no_overlap2.py:113(step)
+    68538    1.645    0.000  179.319    0.003 diagram.py:282(extendLoop)
+    19887    0.156    0.000  175.345    0.009 measurement.py:76(coerce)
+    20062    5.010    0.000  163.897    0.008 measurement.py:130(__coerce)
+
+
+
+
+--- [INTERNAL TIME] ---
+
+Thu Jan  3 00:11:39 2019    __cProfile__
+
+         545924534 function calls (545073956 primitive calls) in 322.364 seconds
+
+   Ordered by: internal time
+   List reduced from 370 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+  3032232  104.131    0.000  141.425    0.000 killing_field.py:35(calculateKillingFieldSet)
+336330395   38.985    0.000   39.601    0.000 {method 'add' of 'set' objects}
+        1   17.484   17.484   17.484   17.484 {built-in method builtins.input}
+ 19255680   15.615    0.000   15.615    0.000 measurement.py:39(<listcomp>)
+  3772664   15.005    0.000   49.009    0.000 measurement.py:40(<listcomp>)
+    20058   12.413    0.001   78.917    0.004 measurement.py:38(<listcomp>)
+    40239   10.565    0.000   10.565    0.000 diagram.py:87(<listcomp>)
+112544271/111740628    9.399    0.000    9.729    0.000 {built-in method builtins.len}
+   420539    9.006    0.000   21.352    0.000 diagram.py:375(setLoopUnavailabled)
+    47773    8.995    0.000   11.313    0.000 measurement.py:162(<listcomp>)
+
+
+
+
+--- [CALL COUNT] ---
+
+Thu Jan  3 00:11:39 2019    __cProfile__
+
+         545924534 function calls (545073956 primitive calls) in 322.364 seconds
+
+   Ordered by: call count
+   List reduced from 370 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+336330395   38.985    0.000   39.601    0.000 {method 'add' of 'set' objects}
+112544271/111740628    9.399    0.000    9.729    0.000 {built-in method builtins.len}
+ 20196855    2.279    0.000    2.279    0.000 {method 'append' of 'list' objects}
+ 19255680   15.615    0.000   15.615    0.000 measurement.py:39(<listcomp>)
+ 10291044    1.511    0.000    1.511    0.000 chain.py:10(__hash__)
+  6576995    1.411    0.000    1.504    0.000 {method 'remove' of 'set' objects}
+  6392200    0.816    0.000    0.816    0.000 measurement.py:141(<lambda>)
+  3772664   15.005    0.000   49.009    0.000 measurement.py:40(<listcomp>)
+  3757706    2.394    0.000    2.394    0.000 measurement.py:36(<listcomp>)
+  3334801    4.158    0.000    4.158    0.000 {method 'remove' of 'list' objects}
+
+
+
+
+--- [PRIMITIVE CALL COUNT] ---
+
+Thu Jan  3 00:11:39 2019    __cProfile__
+
+         545924534 function calls (545073956 primitive calls) in 322.364 seconds
+
+   Ordered by: primitive call count
+   List reduced from 370 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+336330395   38.985    0.000   39.601    0.000 {method 'add' of 'set' objects}
+112544271/111740628    9.399    0.000    9.729    0.000 {built-in method builtins.len}
+ 20196855    2.279    0.000    2.279    0.000 {method 'append' of 'list' objects}
+ 19255680   15.615    0.000   15.615    0.000 measurement.py:39(<listcomp>)
+ 10291044    1.511    0.000    1.511    0.000 chain.py:10(__hash__)
+  6576995    1.411    0.000    1.504    0.000 {method 'remove' of 'set' objects}
+  6392200    0.816    0.000    0.816    0.000 measurement.py:141(<lambda>)
+  3772664   15.005    0.000   49.009    0.000 measurement.py:40(<listcomp>)
+  3757706    2.394    0.000    2.394    0.000 measurement.py:36(<listcomp>)
+  3334801    4.158    0.000    4.158    0.000 {method 'remove' of 'list' objects}
+
+
+
+=============================================================================================================================
+
+
+
 
 
 --- [CUMULATIVE TIME] ---
