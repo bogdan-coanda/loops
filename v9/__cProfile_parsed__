@@ -1,0 +1,94 @@
+
+
+--- [CUMULATIVE TIME] ---
+
+Wed Jan  2 19:07:36 2019    __cProfile__
+
+         3832422742 function calls (3826135836 primitive calls) in 2126.406 seconds
+
+   Ordered by: cumulative time
+   List reduced from 366 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     21/1    0.000    0.000 2661.261 2661.261 {built-in method builtins.exec}
+        1    0.088    0.088 2661.261 2661.261 _8_no_overlap2.py:1(<module>)
+    710/6    0.115    0.000 2638.117  439.686 _8_no_overlap2.py:200(jump)
+   822/12    0.035    0.000 2611.329  217.611 measurement.py:84(reduce)
+   822/12    0.397    0.000 2611.321  217.610 measurement.py:263(__reduce)
+   424/22    3.424    0.008 2611.101  118.686 measurement.py:204(__decimate)
+        6    0.000    0.000 2426.622  404.437 _8_no_overlap2.py:113(step)
+   343916    6.594    0.000 1442.311    0.004 measurement.py:21(__init__)
+   170776    1.387    0.000 1353.397    0.008 measurement.py:73(coerce)
+   343916  145.459    0.000 1147.517    0.003 measurement.py:35(<listcomp>)
+
+
+
+
+--- [INTERNAL TIME] ---
+
+Wed Jan  2 19:07:36 2019    __cProfile__
+
+         3832422742 function calls (3826135836 primitive calls) in 2126.406 seconds
+
+   Ordered by: internal time
+   List reduced from 366 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+ 19997560  638.394    0.000  699.434    0.000 killing_field.py:35(calculateKillingFieldSet)
+ 62337496  248.812    0.000  814.248    0.000 measurement.py:37(<listcomp>)
+196023987  166.553    0.000  166.553    0.000 measurement.py:36(<listcomp>)
+   343916  145.459    0.000 1147.517    0.003 measurement.py:35(<listcomp>)
+   343915   98.846    0.000   98.846    0.000 diagram.py:87(<listcomp>)
+1110780918/1104774291   92.921    0.000   95.343    0.000 {built-in method builtins.len}
+2016521673   72.411    0.000   76.778    0.000 {method 'add' of 'set' objects}
+   343916   71.116    0.000   88.398    0.000 measurement.py:26(<listcomp>)
+   336712   62.064    0.000   78.396    0.000 measurement.py:159(<listcomp>)
+  2755078   57.979    0.000  130.657    0.000 diagram.py:375(setLoopUnavailabled)
+
+
+
+
+--- [CALL COUNT] ---
+
+Wed Jan  2 19:07:36 2019    __cProfile__
+
+         3832422742 function calls (3826135836 primitive calls) in 2126.406 seconds
+
+   Ordered by: call count
+   List reduced from 366 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+2016521673   72.411    0.000   76.778    0.000 {method 'add' of 'set' objects}
+1110780918/1104774291   92.921    0.000   95.343    0.000 {built-in method builtins.len}
+196023987  166.553    0.000  166.553    0.000 measurement.py:36(<listcomp>)
+130161128   14.881    0.000   14.881    0.000 {method 'append' of 'list' objects}
+ 63595284    9.847    0.000    9.847    0.000 chain.py:10(__hash__)
+ 62337496  248.812    0.000  814.248    0.000 measurement.py:37(<listcomp>)
+ 41236246    9.175    0.000    9.960    0.000 {method 'remove' of 'set' objects}
+ 37460247    4.638    0.000    4.638    0.000 measurement.py:138(<lambda>)
+ 21895272   25.315    0.000   25.315    0.000 {method 'remove' of 'list' objects}
+ 19997560  638.394    0.000  699.434    0.000 killing_field.py:35(calculateKillingFieldSet)
+
+
+
+
+--- [PRIMITIVE CALL COUNT] ---
+
+Wed Jan  2 19:07:36 2019    __cProfile__
+
+         3832422742 function calls (3826135836 primitive calls) in 2126.406 seconds
+
+   Ordered by: primitive call count
+   List reduced from 366 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+2016521673   72.411    0.000   76.778    0.000 {method 'add' of 'set' objects}
+1110780918/1104774291   92.921    0.000   95.343    0.000 {built-in method builtins.len}
+196023987  166.553    0.000  166.553    0.000 measurement.py:36(<listcomp>)
+130161128   14.881    0.000   14.881    0.000 {method 'append' of 'list' objects}
+ 63595284    9.847    0.000    9.847    0.000 chain.py:10(__hash__)
+ 62337496  248.812    0.000  814.248    0.000 measurement.py:37(<listcomp>)
+ 41236246    9.175    0.000    9.960    0.000 {method 'remove' of 'set' objects}
+ 37460247    4.638    0.000    4.638    0.000 measurement.py:138(<lambda>)
+ 21895272   25.315    0.000   25.315    0.000 {method 'remove' of 'list' objects}
+ 19997560  638.394    0.000  699.434    0.000 killing_field.py:35(calculateKillingFieldSet)
