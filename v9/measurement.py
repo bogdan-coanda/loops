@@ -15,8 +15,7 @@ class Measurement (object):
 		# mc holds either a cycle or a chains
 		# mn holds the nodes whose loops will be tested
 		# mt holds either the tuples belonging to the nodes tested, or is undefined
-	]
-
+	]		
 
 	def __init__(self, diagram, old_mx = None, old_opslog = None):
 		# 0. tie to diagram
@@ -32,9 +31,13 @@ class Measurement (object):
 		self.avloops = [l for l in (old_mx.avloops if old_mx else diagram.loops) if l.availabled]
 		
 		# 4. find available tuples (incl. already extended loops, excl. kernel connected loops)
-		self.avtuples = [t for t in (old_mx.avtuples if old_mx else diagram.loop_tuples)
-			if len([loop for loop in t if not loop.availabled and not loop.extended]) == 0
-			and len([loop for loop in t if len([node.cycle for node in loop.nodes if node.cycle.isKernel]) != 0]) == 0]
+		if old_mx:
+			self.avtuples = [t for t in old_mx.avtuples
+				if len([loop for loop in t if not loop.availabled and not loop.extended]) == 0]
+		else:
+			self.avtuples = [t for t in diagram.loop_tuples
+				if len([loop for loop in t if not loop.availabled and not loop.extended]) == 0
+				and len([loop for loop in t if len([node.cycle for node in loop.nodes if node.cycle.isKernel]) != 0]) == 0]
 			
 		# 5. find number of loops that still need to be extended to reach a `potential` solution
 		self.tobex = diagram.measureTobex()
