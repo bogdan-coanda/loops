@@ -1,6 +1,8 @@
 from loop import color_string
-from common import input2
-
+from killing_field import *
+from common import input2, tstr
+from time import time
+import itertools
 
 class Measurement (object):
 	
@@ -59,7 +61,7 @@ class Measurement (object):
 			
 	def single(self):
 		# assert not self.reduced		
-		self.min_chlen, self.singles, _ = Measurement.__coerce(self.diagram, self.opslog, self.min_chlen, False)
+		self.min_chlen, self.singles, _ = Measurement.__coerce('(s)', self.diagram, self.opslog, self.min_chlen, False)
 		# assert len(self.opslog) == len(self.singles)
 		self.coerced = []
 		self.zeroes = []
@@ -68,9 +70,9 @@ class Measurement (object):
 		self.reduced = True
 		
 		
-	def coerce(self):
+	def coerce(self, print_path="", updated_chains=None):
 		# assert not self.reduced		
-		self.min_chlen, self.singles, self.coerced = Measurement.__coerce(self.diagram, self.opslog, self.min_chlen, True)
+		self.min_chlen, self.singles, self.coerced = Measurement.__coerce(print_path+'(c)', self.diagram, self.opslog, self.min_chlen, True, updated_chains)
 		# assert len(self.opslog) == len(self.singles) + len(self.coerced)
 		# print(f"[coerce] singles: {len(self.singles)} | coerced: {len(self.coerced)} | opslog: {len(self.opslog)}")
 		self.zeroes = []
@@ -79,10 +81,10 @@ class Measurement (object):
 		self.reduced = True
 		
 								
-	def reduce(self, second_pass=False):
+	def reduce(self, print_path="", second_pass=False):
 		# assert not self.reduced
 		# reduce
-		self.min_chlen, self.singles, self.coerced, self.zeroes, self.results = Measurement.__reduce(self.diagram, self.opslog, self.min_chlen, second_pass)
+		self.min_chlen, self.singles, self.coerced, self.zeroes, self.results = Measurement.__reduce(print_path+"(r)", self.diagram, self.opslog, self.min_chlen, second_pass)
 		# assert len(self.opslog) == len(self.singles) + len(self.coerced) + len(self.zeroes)
 		# remeasure self
 		self.__init__(self.diagram, self, self.opslog)
@@ -122,64 +124,84 @@ class Measurement (object):
 			
 	# === internal =============================================================================================================================================================== #	
 
-	def __coerce(diagram, opslog, min_chlen, doCoerce=True):
+	def __coerce(print_path, diagram, opslog, min_chlen, doCoerce=True, updated_chains=None):
 		singles = []
 		coerced = []
+		
+		#print(f"{print_path}[coerce] start | min_chlen: {min_chlen} | doCoerce: {doCoerce} | updated_chains: {len(updated_chains) if updated_chains else '-'} | diagram.chains: {len(diagram.chains)}")
+		updated_chains = sorted(updated_chains or diagram.chains, key = lambda chain: chain.id) 
 		
 		while True:
 			found = False
 			
-			for chain in diagram.chains:
+			#updated_chains = diagram.chains # [~][dbg]
+			current_chains = sorted(updated_chains, key = lambda chain: chain.id)
+			updated_chains = set()
+			
+			for index, chain in enumerate(current_chains): # diagram.chains: # 
+				assert chain in diagram.chains
 				avlen = len(chain.avnodes)
 				
 				if avlen == 0:
+					#print(f"{print_path}[coerce] dead @ avlen:0 | singles: " + str(len(singles)) + ", coerced: " + str(len(coerced)))
 					return (0, singles, coerced) 
 
 				elif avlen == 1:
 					avloop = chain.avnodes[0].loop
 					singles.append(avloop)
 					diagram.extendLoop(avloop)
+					updated_chains = set(current_chains[index+1:]).intersection(diagram.chains)
+					updated_chains.update(avloop.extension_result.updated_chains)
+					
 					opslog.append(('singled', avloop))
-					#print(f"[coerce] singled {avloop} | s: {len(singles)} c: {len(coerced)}")
+					#print(f"{print_path}[coerce:{index}/{len(current_chains)}] singled {avloop} | s: {len(singles)} c: {len(coerced)} | updated_chains: {len(updated_chains)}")
 					
 					min_chlen = min([len(chain.avnodes) for chain in diagram.chains])
 					if min_chlen is 0:
-						# input(".[coerce] dead @ extend | singles: " + str(len(singles)) + ", coerced: " + str(len(coerced)))
+						#print(f"{print_path}[coerce] dead @ extend | singles: " + str(len(singles)) + ", coerced: " + str(len(coerced)))
 						return (0, singles, coerced)						
 					
 					found = True
 					break
 				
 				elif avlen >= 2 and doCoerce: # check for coerced loops for avlen ≥ 2
-					intersected = chain.avnodes[0].loop.killingField() 
+					intersected = chain.avnodes[0].loop.killingField 
 					y = 1
 					while len(intersected) and y < len(chain.avnodes):
-						intersected = intersected.intersection(chain.avnodes[y].loop.killingField())
+						intersected = intersected.intersection(chain.avnodes[y].loop.killingField)
 						y += 1 
 										
 					if len(intersected): # these nodes would get killed anyhow, whichever node got extended to keep this chain connected
-						if avlen > 2:
-							print(f"[coerce] intersected: {len(intersected)} | avlen: {avlen} | s: {len(singles)} c: {len(coerced)}")
+						updated_chains = set(current_chains[index+1:]).intersection(diagram.chains)
 						for avloop in intersected:
 							coerced.append(avloop)
 							diagram.setLoopUnavailabled(avloop)
+							
+							KillingField.assessAllLoops(diagram)
+							
+							updated_chains.update([node.chain for node in avloop.nodes])
+							
 							opslog.append(('coerced', avloop))
 							#print(f"[coerce] coerced {avloop}")
 							affected_min_chlen = min([len(n.chain.avnodes) for n in avloop.nodes])
 							if affected_min_chlen < min_chlen:
 								min_chlen = affected_min_chlen
 								if min_chlen is 0:
-									# input(".[coerce] dead @ coerce | singles: " + str(len(singles)) + ", coerced: " + str(len(coerced)))
+									#print(f"{print_path}[coerce] dead @ coerce | singles: " + str(len(singles)) + ", coerced: " + str(len(coerced)))
 									return (0, singles, coerced)
-							
+									
+						#if avlen > 2:
+						#print(f"{print_path}[coerce:{index}/{len(current_chains)}] coerced: {len(intersected)} | avlen: {avlen} | s: {len(singles)} c: {len(coerced)} | updated_chains: {len(updated_chains)}")							
+
 						found = True
 						break
 																							
 			if not found:
+				#print(f"{print_path}[coerce] done | singles: {len(singles)}, coerced: {len(coerced)}")				
 				return (min_chlen, singles, coerced)
 		
 		
-	def __decimate(diagram, opslog, min_chlen, second_pass=False, prev_results=None):
+	def __decimate(print_path, diagram, opslog, min_chlen, second_pass=False, prev_results=None):		
 		zeroes = []
 		results = {}
 		
@@ -190,28 +212,34 @@ class Measurement (object):
 			) if l.availabled]
 				
 			#if second_pass:
-			print(f"..[decimate] curr | avloops: {len(avloops)}")
+			#print(f"{print_path}[{tstr(time() - diagram.startTime):>11}][decimate:{'T' if second_pass else 'f'}] curr | avloops: {len(avloops)}")
 				
 			for index, loop in enumerate(avloops):
-				#if second_pass:
-				print(f"..[decimate] @ {index} / {len(avloops)} | min_chlen: {min([len(chain.avnodes) for chain in diagram.chains])}")				
+				if second_pass:
+				#if index % 10 == 0:
+					print(f"{print_path}[{tstr(time() - diagram.startTime):>11}][decimate:{'T' if second_pass else 'f'}] @ {index} / {len(avloops)} | min_chlen: {min([len(chain.avnodes) for chain in diagram.chains])}")				
 				diagram.extendLoop(loop)
+				
+				#KillingField.assessAllLoops(diagram)
+									
 				next_mx = Measurement(diagram)				
 				if second_pass:
-					next_mx.reduce()
+					next_mx.reduce(print_path+f"-d:{index}/{len(avloops)}-")
 				else:
-					next_mx.coerce()
+					next_mx.coerce(print_path+f"-d:{index}/{len(avloops)}-", loop.extension_result.updated_chains)
 				next_chain_count = len(diagram.chains) # retain `current` chain count
 				
 				next_mx.clean()
 				diagram.collapseBack(loop)
-												
+				
+				#KillingField.assessAllLoops(diagram)
+																
 				if next_mx.min_chlen == 0 and next_chain_count > 1:
 					zeroes.append(loop)
 					diagram.setLoopUnavailabled(loop)
 					opslog.append(('zeroed', loop))
 					#if second_pass:
-					print(f"..[decimate] zeroed {loop} | so far: {len(zeroes)}")
+					#print(f"{print_path}[{tstr(time() - diagram.startTime):>11}][decimate:{'T' if second_pass else 'f'}] zeroed {loop} | so far: {len(zeroes)}")
 										
 					affected_min_chlen = min([len(n.chain.avnodes) for n in loop.nodes])
 					if affected_min_chlen < min_chlen:
@@ -227,24 +255,26 @@ class Measurement (object):
 											
 			if not found:
 				#if second_pass:
-				print(f"..[decimate] done | zeroes: {len(zeroes)}")
+				#print(f"{print_path}[{tstr(time() - diagram.startTime):>11}][decimate:{'T' if second_pass else 'f'}] done | zeroes: {len(zeroes)}")
 				return (min_chlen, zeroes, results)
 			#if second_pass:
-			print(f"..[decimate] curr | zeroes: {len(zeroes)}")
+			#print(f"{print_path}[{tstr(time() - diagram.startTime):>11}][decimate:{'T' if second_pass else 'f'}] curr | zeroes: {len(zeroes)}")
 			
-	def __reduce(diagram, opslog, min_chlen, second_pass=False):
+	def __reduce(print_path, diagram, opslog, min_chlen, second_pass=False):
 		# mandatory
-		min_chlen, curr_singles, curr_coerced = Measurement.__coerce(diagram, opslog, min_chlen)
+		min_chlen, curr_singles, curr_coerced = Measurement.__coerce(print_path+"-r-", diagram, opslog, min_chlen)
 		#if second_pass:
-		print("[reduce] init | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
+		# input2(f"{print_path}[reduce] init | s: {len(curr_singles)} | c: {len(curr_coerced)}")
 				
+		#KillingField.assessAllLoops(diagram)
+								
 		if min_chlen is 0:
 			# input("[reduce] dead @ init coerce | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)) + " | z: 0")
 			return (0, curr_singles, curr_coerced, [], {})
 							
-		min_chlen, curr_zeroes, curr_results = Measurement.__decimate(diagram, opslog, min_chlen)		
+		min_chlen, curr_zeroes, curr_results = Measurement.__decimate(print_path+'-r-', diagram, opslog, min_chlen)		
 		#if second_pass:
-		print("[reduce] init | z: " + str(len(curr_zeroes)))
+		# input2(f"{print_path}[reduce] init | z: {len(curr_zeroes)}")
 		
 		if min_chlen is 0:
 			# input("[reduce] dead @ init decimate | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)) + " | z: " + str(len(curr_zeroes)))
@@ -260,22 +290,23 @@ class Measurement (object):
 		# additional
 		while True:
 			if len(curr_zeroes) > 0 or doOnce:
-				min_chlen, curr_singles, curr_coerced = Measurement.__coerce(diagram, opslog, min_chlen)
+				updated_chains = set(itertools.chain(*[[node.chain for node in loop.nodes] for loop in curr_zeroes]))
+				min_chlen, curr_singles, curr_coerced = Measurement.__coerce(print_path+'-r-', diagram, opslog, min_chlen, True, updated_chains)
 				singles += curr_singles
 				coerced += curr_coerced			
 				#if second_pass:
-				print("[reduce] curr | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)))
+				# input2(f"{print_path}[reduce] curr | s: {len(curr_singles)} | c: {len(curr_coerced)}")
 				
 				if min_chlen is 0:
 					# input("[reduce] dead @ curr coerce | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
 					return (0, singles, coerced, zeroes, {})
 											
 				if len(curr_singles) or len(curr_coerced) or doOnce:
-					min_chlen, curr_zeroes, curr_results = Measurement.__decimate(diagram, opslog, min_chlen, second_pass, curr_results)
+					min_chlen, curr_zeroes, curr_results = Measurement.__decimate(print_path+'-r-', diagram, opslog, min_chlen, second_pass, curr_results)
 					zeroes += curr_zeroes
 					results = curr_results
 					#if second_pass:
-					print("[reduce] curr | z: " + str(len(curr_zeroes)))
+					# input2(f"{print_path}[reduce] curr | z: {len(curr_zeroes)}")
 					
 					if min_chlen is 0:
 						# input("[reduce] dead @ curr decimate | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
@@ -289,7 +320,7 @@ class Measurement (object):
 				break
 			
 		#if second_pass:	
-		print("[reduce] done | s: " + str(len(singles)) + " | c: " + str(len(coerced)) + " | z: " + str(len(zeroes)))
+		#input2(f"{print_path}[reduce] done | s: {len(singles)} | c: {len(coerced)} | z: {len(zeroes)}")
 		return (min_chlen, singles, coerced, zeroes, results)						
 				
 

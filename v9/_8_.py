@@ -11,7 +11,17 @@ from random import *
 if __name__ == "__main__":
 	
 	diagram = Diagram(8, 1)
+						
+	mx = Measurement(diagram)		
+	mx.reduce(False)
 	
+	KillingField.assessAllLoops(diagram)
+	
+	print(f"[{tstr(time() - diagram.startTime):>11}] {mx}")
+	
+	
+	# === #
+	'''
 	start_grx = sorted(groupby([l for l in diagram.loops if l.availabled], K = lambda l: len(l.killingField), G = lambda g: len(g)).items())
 	print("---")
 	# print("---\nkilling field size: matching loops count | before ("+str(len(start_grx))+"):\n"+"\n".join([str(x[0])+":"+str(x[1]) for x in start_grx]))
@@ -72,4 +82,5 @@ if __name__ == "__main__":
 			
 	#diagram.extendLoop(diagram.nodeByAddress['0000003'].loop)
 	#show(diagram)
+	'''
 	
