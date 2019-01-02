@@ -118,7 +118,7 @@ def step(diagram, old_mx, move_path, move_nodes, jump_lvl, step_lvl=0):
 	# remeasure
 	new_mx = old_mx.remeasure()
 	
-	new_mx.reduce('[step]', True)
+	new_mx.reduce(True)
 	
 	return new_mx # .min_chlen != 0 # [~]
 			

@@ -61,7 +61,7 @@ class Measurement (object):
 			
 	def single(self):
 		# assert not self.reduced		
-		self.min_chlen, self.singles, _ = Measurement.__coerce('(s)', self.diagram, self.opslog, self.min_chlen, False)
+		self.min_chlen, self.singles, _ = Measurement.__coerce(self.diagram, self.opslog, self.min_chlen, False)
 		# assert len(self.opslog) == len(self.singles)
 		self.coerced = []
 		self.zeroes = []
@@ -70,9 +70,9 @@ class Measurement (object):
 		self.reduced = True
 		
 		
-	def coerce(self, print_path="", updated_chains=None):
+	def coerce(self, updated_chains=None):
 		# assert not self.reduced		
-		self.min_chlen, self.singles, self.coerced = Measurement.__coerce(print_path+'(c)', self.diagram, self.opslog, self.min_chlen, True, updated_chains)
+		self.min_chlen, self.singles, self.coerced = Measurement.__coerce(self.diagram, self.opslog, self.min_chlen, True, updated_chains)
 		# assert len(self.opslog) == len(self.singles) + len(self.coerced)
 		# print(f"[coerce] singles: {len(self.singles)} | coerced: {len(self.coerced)} | opslog: {len(self.opslog)}")
 		self.zeroes = []
@@ -81,10 +81,10 @@ class Measurement (object):
 		self.reduced = True
 		
 								
-	def reduce(self, print_path="", second_pass=False):
+	def reduce(self, second_pass=False):
 		# assert not self.reduced
 		# reduce
-		self.min_chlen, self.singles, self.coerced, self.zeroes, self.results = Measurement.__reduce(print_path+"(r)", self.diagram, self.opslog, self.min_chlen, second_pass)
+		self.min_chlen, self.singles, self.coerced, self.zeroes, self.results = Measurement.__reduce(self.diagram, self.opslog, self.min_chlen, second_pass)
 		# assert len(self.opslog) == len(self.singles) + len(self.coerced) + len(self.zeroes)
 		# remeasure self
 		self.__init__(self.diagram, self, self.opslog)
@@ -124,7 +124,7 @@ class Measurement (object):
 			
 	# === internal =============================================================================================================================================================== #	
 
-	def __coerce(print_path, diagram, opslog, min_chlen, doCoerce=True, updated_chains=None):
+	def __coerce(diagram, opslog, min_chlen, doCoerce=True, updated_chains=None):
 		singles = []
 		coerced = []
 		
@@ -139,7 +139,7 @@ class Measurement (object):
 			updated_chains = set()
 			
 			for index, chain in enumerate(current_chains): # diagram.chains: # 
-				assert chain in diagram.chains
+				# assert chain in diagram.chains
 				avlen = len(chain.avnodes)
 				
 				if avlen == 0:
@@ -177,7 +177,7 @@ class Measurement (object):
 							coerced.append(avloop)
 							diagram.setLoopUnavailabled(avloop)
 							
-							KillingField.assessAllLoops(diagram)
+							# KillingField.assessAllLoops(diagram)
 							
 							updated_chains.update([node.chain for node in avloop.nodes])
 							
@@ -201,7 +201,7 @@ class Measurement (object):
 				return (min_chlen, singles, coerced)
 		
 		
-	def __decimate(print_path, diagram, opslog, min_chlen, second_pass=False, prev_results=None):		
+	def __decimate(diagram, opslog, min_chlen, second_pass=False, prev_results=None):		
 		zeroes = []
 		results = {}
 		
@@ -217,16 +217,16 @@ class Measurement (object):
 			for index, loop in enumerate(avloops):
 				if second_pass:
 				#if index % 10 == 0:
-					print(f"{print_path}[{tstr(time() - diagram.startTime):>11}][decimate:{'T' if second_pass else 'f'}] @ {index} / {len(avloops)} | min_chlen: {min([len(chain.avnodes) for chain in diagram.chains])}")				
+					print(f"[{tstr(time() - diagram.startTime):>11}][decimate:{'T' if second_pass else 'f'}] @ {index} / {len(avloops)} | min_chlen: {min([len(chain.avnodes) for chain in diagram.chains])}")				
 				diagram.extendLoop(loop)
 				
 				#KillingField.assessAllLoops(diagram)
 									
 				next_mx = Measurement(diagram)				
 				if second_pass:
-					next_mx.reduce(print_path+f"-d:{index}/{len(avloops)}-")
+					next_mx.reduce()
 				else:
-					next_mx.coerce(print_path+f"-d:{index}/{len(avloops)}-", loop.extension_result.updated_chains)
+					next_mx.coerce(loop.extension_result.updated_chains)
 				next_chain_count = len(diagram.chains) # retain `current` chain count
 				
 				next_mx.clean()
@@ -260,9 +260,9 @@ class Measurement (object):
 			#if second_pass:
 			#print(f"{print_path}[{tstr(time() - diagram.startTime):>11}][decimate:{'T' if second_pass else 'f'}] curr | zeroes: {len(zeroes)}")
 			
-	def __reduce(print_path, diagram, opslog, min_chlen, second_pass=False):
+	def __reduce(diagram, opslog, min_chlen, second_pass=False):
 		# mandatory
-		min_chlen, curr_singles, curr_coerced = Measurement.__coerce(print_path+"-r-", diagram, opslog, min_chlen)
+		min_chlen, curr_singles, curr_coerced = Measurement.__coerce(diagram, opslog, min_chlen)
 		#if second_pass:
 		# input2(f"{print_path}[reduce] init | s: {len(curr_singles)} | c: {len(curr_coerced)}")
 				
@@ -272,7 +272,7 @@ class Measurement (object):
 			# input("[reduce] dead @ init coerce | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)) + " | z: 0")
 			return (0, curr_singles, curr_coerced, [], {})
 							
-		min_chlen, curr_zeroes, curr_results = Measurement.__decimate(print_path+'-r-', diagram, opslog, min_chlen)		
+		min_chlen, curr_zeroes, curr_results = Measurement.__decimate(diagram, opslog, min_chlen)		
 		#if second_pass:
 		# input2(f"{print_path}[reduce] init | z: {len(curr_zeroes)}")
 		
@@ -291,7 +291,7 @@ class Measurement (object):
 		while True:
 			if len(curr_zeroes) > 0 or doOnce:
 				updated_chains = set(itertools.chain(*[[node.chain for node in loop.nodes] for loop in curr_zeroes]))
-				min_chlen, curr_singles, curr_coerced = Measurement.__coerce(print_path+'-r-', diagram, opslog, min_chlen, True, updated_chains)
+				min_chlen, curr_singles, curr_coerced = Measurement.__coerce(diagram, opslog, min_chlen, True, updated_chains)
 				singles += curr_singles
 				coerced += curr_coerced			
 				#if second_pass:
@@ -302,7 +302,7 @@ class Measurement (object):
 					return (0, singles, coerced, zeroes, {})
 											
 				if len(curr_singles) or len(curr_coerced) or doOnce:
-					min_chlen, curr_zeroes, curr_results = Measurement.__decimate(print_path+'-r-', diagram, opslog, min_chlen, second_pass, curr_results)
+					min_chlen, curr_zeroes, curr_results = Measurement.__decimate(diagram, opslog, min_chlen, second_pass, curr_results)
 					zeroes += curr_zeroes
 					results = curr_results
 					#if second_pass:
