@@ -245,8 +245,9 @@ def jump(diagram, old_mx, move_path=[], move_nodes=[], jump_lvl=0):
 			print(f"[newer_mx] chains: {len(diagram.chains)}")
 			print(f"{' '.join([str(x[0])+': '+str(x[1]) for x in sorted(grx.items())])}")
 			#input2("[newer_mx] before reduce()")			
-			
+			KillingField.assessAllLoops(diagram)
 			newer_mx.reduce()
+			KillingField.assessAllLoops(diagram)
 			#input2("[newer_mx] reduce() done.")
 			newer_mx.singles = new_mx.singles + newer_mx.singles
 			new_mx = newer_mx

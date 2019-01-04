@@ -281,7 +281,7 @@ class Diagram (object):
 	
 	def extendLoop(self, loop):		
 		
-		#print("[extend] loop: " + str(loop))
+		print(f"[extend] loop: {loop} | nodes: " + " ".join([str(node) for node in loop.nodes]))
 			
 		##assert set(list(itertools.chain(*[chain.avloops for chain in diagram.chains]))) == set([loop for loop in diagram.loops if loop.availabled and len([node for node in loop.nodes if node.cycle.chain])])
 		#assert set(list(itertools.chain(*[chain.loops for chain in diagram.chains]))) == set([loop for loop in diagram.loops if loop.availabled and len([node for node in loop if node.cycle.chain)])
@@ -320,7 +320,8 @@ class Diagram (object):
 		loop.extension_result.setExtensionDetails(new_chain, affected_loops, affected_chains, updated_chains)
 
 		loop.extension_result.kfPreviousFields = KillingField.fixExtendLoop(loop)
-		#KillingField.assessAllLoops(self)
+		
+		KillingField.assessAllLoops(self)
 
 		##assert set(list(itertools.chain(*[chain.avloops for chain in diagram.chains]))) == set([loop for loop in diagram.loops if loop.availabled and len([n for n in loop.nodes if n.cycle.chain])])
 												

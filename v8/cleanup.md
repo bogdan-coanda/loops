@@ -1,3 +1,4 @@
 - remove asserts
 - remove prints
 - remove extra sorting meant for deterministic running
+- remove extra counts and index/enumerates meant for debugging
