@@ -3,7 +3,7 @@ COERCED_KILL = False
 
 class ExtensionResult (object):
 	
-	__slots__ = ['new_chain', 'affected_loops', 'affected_chains', 'updated_chains', 'kfPreviousFields']#, 'affected_singles', 'reachable', 'temporary_reachable', 'extended_count', 'killed_count', 'coerced_loops', 'temporary_extended_count', 'temporary_killed_count', 'temporary_coerced_loops']
+	__slots__ = ['new_chain', 'affected_loops', 'affected_chains', 'updated_chains', 'kfAddedLoops']#, 'affected_singles', 'reachable', 'temporary_reachable', 'extended_count', 'killed_count', 'coerced_loops', 'temporary_extended_count', 'temporary_killed_count', 'temporary_coerced_loops']
 	'''
 	def __init__(self):
 		self.new_chain = None

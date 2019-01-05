@@ -281,7 +281,7 @@ class Diagram (object):
 	
 	def extendLoop(self, loop):		
 		
-		print(f"[extend] loop: {loop} | nodes: " + " ".join([str(node) for node in loop.nodes]))
+		#print(f"[extend] loop: {loop} | nodes: " + " ".join([str(node) for node in loop.nodes]))
 			
 		##assert set(list(itertools.chain(*[chain.avloops for chain in diagram.chains]))) == set([loop for loop in diagram.loops if loop.availabled and len([node for node in loop.nodes if node.cycle.chain])])
 		#assert set(list(itertools.chain(*[chain.loops for chain in diagram.chains]))) == set([loop for loop in diagram.loops if loop.availabled and len([node for node in loop if node.cycle.chain)])
@@ -319,7 +319,7 @@ class Diagram (object):
 
 		loop.extension_result.setExtensionDetails(new_chain, affected_loops, affected_chains, updated_chains)
 
-		loop.extension_result.kfPreviousFields = KillingField.fixExtendLoop(loop)
+		loop.extension_result.kfAddedLoops = KillingField.fixExtendLoop(self, loop)
 		
 		KillingField.assessAllLoops(self)
 
@@ -331,7 +331,7 @@ class Diagram (object):
 	def collapseBack(self, loop):	
 		#print(f"[collapse] loop: {loop}")		
 		
-		KillingField.fixCollapseBack(loop.extension_result.kfPreviousFields)				
+		KillingField.fixCollapseBack(loop.extension_result.kfAddedLoops)				
 				
 		self.breakChain(loop.extension_result)
 		loop.extended = False
