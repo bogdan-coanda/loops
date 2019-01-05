@@ -195,47 +195,108 @@ class KillingField (object):
 		
 		return kfPreviousFields#, kfRemovedLoops)
 				
+	def fxel1(diagram, extendedLoop):		
+		
+		kfPreviousFields = []
+				
+		for changedNode in extendedLoop.extension_result.new_chain.avnodes:
+			kfPreviousFields.append((changedNode.loop.killingField, changedNode.loop.killingField.field, changedNode.loop.killingField.seen))			
+																																											
+			# find loops with just multiple appearances - these nodes would get killed when extending this (self) loop, as they tie to at least two of the self's new connected chains
+			seen = set() # unique seen once loops
+			dups = set() # unique seen more loops
+	
+			# gather around all avloops for chains tied to this loop (including multiples)				
+			for n in changedNode.loop.nodes:
+				for ncn in n.chain.avnodes:
+					
+					KillingField.e1 += 1
+					loop = ncn.loop
+					
+					if loop in seen:
+						if loop not in dups:								
+							KillingField.af1 += 1
+							dups.add(loop)								
+					else:
+						KillingField.as1 += 1
+						seen.add(loop)
+			
+			# remove self
+			dups.remove(changedNode.loop)
+			KillingField.af1 += 1
+			
+			# return killing field							
+			changedNode.loop.killingField.field = dups
+			changedNode.loop.killingField.seen = seen
+			# twigs[changedNode] = ((changedNode.loop.killingField.field, changedNode.loop.killingField.seen))		
+			
+		return kfPreviousFields
+												
+	def fxel2(diagram, extendedLoop):
+		
+		kfAddedLoops = [] 
+		
+		# ∘ for each old chain
+		for oldChain in extendedLoop.extension_result.affected_chains:
+			# ∘ for each changed node in the old chain ~ basically we go through every node in the new chain, but by knowing in which old chain the node was before
+			for changedNode in oldChain.avnodes:
+
+				'''
+				# ∘ for each node in the new chain
+				for node in extendedLoop.extension_result.new_chain.avnodes:
+					# ∘ that is not in the selected old chain
+					if node not in oldChain.avnodes:
+						# ∘ update the killing field for the selected changed node
+						loop = node.loop
+				'''		
+				
+				# ∘ go through every node in the new chain
+				for o2Chain in extendedLoop.extension_result.affected_chains:
+					# ∘ that is not in the old chain
+					if o2Chain != oldChain:
+						#print(f"[kf:extend] ∘∘ o2 chain: {oc2}/{len(extendedLoop.extension_result.affected_chains)}")									
+						for ch2Node in o2Chain.avnodes:
+							#print(f"[kf:extend] ∘∘∘ ch2 node: {cn2}/{len(o2Chain.avnodes)}")				
+							# ∘ these new node :: loops are the 'additions' to this old chain to become the new chain
+							KillingField.e2 += 1
+							loop = ch2Node.loop
+										
+							kf_field = changedNode.loop.killingField.field
+							kf_seen = changedNode.loop.killingField.seen						
+							
+							if loop in kf_seen:
+								#print(f"[kf:extend] ∘∘∘ ⇒ in seen({len(kf_seen)})")
+								if loop not in kf_field:
+								# assert loop not in kf_field									
+									# print(f"[kf:extend] ∘∘∘ ⇒⇒ not in [field({len(kf_field)})] // adding")
+									kf_field.add(loop)
+									KillingField.af2 += 1
+									kfAddedLoops.append((kf_field, loop))
+								# else:
+								# 	print(f"[kf:extend] ∘∘∘ ⇒⇒ in [field({len(kf_field)})] // not adding !!!")									
+							else:
+								#print(f"[kf:extend] ∘∘∘ ⇒ not in [seen({len(kf_seen)})] // adding")
+								KillingField.as2 += 1
+								kf_seen.add(loop)
+								kfAddedLoops.append((kf_seen, loop))
+					
+				# assert changedNode.loop not in kf_field
+				# assert twigs[changedNode][0] == changedNode.loop.killingField.field						
+				
+		return kfAddedLoops
+		
+				
 	def fixExtendLoop(diagram, extendedLoop):
 
 		# first version
-		kfPreviousFields = []
 		# twigs = {}		
 				
-		def fxel1():		
-			for changedNode in extendedLoop.extension_result.new_chain.avnodes:
-				kfPreviousFields.append((changedNode.loop.killingField, changedNode.loop.killingField.field, changedNode.loop.killingField.seen))			
-																																												
-				# find loops with just multiple appearances - these nodes would get killed when extending this (self) loop, as they tie to at least two of the self's new connected chains
-				seen = set() # unique seen once loops
-				dups = set() # unique seen more loops
-		
-				# gather around all avloops for chains tied to this loop (including multiples)				
-				for n in changedNode.loop.nodes:
-					for ncn in n.chain.avnodes:
-						
-						KillingField.e1 += 1
-						loop = ncn.loop
-						
-						if loop in seen:
-							if loop not in dups:								
-								KillingField.af1 += 1
-								dups.add(loop)								
-						else:
-							KillingField.as1 += 1
-							seen.add(loop)
-				
-				# remove self
-				dups.remove(changedNode.loop)
-				KillingField.af1 += 1
-				
-				# return killing field							
-				changedNode.loop.killingField.field = dups
-				changedNode.loop.killingField.seen = seen
-				# twigs[changedNode] = ((changedNode.loop.killingField.field, changedNode.loop.killingField.seen))		
 
 
 		tx = time()
-		fxel1()				
+		
+		kfPreviousFields = KillingField.fxel1(diagram, extendedLoop)
+				
 		d1 = time() - tx
 
 		# revert				
@@ -246,60 +307,11 @@ class KillingField (object):
 			kf.seen = seen										
 									
 		# second version		
-		kfAddedLoops = [] 
 		
-		def fxel2():
-			
-			# ∘ for each old chain
-			for oldChain in extendedLoop.extension_result.affected_chains:
-				# ∘ for each changed node in the old chain ~ basically we go through every node in the new chain, but by knowing in which old chain the node was before
-				for changedNode in oldChain.avnodes:
-	
-					'''
-					# ∘ for each node in the new chain
-					for node in extendedLoop.extension_result.new_chain.avnodes:
-						# ∘ that is not in the selected old chain
-						if node not in oldChain.avnodes:
-							# ∘ update the killing field for the selected changed node
-							loop = node.loop
-					'''		
-					
-					# ∘ go through every node in the new chain
-					for o2Chain in extendedLoop.extension_result.affected_chains:
-						# ∘ that is not in the old chain
-						if o2Chain != oldChain:
-							#print(f"[kf:extend] ∘∘ o2 chain: {oc2}/{len(extendedLoop.extension_result.affected_chains)}")									
-							for ch2Node in o2Chain.avnodes:
-								#print(f"[kf:extend] ∘∘∘ ch2 node: {cn2}/{len(o2Chain.avnodes)}")				
-								# ∘ these new node :: loops are the 'additions' to this old chain to become the new chain
-								KillingField.e2 += 1
-								loop = ch2Node.loop
-											
-								kf_field = changedNode.loop.killingField.field
-								kf_seen = changedNode.loop.killingField.seen						
-								
-								if loop in kf_seen:
-									#print(f"[kf:extend] ∘∘∘ ⇒ in seen({len(kf_seen)})")
-									if loop not in kf_field:
-									# assert loop not in kf_field									
-										# print(f"[kf:extend] ∘∘∘ ⇒⇒ not in [field({len(kf_field)})] // adding")
-										kf_field.add(loop)
-										KillingField.af2 += 1
-										kfAddedLoops.append((kf_field, loop))
-									# else:
-									# 	print(f"[kf:extend] ∘∘∘ ⇒⇒ in [field({len(kf_field)})] // not adding !!!")									
-								else:
-									#print(f"[kf:extend] ∘∘∘ ⇒ not in [seen({len(kf_seen)})] // adding")
-									KillingField.as2 += 1
-									kf_seen.add(loop)
-									kfAddedLoops.append((kf_seen, loop))
-						
-					# assert changedNode.loop not in kf_field
-					# assert twigs[changedNode][0] == changedNode.loop.killingField.field		
 							
 		
 		tx = time()		
-		fxel2()															
+		kfAddedLoops = KillingField.fxel2(diagram, extendedLoop)
 		d2 = time() - tx
 		
 		
