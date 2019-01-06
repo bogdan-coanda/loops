@@ -150,25 +150,32 @@ class Measurement (object):
 					found = True
 					break
 				
-				elif avlen == 2 and doCoerce:
-					killingFields = [node.loop.killingField() for node in chain.avnodes]
-					intersected = killingFields[0].intersection(killingFields[1])
-					if len(intersected):
+				elif avlen >= 2 and doCoerce: # check for coerced loops for avlen ≥ 2
+					intersected = chain.avnodes[0].loop.killingField() 
+					y = 1
+					while len(intersected) and y < len(chain.avnodes):
+						intersected = intersected.intersection(chain.avnodes[y].loop.killingField())
+						y += 1 
+										
+					if len(intersected): # these nodes would get killed anyhow, whichever node got extended to keep this chain connected
 						for avloop in intersected:
 							coerced.append(avloop)
-							diagram.setLoopUnavailabled(avloop)
+							diagram.setLoopUnavailabled(avloop)							
 							opslog.append(('coerced', avloop))
-							
+
 							affected_min_chlen = min([len(n.chain.avnodes) for n in avloop.nodes])
 							if affected_min_chlen < min_chlen:
 								min_chlen = affected_min_chlen
 								if min_chlen is 0:
-									# input(".[coerce] dead @ coerce | singles: " + str(len(singles)) + ", coerced: " + str(len(coerced)))
+									#print(f"{print_path}[coerce] dead @ coerce | singles: " + str(len(singles)) + ", coerced: " + str(len(coerced)))
 									return (0, singles, coerced)
-							
+									
+						#if avlen > 2:
+						#print(f"{print_path}[coerce:{index}/{len(current_chains)}] coerced: {len(intersected)} | avlen: {avlen} | s: {len(singles)} c: {len(coerced)} | updated_chains: {len(updated_chains)}")							
+
 						found = True
 						break
-																	
+																							
 			if not found:
 				return (min_chlen, singles, coerced)
 		
