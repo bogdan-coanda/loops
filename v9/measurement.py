@@ -222,7 +222,7 @@ class Measurement (object):
 				#if index % 10 == 0:
 					print(f"[{tstr(time() - diagram.startTime):>11}][decimate:{'T' if second_pass else 'f'}] @ {index} / {len(avloops)} | min_chlen: {min([len(chain.avnodes) for chain in diagram.chains])}")				
 					
-				oldRegenCount = KillingField.regenCount
+				#oldRegenCount = KillingField.regenCount
 					
 				diagram.extendLoop(loop)
 				
@@ -242,12 +242,12 @@ class Measurement (object):
 				next_mx.clean()
 				diagram.collapseBack(loop)
 				
-				KillingField.assessAllLoops(diagram)
+				#KillingField.assessAllLoops(diagram)
 																
 				if next_mx.min_chlen == 0 and next_chain_count > 1:
 					zeroes.append(loop)
 					diagram.setLoopUnavailabled(loop)
-					KillingField.assessAllLoops(diagram)
+					#KillingField.assessAllLoops(diagram)
 					opslog.append(('zeroed', loop))
 					#if second_pass:
 					#print(f"{print_path}[{tstr(time() - diagram.startTime):>11}][decimate:{'T' if second_pass else 'f'}] zeroed {loop} | so far: {len(zeroes)}")
@@ -266,7 +266,7 @@ class Measurement (object):
 											
 			if not found:
 				#if second_pass:
-				print(f"[{tstr(time() - diagram.startTime):>11}][decimate:{'T' if second_pass else 'f'}] done | avloops: {len(avloops)} | zeroes: {len(zeroes)} | [kf] reg: {KillingField.regenCount} (avg: {KillingField.regenCount/len(avloops):.2})")
+				print(f"[{tstr(time() - diagram.startTime):>11}][decimate:{'T' if second_pass else 'f'}] done | avloops: {len(avloops)} | zeroes: {len(zeroes)}")
 				return (min_chlen, zeroes, results)
 			#if second_pass:
 			#print(f"{print_path}[{tstr(time() - diagram.startTime):>11}][decimate:{'T' if second_pass else 'f'}] curr | zeroes: {len(zeroes)}")

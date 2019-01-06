@@ -10,4 +10,5 @@ print("\n\n--- [CALL COUNT] ---\n")
 p.strip_dirs().sort_stats(0).print_stats(10)
 print("\n\n--- [INTERNAL TIME :: CALLERS] ---\n")
 p.strip_dirs().sort_stats(1).print_callers(10)
-
+print("\n\n--- [INTERNAL TIME :: CALLEES] ---\n")
+p.strip_dirs().sort_stats(1).print_callees(10)
