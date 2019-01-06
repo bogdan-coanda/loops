@@ -1,8 +1,8 @@
 import pstats
 import sys
 
-p = pstats.Stats('__cProfile__')
-q = pstats.Stats('__cProfile_c2__')
+p = pstats.Stats('__cProfile_c2__')
+q = pstats.Stats('__cProfile_c2_prev__')
 print("\n\n--- [CUMULATIVE TIME] ---\n")
 p.strip_dirs().sort_stats(2).print_stats(10)
 q.strip_dirs().sort_stats(2).print_stats(10)
