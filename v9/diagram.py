@@ -3,6 +3,7 @@ from node import *
 from cycle import *
 from link import *
 from loop import *
+from tuple import *
 from chain import *
 from common import *
 from measures import *
@@ -22,7 +23,7 @@ class Diagram (object):
 		'W', 'H',
 		'pointers', 'pointer_avlen',
 		'tobex_base_count',
-		'bases', 'node_tuples', 'loop_tuples',
+		'bases', 'node_tuples', 'loop_tuples', 'avtuples',
 		'radialLoopsByKType',
 		'changelog'
 	]
@@ -72,6 +73,13 @@ class Diagram (object):
 			self.bases = [self.nodeByAddress[addr] for addr in ['0000001', '0000165', '0000201', '0000365', '0000401', '0000565']]
 			
 		self.walk()
+		
+		# [from measurement] 4. find available tuples (incl. already extended loops, excl. kernel connected loops)
+		self.avtuples = [t for t in self.loop_tuples if t.availabled]
+		
+		assert sorted(self.avtuples) == sorted([t for t in self.loop_tuples
+			if len([loop for loop in t if not loop.availabled and not loop.extended]) == 0
+			and len([loop for loop in t if len([node.cycle for node in loop.nodes if node.cycle.isKernel]) != 0]) == 0])
 		
 		
 	def measureTobex(self):
@@ -334,11 +342,12 @@ class Diagram (object):
 		
 			
 	def setLoopAvailabled(self, loop):
+		#print(f"[+avail+] {loop} | tuple: {loop.tuple.availabled}")
 		# assert len(set([node.cycle.chain for node in loop.nodes])) == len(loop.nodes)
 		# assert loop.availabled is False
 		# print(f"[availabled] loop: {loop}")
 		# assert self.changelog[-1][0] == 'unavailabled' and self.changelog[-1][1] == loop, self.changelog[-1]
-		_, _, updated_chains = self.changelog.pop()
+		_, _, updated_chains, updated_tuples = self.changelog.pop()
 		
 		loop.availabled = True
 		# for node in loop.nodes:
@@ -346,18 +355,29 @@ class Diagram (object):
 		# 	cycle.chain.avloops.add(loop)
 		for ch, n in updated_chains:
 			ch.avnodes.append(n)
+			
+		for t in updated_tuples:
+			t.availabled = True
+			self.avtuples.append(t)
 		
 		
 	def setLoopUnavailabled(self, loop):
 		# assert loop.availabled is True
+		#print(f"[-avail-] {loop} | tuple: {loop.tuple if loop.tuple else '-'}")
 		loop.availabled = False
 		updated_chains = []		
-		self.changelog.append(('unavailabled', loop, updated_chains))
+		updated_tuples = []
+		self.changelog.append(('unavailabled', loop, updated_chains, updated_tuples))
 		
 		for node in loop.nodes:
 			if node in node.chain.avnodes: # [~] why would the loop not be here ? got removed twice ? got debugged twice over already and proven correct ? as is it needed during makeChain ?
 				node.chain.avnodes.remove(node)
 				updated_chains.append((node.chain, node))
+				
+		if loop.tuple and loop.tuple.availabled and not loop.extended:
+			loop.tuple.availabled = False
+			self.avtuples.remove(loop.tuple)
+			updated_tuples.append(loop.tuple)
 									
 	
 	def makeChain(self, affected_chains):
@@ -496,7 +516,7 @@ class Diagram (object):
 			for node in curr_node_tuple:
 				node.tuple = curr_node_tuple				
 								
-			curr_loop_tuple = tuple([node.loop for node in curr_node_tuple])
+			curr_loop_tuple = Tuple(len(self.loop_tuples), [node.loop for node in curr_node_tuple])
 			if curr_loop_tuple[0].tuple is None:
 				self.loop_tuples.append(curr_loop_tuple)				
 				for loop in curr_loop_tuple:

@@ -5,9 +5,10 @@ from common import input2
 class Measurement (object):
 	
 	__slots__ = ['diagram', 
-		'min_chlen', 'unchained_cycles', 'avloops', 'avtuples', 'tobex',
+		'min_chlen', 'unchained_cycles', 'avloops', 'tobex',
 		'reduced', 'singles', 'coerced', 'zeroes', 'results', # from reduce() { singles/coerced + decimate loop } # reduced: if reduce() was ran
-		'avtuples_before_viability', 'avtuples_before_untouched',
+		#'avtuples_before_viability', 
+		'avtuples_before_untouched',
 		'mc', 'mn', 'mt',
 		'opslog'
 		# mc holds either a cycle or a chains
@@ -27,13 +28,8 @@ class Measurement (object):
 		self.unchained_cycles = [cycle for cycle in (old_mx.unchained_cycles if old_mx else diagram.cycles) if cycle.isUnchained]
 		
 		# 3. find available loops 
-		self.avloops = [l for l in (old_mx.avloops if old_mx else diagram.loops) if l.availabled]
+		self.avloops = [l for l in (old_mx.avloops if old_mx else diagram.loops) if l.availabled]		
 		
-		# 4. find available tuples (incl. already extended loops, excl. kernel connected loops)
-		self.avtuples = [t for t in (old_mx.avtuples if old_mx else diagram.loop_tuples)
-			if len([loop for loop in t if not loop.availabled and not loop.extended]) == 0
-			and len([loop for loop in t if len([node.cycle for node in loop.nodes if node.cycle.isKernel]) != 0]) == 0]
-			
 		# 5. find number of loops that still need to be extended to reach a `potential` solution
 		self.tobex = diagram.measureTobex()
 				
@@ -41,14 +37,27 @@ class Measurement (object):
 		self.reduced = False
 		self.opslog = old_opslog if old_opslog else []					
 		
+		
+	# def i4(self, old_mx):
+	# 	print(f"[i4] old mx: {old_mx.avtuples}")
+		# 4. find available tuples (incl. already extended loops, excl. kernel connected loops)
+	# 	self.avtuples = [t for t in (old_mx.avtuples if old_mx else self.diagram.loop_tuples)
+	# 		if len([loop for loop in t if not loop.availabled and not loop.extended]) == 0
+	# 		and len([loop for loop in t if len([node.cycle for node in loop.nodes if node.cycle.isKernel]) != 0]) == 0]
+	# 
+	# 	if sorted(self.avtuples) == sorted(self.diagram.avtuples):			
+	# 		print(f"=== [mx] avtuples: {len(self.avtuples)} ===============================================")
+	# 	else:
+	# 		assert False, f"{set(self.avtuples).difference(self.diagram.avtuples)} | {set(self.diagram.avtuples).difference(self.avtuples)}"
+					
+	
 	def remeasure(self):
 		return Measurement(self.diagram, self)
 		
 		
 	def __repr__(self):
-		return "⟨mx | min chlen: {} | avloops: {} | avtuples: {}{} | chains: {} | unicycles: {} | tobex: {}⟩".format(
-			self.min_chlen, len(self.avloops), len(self.avtuples), 
-			"" if not hasattr(self, 'avtuples_before_viability') else "/"+str(len(self.avtuples_before_viability)),
+		return "⟨mx | min chlen: {} | avloops: {} | avtuples: {} | chains: {} | unicycles: {} | tobex: {}⟩".format(
+			self.min_chlen, len(self.avloops), len(self.diagram.avtuples), 
 			len(self.diagram.chains), len(self.unchained_cycles), self.tobex,
 		) + ("" if hasattr(self, 'reduced') and not self.reduced else "\n | s: {} | c: {} | z: {}".format(
 				len(self.singles), len(self.coerced), len(self.zeroes))
@@ -98,20 +107,20 @@ class Measurement (object):
 			del self.reduced
 			
 	
-	def measure_viable_tuples(self):
-		self.avtuples_before_viability = self.avtuples
-		self.avtuples = Measurement.__measure_viable_tuples(self.diagram, self.avtuples)		
-		return self.avtuples
+	# def measure_viable_tuples(self):
+	# 	self.avtuples_before_viability = self.avtuples
+	# 	self.avtuples = Measurement.__measure_viable_tuples(self.diagram, self.avtuples)		
+	# 	return self.avtuples
 	
 	
 	def measure_untouched_tuples(self):
-		self.avtuples_before_untouched = self.avtuples
-		self.avtuples = Measurement.__measure_untouched_tuples(self.diagram, self.avtuples)
-		return self.avtuples
+		# self.avtuples_before_untouched = self.avtuples
+		return Measurement.__measure_untouched_tuples(self.diagram)
+		#return removed_tuples
 			
 			
 	def find_min_simple(self):
-		self.mc, self.mn, self.mt = Measurement._find_min_simple(self.diagram, self.unchained_cycles, self.avtuples)
+		self.mc, self.mn, self.mt = Measurement._find_min_simple(self.diagram, self.unchained_cycles, self.diagram.avtuples)
 		return self.mt
 		
 	
@@ -303,43 +312,49 @@ class Measurement (object):
 				diagram.setLoopAvailabled(oploop)
 	
 	
-	def __measure_viable_tuples(diagram, avtuples):
-		viable_tuples = []
-		
-		for tindex, curr_tuple in enumerate(avtuples):
-			
+	# def __measure_viable_tuples(diagram, avtuples):
+	# 	viable_tuples = []
+	# 
+	# 	for tindex, curr_tuple in enumerate(avtuples):
+	# 
 			# extend current tuple
-			curr_extended_loops = []
-			for loop in curr_tuple:
-				if diagram.extendLoop(loop):
-					curr_extended_loops.append(loop)
-				else:
-					break							
-	
+	# 		curr_extended_loops = []
+	# 		for loop in curr_tuple:
+	# 			if diagram.extendLoop(loop):
+	# 				curr_extended_loops.append(loop)
+	# 			else:
+	# 				break							
+	# 
 			# check tuple completeness
-			if len(curr_extended_loops) == len(curr_tuple):
-				min_chlen = min([len(chain.avnodes) for chain in diagram.chains])
-				
+	# 		if len(curr_extended_loops) == len(curr_tuple):
+	# 			min_chlen = min([len(chain.avnodes) for chain in diagram.chains])
+	# 
 				# check tuple viability
-				if min_chlen != 0 or len(diagram.chains) == 1:
-					viable_tuples.append(curr_tuple)
-
+	# 			if min_chlen != 0 or len(diagram.chains) == 1:
+	# 				viable_tuples.append(curr_tuple)
+	# 
 			# collapse current tuple				
-			for loop in reversed(curr_extended_loops):
-				diagram.collapseBack(loop)		
-	
-		return viable_tuples
+	# 		for loop in reversed(curr_extended_loops):
+	# 			diagram.collapseBack(loop)		
+	# 
+	# 	return viable_tuples
 
 
-	def __measure_untouched_tuples(diagram, avtuples):
-		return [t for t in avtuples # all tuples # with no connected loops
-							if len( # having no loops # if we have no connected loops
-								[l for l in t # which # if we have connected loops
-										if len( # having nodes # if we have connected nodes
-											[n for n in l.nodes # which # if we have connected nodes
-													if not n.cycle.isUnchained] # are in cycles tied to other cycles (extended through by another node) # if we have a connected node
-										) is not 0]
-							) is 0]								
+	def __measure_untouched_tuples(diagram):
+		removed_tuples = [t for t in diagram.avtuples if not t.isUntouched()]
+		diagram.avtuples = [t for t in diagram.avtuples if t.isUntouched()]		
+		for t in removed_tuples:
+			t.availabled = False
+		# avt = [t for t in avtuples # all tuples # with no connected loops
+		# 					if len( # having no loops # if we have no connected loops
+		# 						[l for l in t # which # if we have connected loops
+		# 								if len( # having nodes # if we have connected nodes
+		# 									[n for n in l.nodes # which # if we have connected nodes
+		# 											if not n.cycle.isUnchained] # are in cycles tied to other cycles (extended through by another node) # if we have a connected node
+		# 								) is not 0]
+		# 					) is 0]								
+		# assert sorted(diagram.avtuples) == sorted(avt)
+		return removed_tuples
 
 
 	def _find_min_simple(diagram, unchained_cycles, avtuples):
