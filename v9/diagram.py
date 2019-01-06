@@ -321,7 +321,7 @@ class Diagram (object):
 
 		loop.extension_result.kfAddedLoops = KillingField.fixExtendLoop(self, loop)
 		
-		KillingField.assessAllLoops(self)
+		#KillingField.assessAllLoops(self)
 
 		##assert set(list(itertools.chain(*[chain.avloops for chain in diagram.chains]))) == set([loop for loop in diagram.loops if loop.availabled and len([n for n in loop.nodes if n.cycle.chain])])
 												

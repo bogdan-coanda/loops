@@ -283,7 +283,7 @@ class Measurement (object):
 			# input("[reduce] dead @ init coerce | s: " + str(len(curr_singles)) + " | c: " + str(len(curr_coerced)) + " | z: 0")
 			return (0, curr_singles, curr_coerced, [], {})
 		
-		KillingField.assessAllLoops(diagram)
+		#KillingField.assessAllLoops(diagram)
 				
 		min_chlen, curr_zeroes, curr_results = Measurement.__decimate(diagram, opslog, min_chlen)		
 		#if second_pass:
