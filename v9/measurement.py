@@ -1,5 +1,6 @@
 from loop import color_string
 from common import input2
+import itertools
 
 
 class Measurement (object):
@@ -77,9 +78,9 @@ class Measurement (object):
 		self.reduced = True
 		
 		
-	def coerce(self):
+	def coerce(self, updated_chains=None):
 		# assert not self.reduced		
-		self.min_chlen, self.singles, self.coerced = Measurement.__coerce(self.diagram, self.opslog, self.min_chlen, True)
+		self.min_chlen, self.singles, self.coerced = Measurement.__coerce(self.diagram, self.opslog, self.min_chlen, True, updated_chains)
 		# assert len(self.opslog) == len(self.singles) + len(self.coerced)
 		# print(f"[coerce] singles: {len(self.singles)} | coerced: {len(self.coerced)} | opslog: {len(self.opslog)}")
 		self.zeroes = []
@@ -131,14 +132,19 @@ class Measurement (object):
 			
 	# === internal =============================================================================================================================================================== #	
 
-	def __coerce(diagram, opslog, min_chlen, doCoerce=True):
+	def __coerce(diagram, opslog, min_chlen, doCoerce=True, updated_chains=None):
 		singles = []
 		coerced = []
+		
+		updated_chains = sorted(updated_chains or diagram.chains, key = lambda chain: chain.id) 
 		
 		while True:
 			found = False
 			
-			for chain in diagram.chains:
+			current_chains = sorted(updated_chains, key = lambda chain: chain.id)
+			updated_chains = set()
+	
+			for index, chain in enumerate(current_chains):
 				avlen = len(chain.avnodes)
 				
 				if avlen == 0:
@@ -148,6 +154,8 @@ class Measurement (object):
 					avloop = chain.avnodes[0].loop
 					singles.append(avloop)
 					diagram.extendLoop(avloop)
+					updated_chains = set(current_chains[index+1:]).intersection(diagram.chains)
+					updated_chains.update(avloop.extension_result.updated_chains)
 					opslog.append(('singled', avloop))
 					# print(f"[coerce] singles: {len(singles)} | opslog: {len(opslog)}")
 					
@@ -167,9 +175,11 @@ class Measurement (object):
 						y += 1 
 										
 					if len(intersected): # these nodes would get killed anyhow, whichever node got extended to keep this chain connected
+						updated_chains = set(current_chains[index+1:]).intersection(diagram.chains)
 						for avloop in intersected:
 							coerced.append(avloop)
 							diagram.setLoopUnavailabled(avloop)							
+							updated_chains.update([node.chain for node in avloop.nodes])
 							opslog.append(('coerced', avloop))
 
 							affected_min_chlen = min([len(n.chain.avnodes) for n in avloop.nodes])
@@ -210,7 +220,7 @@ class Measurement (object):
 				if second_pass:
 					next_mx.reduce()
 				else:
-					next_mx.coerce()
+					next_mx.coerce(loop.extension_result.updated_chains)
 				next_chain_count = len(diagram.chains) # retain `current` chain count
 				
 				next_mx.clean()
@@ -270,7 +280,8 @@ class Measurement (object):
 		# additional
 		while True:
 			if len(curr_zeroes) > 0 or doOnce:
-				min_chlen, curr_singles, curr_coerced = Measurement.__coerce(diagram, opslog, min_chlen)
+				updated_chains = set(itertools.chain(*[[node.chain for node in loop.nodes] for loop in curr_zeroes]))
+				min_chlen, curr_singles, curr_coerced = Measurement.__coerce(diagram, opslog, min_chlen, True, updated_chains)									
 				singles += curr_singles
 				coerced += curr_coerced			
 				if second_pass:

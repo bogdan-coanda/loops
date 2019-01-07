@@ -268,7 +268,7 @@ class Diagram (object):
 				node = node.loopBrethren[-1].nextLink.next.prevs[1].node																		
 																							
 		self.chainAutoInc = -1
-		new_chain, affected_loops = self.makeChain(affected_chains)
+		new_chain, affected_loops, updated_chains = self.makeChain(affected_chains)
 		
 
 	# --- generating ------------------------------------------------------------------------------------------------------------------------------------------------------------- #
@@ -302,7 +302,7 @@ class Diagram (object):
 						
 		# affected loops are avloops set to unavailabled because we're connecting these chains together
 		# they're the loops that are re-availabled on collapse
-		new_chain, affected_loops = self.makeChain(affected_chains)				
+		new_chain, affected_loops, updated_chains = self.makeChain(affected_chains)				
 				
 		#for node in loop.nodes:
 			#assert not node.links[1].next.loop.availabled and not node.prevs[1].node.loop.availabled, "broken extension neighbours!!!"
@@ -312,7 +312,7 @@ class Diagram (object):
 				#assert self.checkAvailability(lp), "broken checked loops"
 				
 		#assert len([node for node in loop.nodes if node.links[1].next.loop.availabled or node.prevs[1].node.loop.availabled]) is 0, "broken extension neighbours!!!"		
-		loop.extension_result.setExtensionDetails(new_chain, affected_loops, affected_chains)
+		loop.extension_result.setExtensionDetails(new_chain, affected_loops, affected_chains, updated_chains)
 
 		##assert set(list(itertools.chain(*[chain.avloops for chain in diagram.chains]))) == set([loop for loop in diagram.loops if loop.availabled and len([n for n in loop.nodes if n.cycle.chain])])
 						
@@ -347,13 +347,13 @@ class Diagram (object):
 		# assert loop.availabled is False
 		# print(f"[availabled] loop: {loop}")
 		# assert self.changelog[-1][0] == 'unavailabled' and self.changelog[-1][1] == loop, self.changelog[-1]
-		_, _, updated_chains, updated_tuples = self.changelog.pop()
+		_, _, unavailabled_chain_node_pairs, updated_tuples = self.changelog.pop()
 		
 		loop.availabled = True
 		# for node in loop.nodes:
 		# 	cycle = node.cycle
 		# 	cycle.chain.avloops.add(loop)
-		for ch, n in updated_chains:
+		for ch, n in unavailabled_chain_node_pairs:
 			ch.avnodes.append(n)
 			
 		for t in updated_tuples:
@@ -365,20 +365,24 @@ class Diagram (object):
 		# assert loop.availabled is True
 		#print(f"[-avail-] {loop} | tuple: {loop.tuple if loop.tuple else '-'}")
 		loop.availabled = False
-		updated_chains = []		
+		unavailabled_chain_node_pairs = []		
 		updated_tuples = []
-		self.changelog.append(('unavailabled', loop, updated_chains, updated_tuples))
+		self.changelog.append(('unavailabled', loop, unavailabled_chain_node_pairs, updated_tuples))
+		updated_chains = set()
 		
 		for node in loop.nodes:
 			if node in node.chain.avnodes: # [~] why would the loop not be here ? got removed twice ? got debugged twice over already and proven correct ? as is it needed during makeChain ?
 				node.chain.avnodes.remove(node)
-				updated_chains.append((node.chain, node))
+				unavailabled_chain_node_pairs.append((node.chain, node))
+				updated_chains.add(node.chain)
 				
 		if loop.tuple and loop.tuple.availabled and not loop.extended:
 			loop.tuple.availabled = False
 			self.avtuples.remove(loop.tuple)
 			updated_tuples.append(loop.tuple)
-									
+		
+		return updated_chains
+		
 	
 	def makeChain(self, affected_chains):
 
@@ -389,6 +393,7 @@ class Diagram (object):
 		new_chain = Chain(self.chainAutoInc)
 		# print("creating new chain: " + str(new_chain))
 		affected_loops = []
+		updated_chains = set()
 		
 		# gather together all non-repeating avnodes.loops, this is checkAvailability() behaviour
 		seenOnceLoops = []
@@ -415,7 +420,7 @@ class Diagram (object):
 					else:
 						# seen more
 						seenOnceLoops.remove(loop)
-						self.setLoopUnavailabled(loop)
+						updated_chains.update(self.setLoopUnavailabled(loop))
 						# remember erased loop						
 						affected_loops.append(loop)
 										
@@ -435,7 +440,9 @@ class Diagram (object):
 		# a new chain is born
 		#print("[makeChain] adding: " + str(new_chain))
 		self.chains.add(new_chain)
-		return (new_chain, affected_loops)	
+		updated_chains.add(new_chain)
+		updated_chains.difference_update(affected_chains)
+		return (new_chain, affected_loops, updated_chains)	
 	
 
 	def breakChain(self, extension_result):

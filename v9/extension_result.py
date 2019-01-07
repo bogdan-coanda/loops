@@ -3,7 +3,7 @@ COERCED_KILL = False
 
 class ExtensionResult (object):
 	
-	__slots__ = ['new_chain', 'affected_loops', 'affected_chains']#, 'affected_singles', 'reachable', 'temporary_reachable', 'extended_count', 'killed_count', 'coerced_loops', 'temporary_extended_count', 'temporary_killed_count', 'temporary_coerced_loops']
+	__slots__ = ['new_chain', 'affected_loops', 'affected_chains', 'updated_chains']#, 'affected_singles', 'reachable', 'temporary_reachable', 'extended_count', 'killed_count', 'coerced_loops', 'temporary_extended_count', 'temporary_killed_count', 'temporary_coerced_loops']
 	'''
 	def __init__(self):
 		self.new_chain = None
@@ -22,10 +22,11 @@ class ExtensionResult (object):
 		self.temporary_killed_count = 0
 		self.temporary_reachable = None
 	'''
-	def setExtensionDetails(self, new_chain, affected_loops, affected_chains):
+	def setExtensionDetails(self, new_chain, affected_loops, affected_chains, updated_chains):
 		self.new_chain = new_chain
 		self.affected_loops = affected_loops
 		self.affected_chains = affected_chains
+		self.updated_chains = updated_chains
 	'''
 	def addCoercionDetails(self, singles, coerced):
 		self.affected_singles += singles
