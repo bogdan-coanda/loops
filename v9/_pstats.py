@@ -1,32 +1,23 @@
 import pstats
 import sys
 
-p = pstats.Stats('__cProfile_c2_1__')
-q = pstats.Stats('__cProfile_c2_2__')
-m = pstats.Stats('__cProfile_gt_1__')
-n = pstats.Stats('__cProfile_gt_2__')
+ps = [pstats.Stats(file) for file in [
+	'__cProfile_c2_1__', '__cProfile_c2_2__', '__cProfile_c2_3__',
+	'__cProfile_gt_1__', '__cProfile_gt_2__', '__cProfile_gt_3__']] 
+
 print("\n\n--- [CUMULATIVE TIME] ---\n")
-p.strip_dirs().sort_stats(2).print_stats(10)
-q.strip_dirs().sort_stats(2).print_stats(10)
-m.strip_dirs().sort_stats(2).print_stats(10)
-n.strip_dirs().sort_stats(2).print_stats(10)
+for p in ps:
+	p.strip_dirs().sort_stats(2).print_stats(10)
 print("\n\n--- [INTERNAL TIME] ---\n")
-p.strip_dirs().sort_stats(1).print_stats(10)
-q.strip_dirs().sort_stats(1).print_stats(10)
-m.strip_dirs().sort_stats(1).print_stats(10)
-n.strip_dirs().sort_stats(1).print_stats(10)
+for p in ps:
+	p.strip_dirs().sort_stats(1).print_stats(10)
 print("\n\n--- [CALL COUNT] ---\n")
-p.strip_dirs().sort_stats(0).print_stats(10)
-q.strip_dirs().sort_stats(0).print_stats(10)
-m.strip_dirs().sort_stats(0).print_stats(10)
-n.strip_dirs().sort_stats(0).print_stats(10)
+for p in ps:
+	p.strip_dirs().sort_stats(0).print_stats(10)
 print("\n\n--- [INTERNAL TIME :: CALLERS] ---\n")
-p.strip_dirs().sort_stats(1).print_callers(10)
-q.strip_dirs().sort_stats(1).print_callers(10)
-m.strip_dirs().sort_stats(1).print_callers(10)
-n.strip_dirs().sort_stats(1).print_callers(10)
+for p in ps:
+	p.strip_dirs().sort_stats(1).print_callers(10)
 print("\n\n--- [INTERNAL TIME :: CALLEES] ---\n")
-p.strip_dirs().sort_stats(1).print_callees(10)
-q.strip_dirs().sort_stats(1).print_callees(10)
-m.strip_dirs().sort_stats(1).print_callees(10)
-n.strip_dirs().sort_stats(1).print_callees(10)
+for p in ps:
+	p.strip_dirs().sort_stats(1).print_callees(10)
+
