@@ -3,8 +3,9 @@ from itertools import chain
 from colorsys import hls_to_rgb
 from random import random
 from node import *
-from common import unitRoots
+from common import unitRoots, input2
 import math
+import photos
 
 
 class colors (object):
@@ -238,7 +239,7 @@ def draw(diagram):
 			oval.stroke()			
 			
 			# § drawing links
-			if node.chain is not None and not node.cycle.isUnchained:
+			if node.chain is not None:# and not node.cycle.isUnchained:
 				nextLink = node.nextLink if node.nextLink else (node.links[2] if node.loop.extended else node.links[1])
 				if nextLink.type is 2:
 					line = ui.Path()
@@ -348,10 +349,17 @@ def show(diagram):
 	img.show()
 	return img
 	
+def save(diagram):
+	photos.save_image(draw(diagram))
+	input2("image saved")
+	
 	
 if __name__ == "__main__":
 	from diagram import *
 	diagram = Diagram(6, 3)
+	
+	img = draw(diagram)
+	img.save()
 	
 	### « #5 | sol » @ sols.6.py ###
 	

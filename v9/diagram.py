@@ -511,6 +511,13 @@ class Diagram (object):
 							
 			# do the actual walking			
 			self.__walk(self.bases, adv, jmp)
+		
+		def j(x):
+			jmp(self.pointers, x)
+			return self
+		def a(x):	
+			adv(self.pointers, x-1)
+			return self
 			
 											
 	def __walk(self, base_nodes, adv, jmp): # generate unidirectional tuple
@@ -568,12 +575,12 @@ class Diagram (object):
 			return
 				
 		chain_avlen, smallest_chain_group = (len(self.cycles), [])
-		sorted_chain_groups = sorted(groupby(self.chains, K = lambda chain: len(chain.avloops)).items())
+		sorted_chain_groups = sorted(groupby(self.chains, K = lambda chain: len(chain.avnodes)).items())
 		if len(sorted_chain_groups) > 0:
 			chain_avlen, smallest_chain_group	= sorted_chain_groups[0]		
 		
 		self.pointer_avlen = chain_avlen
-		self.pointers += itertools.chain(*[[[n for n in loop.nodes if n.cycle.chain is chain][0] for loop in chain.avloops] if chain_avlen is not 0 else chain.cycles for chain in smallest_chain_group])																				
+		self.pointers += itertools.chain(*[[[n for n in node.loop.nodes if n.chain is chain][0] for node in chain.avnodes] if chain_avlen is not 0 else [cycle for cycle in self.cycles if cycle.avnode().chain == chain] for chain in smallest_chain_group])																				
 		#print("[pointing] chain avlen: " + str(chain_avlen))
 
 
