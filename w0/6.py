@@ -17,10 +17,10 @@ def L1():
 	for i in range(len(diagram.pointers)):
 		diagram.pointers[i] = diagram.pointers[i].links[1].next if i % 2 == 0 else diagram.pointers[i].prevs[1].node
 					
-def jump():
+def JP():
 	L1();	L1(); L1(); L1(); L1(); L2()
 																
-def ex():
+def EX():
 	for i in range(len(diagram.pointers)):
 		if i % 2 == 0:
 			diagram.extendLoop(diagram.pointers[i].loop)
@@ -32,8 +32,22 @@ if __name__ == "__main__":
 		
 	diagram = Diagram(6, 1)
 	
-	et('00001')
+	diagram.pointers = [
+		diagram.nodeByAddress['00001'],
+		diagram.nodeByAddress['00143'].links[1].next,
+		diagram.nodeByAddress['00201'],
+		diagram.nodeByAddress['00343'].links[1].next
+	]
 	
+	L2(); JP(); JP(); JP(); L1(); EX()
+
+		
+	# ∘ bases
+	#extend('00001')
+	#et('00001')
+
+	# ------- #
+			
 	# ∘ orange
 	# extend('12000')
 	# extend('12023')
@@ -46,8 +60,8 @@ if __name__ == "__main__":
 	# extend('12232')
 	# extend('12241')
 
-	et('12000')		
-	et('12023')		
+	#et('12000')		
+	#et('12023')		
 	
 	# ------- #
 	

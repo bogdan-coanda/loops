@@ -34,13 +34,26 @@ def tl(ktype):
 			return unavailed
 	
 def el(addr, ktype):
+	extended = 0
 	parentLoop = diagram.nodeByAddress[addr].loop
 	knodes = [node for node in itertools.chain(*[node.cycle.nodes for node in parentLoop.nodes]) if node.loop.availabled and node.loop.ktype == ktype]
 	for i,node in enumerate(knodes):
 		if not node.loop.extended:
 			assert diagram.extendLoop(node.loop)
-	print(f"[el] ⇒ extended ktype:{ktype} loops for parent {parentLoop}")
+			extended += 1
+	print(f"[el] ⇒ extended {extended} ktype:{ktype} loops for parent {parentLoop}")
 
+def elt(addr, ktype):
+	extended = 0
+	parentLoop = diagram.nodeByAddress[addr].loop
+	knodes = [node for node in itertools.chain(*[node.cycle.nodes for node in parentLoop.nodes]) if node.loop.availabled and node.loop.ktype == ktype]
+	for i,node in enumerate(knodes):
+		if not node.loop.extended:
+			for n in node.tuple:
+				assert diagram.extendLoop(n.loop)
+				extended += 1
+	print(f"[elt] ⇒ extended {extended} ktype:{ktype} loops for parent {parentLoop}")
+	
 def es(addr, ktype):
 	parentLoop = diagram.nodeByAddress[addr].loop
 	knodes = [node for node in itertools.chain(*[node.cycle.nodes for node in parentLoop.nodes]) if node.loop.availabled and node.loop.ktype == ktype and node.address[5] not in ['0', str(diagram.spClass-2)]]
@@ -79,15 +92,49 @@ def ql():
 					print(f"[ql] broken @ {parentLoop} with ktype:{ktype} | unavailed {unavailed} loops in {brokenCount} parents so far…")
 	print(f"[ql] ⇒ unavailed {unavailed} loops in {brokenCount} parents")
 
+def L2():
+	for i in range(len(diagram.pointers)):
+		diagram.pointers[i] = diagram.pointers[i].links[2].next if i % 2 == 0 else diagram.pointers[i].prevs[2].node
+		
+def L1():			
+	for i in range(len(diagram.pointers)):
+		diagram.pointers[i] = diagram.pointers[i].links[1].next if i % 2 == 0 else diagram.pointers[i].prevs[1].node
+					
+def JP(count):
+	for i in range(count):
+		for j in range(diagram.spClass-1):
+			L1();
+		L2()
+																
+def EX():
+	for i in range(len(diagram.pointers)):
+		if i % 2 == 0:
+			diagram.extendLoop(diagram.pointers[i].loop)
+		else:
+			diagram.extendLoop(diagram.pointers[i].prevs[1].node.loop)
+			
+
 if __name__ == "__main__":
 	
 	diagram = Diagram(8, 1)			
-	extend('0000001')
-	#et('0000001')
-		
+	
+	diagram.pointers = [(n if i % 2 == 0 else n.links[1].next) for i,n in enumerate(diagram.bases)]
+			
+	#extend('0000001')	
+	et('0000001')	
+	
+	L2(); JP(5); L1(); # EX()
+	elt('1000007', 5) # 1. 0/3 - violet5/red4/orange3
+	elt('1200407', 3)	# 1c.
+			
+	# ∘ blue
 	et('1000107')
 	et('1000307')
 	et('1000507')
+			
+	#diagram.pointers = diagram.nodeByAddress['1200401'].tuple
+			
+	'''
 	et('1001007')
 	et('1001207')
 	et('1001407')
@@ -106,6 +153,7 @@ if __name__ == "__main__":
 	#es('0030407', 2) # T - yellow2
 			
 	tl(0); ql()
+	'''
 	'''
 	
 	et('1001007')
@@ -258,6 +306,7 @@ if __name__ == "__main__":
 	# et('0011130')
 	# et('0011155')	
 	'''
+	'''
 	# long column
 	et('1234000')
 	et('1234025')
@@ -282,7 +331,7 @@ if __name__ == "__main__":
 									
 	tl(0); ql();
 	'''
-	
+	'''
 
 	# blue
 	et('1233307')
