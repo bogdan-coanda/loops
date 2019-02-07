@@ -9,7 +9,25 @@ def et(addr):
 	for node in diagram.nodeByAddress[addr].tuple:
 		assert diagram.extendLoop(node.loop)
 
-
+def L2():
+	for i in range(len(diagram.pointers)):
+		diagram.pointers[i] = diagram.pointers[i].links[2].next if i % 2 == 0 else diagram.pointers[i].prevs[2].node
+		
+def L1():			
+	for i in range(len(diagram.pointers)):
+		diagram.pointers[i] = diagram.pointers[i].links[1].next if i % 2 == 0 else diagram.pointers[i].prevs[1].node
+					
+def jump():
+	L1();	L1(); L1(); L1(); L1(); L2()
+																
+def ex():
+	for i in range(len(diagram.pointers)):
+		if i % 2 == 0:
+			diagram.extendLoop(diagram.pointers[i].loop)
+		else:
+			diagram.extendLoop(diagram.pointers[i].prevs[1].node.loop)
+	
+		
 if __name__ == "__main__":
 		
 	diagram = Diagram(6, 1)
