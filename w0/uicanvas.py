@@ -301,7 +301,7 @@ def draw(diagram):
 			
 		img = ctx.get_image()
 		#img.show()
-		print("[show] chain count: " + str(len([c for c in diagram.chains if not len(c.avnodes) or c.avnodes[0].cycle.isUnchained])) + " | available loops: " + str(len([l for l in diagram.loops if l.availabled]))  + " | looped: " + str(sh_looped_count) + "/" + str(len(diagram.nodes)) + " (" + "{0:.2f}".format(sh_looped_count*100.0/len(diagram.nodes)) + "%)" + " | remaining: " + str(len(diagram.nodes) - sh_looped_count))
+		print("[show] chain count: " + str(len([c for c in diagram.chains if len(c.cycles) > 1])) + " | available loops: " + str(len([l for l in diagram.loops if l.availabled]))  + " | looped: " + str(sh_looped_count) + "/" + str(len(diagram.nodes)) + " (" + "{0:.2f}".format(sh_looped_count*100.0/len(diagram.nodes)) + "%)" + " | remaining: " + str(len(diagram.nodes) - sh_looped_count))
 		return img
 
 def drawCircledText(text, centerX, centerY, radius, textSize, color, borderWidth):
