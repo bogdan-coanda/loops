@@ -21,7 +21,7 @@ class Diagram (object):
 		'links',
 		'loops', 'loopByFirstAddress',
 		'W', 'H',
-		'pointers', 'pointer_avlen',
+		'pointers', 'pointer_avlen', 'pointer_sample',
 		'tobex_base_count',
 		'bases', 'node_tuples', 'loop_tuples',
 		'radialLoopsByKType',
@@ -578,6 +578,7 @@ class Diagram (object):
 			chain_avlen, smallest_chain_group	= sorted_chain_groups[0]		
 		
 		self.pointer_avlen = chain_avlen
+		self.pointer_sample = sorted_chain_groups[0][1][0].avnodes if chain_avlen is not 0 else []
 		self.pointers += itertools.chain(*[[[n for n in node.loop.nodes if n.chain is chain][0] for node in chain.avnodes] if chain_avlen is not 0 else chain.cycles for chain in smallest_chain_group])																				
 		#print("[pointing] chain avlen: " + str(chain_avlen))
 

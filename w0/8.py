@@ -75,11 +75,11 @@ def est(addr, ktype):
 				extended += 1
 	print(f"[est] ⇒ extended {extended} ktype:{ktype} loops for parent {parentLoop}")
 			
-def ql():
+def ql(parent_ktype):
 	unavailed = 0 
 	brokenCount = 0
 	for parentLoop in diagram.loops:
-		if parentLoop.ktype == 0:
+		if parentLoop.ktype == parent_ktype:
 			for ktype in range(2, diagram.spClass):
 				knodes = [node for node in itertools.chain(*[node.cycle.nodes for node in parentLoop.nodes]) if node.loop.availabled and node.loop.ktype == ktype]
 				
@@ -131,109 +131,183 @@ if __name__ == "__main__":
 	
 	diagram = Diagram(8, 1)			
 	
-	diagram.pointers = [(n if i % 2 == 0 else n.links[1].next) for i,n in enumerate(diagram.bases)]
+	#diagram.pointers = [(n if i % 2 == 0 else n.links[1].next) for i,n in enumerate(diagram.bases)]
 			
+	# ∘ bases # [0.]
 	extend('0000001')	
 	#et('0000001')	
-	
-	L2(); JP(5); L1(); # EX()
-	elt('1000007', 5) # 1. 0/3 - violet5/red4/orange3
-	elt('1200407', 3)	# 1c.
-			
-	# ∘ blue
+
+	# ∘ blue # [1.]
 	et('1000107')
 	et('1000307')
 	et('1000507')
 
-	et('1001007') # 3i.
-	et('1001207') # 3i.
-	et('1001407') # 3i.
-
-	et('1003107') # 3i.
-	et('1003307') # 3i.
-	et('1003507') # 3i.
-
-	et('1004007') # 3i.
-	et('1004207') # 3i.
-	et('1004407') # 3i.
-
-	et('1033007') # 3j.
-	et('1033207') # 3j.
-	et('1033407') # 3j.
-
-	et('1123007') # 3j.
-	et('1123207') # 3j.
-	et('1123407') # 3j.
+	et('1001007')
+	et('1001207')
+	et('1001407') 
 	
-	et('0013007') # 3k.
-	et('0013207') # 3k.
-	et('0013407') # 3k.
-	
-	et('0023107') # 3k.
-	et('0023307') # 3k.
-	et('0023507') # 3k.
-	
-	et('1114007') # 3k.
-	et('1114207') # 3k.
-	et('1114407') # 3k.
-	
-	# ∘ green
-	et('1000206') # 2. 0/2 - green2
-	et('1001106') # 3d.
-	et('1003406') # 3e.
-	et('1004306') # 3f.
-	et('1033106') # 3g.
-	et('1123106') # 3h.
+	# ∘ green # [2.]
+	# et('1000206') # 0/2 - green2
 
-	est('1000207', 2) # 3. 2/3 - red4/orange3/yellow2
-	est('1033107', 4) # 3c.
+	# ∘ long column # [3.]
+	elt('1000007', 5) # 0/3 - violet5/red4/orange3
+	elt('1200407', 3)	# 3c.
+	
+	# ∘ 1st blue # [3..]
+	et('1004007') # 3d.
+	et('1004207') # 3d.
+	et('1004407') # 3d.
 
-	#diagram.pointers = diagram.nodeByAddress['1200401'].tuple
-
-	# ∘ blue extra
-	et('1000407') # 4a.
-	et('1001307') # 4a.		
-	et('1003207') # 4a.		
-	et('1004107') # 4a.
+	et('1114007') # 3e.
+	et('1114207') # 3e.
+	et('1114407') # 3e.		
 			
-	et('1033507') # 4b.			
-	et('1110007') # 4b.			
-	et('1114507') # 4b.
-	et('1123507') # 4b.
+	et('0013007') # 3f.
+	et('0013207') # 3f.
+	et('0013407') # 3f.		
+
+	et('0104007') # 3g.
+	et('0104207') # 3g.
+	et('0104407') # 3g.
+
+	et('1123007') # 3h.
+	et('1123207') # 3h.
+	et('1123407') # 3h.
 	
-	et('0010207') # 4c.
+	# ∘ short column # [4.]
+	est('1000207', 2) # 0/3 - yellow2/orange3/red4
+	est('1033107', 4) # 4c.
+
+	# ∘ 2nd blue # [4..]
+	et('1033007') # 4d.
+	et('1033207') # 4d.
+	et('1033407') # 4d.	
+
+	et('0033007') # 4e.
+	et('0033207') # 4e.
+	et('0033407') # 4e.
 	
-	elt('1003007', 5) # 5.
-	elt('1001507', 7) # 5c.			
-		
-	# ∘ 2nd blue
-	et('1024007') # 7a.
-	et('1024207') # 7a.
-	et('1024407') # 7a.	
+	# ∘ alt diag # [5.]
+	elt('1000206', 3) # 0/2 - orange3/green1
+	elt('1220007', 7) # 5b. long column
+	elt('1220207', 5) # 5c.
 	
-	et('1020107') # 7b.
-	et('1020307') # 7b.
-	et('1020507') # 7b.
+	# ∘ 3rd blue # [5..]
+	et('0011007') # 5d.
+	et('0011207') # 5d.
+	et('0011407') # 5d.	
+
+	et('0024007') # 5e.
+	et('0024207') # 5e.
+	et('0024407') # 5e.
+
+	et('0234007') # 5f.
+	et('0234207') # 5f.
+	et('0234407') # 5f.
+				
+	# ∘ 1st green # [5.]
+	# et('1001106') # 5a.	
+	# et('1003406') # 5b.
+	# et('1004306') # 5c.
+	# et('1033106') # 5d.
+	# et('1123106') # 5e.
 	
-	et('0011007') # 7c.
-	et('0011207') # 7c.
-	et('0011407') # 7c.		
+	# pair # [6.]
+	# et('0001200') # 0/2 red:0/blue:7
+	# et('1000400') # 0/2 orange:0/yellow:1
+	# et('1003202') # 0/2 violet:2/blue:7
+	# et('0214502') # 0/2 black:2/blue:7
+	# et('1033502') # 0/2 orange:2/blue:7
 	
-	# ∘ 2nd blue extra
-	et('1020007')	# 8a.
-	et('1024507')	# 8a.
-		
-	et('0011107')	# 8b.	
+	
+	# et('1003107') # 4d.
+	# et('1003307') # 4d.
+	# et('1003507') # 4d.
+
+	# 
+	# 
+	# 
+	# et('0013007') # 3k.
+	# et('0013207') # 3k.
+	# et('0013407') # 3k.
+	# 
+	# et('0023107') # 3k.
+	# et('0023307') # 3k.
+	# et('0023507') # 3k.
+	# 
+	# ∘ blue extra
+	# et('1000407') # 4a.
+	# et('1001307') # 4a.		
+	# et('1003207') # 4a.		
+	# et('1004107') # 4a.
+	# 
+	# et('1033507') # 4b.			
+	# et('1110007') # 4b.			
+	# et('1114507') # 4b.
+	# et('1123507') # 4b.
+	
+	# et('0010207') # 4c.
+	
+	# elt('1003007', 5) # 5.
+	# elt('1001507', 7) # 5c.			
 
 	# ∘ 2nd-ish green		
-	et('0010406')	# 6a.
-	et('0023206')	# 6a.
+	# et('0010406')	# 6a.
+	# et('0023206')	# 6a.
+	# 
+	# et('1233106') # 6b.
+	# et('1232206') # 6b.
+	# 
+	# et('0011306')	# 6c.	
+	# et('0024106')	# 6c.	
+					
+	# ∘ 2nd blue
+	# et('1024007') # 7a.
+	# et('1024207') # 7a.
+	# et('1024407') # 7a.	
+	# 
+	# et('1020107') # 7b.
+	# et('1020307') # 7b.
+	# et('1020507') # 7b.
+	# 
+	# et('0011007') # 7c.
+	# et('0011207') # 7c.
+	# et('0011407') # 7c.		
 	
-	et('1233106') # 6b.
-	et('1232206') # 6b.
 	
-	et('0011306')	# 6c.	
-	et('0024106')	# 6c.		
+	
+	# ∘ 2nd blue extra
+	#et('1020007')	# 8a.
+	#et('1024507')	# 8a.
+	# diagram.pointers = diagram.nodeByAddress['1024507'].tuple
+		
+	# et('0011107')	# 8b.	
+	#et('0011100') # 8bx.
+	
+	#diagram.pointers = diagram.nodeByAddress['0011100'].tuple
+	
+	#est('0010407', 6) # 9a. 2/3 - yellow2/violet5/indigo6
+	#est('1233107', 5) # 9b. 1/2 - yellow2/violet5
+	#et('0020100')
+	
+	# est('0024107', 7) # 9c. 1/2 - indigo6/black7
+	# est('0224407', 6) # 9d. 1/2 - orange3/indigo6
+	
+	# extend('1234107') # 1/2
+	# extend('1234250') # 0/1
+	# extend('1234201') # 0/1
+	# extend('1234307') # 0/1
+	# extend('1234067') # 0/1
+	
+	# extend('1234106') # 0/2
+	# extend('1234151') # 0/1
+	# extend('1234506') # 0/2
+	# extend('1234551') # 0/1
+	# extend('1234306') # 0/2
+	# extend('1234351') # 0/1	
+	
+	# ================================================================================================================================ #
+	
 	'''
 		
 	et('1000206') # 1. 0/2 - green2
@@ -492,6 +566,9 @@ if __name__ == "__main__":
 		diagram.extendLoop(node.loop)
 								
 	#diagram.extendLoop(diagram.nodeByAddress['0000004'].loop)
+	
+	#L2(); JP(5); L1(); # EX()
+		
 	'''
 
 	
@@ -499,7 +576,12 @@ if __name__ == "__main__":
 	diagram.point()
 	show(diagram)
 			
-	# tl(0); ql()
+	# tl(1); 
 	# 
 	# diagram.point()
 	# show(diagram)
+		
+	# ql(1);
+	# 
+	# diagram.point()
+	# show(diagram)	
