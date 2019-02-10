@@ -181,6 +181,19 @@ def draw(diagram):
 		ui.set_color('white')
 		ui.fill_rect(0, 0, diagram.W, diagram.H)		
 								
+		# draw boxes first, if any
+		for box_addr, ktype in diagram.draw_boxes:
+			box_nodes = [node for node in diagram.nodes if node.address.startswith(box_addr)]
+			minX = min([node.px for node in box_nodes])
+			maxX = max([node.px for node in box_nodes])
+			minY = min([node.py for node in box_nodes])
+			maxY = max([node.py for node in box_nodes])
+			
+			rect = ui.Path.rect(minX - 12 - 1.6*ktype, minY - 12 - 1.6*ktype, maxX - minX + 24 + 3.2*ktype, maxY - minY + 24 + 3.2*ktype)
+			rect.line_width = 1.2
+			ui.set_color(colors.normal(ktype))
+			rect.stroke()								
+								
 		HD = 32
 
 		chainColors = { }	
@@ -296,9 +309,8 @@ def draw(diagram):
 				#if diagram.spClass % 2 is 0 and i % 2 is not 0:
 					#oval.set_line_dash([1,1.05])
 				ui.set_color('black')
-				oval.stroke()			
-			
-			
+				oval.stroke()						
+						
 		img = ctx.get_image()
 		#img.show()
 		print("[show] chain count: " + str(len([c for c in diagram.chains if len(c.cycles) > 1])) + " | available loops: " + str(len([l for l in diagram.loops if l.availabled]))  + " | looped: " + str(sh_looped_count) + "/" + str(len(diagram.nodes)) + " (" + "{0:.2f}".format(sh_looped_count*100.0/len(diagram.nodes)) + "%)" + " | remaining: " + str(len(diagram.nodes) - sh_looped_count))

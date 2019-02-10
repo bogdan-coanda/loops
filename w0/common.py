@@ -50,6 +50,8 @@ def upper(number):
 	
 def input2(text):
 	input(text+"  |  » ∘ «")	
+	
+NEWLINE = '\n'	
 		
 		
 		

@@ -2,13 +2,6 @@ from diagram import *
 from uicanvas import *
 
 
-def extend(addr):
-	assert diagram.extendLoop(diagram.nodeByAddress[addr].loop)
-	
-def et(addr):
-	for i,node in enumerate(diagram.nodeByAddress[addr].tuple):
-		assert diagram.extendLoop(node.loop)
-
 def L2():
 	for i in range(len(diagram.pointers)):
 		diagram.pointers[i] = diagram.pointers[i].links[2].next if i % 2 == 0 else diagram.pointers[i].prevs[2].node
@@ -26,29 +19,7 @@ def EX():
 			diagram.extendLoop(diagram.pointers[i].loop)
 		else:
 			diagram.extendLoop(diagram.pointers[i].prevs[1].node.loop)
-
-def elt(addr, ktype):
-	extended = 0
-	parentLoop = diagram.nodeByAddress[addr].loop
-	knodes = [node for node in itertools.chain(*[node.cycle.nodes for node in parentLoop.nodes]) if node.loop.availabled and node.loop.ktype == ktype]
-	for i,node in enumerate(knodes):
-		if not node.loop.extended:
-			for n in node.tuple:
-				assert diagram.extendLoop(n.loop)
-				extended += 1
-	print(f"[elt] ⇒ extended {extended} ktype:{ktype} loops for parent {parentLoop}")
-	
-def est(addr, ktype):
-	extended = 0
-	parentLoop = diagram.nodeByAddress[addr].loop
-	knodes = [node for node in itertools.chain(*[node.cycle.nodes for node in parentLoop.nodes]) if node.loop.availabled and node.loop.ktype == ktype and node.address[-2] not in ['0', str(diagram.spClass-2)]]
-	for i,node in enumerate(knodes):
-		if not node.loop.extended:
-			for n in node.tuple:
-				assert diagram.extendLoop(n.loop)
-				extended += 1
-	print(f"[est] ⇒ extended {extended} ktype:{ktype} loops for parent {parentLoop}")
-			
+				
 def jump(lvl=0, path=[]):
 	global sols
 	
@@ -85,6 +56,10 @@ if __name__ == "__main__":
 		
 	diagram = Diagram(6, 1)
 	
+	import enav
+	enav.diagram = diagram
+	from enav import *
+		
 	# extend('00043')
 	# 
 	# sols = 0
@@ -142,35 +117,41 @@ if __name__ == "__main__":
 
 	# ∘ bases
 	# extend('00001') # {a}
-	extend('00002') # {b}
+	# extend('00002') # {b}
 	# extend('00042') # {y}
-	# extend('00043') # {z}
+	extend('00043') # {z}
 
 	# ∘ blue
-	# et('01105') # {az}
-	# et('01305')	# {az}
-	et('01104') # {by}
-	et('01304') # {by}
-	
+	eb('01', 1) # {az}
+	# eg('01', 1) # {by}
+		
 	# ∘ long column 
 	# elt('10005', 3) # {a}	
 	# elt('10004', 3) # {y}	
-	elt('10204', 2) # {b}	
-	# elt('10205', 2) # {z}
+	# elt('10204', 2) # {b}	
+	elt('10205', 2) # {z}
 		
 	# ∘ short column
 	# est('10205', 2) # {a}	
 	# est('10204', 2) # {y}
-	est('10004', 3) # {b}	
+	# est('10004', 3) # {b}	
 	# est('10005', 3) # {z}
 			
 	# ∘ green
 	# et('10204') # {a}
 	# et('10205') # {y}
-	et('10005') # {b}
+	# et('10005') # {b}
 	# et('10004') # {z}
-	
+
+	# ==================================== #
+
+	# ∘ bases
+	# et('00001') # {.a}
+	# et('00002') # {b.}
+	# et('00042') # {.y}
+	# et('00043') # {z.}		
 
 	diagram.point()	
+	# diagram.draw_boxes = [('00', 0), ('01', 0), ('00', 1), ('00', 3), ('11', 5), ('12', 4), ('12', 5)]
 	#diagram.pointers = [diagram.nodeByAddress['10133'].tuple[1]]
 	show(diagram)

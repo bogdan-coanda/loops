@@ -26,7 +26,8 @@ class Diagram (object):
 		'bases', 'node_tuples', 'loop_tuples',
 		'radialLoopsByKType',
 		'changelog',
-		'startTime'
+		'startTime',
+		'draw_boxes'
 	]
 	
 	def __init__(self, N, kernelSize=1):
@@ -42,6 +43,7 @@ class Diagram (object):
 
 		self.pointers = []
 		self.pointer_avlen = self.spClass
+		self.draw_boxes = []
 		
 		# every cycle has its own chain at start
 		for cycle in self.cycles:
@@ -358,7 +360,7 @@ class Diagram (object):
 			
 	def setLoopAvailabled(self, loop):
 		# assert len(set([node.cycle.chain for node in loop.nodes])) == len(loop.nodes)
-		# assert loop.availabled is False
+		assert loop.availabled == False
 		# print(f"[availabled] loop: {loop}")
 		# assert self.changelog[-1][0] == 'unavailabled' and self.changelog[-1][1] == loop, self.changelog[-1]
 		_, _, unavailabled_chain_node_pairs, kfRemovedLoops = self.changelog.pop()
@@ -375,7 +377,7 @@ class Diagram (object):
 				
 										
 	def setLoopUnavailabled(self, loop):
-		# assert loop.availabled is True
+		assert loop.availabled is True
 		loop.availabled = False
 		unavailabled_chain_node_pairs = []
 		kfRemovedLoops = KillingField.fixSetLoopUnavailabled(loop)
@@ -581,7 +583,7 @@ class Diagram (object):
 		self.pointer_sample = sorted_chain_groups[0][1][0].avnodes if chain_avlen is not 0 else []
 		self.pointers += itertools.chain(*[[[n for n in node.loop.nodes if n.chain is chain][0] for node in chain.avnodes] if chain_avlen is not 0 else chain.cycles for chain in smallest_chain_group])																				
 		#print("[pointing] chain avlen: " + str(chain_avlen))
-
+		return self.pointer_sample
 
 	# --- pointing --------------------------------------------------------------------------------------------------------------------------------------------------------------- #	
 	# --- pickling --------------------------------------------------------------------------------------------------------------------------------------------------------------- #	
