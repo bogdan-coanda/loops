@@ -461,14 +461,81 @@ if __name__ == "__main__":
 	# (2, '0033160')
 	et('0033160') # 0/1
 	
+	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴0¹0¹0¹
+	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:790|av:3⟩ | min_nodes:
+	# (1, '0033461')
+	# (1, '0033463')
+	# (1, '0033464')
+	et('0033461') # 0/3
+	
+	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴0¹0¹0¹0³
+	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:3283|av:1⟩ | min_nodes:
+	# (1, '1033102')
+	et('1033102') # 0/1
+	
+	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴0¹0¹0¹0³0¹
+	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:279|av:1⟩ | min_nodes:
+	# (1, '0011364')
+	et('0011364') # 0/1
+	
+	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴0¹0¹0¹0³0¹0¹
+	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:798|av:1⟩ | min_nodes:
+	# (1, '0034000')
+	et('0034000') # 0/1
+	
+	# [choose] min_ratio: 2.0 | min_chain: ⟨chain:818|av:1⟩ | min_nodes:
+	# (2, '0034261')
+	et('0034261') # 0/1
+	
+	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:96|av:2⟩ | min_nodes:
+	# (1, '0002151')
+	# (1, '0002153')
+	et('0002151') # 0/2
+	
+	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:88|av:1⟩ | min_nodes:
+	# (1, '0002042')
+	et('0002042') # 0/1
+	
+	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:95|av:1⟩ | min_nodes:
+	# (1, '0002145')
+	et('0002145') # 0/1
+	
+	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:113|av:1⟩ | min_nodes:
+	# (1, '0002413')
+	et('0002413') # 0/1
+	
+	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:121|av:1⟩ | min_nodes:
+	# (1, '0002520')
+	et('0002520') # 0/1
+	
+	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:259|av:1⟩ | min_nodes:
+	# (1, '0011106')
+	et('0011106') # 0/1
+	
+	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:115|av:1⟩ | min_nodes:
+	# (1, '0002430')
+	et('0002430') # 0/1
+	
+	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:229|av:1⟩ | min_nodes:
+	# (1, '0010252')
+	et('0010252') # 0/1
+	
+	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:255|av:1⟩ | min_nodes:
+	# (1, '0011032')
+	et('0011032') # 0/1
+	
+	
 	ot()
 	
-	# diagram.point()
-	# show(diagram)	
+	diagram.point()
+	show(diagram)	
 	
 	# ~ purge ~ #
 
 	purge_unavailed, next_sample_lengths_per_loop_tuple = purge()
+
+	diagram.point()
+	show(diagram)	
 
 	# ~ choose next ~ #
 	
