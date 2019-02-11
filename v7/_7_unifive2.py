@@ -112,6 +112,7 @@ def step(diagram, jump_lvl=0, jump_path=[], jump_tuples=[], step_lvl=0, step_pat
 				log.write("[sol:{:>2}][*{:>7}*][{:>11}][lvl:{}~{}]  {} ~ {}\n".format(len(sols), move_index, tstr(time() - startTime), jump_lvl, step_lvl, ".".join([str(x)+upper(t) for x,t in jump_path]), ".".join([str(x)+upper(t) for x,t in step_path])))
 				log.write("tuples: " + ts + "\n")
 				log.write("loops: " + ls + "\n")
+				log.write("superperm: " + diagram.superperm('000000', '000456') + "\n")								
 				log.write("\n")
 											
 			print("=== sol:"+str(len(sols))+" ===");

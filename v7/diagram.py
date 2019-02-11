@@ -505,6 +505,23 @@ class Diagram (object):
 		self.pointers += itertools.chain(*[[[n for n in loop.nodes if n.cycle.chain is chain][0] for loop in chain.avloops] if chain_avlen is not 0 else chain.cycles for chain in smallest_chain_group])																				
 		#print("[pointing] chain avlen: " + str(chain_avlen))
 
+	def superperm(self, start_addr, end_addr):
+		curr = self.nodeByAddress[start_addr]
+		SP = curr.perm
+		#print("SP: " + str(SP))		
+		while True:
+			nextLink = curr.nextLink if curr.nextLink else (curr.links[2] if curr.loop.extended else curr.links[1])	
+			curr = nextLink.next
+			if curr.address == start_addr:
+				break
+			SP += curr.perm[-nextLink.type:]
+			if curr.address == end_addr:
+				curr.nextLink = Link(0, curr, self.nodeByAddress[start_addr])
+				break
+		#print("SP: " + str(SP))
+		return SP
+		#for node in self.nodes:
+			#assert node.perm in SP
 
 	# --- pointing --------------------------------------------------------------------------------------------------------------------------------------------------------------- #	
 	# --- pickling --------------------------------------------------------------------------------------------------------------------------------------------------------------- #	
