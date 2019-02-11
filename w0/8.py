@@ -104,6 +104,7 @@ def EX():
 def purge():
 
 	next_sample_lengths_per_loop_tuple = {}
+	touched_chains_per_loop_tuple = {}
 	unavailed = []
 	unsuccess = 0
 	
@@ -126,6 +127,7 @@ def purge():
 				next_sample_lengths_per_loop_tuple[tuple] = -1
 			else:
 				next_sample_lengths_per_loop_tuple[tuple] = len(diagram.point())
+				touched_chains_per_loop_tuple[tuple] = set(itertools.chain(*[itertools.chain(*[[n.chain for n in l.nodes] for l in loop.extension_result.affected_loops]) for  loop in tuple]))				
 							
 			# collapse back
 			for loop in reversed(tuple[:ec]):
@@ -138,9 +140,12 @@ def purge():
 					if loop.availabled:
 						diagram.setLoopUnavailabled(loop)
 						unavailed.append(loop)
+						if len([node for node in loop.nodes if len(node.chain.avnodes) == 0]) > 0:
+							return (False, unavailed, next_sample_lengths_per_loop_tuple, touched_chains_per_loop_tuple)
 						
 	print(f"[purge] ⇒ unavailabled {len(unavailed)} loops in {unsuccess} failed tuples | tuples per sample length: {sorted(groupby(next_sample_lengths_per_loop_tuple.items(), K = lambda p: p[1], G = lambda g: len(g)).items())}")
-	return (unavailed, next_sample_lengths_per_loop_tuple)
+	print(f"[purge] ⇒ touched chains counts: {sorted([len(v) for v in touched_chains_per_loop_tuple.values()])}")
+	return (True, unavailed, next_sample_lengths_per_loop_tuple, touched_chains_per_loop_tuple)
 
 
 
@@ -511,31 +516,45 @@ if __name__ == "__main__":
 	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:259|av:1⟩ | min_nodes:
 	# (1, '0011106')
 	et('0011106') # 0/1
-	
+
+	reachable_0, purged_loops_0, next_sample_lengths_per_loop_tuple_0, touched_chains_per_loop_tuple_0 = purge()
+			
 	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:115|av:1⟩ | min_nodes:
 	# (1, '0002430')
 	et('0002430') # 0/1
 	
+	current_touched_chains = set(itertools.chain(*[[n.chain for n in l.nodes] for l in diagram.nodeByAddress['0002430'].extension_result.affected_loops]))
+	
+	testable_tuples = [tuple for tuple in diagram.tuples if tuple[0].availabled and len(touched_chains_per_loop_tuple_0[tuple].intersection(current_touched_chains)) > 0]
+	
+	print(f"testable_tuples: {len(testable_tuples)}")
+	
+	reachable_1, purged_loops_1, next_sample_lengths_per_loop_tuple_1, touched_chains_per_loop_tuple_1 = purge()
+	
+	print(f"purged: {len(purged_loops_1)} | {len(set([l.tuple for l in purged_loops_1]).intersection(testable_tuples))}")
 	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:229|av:1⟩ | min_nodes:
 	# (1, '0010252')
-	et('0010252') # 0/1
+	# et('0010252') # 0/1
 	
 	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:255|av:1⟩ | min_nodes:
 	# (1, '0011032')
-	et('0011032') # 0/1
+	# et('0011032') # 0/1
 	
 	
 	ot()
 	
-	diagram.point()
-	show(diagram)	
+	# diagram.point()
+	# show(diagram)	
 	
 	# ~ purge ~ #
 
-	purge_unavailed, next_sample_lengths_per_loop_tuple = purge()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple, touched_chains_per_loop_tuple = purge()
 
-	diagram.point()
-	show(diagram)	
+	# diagram.point()
+	# show(diagram)	
+
+	if not reachable:
+		input2("not reachable!")
 
 	# ~ choose next ~ #
 	
@@ -596,8 +615,8 @@ if __name__ == "__main__":
 	# ab('0000064') # {y}
 	# ab('0000065') # {z}
 
-	diagram.pointers = min_nodes
-	show(diagram)
+	# diagram.pointers = min_nodes
+	# show(diagram)
 
 	# ot()
 	# 
