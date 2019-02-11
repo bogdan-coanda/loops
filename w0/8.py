@@ -104,7 +104,6 @@ def EX():
 def purge():
 
 	next_sample_lengths_per_loop_tuple = {}
-	touched_chains_per_loop_tuple = {}
 	unavailed = []
 	unsuccess = 0
 	
@@ -126,8 +125,7 @@ def purge():
 			if ec != len(tuple):
 				next_sample_lengths_per_loop_tuple[tuple] = -1
 			else:
-				next_sample_lengths_per_loop_tuple[tuple] = len(diagram.point())
-				touched_chains_per_loop_tuple[tuple] = set(itertools.chain(*[itertools.chain(*[[n.chain for n in l.nodes] for l in loop.extension_result.affected_loops]) for  loop in tuple]))				
+				next_sample_lengths_per_loop_tuple[tuple] = len(diagram.point())	
 							
 			# collapse back
 			for loop in reversed(tuple[:ec]):
@@ -141,11 +139,10 @@ def purge():
 						diagram.setLoopUnavailabled(loop)
 						unavailed.append(loop)
 						if len([node for node in loop.nodes if len(node.chain.avnodes) == 0]) > 0:
-							return (False, unavailed, next_sample_lengths_per_loop_tuple, touched_chains_per_loop_tuple)
+							return (False, unavailed, next_sample_lengths_per_loop_tuple)
 						
 	print(f"[purge] ⇒ unavailabled {len(unavailed)} loops in {unsuccess} failed tuples | tuples per sample length: {sorted(groupby(next_sample_lengths_per_loop_tuple.items(), K = lambda p: p[1], G = lambda g: len(g)).items())}")
-	print(f"[purge] ⇒ touched chains counts: {sorted([len(v) for v in touched_chains_per_loop_tuple.values()])}")
-	return (True, unavailed, next_sample_lengths_per_loop_tuple, touched_chains_per_loop_tuple)
+	return (True, unavailed, next_sample_lengths_per_loop_tuple)
 
 
 def choose(next_sample_lengths_per_loop_tuple):
