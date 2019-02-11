@@ -148,6 +148,28 @@ def purge():
 	return (True, unavailed, next_sample_lengths_per_loop_tuple, touched_chains_per_loop_tuple)
 
 
+def choose(next_sample_lengths_per_loop_tuple):
+	# ot()
+	# reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+
+	# ~ choose next ~ #	
+	next_sample_length_ratios_per_chain = {}
+	for chain in diagram.chains:		
+		next_sample_length_ratios_per_chain[chain] = sum([next_sample_lengths_per_loop_tuple[node.loop.tuple] for node in chain.avnodes]) / len(chain.avnodes) # [!] need no empty chains here			
+
+	singles = [chain for chain in diagram.chains if len(chain.avnodes) == 1]
+	if len(singles):
+		print(f"[choose] singles: {len(singles)}")
+		min_ratio = min([r for c,r in next_sample_length_ratios_per_chain.items() if c in singles])
+		min_chain = sorted([c for c,r in next_sample_length_ratios_per_chain.items() if r == min_ratio and c in singles], key = lambda c: c.avnodes[0].address)[0]		
+		min_nodes = min_chain.avnodes
+	else:
+		min_ratio = min([r for c,r in next_sample_length_ratios_per_chain.items()])
+		min_chain = sorted([c for c,r in next_sample_length_ratios_per_chain.items() if r == min_ratio], key = lambda c: (len(c.avnodes), c.id))[0]
+		min_nodes = sorted(min_chain.avnodes, key = lambda n: (next_sample_lengths_per_loop_tuple[n.loop.tuple], n.address))
+		
+	print(f"[choose] min_ratio: {min_ratio} | min_chain: {min_chain} | min_nodes:\n{NEWLINE.join([str((next_sample_lengths_per_loop_tuple[n.loop.tuple], n.address)) for n in min_nodes])}")
+	return min_nodes
 
 
 def jump(lvl=0, path=[]):
@@ -253,10 +275,11 @@ if __name__ == "__main__":
 	# et('1000007') # {b}
 	# et('1000006') # {z}
 
-	ot()
-			
-	reachable, purged_loops, next_sample_lengths_per_loop_tuple, touched_chains_per_loop_tuple = purge()
-			
+	ot()			
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0001252'
+
 	# §.
 	# [choose] min_ratio: 2.4 | min_chain: ⟨chain:61|av:5⟩ | min_nodes:
 	# (1, '0001252')
@@ -266,29 +289,21 @@ if __name__ == "__main__":
 	# (5, '0001257')
 	et('0001252') # 0/5
 
-	node = diagram.nodeByAddress['0001252']
-	current_touched_chains = set(itertools.chain(*[[n.chain for n in l.nodes] for l in node.loop.extension_result.affected_loops]))
-	testable_tuples = [tuple for tuple in diagram.loop_tuples if tuple[0].availabled and len(touched_chains_per_loop_tuple[tuple].intersection(current_touched_chains)) > 0] 	
-	print(f"testable_tuples: {len(testable_tuples)}")	
-	ot()	
-	reachable, purged_loops, next_sample_lengths_per_loop_tuple, touched_chains_per_loop_tuple = purge()	
-	print(f"purged: {len(set([l.tuple for l in purged_loops]))} | {len(set([l.tuple for l in purged_loops]).intersection(testable_tuples))}")
-	#input2('stop')
+	ot()			
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0001262'
 
 	# §.0⁵
 	# [choose] min_ratio: 3.0 | min_chain: ⟨chain:62|av:1⟩ | min_nodes:
 	# (3, '0001262')
 	et('0001262') # 0/1
 	
-	node = diagram.nodeByAddress['0001262']
-	current_touched_chains = set(itertools.chain(*[[n.chain for n in l.nodes] for l in node.loop.extension_result.affected_loops]))
-	testable_tuples = [tuple for tuple in diagram.loop_tuples if tuple[0].availabled and len(touched_chains_per_loop_tuple[tuple].intersection(current_touched_chains)) > 0] 	
-	print(f"testable_tuples: {len(testable_tuples)}")	
-	ot()	
-	reachable, purged_loops, next_sample_lengths_per_loop_tuple, touched_chains_per_loop_tuple = purge()	
-	print(f"purged: {len(set([l.tuple for l in purged_loops]))} | {len(set([l.tuple for l in purged_loops]).intersection(testable_tuples))}")
-	# input2('stop')
-	
+	ot()			
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0122230'
+
 	# $.0⁵0¹
 	# [choose] min_ratio: 1.5714285714285714 | min_chain: ⟨chain:1361|av:7⟩ | min_nodes:
 	# (1, '0122230')
@@ -300,28 +315,20 @@ if __name__ == "__main__":
 	# (2, '0122234')
 	et('0122230') # 0/7
 
-	node = diagram.nodeByAddress['0122230']
-	current_touched_chains = set(itertools.chain(*[[n.chain for n in l.nodes] for l in node.loop.extension_result.affected_loops]))
-	testable_tuples = [tuple for tuple in diagram.loop_tuples if tuple[0].availabled and len(touched_chains_per_loop_tuple[tuple].intersection(current_touched_chains)) > 0] 	
-	print(f"testable_tuples: {len(testable_tuples)}")	
-	ot()	
-	reachable, purged_loops, next_sample_lengths_per_loop_tuple, touched_chains_per_loop_tuple = purge()	
-	print(f"purged: {len(set([l.tuple for l in purged_loops]))} | {len(set([l.tuple for l in purged_loops]).intersection(testable_tuples))}")
-	# input2('stop')
+	ot()			
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0001244'
 
 	# $.0⁵0¹0⁷
 	# [choose] min_ratio: 3.0 | min_chain: ⟨chain:60|av:1⟩ | min_nodes:
 	# (3, '0001244')
 	et('0001244') # 0/1
 
-	node = diagram.nodeByAddress['0001244']
-	current_touched_chains = set(itertools.chain(*[[n.chain for n in l.nodes] for l in node.loop.extension_result.affected_loops]))
-	testable_tuples = [tuple for tuple in diagram.loop_tuples if tuple[0].availabled and len(touched_chains_per_loop_tuple[tuple].intersection(current_touched_chains)) > 0] 	
-	print(f"testable_tuples: {len(testable_tuples)}")	
-	ot()	
-	reachable, purged_loops, next_sample_lengths_per_loop_tuple, touched_chains_per_loop_tuple = purge()	
-	print(f"purged: {len(set([l.tuple for l in purged_loops]))} | {len(set([l.tuple for l in purged_loops]).intersection(testable_tuples))}")
-	# input2('stop')
+	ot()			
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0014262'
 
 	# $.0⁵0¹0⁷0¹
 	# [choose] min_ratio: 2.6666666666666665 | min_chain: ⟨chain:398|av:6⟩ | min_nodes:
@@ -333,14 +340,10 @@ if __name__ == "__main__":
 	# (3, '0014266')
 	et('0014262') # 0/6
 
-	node = diagram.nodeByAddress['0014262']
-	current_touched_chains = set(itertools.chain(*[[n.chain for n in l.nodes] for l in node.loop.extension_result.affected_loops]))
-	testable_tuples = [tuple for tuple in diagram.loop_tuples if tuple[0].availabled and len(touched_chains_per_loop_tuple[tuple].intersection(current_touched_chains)) > 0] 	
-	print(f"testable_tuples: {len(testable_tuples)}")	
-	ot()	
-	reachable, purged_loops, next_sample_lengths_per_loop_tuple, touched_chains_per_loop_tuple = purge()	
-	print(f"purged: {len(set([l.tuple for l in purged_loops]))} | {len(set([l.tuple for l in purged_loops]).intersection(testable_tuples))}")
-	# input2('stop')
+	ot()			
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '1033500'
 
 	# $.0⁵0¹0⁷0¹0⁶
 	# [choose] min_ratio: 1.75 | min_chain: ⟨chain:3311|av:8⟩ | min_nodes:
@@ -354,28 +357,20 @@ if __name__ == "__main__":
 	# (2, '1033507')
 	et('1033500') # 0/8
 
-	node = diagram.nodeByAddress['1033500']
-	current_touched_chains = set(itertools.chain(*[[n.chain for n in l.nodes] for l in node.loop.extension_result.affected_loops]))
-	testable_tuples = [tuple for tuple in diagram.loop_tuples if tuple[0].availabled and len(touched_chains_per_loop_tuple[tuple].intersection(current_touched_chains)) > 0] 	
-	print(f"testable_tuples: {len(testable_tuples)}")	
-	ot()	
-	reachable, purged_loops, next_sample_lengths_per_loop_tuple, touched_chains_per_loop_tuple = purge()	
-	print(f"purged: {len(set([l.tuple for l in purged_loops]))} | {len(set([l.tuple for l in purged_loops]).intersection(testable_tuples))}")
-	# input2('stop')
+	ot()			
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0001204'
 
 	# $.0⁵0¹0⁷0¹0⁶0⁸ 
 	# [choose] min_ratio: 3.0 | min_chain: ⟨chain:56|av:1⟩ | min_nodes:
 	# (3, '0001204')
 	et('0001204') # 0/1
 
-	node = diagram.nodeByAddress['0001204']
-	current_touched_chains = set(itertools.chain(*[[n.chain for n in l.nodes] for l in node.loop.extension_result.affected_loops]))
-	testable_tuples = [tuple for tuple in diagram.loop_tuples if tuple[0].availabled and len(touched_chains_per_loop_tuple[tuple].intersection(current_touched_chains)) > 0] 	
-	print(f"testable_tuples: {len(testable_tuples)}")	
-	ot()	
-	reachable, purged_loops, next_sample_lengths_per_loop_tuple, touched_chains_per_loop_tuple = purge()	
-	print(f"purged: {len(set([l.tuple for l in purged_loops]))} | {len(set([l.tuple for l in purged_loops]).intersection(testable_tuples))}")
-	# input2('stop')
+	ot()			
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0014250'
 
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹
 	# [choose] min_ratio: 2.5 | min_chain: ⟨chain:397|av:6⟩ | min_nodes:
@@ -387,14 +382,10 @@ if __name__ == "__main__":
 	# (4, '0014254')	
 	et('0014250') # 0/6
 
-	node = diagram.nodeByAddress['0014250']
-	current_touched_chains = set(itertools.chain(*[[n.chain for n in l.nodes] for l in node.loop.extension_result.affected_loops]))
-	testable_tuples = [tuple for tuple in diagram.loop_tuples if tuple[0].availabled and len(touched_chains_per_loop_tuple[tuple].intersection(current_touched_chains)) > 0] 	
-	print(f"testable_tuples: {len(testable_tuples)}")	
-	ot()	
-	reachable, purged_loops, next_sample_lengths_per_loop_tuple, touched_chains_per_loop_tuple = purge()	
-	print(f"purged: {len(set([l.tuple for l in purged_loops]))} | {len(set([l.tuple for l in purged_loops]).intersection(testable_tuples))}")
-	# input2('stop')
+	ot()			
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0211066'
 
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶
 	# [choose] min_ratio: 1.6666666666666667 | min_chain: ⟨chain:1938|av:6⟩ | min_nodes:
@@ -406,28 +397,20 @@ if __name__ == "__main__":
 	# (2, '0211064')
 	et('0211066') # 0/6
 
-	node = diagram.nodeByAddress['0211066']
-	current_touched_chains = set(itertools.chain(*[[n.chain for n in l.nodes] for l in node.loop.extension_result.affected_loops]))
-	testable_tuples = [tuple for tuple in diagram.loop_tuples if tuple[0].availabled and len(touched_chains_per_loop_tuple[tuple].intersection(current_touched_chains)) > 0] 	
-	print(f"testable_tuples: {len(testable_tuples)}")	
-	ot()	
-	reachable, purged_loops, next_sample_lengths_per_loop_tuple, touched_chains_per_loop_tuple = purge()	
-	print(f"purged: {len(set([l.tuple for l in purged_loops]))} | {len(set([l.tuple for l in purged_loops]).intersection(testable_tuples))}")
-	# input2('stop')
+	ot()			
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0001213'
 
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶
 	# [choose] min_ratio: 3.0 | min_chain: ⟨chain:57|av:1⟩ | min_nodes:
 	# (3, '0001213')
 	et('0001213') # 0/1
 
-	node = diagram.nodeByAddress['0001213']
-	current_touched_chains = set(itertools.chain(*[[n.chain for n in l.nodes] for l in node.loop.extension_result.affected_loops]))
-	testable_tuples = [tuple for tuple in diagram.loop_tuples if tuple[0].availabled and len(touched_chains_per_loop_tuple[tuple].intersection(current_touched_chains)) > 0] 	
-	print(f"testable_tuples: {len(testable_tuples)}")	
-	ot()	
-	reachable, purged_loops, next_sample_lengths_per_loop_tuple, touched_chains_per_loop_tuple = purge()	
-	print(f"purged: {len(set([l.tuple for l in purged_loops]))} | {len(set([l.tuple for l in purged_loops]).intersection(testable_tuples))}")
-	# input2('stop')
+	ot()			
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0121261'
 
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹
 	# [choose] min_ratio: 2.3333333333333335 | min_chain: ⟨chain:1322|av:6⟩ | min_nodes:
@@ -439,14 +422,10 @@ if __name__ == "__main__":
 	# (3, '0121265')	
 	et('0121261') # 0/6
 
-	node = diagram.nodeByAddress['0121261']
-	current_touched_chains = set(itertools.chain(*[[n.chain for n in l.nodes] for l in node.loop.extension_result.affected_loops]))
-	testable_tuples = [tuple for tuple in diagram.loop_tuples if tuple[0].availabled and len(touched_chains_per_loop_tuple[tuple].intersection(current_touched_chains)) > 0] 	
-	print(f"testable_tuples: {len(testable_tuples)}")	
-	ot()	
-	reachable, purged_loops, next_sample_lengths_per_loop_tuple, touched_chains_per_loop_tuple = purge()	
-	print(f"purged: {len(set([l.tuple for l in purged_loops]))} | {len(set([l.tuple for l in purged_loops]).intersection(testable_tuples))}")
-	input2('stop')
+	ot()			
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0032140'
 
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶
 	# [choose] min_ratio: 1.25 | min_chain: ⟨chain:725|av:8⟩ | min_nodes:
@@ -460,15 +439,30 @@ if __name__ == "__main__":
 	# (2, '0032147')
 	et('0032140') # 0/8
 
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0032161'
+
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸
 	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:727|av:1⟩ | min_nodes:
 	# (1, '0032161')
 	et('0032161') # 0/1
 
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0211000'
+
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹
 	# [choose] min_ratio: 3.0 | min_chain: ⟨chain:1932|av:1⟩ | min_nodes:
 	# (3, '0211000')
 	et('0211000') # 0/1
+
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0121251'
 
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹
 	# [choose] min_ratio: 2.0 | min_chain: ⟨chain:1321|av:6⟩ | min_nodes:
@@ -480,10 +474,20 @@ if __name__ == "__main__":
 	# (3, '0121252')
 	et('0121251') # 0/6
 
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0033053'
+
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶
 	# [choose] min_ratio: 3.0 | min_chain: ⟨chain:761|av:1⟩ | min_nodes:
 	# (3, '0033053')
 	et('0033053') # 0/1
+
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0002360'
 
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹
 	# [choose] min_ratio: 2.2 | min_chain: ⟨chain:111|av:5⟩ | min_nodes:
@@ -493,6 +497,11 @@ if __name__ == "__main__":
 	# (2, '0002365')
 	# (3, '0002366')
 	et('0002360') # 0/5
+
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0100060'
 
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵
 	# [choose] min_ratio: 1.5714285714285714 | min_chain: ⟨chain:122|av:28⟩ | min_nodes:
@@ -526,10 +535,20 @@ if __name__ == "__main__":
 	# (2, '1211063')	
 	et('0100060') # 0/28
 	
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0002201'
+
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸
 	# [choose] min_ratio: 3.0 | min_chain: ⟨chain:98|av:1⟩ | min_nodes:
 	# (3, '0002201')	
 	et('0002201') # 0/1
+
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0002010'
 
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹		
 	# [choose] min_ratio: 1.5 | min_chain: ⟨chain:85|av:4⟩ | min_nodes:
@@ -538,11 +557,21 @@ if __name__ == "__main__":
 	# (2, '0002011')
 	# (2, '0002017')
 	et('0002010') # 0/4
-	
+
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0121313'
+
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴
 	# [choose] min_ratio: 2.0 | min_chain: ⟨chain:1324|av:1⟩ | min_nodes:
 	# (2, '0121313')
 	et('0121313') # 0/1
+
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0002063'
 
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹
 	# [choose] min_ratio: 1.5 | min_chain: ⟨chain:90|av:4⟩ | min_nodes:
@@ -552,21 +581,41 @@ if __name__ == "__main__":
 	# (2, '0002061')
 	et('0002063') # 0/4
 
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0002265'
+
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴
 	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:104|av:1⟩ | min_nodes:
 	# (1, '0002265')
 	et('0002265') # 0/1
+
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0011260'
 
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴0¹
 	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:272|av:1⟩ | min_nodes:
 	# (1, '0011260')
 	et('0011260') # 0/1
 
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0033160'
+
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴0¹0¹
 	# [choose] min_ratio: 2.0 | min_chain: ⟨chain:769|av:1⟩ | min_nodes:
 	# (2, '0033160')
 	et('0033160') # 0/1
-	
+
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0033461'
+
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴0¹0¹0¹
 	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:790|av:3⟩ | min_nodes:
 	# (1, '0033461')
@@ -574,82 +623,141 @@ if __name__ == "__main__":
 	# (1, '0033464')
 	et('0033461') # 0/3
 	
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '1033102'
+
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴0¹0¹0¹0³
 	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:3283|av:1⟩ | min_nodes:
 	# (1, '1033102')
 	et('1033102') # 0/1
 	
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0011364'
+
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴0¹0¹0¹0³0¹
 	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:279|av:1⟩ | min_nodes:
 	# (1, '0011364')
 	et('0011364') # 0/1
 	
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0034000'
+
 	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴0¹0¹0¹0³0¹0¹
 	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:798|av:1⟩ | min_nodes:
 	# (1, '0034000')
 	et('0034000') # 0/1
 	
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0034261'
+
+	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴0¹0¹0¹0³0¹0¹0¹
 	# [choose] min_ratio: 2.0 | min_chain: ⟨chain:818|av:1⟩ | min_nodes:
 	# (2, '0034261')
 	et('0034261') # 0/1
 	
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0002151'
+
+	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴0¹0¹0¹0³0¹0¹0¹0¹
 	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:96|av:2⟩ | min_nodes:
 	# (1, '0002151')
 	# (1, '0002153')
 	et('0002151') # 0/2
 	
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0002042'
+
+	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴0¹0¹0¹0³0¹0¹0¹0¹0²
 	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:88|av:1⟩ | min_nodes:
 	# (1, '0002042')
 	et('0002042') # 0/1
 	
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0002145'
+
+	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴0¹0¹0¹0³0¹0¹0¹0¹0²0¹
 	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:95|av:1⟩ | min_nodes:
 	# (1, '0002145')
 	et('0002145') # 0/1
 	
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0002413'
+
+	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴0¹0¹0¹0³0¹0¹0¹0¹0²0¹0¹
 	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:113|av:1⟩ | min_nodes:
 	# (1, '0002413')
 	et('0002413') # 0/1
-	
+
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0002520'
+
+	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴0¹0¹0¹0³0¹0¹0¹0¹0²0¹0¹0¹
 	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:121|av:1⟩ | min_nodes:
 	# (1, '0002520')
 	et('0002520') # 0/1
-	
+
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0011106'
+
+	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴0¹0¹0¹0³0¹0¹0¹0¹0²0¹0¹0¹0¹
 	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:259|av:1⟩ | min_nodes:
 	# (1, '0011106')
 	et('0011106') # 0/1
 
-	reachable_0, purged_loops_0, next_sample_lengths_per_loop_tuple_0, touched_chains_per_loop_tuple_0 = purge()
-			
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0002430'
+		
+	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴0¹0¹0¹0³0¹0¹0¹0¹0²0¹0¹0¹0¹0¹		
 	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:115|av:1⟩ | min_nodes:
 	# (1, '0002430')
 	et('0002430') # 0/1
 	
-	current_touched_chains = set(itertools.chain(*[[n.chain for n in l.nodes] for l in diagram.nodeByAddress['0002430'].extension_result.affected_loops]))
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0010252'
 	
-	testable_tuples = [tuple for tuple in diagram.tuples if tuple[0].availabled and len(touched_chains_per_loop_tuple_0[tuple].intersection(current_touched_chains)) > 0]
-	
-	print(f"testable_tuples: {len(testable_tuples)}")
-	
-	reachable_1, purged_loops_1, next_sample_lengths_per_loop_tuple_1, touched_chains_per_loop_tuple_1 = purge()
-	
-	print(f"purged: {len(purged_loops_1)} | {len(set([l.tuple for l in purged_loops_1]).intersection(testable_tuples))}")
+	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴0¹0¹0¹0³0¹0¹0¹0¹0²0¹0¹0¹0¹0¹0¹
 	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:229|av:1⟩ | min_nodes:
 	# (1, '0010252')
-	# et('0010252') # 0/1
-	
+	et('0010252') # 0/1
+
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
+	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	assert min_nodes[0].address == '0011032'
+
+	# $.0⁵0¹0⁷0¹0⁶0⁸0¹0⁶0⁶0¹0⁶0⁸0¹0¹0⁶0¹0⁵0²⁸0¹0⁴0¹0⁴0¹0¹0¹0³0¹0¹0¹0¹0²0¹0¹0¹0¹0¹0¹0¹
 	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:255|av:1⟩ | min_nodes:
 	# (1, '0011032')
-	# et('0011032') # 0/1
-	
-	
-	ot()
-	
-	# diagram.point()
-	# show(diagram)	
-	
+	et('0011032') # 0/1
+			
 	# ~ purge ~ #
 
-	reachable, purged_loops, next_sample_lengths_per_loop_tuple, touched_chains_per_loop_tuple = purge()
+	ot()
+	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
 
 	# diagram.point()
 	# show(diagram)	
