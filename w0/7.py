@@ -1,280 +1,681 @@
 from diagram import *
 from uicanvas import *
+from mx import *
+from time import time
 
 
-def purge():
-
-	next_sample_lengths_per_loop_tuple = {}
-	unavailed = []
-	unsuccess = 0
+def jump(avtuples, lvl=0, path=[]):
 	
-	for it, tuple in enumerate(diagram.loop_tuples):
-		if tuple[0].availabled: # [!] need only full tuples here (need ot() to have run previously)
-			
-			# try extend tuple
-			ec = 0
-			for loop in tuple:
-				if not diagram.extendLoop(loop):
-					break
-				else:
-					ec += 1
-			
-			# note successfulness
-			if ec != len(tuple):
-				next_sample_lengths_per_loop_tuple[tuple] = -1
-			else:
-				next_sample_lengths_per_loop_tuple[tuple] = len(diagram.point())	
-							
-			# collapse back
-			for loop in reversed(tuple[:ec]):
-				diagram.collapseBack(loop)
-
-			# purge if unsuccessful
-			if next_sample_lengths_per_loop_tuple[tuple] <= 0:
-				unsuccess += 1
-				for loop in tuple:
-					if loop.availabled:
-						diagram.setLoopUnavailabled(loop)
-						unavailed.append(loop)
-						if len([node for node in loop.nodes if len(node.chain.avnodes) == 0]) > 0:
-							return (False, unavailed, next_sample_lengths_per_loop_tuple)
-						
-	print(f"[purge] ⇒ unavailabled {len(unavailed)} loops in {unsuccess} failed tuples | tuples per sample length: {sorted(groupby(next_sample_lengths_per_loop_tuple.items(), K = lambda p: p[1], G = lambda g: len(g)).items())}")
-	return (True, unavailed, next_sample_lengths_per_loop_tuple)
-
-
-def choose(next_sample_lengths_per_loop_tuple):
-	# ot()
-	# reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
-
-	# ~ choose next ~ #	
-	next_sample_length_ratios_per_chain = {}
-	for chain in diagram.chains:		
-		next_sample_length_ratios_per_chain[chain] = sum([next_sample_lengths_per_loop_tuple[node.loop.tuple] for node in chain.avnodes]) / len(chain.avnodes) # [!] need no empty chains here			
-
-	singles = [chain for chain in diagram.chains if len(chain.avnodes) == 1]
-	if len(singles):
-		print(f"[choose] singles: {len(singles)}")
-		min_ratio = min([r for c,r in next_sample_length_ratios_per_chain.items() if c in singles])
-		min_chain = sorted([c for c,r in next_sample_length_ratios_per_chain.items() if r == min_ratio and c in singles], key = lambda c: c.avnodes[0].address)[0]		
-		min_nodes = min_chain.avnodes
-	else:
-		min_ratio = min([r for c,r in next_sample_length_ratios_per_chain.items()])
-		min_chain = sorted([c for c,r in next_sample_length_ratios_per_chain.items() if r == min_ratio], key = lambda c: (len(c.avnodes), c.id))[0]
-		min_nodes = sorted(min_chain.avnodes, key = lambda n: (next_sample_lengths_per_loop_tuple[n.loop.tuple], n.address))
+	def key():
+		return f"[{tstr(time() - startTime):>11}][lvl:{lvl}]" 
+	
+	print(f"{key()} {'.'.join([(str(x)+upper(t)) for x,t in path])}")
+	
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"{key()}[mx] 1. min_chlen: {min_chlen}")	
+	
+	if min_chlen == 0:
+		print(f"{key()}[mx] ⇒ dead @ unconnectable")
+		return
 		
-	print(f"[choose] min_ratio: {min_ratio} | min_chain: {min_chain} | min_nodes:\n{NEWLINE.join([str((next_sample_lengths_per_loop_tuple[n.loop.tuple], n.address)) for n in min_nodes])}")
-	return min_nodes
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"{key()}[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+		
+	if len(unicycle_chains) == 0:
+		input2(f"{key()}[mx] ⇒ all cycles covered by tuples")
+		return			
+		
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"{key()}[mx] 3. avtuples: {len(avtuples)} / {len(diagram.loop_tuples)}")	
+
+	if len(avtuples) == 0:
+		input2(f"{key()}[mx] ⇒ no tuples remaining")
+		return			
+				
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"{key()}[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")		
+
+	if len(min_nodes) == 0:
+		print(f"{key()}[mx] ⇒ dead @ not coverable")
+		return
+		
+	if len(min_nodes) > 1:
+		print(f"{key()}[mx] ⇒ not single choice, purging…")
+		
+		# [~] next_single_choices is unused ?
+		avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+		print(f"{key()}[mx][purge] avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+		if len(avtuples) == 0:
+			input2(f"{key()}[mx][purge] ⇒ no tuples remaining")
+			return			
+												
+		min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)
+		print(f"{key()}[mx][purge] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")
+	else:
+		print(f"{key()}[mx] ⇒ single choice.")
+		
+	# go through all choices
+	for it, t in enumerate(min_matched_tuples):
+						
+		ec = 0
+		for lt, l in enumerate(t):
+			if diagram.extendLoop(l):
+				ec += 1
+			else:
+				break
+
+		if ec == len(t): # if we've extended all of the tuple's loops
+			jump(avtuples, lvl+1, path+[(it,len(min_matched_tuples))])
+
+		for l in reversed(t[:ec]):
+			diagram.collapseBack(l)	
+			
+		# remove tested choice for further jumps
+		avtuples.remove(t)
+
+	print(f"{key()} ⇒ finished all choices")
 
 
 
 if __name__ == "__main__":
 	
 	diagram = Diagram(7, 1)
-	
+	mx = MX(diagram)
+		
 	import enav
 	enav.diagram = diagram
 	from enav import *
+
+
+
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
 	
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+		
+	avtuples = mx.filter_avtuples()	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")		
+
+
+			
 	extend('000001');
 	
-	ot()			
-	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
-	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	startTime = time()
+	jump(avtuples)
 	
-	# [ot] ⇒ unavailabled 28 loops in 7 incomplete tuples | remaining tuples: 151
-	# [purge] ⇒ unavailabled 30 loops in 6 failed tuples | tuples per sample length: [(-1, 6), (1, 8), (2, 127), (3, 10)]
-	# [choose] min_ratio: 1.6666666666666667 | min_chain: ⟨chain:74|av:6⟩ | min_nodes:
-	# (1, '002223')
-	# (1, '002224')
-	# (2, '002221')
-	# (2, '002222')
-	# (2, '002225')
-	# (2, '002226')
-	et('002223') # 0/6
 	
-	singles = sorted([chain for chain in diagram.chains if len(chain.avnodes) == 1], key = lambda chain: chain.avnodes[0].address)
-	if len(singles):
-		min_nodes = singles[0].avnodes
-		print(f"singles: {min_nodes}")
-		
-	# singles: [⟨node:6412305@001406§⟨chain:54|av:1⟩|Av⟩]
-	et('001406') # 0/1
-
-	singles = sorted([chain for chain in diagram.chains if len(chain.avnodes) == 1], key = lambda chain: chain.avnodes[0].address)
-	if len(singles):
-		min_nodes = singles[0].avnodes
-		print(f"singles: {min_nodes}")
-	else:
-		ot()			
-		reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
-		min_nodes = choose(next_sample_lengths_per_loop_tuple)								
-		
-	# [ot] ⇒ unavailabled 24 loops in 6 incomplete tuples | remaining tuples: 128
-	# [purge] ⇒ unavailabled 0 loops in 0 failed tuples | tuples per sample length: [(1, 4), (2, 42), (3, 82)]
-	# [choose] min_ratio: 2.0 | min_chain: ⟨chain:61|av:6⟩ | min_nodes:
-	# (1, '002013')
-	# (1, '002016')
-	# (2, '002011')
-	# (2, '002014')
-	# (3, '002010')
-	# (3, '002012')		
-	et('002016') # 1/6
-
-	singles = sorted([chain for chain in diagram.chains if len(chain.avnodes) == 1], key = lambda chain: chain.avnodes[0].address)
-	if len(singles):
-		min_nodes = singles[0].avnodes
-		print(f"singles: {min_nodes}")
-	else:
-		ot()			
-		reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
-		min_nodes = choose(next_sample_lengths_per_loop_tuple)								
+	'''
+	# et('001312') # 0/3
+	# et('112003') # 0/3
+	# et('001206') # 0/2
+	# et('001436') # 0/4
+	# et('001302') # 0/1
+	# et('001106') # 0/2
 	
-	# singles: [⟨node:2301546@002410§⟨chain:85|av:1⟩|Av⟩]
-	et('002410') # 0/1
-
-	singles = sorted([chain for chain in diagram.chains if len(chain.avnodes) == 1], key = lambda chain: chain.avnodes[0].address)
-	if len(singles):
-		min_nodes = singles[0].avnodes
-		print(f"singles: {min_nodes}")
-	else:
-		ot()			
-		reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
-		min_nodes = choose(next_sample_lengths_per_loop_tuple)
-
-	# [ot] ⇒ unavailabled 4 loops in 1 incomplete tuples | remaining tuples: 119
-	# [purge] ⇒ unavailabled 15 loops in 3 failed tuples | tuples per sample length: [(-1, 2), (0, 1), (1, 11), (2, 103), (3, 2)]
-	# [choose] min_ratio: 1.5 | min_chain: ⟨chain:78|av:4⟩ | min_nodes:
-	# (1, '002304')
-	# (1, '002305')
-	# (2, '002302')
-	# (2, '002306')
-	et('002304') # 0/4
-
-	singles = sorted([chain for chain in diagram.chains if len(chain.avnodes) == 1], key = lambda chain: chain.avnodes[0].address)
-	if len(singles):
-		min_nodes = singles[0].avnodes
-		print(f"singles: {min_nodes}")
-	else:
-		ot()			
-		reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
-		min_nodes = choose(next_sample_lengths_per_loop_tuple)
-		
-	# singles: [⟨node:2356041@001303§⟨chain:48|av:1⟩|Av⟩]		
-	et('001303') # 0/1
+			
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
 	
-	singles = sorted([chain for chain in diagram.chains if len(chain.avnodes) == 1], key = lambda chain: chain.avnodes[0].address)
-	if len(singles):
-		min_nodes = singles[0].avnodes
-		print(f"singles: {min_nodes}")
-	else:
-		ot()			
-		reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
-		min_nodes = choose(next_sample_lengths_per_loop_tuple)	
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+		
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")	
+	
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")
+	
+	avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+	print(f"[mx] 4. avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+					
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")
 
-	# [ot] ⇒ unavailabled 8 loops in 2 incomplete tuples | remaining tuples: 105
-	# [purge] ⇒ unavailabled 55 loops in 11 failed tuples | tuples per sample length: [(-1, 5), (0, 6), (1, 89), (2, 5)]
-	# [choose] singles: 9
-	# [choose] min_ratio: 2.0 | min_chain: ⟨chain:66|av:1⟩ | min_nodes:
-	# (2, '002106')	
-	et('002106') # 0/1
 
-	singles = sorted([chain for chain in diagram.chains if len(chain.avnodes) == 1], key = lambda chain: chain.avnodes[0].address)
-	if len(singles):
-		min_nodes = singles[0].avnodes
-		print(f"singles: {min_nodes}")
-	else:
-		ot()			
-		reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
-		min_nodes = choose(next_sample_lengths_per_loop_tuple)	
-		
-	# [ot] ⇒ unavailabled 12 loops in 3 incomplete tuples | remaining tuples: 90
-	# [purge] ⇒ unavailabled 25 loops in 5 failed tuples | tuples per sample length: [(-1, 2), (0, 3), (1, 20), (2, 65)]
-	# [choose] min_ratio: 1.25 | min_chain: ⟨chain:81|av:4⟩ | min_nodes:
-	# (1, '002330')
-	# (1, '002331')
-	# (1, '002333')
-	# (2, '002335')
-	et('002335') # 3/4
+	# [mx] 1. min chain avloops length: 5
+	# [mx] 2. unicycle chains: 690
+	# [mx] 3. avtuples: 146 | all tuples: 168
 
-	singles = sorted([chain for chain in diagram.chains if len(chain.avnodes) == 1], key = lambda chain: chain.avnodes[0].address)
-	if len(singles):
-		min_nodes = singles[0].avnodes
-		print(f"singles: {min_nodes}")
-	else:
-		ot()			
-		reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
-		min_nodes = choose(next_sample_lengths_per_loop_tuple)	
-		
-	# singles: [⟨node:4026531@101253§⟨chain:407|av:1⟩|Av⟩]
-	# et('101253') # 0/1
-	# 
-	# singles = sorted([chain for chain in diagram.chains if len(chain.avnodes) == 1], key = lambda chain: chain.avnodes[0].address)
-	# if len(singles):
-	# 	min_nodes = singles[0].avnodes
-	# 	print(f"singles: {min_nodes}")
-	# else:
-	# 	ot()			
-	# 	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
-	# 	min_nodes = choose(next_sample_lengths_per_loop_tuple)	
+	
+	# [ex] ⇒ extended 000001
+	# [mx] 1. min chain avloops length: 4
+	# [mx] 2. unicycle chains: 685
+	# [mx] 3. avtuples: 142 | all tuples: 168
+	# [mx] ⇒ mr: 6 | mc: ⟨cycle:49@00131⟩ | mn: ['001313', '001312', '001311'] | mt: 3
+	# [mx] 4. avtuples: 136 | sample lengths: [(1, 1), (2, 27), (3, 108)] | single choices: 1
+	# [mx] ⇒ mr: 8 | mc: ⟨cycle:54@00140⟩ | mn: ['001406', '001401'] | mt: [3, 3]
+	et('001406') # 0/2
 
-	# [ot] ⇒ unavailabled 8 loops in 2 incomplete tuples | remaining tuples: 77
-	# [purge] ⇒ unavailabled 60 loops in 12 failed tuples | tuples per sample length: [(-1, 3), (0, 9), (1, 64), (2, 1)]
-	# [choose] singles: 24
-	# [choose] min_ratio: 1.0 | min_chain: ⟨chain:53|av:1⟩ | min_nodes:
-	# (1, '001353')
-	# et('001353') # 0/1
-	# 
-	# singles = sorted([chain for chain in diagram.chains if len(chain.avnodes) == 1], key = lambda chain: chain.avnodes[0].address)
-	# if len(singles):
-	# 	min_nodes = singles[0].avnodes
-	# 	print(f"singles: {min_nodes}")
-	# else:
-	# 	ot()			
-	# 	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
-	# 	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
+
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")	
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")
+
+	avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+	print(f"[mx] 4. avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")
+
+
+	# [et] ⇒ extended 5 loops in tuple for 001406
+	# [mx] 1. min chain avloops length: 3
+	# [mx] 2. unicycle chains: 656
+	# [mx] 3. avtuples: 132 | all tuples: 168
+	# [mx] ⇒ mr: 6 | mc: ⟨cycle:48@00130⟩ | mn: ['001304', '001303', '001302'] | mt: 3
+	# [mx] 4. avtuples: 131 | sample lengths: [(1, 5), (2, 39), (3, 87)] | single choices: 5
+	# [mx] ⇒ mr: 11 | mc: ⟨cycle:48@00130⟩ | mn: ['001303', '001304', '001302'] | mt: [2, 3, 3]
+	et('001303') # 0/3
+
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
+
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")	
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")
+
+	avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+	print(f"[mx] 4. avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")
+	
+	
+	# [et] ⇒ extended 5 loops in tuple for 001303
+	# [mx] 1. min chain avloops length: 3
+	# [mx] 2. unicycle chains: 627
+	# [mx] 3. avtuples: 126 | all tuples: 168
+	# [mx] ⇒ mr: 4 | mc: ⟨cycle:42@00120⟩ | mn: ['001206', '001205'] | mt: 2
+	# [mx] 4. avtuples: 123 | sample lengths: [(1, 11), (2, 111), (3, 1)] | single choices: 11
+	# [mx] ⇒ mr: 7 | mc: ⟨cycle:42@00120⟩ | mn: ['001205', '001206'] | mt: [2, 3]			
+	et('001205') # 0/2
+
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
+
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")	
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")
+
+	avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+	print(f"[mx] 4. avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")
+	
+	
+	# [et] ⇒ extended 5 loops in tuple for 001205
+	# [mx] 1. min chain avloops length: 2
+	# [mx] 2. unicycle chains: 603
+	# [mx] 3. avtuples: 119 | all tuples: 168
+	# [mx] ⇒ mr: 4 | mc: ⟨cycle:43@00121⟩ | mn: ['001213', '001212'] | mt: 2
+	# [mx] 4. avtuples: 118 | sample lengths: [(1, 19), (2, 99)] | single choices: 19
+	# [mx] ⇒ mr: 6 | mc: ⟨cycle:43@00121⟩ | mn: ['001213', '001212'] | mt: [2, 2]
+	et('001213') # 0/2
+
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
+
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")	
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")
+
+	avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+	print(f"[mx] 4. avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")
+	
 		
-	# singles: [⟨node:6304125@001206§⟨chain:42|av:1⟩|Av⟩]		
-	# et('001206') # 0/1
-	# 
-	# singles = sorted([chain for chain in diagram.chains if len(chain.avnodes) == 1], key = lambda chain: chain.avnodes[0].address)
-	# if len(singles):
-	# 	min_nodes = singles[0].avnodes
-	# 	print(f"singles: {min_nodes}")
-	# else:
-	# 	ot()			
-	# 	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
-	# 	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	# [et] ⇒ extended 5 loops in tuple for 001213
+	# [mx] 1. min chain avloops length: 2
+	# [mx] 2. unicycle chains: 573
+	# [mx] 3. avtuples: 114 | all tuples: 168
+	# [mx] ⇒ mr: 4 | mc: ⟨cycle:49@00131⟩ | mn: ['001313', '001311'] | mt: 2
+	# [mx] 4. avtuples: 112 | sample lengths: [(1, 21), (2, 91)] | single choices: 21
+	# [mx] ⇒ mr: 6 | mc: ⟨cycle:49@00131⟩ | mn: ['001313', '001311'] | mt: [2, 2]			
+	et('001313') # 0/2
+
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
+
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")	
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")
+
+	avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+	print(f"[mx] 4. avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")
+	
+						
+	# [et] ⇒ extended 5 loops in tuple for 001313
+	# [mx] 1. min chain avloops length: 2
+	# [mx] 2. unicycle chains: 544
+	# [mx] 3. avtuples: 107 | all tuples: 168
+	# [mx] ⇒ mr: 4 | mc: ⟨cycle:53@00135⟩ | mn: ['001354', '001353'] | mt: 2
+	# [mx] 4. avtuples: 105 | sample lengths: [(1, 19), (2, 86)] | single choices: 19
+	# [mx] ⇒ mr: 6 | mc: ⟨cycle:53@00135⟩ | mn: ['001354', '001353'] | mt: [2, 2]											
+	et('001354') # 0/2
+
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
+
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")	
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")
+
+	avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+	print(f"[mx] 4. avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")
+	
+	
+	# [et] ⇒ extended 5 loops in tuple for 001354
+	# [mx] 1. min chain avloops length: 3
+	# [mx] 2. unicycle chains: 514
+	# [mx] 3. avtuples: 102 | all tuples: 168
+	# [mx] ⇒ mr: 4 | mc: ⟨cycle:66@00210⟩ | mn: ['002106', '002100'] | mt: 2
+	# [mx] 4. avtuples: 99 | sample lengths: [(1, 14), (2, 84), (3, 1)] | single choices: 14
+	# [mx] ⇒ mr: 7 | mc: ⟨cycle:66@00210⟩ | mn: ['002100', '002106'] | mt: [2, 3]	
+	et('002100') # 0/2
+
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
+
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")	
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")
+
+	avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+	print(f"[mx] 4. avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")
+	
 		
-	# singles: [⟨node:3051462@002321§⟨chain:80|av:1⟩|Av⟩]
-	# et('002321') # 0/1
-	# 
-	# singles = sorted([chain for chain in diagram.chains if len(chain.avnodes) == 1], key = lambda chain: chain.avnodes[0].address)
-	# if len(singles):
-	# 	min_nodes = singles[0].avnodes
-	# 	print(f"singles: {min_nodes}")
-	# else:
-	# 	ot()			
-	# 	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
-	# 	min_nodes = choose(next_sample_lengths_per_loop_tuple)
-								
-	# singles: [⟨node:6031452@011016§⟨chain:151|av:1⟩|Av⟩]										
-	# et('011016') # 0/1
-	# 
-	# singles = sorted([chain for chain in diagram.chains if len(chain.avnodes) == 1], key = lambda chain: chain.avnodes[0].address)
-	# if len(singles):
-	# 	min_nodes = singles[0].avnodes
-	# 	print(f"singles: {min_nodes}")
-	# else:
-	# 	ot()			
-	# 	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
-	# 	min_nodes = choose(next_sample_lengths_per_loop_tuple)
+	# [et] ⇒ extended 5 loops in tuple for 002100
+	# [mx] 1. min chain avloops length: 2
+	# [mx] 2. unicycle chains: 485
+	# [mx] 3. avtuples: 93 | all tuples: 168
+	# [mx] ⇒ mr: 4 | mc: ⟨cycle:30@00100⟩ | mn: ['001006', '001005'] | mt: 2
+	# [mx] 4. avtuples: 91 | sample lengths: [(1, 18), (2, 73)] | single choices: 18
+	# [mx] ⇒ mr: 4 | mc: ⟨cycle:30@00100⟩ | mn: ['001006', '001005'] | mt: [1, 1]			
+	et('001006') # 0/2
+
+	print(f"[mx] 0. next single choice: {next_single_choices[min_matched_tuples[0]]}")
+
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
+
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")	
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")
+
+	avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+	print(f"[mx] 4. avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")
+	
 		
+	# [et] ⇒ extended 5 loops in tuple for 001006
+	# [mx] 0. next single choice: [⟨node:6230415@001106§⟨chain:36|av:2⟩|Av⟩]
+	# [mx] 1. min chain avloops length: 2
+	# [mx] 2. unicycle chains: 460
+	# [mx] 3. avtuples: 88 | all tuples: 168
+	# [mx] ⇒ mr: 2 | mc: ⟨cycle:36@00110⟩ | mn: ['001106'] | mt: 1
+	# [mx] 4. avtuples: 79 | sample lengths: [(1, 78), (2, 1)] | single choices: 78
+	# [mx] ⇒ mr: 3 | mc: ⟨cycle:36@00110⟩ | mn: ['001106'] | mt: [2]
+	et('001106') # 0/1
+
+	print(f"[mx] 0. next single choice: {next_single_choices[min_matched_tuples[0]] if min_matched_tuples[0] in next_single_choices else None}")
+
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
+
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")	
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")
+
+	avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+	print(f"[mx] 4. avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")
+
+
+	# [et] ⇒ extended 5 loops in tuple for 001106
+	# [mx] 0. next single choice: None
+	# [mx] 1. min chain avloops length: 2
+	# [mx] 2. unicycle chains: 440
+	# [mx] 3. avtuples: 79 | all tuples: 168
+	# [mx] ⇒ mr: 4 | mc: ⟨cycle:46@00124⟩ | mn: ['001242', '001245'] | mt: 2
+	# [mx] 4. avtuples: 77 | sample lengths: [(1, 31), (2, 46)] | single choices: 31
+	# [mx] ⇒ mr: 4 | mc: ⟨cycle:542@11202⟩ | mn: ['112026', '112021'] | mt: [1, 1]
+	et('112026') # 0/2
+
+	print(f"[mx] 0. next single choice: {next_single_choices[min_matched_tuples[0]] if min_matched_tuples[0] in next_single_choices else None}")
+
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
+
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")	
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")
+
+	avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+	print(f"[mx] 4. avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")
+
+
+	# [et] ⇒ extended 5 loops in tuple for 112026
+	# [mx] 0. next single choice: [⟨node:5642301@002405§⟨chain:84|av:3⟩|Av⟩]
+	# [mx] 1. min chain avloops length: 2
+	# [mx] 2. unicycle chains: 425
+	# [mx] 3. avtuples: 68 | all tuples: 168
+	# [mx] ⇒ mr: 2 | mc: ⟨cycle:84@00240⟩ | mn: ['002405'] | mt: 1
+	# [mx] 4. avtuples: 61 | sample lengths: [(1, 60), (2, 1)] | single choices: 60
+	# [mx] ⇒ mr: 3 | mc: ⟨cycle:84@00240⟩ | mn: ['002405'] | mt: [2]
+	et('002405') # 0/1
+
+	print(f"[mx] 0. next single choice: {next_single_choices[min_matched_tuples[0]] if min_matched_tuples[0] in next_single_choices else None}")
+
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
+
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")	
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")
+
+	avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+	print(f"[mx] 4. avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")
+	
+	
+	# [et] ⇒ extended 5 loops in tuple for 002405
+	# [mx] 0. next single choice: None
+	# [mx] 1. min chain avloops length: 2
+	# [mx] 2. unicycle chains: 395
+	# [mx] 3. avtuples: 61 | all tuples: 168
+	# [mx] ⇒ mr: 4 | mc: ⟨cycle:45@00123⟩ | mn: ['001233', '001230'] | mt: 2
+	# [mx] 4. avtuples: 60 | sample lengths: [(1, 39), (2, 21)] | single choices: 39
+	# [mx] ⇒ mr: 4 | mc: ⟨cycle:50@00132⟩ | mn: ['001322', '001320'] | mt: [1, 1]	
+	et('001322') # 0/2
+
+	print(f"[mx] 0. next single choice: {next_single_choices[min_matched_tuples[0]] if min_matched_tuples[0] in next_single_choices else None}")
+
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
+
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")	
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")
+
+	avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+	print(f"[mx] 4. avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")
+	
+	
+	# [et] ⇒ extended 5 loops in tuple for 001322
+	# [mx] 0. next single choice: [⟨node:3250416@022330§⟨chain:321|av:2⟩|Av⟩]
+	# [mx] 1. min chain avloops length: 2
+	# [mx] 2. unicycle chains: 365
+	# [mx] 3. avtuples: 59 | all tuples: 168
+	# [mx] ⇒ mr: 2 | mc: ⟨cycle:321@02233⟩ | mn: ['022330'] | mt: 1
+	# [mx] 4. avtuples: 55 | sample lengths: [(1, 55)] | single choices: 55
+	# [mx] ⇒ mr: 2 | mc: ⟨cycle:51@00133⟩ | mn: ['001331'] | mt: [1]	
+	et('022330') # 0/1 # from next single choice
+
+	print(f"[mx] 0. next single choice: {next_single_choices[min_matched_tuples[0]] if min_matched_tuples[0] in next_single_choices else None}")
+
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
+
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")	
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")
+
+	avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+	print(f"[mx] 4. avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")		
+			
+					
+	# [et] ⇒ extended 5 loops in tuple for 022330
+	# [mx] 0. next single choice: [⟨node:5320461@022141§⟨chain:310|av:3⟩|Av⟩]
+	# [mx] 1. min chain avloops length: 2
+	# [mx] 2. unicycle chains: 340
+	# [mx] 3. avtuples: 55 | all tuples: 168
+	# [mx] ⇒ mr: 2 | mc: ⟨cycle:310@02214⟩ | mn: ['022141'] | mt: 1
+	# [mx] 4. avtuples: 53 | sample lengths: [(1, 52), (2, 1)] | single choices: 52
+	# [mx] ⇒ mr: 3 | mc: ⟨cycle:300@02200⟩ | mn: ['022005'] | mt: [2]	
+	et('022141') # 0/1 # from next single choice
+
+	print(f"[mx] 0. next single choice: {next_single_choices[min_matched_tuples[0]] if min_matched_tuples[0] in next_single_choices else None}")
+
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
+
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")	
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")
+
+	avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+	print(f"[mx] 4. avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")		
+	
+
+	# [et] ⇒ extended 5 loops in tuple for 022141
+	# [mx] 0. next single choice: None
+	# [mx] 1. min chain avloops length: 2
+	# [mx] 2. unicycle chains: 315
+	# [mx] 3. avtuples: 53 | all tuples: 168
+	# [mx] ⇒ mr: 4 | mc: ⟨cycle:62@00202⟩ | mn: ['002026', '002025'] | mt: 2
+	# [mx] 4. avtuples: 48 | sample lengths: [(1, 37), (2, 11)] | single choices: 37
+	# [mx] ⇒ mr: 2 | mc: ⟨cycle:316@02224⟩ | mn: ['022245'] | mt: [1]
+	et('022245') # 0/1
+
+	print(f"[mx] 0. next single choice: {next_single_choices[min_matched_tuples[0]] if min_matched_tuples[0] in next_single_choices else None}")
+
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
+
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")	
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")
+
+	avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+	print(f"[mx] 4. avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")				
+
+
+	# [et] ⇒ extended 5 loops in tuple for 022245
+	# [mx] 0. next single choice: [⟨node:6312045@013006§⟨chain:210|av:2⟩|Av⟩]
+	# [mx] 1. min chain avloops length: 2
+	# [mx] 2. unicycle chains: 290
+	# [mx] 3. avtuples: 45 | all tuples: 168
+	# [mx] ⇒ mr: 2 | mc: ⟨cycle:210@01300⟩ | mn: ['013006'] | mt: 1
+	# [mx] 4. avtuples: 38 | sample lengths: [(1, 38)] | single choices: 38
+	# [mx] ⇒ mr: 2 | mc: ⟨cycle:210@01300⟩ | mn: ['013006'] | mt: [1]		
+	et('013006') # 0/1 # from next single choice
+
+	print(f"[mx] 0. next single choice: {next_single_choices[min_matched_tuples[0]] if min_matched_tuples[0] in next_single_choices else None}")
+
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
+
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")	
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")
+
+	avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+	print(f"[mx] 4. avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")				
+
 		
-		
-		
-		
-		
-		
-	diagram.point()
+	# [et] ⇒ extended 5 loops in tuple for 013006
+	# [mx] 0. next single choice: [⟨node:4513620@022022§⟨chain:302|av:3⟩|Av⟩]
+	# [mx] 1. min chain avloops length: 1
+	# [mx] 2. unicycle chains: 265
+	# [mx] 3. avtuples: 38 | all tuples: 168
+	# [mx] ⇒ mr: 2 | mc: ⟨cycle:235@01341⟩ | mn: ['013416'] | mt: 1
+	# [mx] 4. avtuples: 25 | sample lengths: [(1, 25)] | single choices: 25
+	# [mx] ⇒ mr: 2 | mc: ⟨cycle:62@00202⟩ | mn: ['002026'] | mt: [1]						
+	et('022022') # 0/1 # from next single choice
+
+	print(f"[mx] 0. next single choice: {next_single_choices[min_matched_tuples[0]] if min_matched_tuples[0] in next_single_choices else None}")
+
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
+
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")	
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")
+
+	avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+	print(f"[mx] 4. avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")				
+	
+
+	# [et] ⇒ extended 5 loops in tuple for 022022
+	# [mx] 0. next single choice: [⟨node:6142305@002306§⟨chain:78|av:3⟩|Av⟩]
+	# [mx] 1. min chain avloops length: 1
+	# [mx] 2. unicycle chains: 250
+	# [mx] 3. avtuples: 25 | all tuples: 168
+	# [mx] ⇒ mr: 2 | mc: ⟨cycle:62@00202⟩ | mn: ['002026'] | mt: 1
+	# [mx] 4. avtuples: 9 | sample lengths: [(1, 9)] | single choices: 9
+	# [mx] ⇒ mr: 0 | mc: ⟨cycle:62@00202⟩ | mn: [] | mt: []
+	et('002306') # 0/1 # from next single choice
+
+	print(f"[mx] 0. next single choice: {next_single_choices[min_matched_tuples[0]] if min_matched_tuples[0] in next_single_choices else None}")
+
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
+
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")	
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")
+
+	avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+	print(f"[mx] 4. avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")				
+	'''
+	
+	
+
+	diagram.point() # .pointers = min_nodes # 
 	show(diagram)

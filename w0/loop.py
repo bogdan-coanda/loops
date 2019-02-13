@@ -54,6 +54,9 @@ class Loop (object):
 	def chain(self):
 		return self.nodes[0].chain
 		
+	def label(self):
+		return f"⟨{color_string(self.ktype)}:{str(self.ktype_radialIndex)}⟩"
+		
 		
 def color_string(ktype):
 	if ktype is 0:

@@ -1,3 +1,4 @@
 - remove asserts
 - remove prints
 - remove extra sorting meant for deterministic running
+- remove extra enumerate() meant for debugging 'for' loops

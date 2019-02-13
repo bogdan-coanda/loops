@@ -41,7 +41,7 @@ class Cycle (object):
 				
 				
 	def __repr__(self):
-		return "⟨cycle:"+str(self.index)+"@"+self.address+("§"+str(self.chain) if not self.isUnchained else "")+"⟩"
+		return "⟨cycle:"+str(self.index)+"@"+self.address+("§"+str(self.avnode().chain) if not self.isUnchained else "")+"⟩"
 		
 		
 	def __lt__(self, other):
