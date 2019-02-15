@@ -33,6 +33,7 @@ def leap(lvl=0, path=[]):
 		
 	unavailed = []
 	avcolumns = []
+	nextavlen = {}
 	
 	for ic, column in enumerate(diagram.columns):
 		if column.isAvailabled():
@@ -51,14 +52,15 @@ def leap(lvl=0, path=[]):
 				unavailed.append(column)
 				column.unavailabled = True
 			else:
+				nextavlen[column.firstNode.address] = len([col for col in diagram.columns if col.isAvailabled()])
 				avcolumns.append(column)						
-						
+																	
 			for loop in reversed(extended):
 				diagram.collapseBack(loop)					
 	
 	# for each remaining
 	
-	avcolumns = sorted(avcolumns, key = lambda c: c.firstNode)
+	avcolumns = sorted(avcolumns, key = lambda c: (-nextavlen[c.firstNode.addressx], c.firstNode.address))
 	print(f"{key()} avcolumns: {len(avcolumns)}")
 	for ic, column in enumerate(avcolumns):
 				
