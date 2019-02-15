@@ -272,6 +272,8 @@ if __name__ == "__main__":
 	# et('1000007') # {b}
 	# et('1000006') # {z}
 
+	# ---------------------------- #
+	
 	ot()			
 	reachable, purged_loops, next_sample_lengths_per_loop_tuple = purge()
 	min_nodes = choose(next_sample_lengths_per_loop_tuple)

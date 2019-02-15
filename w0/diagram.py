@@ -4,6 +4,7 @@ from cycle import *
 from link import *
 from loop import *
 from chain import *
+from column import *
 from common import *
 from measures import *
 from uicanvas import *
@@ -14,7 +15,7 @@ from time import time
 
 class Diagram (object):
 	__slots__ = [
-		'spClass', 'kernelSize', 'chainAutoInc',
+		'spClass', 'kernelSize', 'chainAutoInc', 'columnAutoInc',
 		'nodes', 'nodeByAddress', 'nodeByPerm', 'startNode',
 		'cycles', 'cycleByAddress',
 		'chains',
@@ -24,6 +25,7 @@ class Diagram (object):
 		'pointers', 'pointer_avlen', 'pointer_sample',
 		'tobex_base_count',
 		'bases', 'node_tuples', 'loop_tuples',
+		'columns',
 		'radialLoopsByKType',
 		'changelog',
 		'startTime',
@@ -36,6 +38,7 @@ class Diagram (object):
 		self.spClass = N
 		self.kernelSize = kernelSize
 		self.chainAutoInc = -1
+		self.columnAutoInc = -1
 		self.changelog = []
 		# [!radial!] self.hasRadialCoords = False
 		
@@ -66,7 +69,20 @@ class Diagram (object):
 		for loop in self.loops:
 			if loop.availabled:
 				loop.killingField = KillingField(loop)
-				
+
+		# generate tuples for jumps
+		if self.spClass == 6:
+			self.bases = [self.nodeByAddress[addr] for addr in ['00001', '00143', '00201', '00343']]						
+		elif self.spClass == 7:
+			self.bases = [self.nodeByAddress[addr] for addr in ['000001', '000101', '000201', '000301', '000401']]
+		elif self.spClass == 8:
+			self.bases = [self.nodeByAddress[addr] for addr in ['0000001', '0000165', '0000201', '0000365', '0000401', '0000565']]
+			
+		self.walk()				
+		
+		# generate columns for leaps
+		self.generateColumns()
+												
 		# generate initial kernel if needed								
 		if self.kernelSize > 0:
 			self.generateKernel()
@@ -76,16 +92,7 @@ class Diagram (object):
 		# add back already extended (by kernel) loops as they will always be found and extracted when measuring current tobex count
 		self.tobex_base_count += len([loop for loop in self.loops if loop.extended])
 		print("[diagram] tobex: " + str(self.tobex_base_count))
-		
-		if self.spClass == 6:
-			self.bases = [self.nodeByAddress[addr] for addr in ['00001', '00143', '00201', '00343']]						
-		elif self.spClass == 7:
-			self.bases = [self.nodeByAddress[addr] for addr in ['000001', '000101', '000201', '000301', '000401']]
-		elif self.spClass == 8:
-			self.bases = [self.nodeByAddress[addr] for addr in ['0000001', '0000165', '0000201', '0000365', '0000401', '0000565']]
-			
-		self.walk()
-		
+				
 		
 	def measureTobex(self):
 		return self.tobex_base_count - len([loop for loop in self.loops if loop.extended])
@@ -555,11 +562,48 @@ class Diagram (object):
 				
 		#assert len([n for n in self.nodes if n.tuple is None]) is 0
 		print("generated tuples")
-
-			
+										
 	# --- walking ---------------------------------------------------------------------------------------------------------------------------------------------------------------- #	
-	# --- pointing --------------------------------------------------------------------------------------------------------------------------------------------------------------- #	
+	# --- columns ---------------------------------------------------------------------------------------------------------------------------------------------------------------- #
+	
+	def generateColumns(self):
+		# [~] will use node.loop.availabled and then reset it back
+		
+		self.columns = []
+		
+		for loop in self.loops:
+			if loop.ktype == 0 and loop.availabled:
+				knodes = [node for node in itertools.chain(*[node.cycle.nodes for node in loop.nodes]) if node.loop.availabled and node.loop.ktype > 1]
+				for ktype in range(2, self.spClass):
+					column_nodes = [node for node in knodes if node.ktype == ktype]
+					if len(column_nodes) == self.spClass-1:
+						kloops = set([n.loop for n in column_nodes])
+						assert len(kloops) == self.spClass-2
+						tuples = set([l.tuple for l in kloops])
+						self.columnAutoInc += 1
+						self.columns.append(Column(self.columnAutoInc, tuples))
+						for t in tuples:
+							for l in t:
+								l.availabled = False
+								
+		for l in self.loops:
+			l.availabled = True		
 
+		for loop in self.loops:
+			if loop.ktype == 0:				
+				topDownCycles = sorted([n.cycle for n in loop.nodes], key = lambda c: c.py)
+				for ktype in range(2, self.spClass):
+					knode = [n for n in topDownCycles[0].nodes if n.ktype == ktype][0]
+					kcols = [col for col in self.columns if knode.loop.tuple in col.tuples]
+					assert len(kcols) == 1
+					loop.columnByKType[ktype] = kcols[0]
+																							
+		for column in self.columns:
+			print(str(column))
+			
+									
+	# --- columns ---------------------------------------------------------------------------------------------------------------------------------------------------------------- #	
+	# --- pointing --------------------------------------------------------------------------------------------------------------------------------------------------------------- #	
 
 	def pointToAddressTuple(self, address):
 		self.pointers = list(self.nodeByAddress[address].tuple)

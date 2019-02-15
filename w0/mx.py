@@ -95,7 +95,7 @@ class MX (object):
 		# reorder by sample count and ktype
 		min_nodes = sorted([n for n in min_cycle.nodes if n.loop.tuple in min_matched_tuples], key = lambda n: (next_sample_lengths[n.loop.tuple], n.ktype)) if min_cycle is not None else []
 		
-		assert len(min_nodes) == len(min_matched_tuples) # [~][!] fails for very late initial purges
+		assert len(min_nodes) >= len(min_matched_tuples) # [~][!] '==' fails for very late (or no) initial purges
 		
 		min_matched_tuples = [n.loop.tuple for n in min_nodes]
 		

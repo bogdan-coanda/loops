@@ -4,6 +4,36 @@ from mx import *
 from time import time
 
 
+def step(avloops, jump_lvl, jump_path, step_lvl=0, step_path=[]):
+	
+	def key():
+		return f"[{tstr(time() - startTime):>11}][lvl:{jump_lvl}»{step_lvl}]"
+		
+	print(f"{key()}[ch:{len(diagram.chains)}|av:{len(avloops)}] {'.'.join([(str(x)+upper(t)) for x,t in jump_path])}\n» {'.'.join([(str(x)+upper(t)) for x,t in step_path])}")
+
+	if len(diagram.chains) == 1:
+		show(diagram)
+		input2(f"{key()} sol found.")
+		return
+		
+	min_chain = sorted(diagram.chains, key = lambda chain: (len(chain.avnodes), chain.id))[0]
+	# print(f"{key()} chosen min: {min_chain}")
+	
+	seen = []
+	min_avlen = len(min_chain.avnodes)
+	
+	for i,n in enumerate(sorted(min_chain.avnodes, key = lambda n: n.address)):
+		assert diagram.extendLoop(n.loop)		
+		step([l for l in avloops if l.availabled], jump_lvl, jump_path, step_lvl+1, step_path+[(i, min_avlen)])
+		diagram.collapseBack(n.loop)	
+		
+		seen.append(n.loop)
+		diagram.setLoopUnavailabled(n.loop)
+		
+	for l in seen:
+		diagram.setLoopAvailabled(l)
+	
+
 def jump(avtuples, lvl=0, path=[]):
 	
 	def key():
@@ -12,69 +42,77 @@ def jump(avtuples, lvl=0, path=[]):
 	print(f"{key()} {'.'.join([(str(x)+upper(t)) for x,t in path])}")
 	
 	min_chlen = mx.min_chain_avloops_length()	
-	print(f"{key()}[mx] 1. min_chlen: {min_chlen}")	
+	# print(f"{key()}[mx] 1. min_chlen: {min_chlen}")	
 	
 	if min_chlen == 0:
-		print(f"{key()}[mx] ⇒ dead @ unconnectable")
+		# print(f"{key()}[mx] ⇒ dead @ unconnectable")
 		return
 		
 	unicycle_chains = mx.filter_unicycle_chains()	
-	print(f"{key()}[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+	# print(f"{key()}[mx] 2. unicycle chains: {len(unicycle_chains)}")	
 		
 	if len(unicycle_chains) == 0:
-		input2(f"{key()}[mx] ⇒ all cycles covered by tuples")
+		print(f"{key()}[mx] ⇒ all cycles covered by tuples")
+		step([l for l in diagram.loops if l.availabled], lvl, path)
+		# input2(f"[jump] « [step] // cc")
 		return			
 		
 	avtuples = mx.filter_avtuples(avtuples)	
-	print(f"{key()}[mx] 3. avtuples: {len(avtuples)} / {len(diagram.loop_tuples)}")	
+	# print(f"{key()}[mx] 3. avtuples: {len(avtuples)} / {len(diagram.loop_tuples)}")	
 
 	if len(avtuples) == 0:
-		input2(f"{key()}[mx] ⇒ no tuples remaining")
+		print(f"{key()}[mx] ⇒ no tuples remaining")
+		# step([l for l in diagram.loops if l.availabled], lvl, path)
+		# input2(f"[jump] « [step] // nt")
 		return			
 				
 	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
-	print(f"{key()}[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")		
+	# print(f"{key()}[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")		
 
 	if len(min_nodes) == 0:
-		print(f"{key()}[mx] ⇒ dead @ not coverable")
+		# print(f"{key()}[mx] ⇒ dead @ not coverable")
 		return
 		
-	if len(min_nodes) > 1:
-		print(f"{key()}[mx] ⇒ not single choice, purging…")
+	if lvl < 12 and len(min_nodes) > 1:
+		# print(f"{key()}[mx] ⇒ not single choice, purging…")
 		
 		# [~] next_single_choices is unused ?
 		avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
-		print(f"{key()}[mx][purge] avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+		# print(f"{key()}[mx][purge] avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
 
 		if len(avtuples) == 0:
-			input2(f"{key()}[mx][purge] ⇒ no tuples remaining")
+			print(f"{key()}[mx][purge] ⇒ no tuples remaining")
+			# step([l for l in diagram.loops if l.availabled], lvl, path)
+			# input2(f"[jump] « [step] // nt")
 			return			
 												
 		min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)
-		print(f"{key()}[mx][purge] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")
+		# print(f"{key()}[mx][purge] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")
 	else:
-		print(f"{key()}[mx] ⇒ single choice.")
+		# print(f"{key()}[mx] ⇒ single choice.")
+		pass
 		
 	# go through all choices
 	for it, t in enumerate(min_matched_tuples):
+		if t in avtuples: # [~][!] needed if no purge
 						
-		ec = 0
-		for lt, l in enumerate(t):
-			if diagram.extendLoop(l):
-				ec += 1
-			else:
-				break
+			ec = 0
+			for lt, l in enumerate(t):
+				if diagram.extendLoop(l):
+					ec += 1
+				else:
+					break
+	
+			if ec == len(t): # if we've extended all of the tuple's loops
+				jump(avtuples, lvl+1, path+[(it,len(min_matched_tuples))])
+	
+			for l in reversed(t[:ec]):
+				diagram.collapseBack(l)	
+				
+			# remove tested choice for further jumps		
+			avtuples.remove(t)
 
-		if ec == len(t): # if we've extended all of the tuple's loops
-			jump(avtuples, lvl+1, path+[(it,len(min_matched_tuples))])
-
-		for l in reversed(t[:ec]):
-			diagram.collapseBack(l)	
-			
-		# remove tested choice for further jumps
-		avtuples.remove(t)
-
-	print(f"{key()} ⇒ finished all choices")
+	# print(f"{key()} ⇒ finished all choices")
 
 
 
@@ -100,8 +138,26 @@ if __name__ == "__main__":
 
 
 			
-	extend('000001');
+	#extend('000002')
 	
+	et('001006')
+	et('001106')
+	et('001206')
+	et('001306')
+
+	et('001401')
+	et('001410')
+	et('001430')
+	et('001452')
+
+	show(diagram)
+	input2("---")
+
+	'''
+tuples: 001006 001106 001206 001306 001401 001410 001430 001452 002002 002011 002020 002053 002143 002233 013020 013044 013200 013224 013233 013251 022006 022106 022306 112005
+loops: 000002 001052 001133 001311 002230 002251 002402 002453 003005 010001 011203 012110 021443 100014 100243 101152 101430 103023	
+	'''
+			
 	startTime = time()
 	jump(avtuples)
 	

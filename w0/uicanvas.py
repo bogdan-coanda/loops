@@ -292,6 +292,41 @@ def draw(diagram):
 						ui.set_color(color)
 						border.stroke()
 		
+		# find min positive column count
+		min_count = diagram.spClass		
+		min_loops = []
+		for loop in diagram.loops:
+			if loop.ktype == 0:
+				count = len([col for col in loop.columnByKType.values() if col.isAvailabled()])
+				if count > 0 and count < min_count:
+					min_count = count
+					min_loops = [loop]
+				elif count == min_count:
+					min_loops.append(loop)
+				
+		# draw column markers		
+		for loop in diagram.loops:
+			if loop.ktype == 0:				
+				topDownCycles = sorted([n.cycle for n in loop.nodes], key = lambda c: c.py)
+				my = topDownCycles[0].py - (topDownCycles[1].py - topDownCycles[0].py) / 2
+				mx = topDownCycles[0].px - (diagram.spClass - 3) * (4 + 1) / 2
+				
+				if loop in min_loops:
+					rect = ui.Path.rect(mx - 2 -  2, my - 2 - 2, 2 + 2 + (diagram.spClass - 3) * (4 + 1) + 2 + 2, 2 + 4 + 2)
+					rect.line_width = 1
+					ui.set_color('black')
+					rect.stroke()													
+					
+				for ktype in range(2, diagram.spClass):					
+					if loop.columnByKType[ktype].isAvailabled():
+						oval = ui.Path.oval(mx + (ktype - 2) * (4 + 1) - 2, my - 2, 4, 4)
+						ui.set_color(colors.normal(ktype))
+						oval.fill()
+						oval.line_width = 0.1
+						ui.set_color('black')
+						oval.stroke()					
+					
+					
 		for i,node_or_cycle in enumerate(diagram.pointers if diagram.pointers else []):
 			if isinstance(node_or_cycle, Node):
 				oval = ui.Path.oval(node_or_cycle.cycle.px - HD/2, node_or_cycle.cycle.py - HD/2, HD, HD)
@@ -309,11 +344,11 @@ def draw(diagram):
 				#if diagram.spClass % 2 is 0 and i % 2 is not 0:
 					#oval.set_line_dash([1,1.05])
 				ui.set_color('black')
-				oval.stroke()						
+				oval.stroke()								
 						
 		img = ctx.get_image()
 		#img.show()
-		print("[show] chain count: " + str(len([c for c in diagram.chains if len(c.cycles) > 1])) + " | available loops: " + str(len([l for l in diagram.loops if l.availabled]))  + " | looped: " + str(sh_looped_count) + "/" + str(len(diagram.nodes)) + " (" + "{0:.2f}".format(sh_looped_count*100.0/len(diagram.nodes)) + "%)" + " | remaining: " + str(len(diagram.nodes) - sh_looped_count))
+		print("[show] chain count: " + str(len([c for c in diagram.chains if len(c.cycles) > 1])) + " | available loops: " + str(len([l for l in diagram.loops if l.availabled])) + f" | min columns [{min_count}] count: " + str(len(min_loops)) + " | looped: " + str(sh_looped_count) + "/" + str(len(diagram.nodes)) + " (" + "{0:.2f}".format(sh_looped_count*100.0/len(diagram.nodes)) + "%)" + " | remaining: " + str(len(diagram.nodes) - sh_looped_count))
 		return img
 
 def drawCircledText(text, centerX, centerY, radius, textSize, color, borderWidth):

@@ -11,7 +11,8 @@ class Loop (object):
 		'ktype', 'ktype_radialIndex',
 		#'ktype_columnIndex'
 		'killingField', 
-		'tuple']
+		'tuple',
+		'columnByKType']
 	
 			
 	def __init__(self, index):
@@ -26,6 +27,8 @@ class Loop (object):
 		self.ktype_radialIndex = None
 		# @walk		
 		self.tuple = None
+		# @generateColumns for loops with ktype == 0 # contains columns for ktype > 1
+		self.columnByKType = {}
 		# killingField
 		self.killingField = None
 						
