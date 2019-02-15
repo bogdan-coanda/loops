@@ -22,7 +22,7 @@ def leap(lvl=0, path=[]):
 		
 	# save
 	if lvl >= max_lvl_reached:
-		with open('8b-leaps_reached', 'a', encoding="utf8") as log:
+		with open('8b-leaps_reached_2', 'a', encoding="utf8") as log:
 			if lvl > max_lvl_reached:
 				log.write("-------------------------" + "\n\n")
 			log.write(f"{key()} {'.'.join([(str(x)+upper(t)) for x,t,_ in path])}" + "\n")
@@ -60,7 +60,7 @@ def leap(lvl=0, path=[]):
 	
 	# for each remaining
 	
-	avcolumns = sorted(avcolumns, key = lambda c: (-nextavlen[c.firstNode.addressx], c.firstNode.address))
+	avcolumns = sorted(avcolumns, key = lambda c: (-nextavlen[c.firstNode.address], c.firstNode.address))
 	print(f"{key()} avcolumns: {len(avcolumns)}")
 	for ic, column in enumerate(avcolumns):
 				
