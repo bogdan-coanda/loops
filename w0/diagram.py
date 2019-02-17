@@ -25,7 +25,7 @@ class Diagram (object):
 		'pointers', 'pointer_avlen', 'pointer_sample',
 		'tobex_base_count',
 		'bases', 'node_tuples', 'loop_tuples',
-		'columns',
+		'columns', 'columnByID',
 		'radialLoopsByKType',
 		'changelog',
 		'startTime',
@@ -570,6 +570,7 @@ class Diagram (object):
 		# [~] will use node.loop.availabled and then reset it back
 		
 		self.columns = []
+		self.columnByID = {}
 		
 		for loop in self.loops:
 			if loop.ktype == 0 and loop.availabled:
@@ -581,7 +582,9 @@ class Diagram (object):
 						assert len(kloops) == self.spClass-2
 						tuples = set([l.tuple for l in kloops])
 						self.columnAutoInc += 1
-						self.columns.append(Column(self.columnAutoInc, tuples))
+						column = Column(self.columnAutoInc, tuples)
+						self.columns.append(column)
+						self.columnByID[column.id] = column
 						for t in tuples:
 							for l in t:
 								l.availabled = False

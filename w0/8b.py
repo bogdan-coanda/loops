@@ -7,6 +7,117 @@ from mx import *
 max_lvl_reached = 0
 
 
+def step(avloops, jump_lvl, jump_path, step_lvl=0, step_path=[]):
+	
+	def key():
+		return f"[{tstr(time() - startTime):>11}][lvl:{jump_lvl}»{step_lvl}]"
+		
+	print(f"{key()}[ch:{len(diagram.chains)}|av:{len(avloops)}] {'.'.join([(str(x)+upper(t)) for x,t in jump_path])}\n» {'.'.join([(str(x)+upper(t)) for x,t in step_path])}")
+
+	if len(diagram.chains) == 1:
+		show(diagram)
+		input2(f"{key()} sol found.")
+		return
+		
+	min_chain = sorted(diagram.chains, key = lambda chain: (len(chain.avnodes), chain.id))[0]
+	# print(f"{key()} chosen min: {min_chain}")
+	
+	seen = []
+	min_avlen = len(min_chain.avnodes)
+	
+	for i,n in enumerate(sorted(min_chain.avnodes, key = lambda n: n.address)):
+		assert diagram.extendLoop(n.loop)		
+		step([l for l in avloops if l.availabled], jump_lvl, jump_path, step_lvl+1, step_path+[(i, min_avlen)])
+		diagram.collapseBack(n.loop)	
+		
+		seen.append(n.loop)
+		diagram.setLoopUnavailabled(n.loop)
+		
+	for l in seen:
+		diagram.setLoopAvailabled(l)
+	
+
+def jump(avtuples, lvl=0, path=[]):
+	
+	def key():
+		return f"[{tstr(time() - startTime):>11}][lvl:{lvl}]" 
+	
+	print(f"{key()} {'.'.join([(str(x)+upper(t)) for x,t in path])}")
+	
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"{key()}[mx] 1. min_chlen: {min_chlen}")	
+	
+	if min_chlen == 0:
+		print(f"{key()}[mx] ⇒ dead @ unconnectable")
+		return
+		
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"{key()}[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+		
+	if len(unicycle_chains) == 0:
+		print(f"{key()}[mx] ⇒ all cycles covered by tuples")
+		step([l for l in diagram.loops if l.availabled], lvl, path)
+		input2(f"[jump] « [step] // cc")
+		return			
+		
+	avtuples = mx.filter_avtuples(avtuples)	
+	print(f"{key()}[mx] 3. avtuples: {len(avtuples)} / {len(diagram.loop_tuples)}")	
+
+	if len(avtuples) == 0:
+		print(f"{key()}[mx] ⇒ no tuples remaining")
+		step([l for l in diagram.loops if l.availabled], lvl, path)
+		input2(f"[jump] « [step] // nt")
+		return			
+				
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"{key()}[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")		
+
+	if len(min_nodes) == 0:
+		print(f"{key()}[mx] ⇒ dead @ not coverable")
+		return
+		
+	if lvl < 12 and len(min_nodes) > 1:
+		print(f"{key()}[mx] ⇒ not single choice, purging…")
+		
+		# [~] next_single_choices is unused ?
+		avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+		print(f"{key()}[mx][purge] avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+		if len(avtuples) == 0:
+			print(f"{key()}[mx][purge] ⇒ no tuples remaining")
+			step([l for l in diagram.loops if l.availabled], lvl, path)
+			input2(f"[jump] « [step] // nt")
+			return			
+												
+		min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)
+		print(f"{key()}[mx][purge] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")
+	else:
+		print(f"{key()}[mx] ⇒ single choice.")
+		pass
+		
+	# go through all choices
+	for it, t in enumerate(min_matched_tuples):
+		if t in avtuples: # [~][!] needed if no purge
+						
+			ec = 0
+			for lt, l in enumerate(t):
+				if diagram.extendLoop(l):
+					ec += 1
+				else:
+					break
+	
+			if ec == len(t): # if we've extended all of the tuple's loops
+				jump(avtuples, lvl+1, path+[(it,len(min_matched_tuples))])
+	
+			for l in reversed(t[:ec]):
+				diagram.collapseBack(l)	
+				
+			# remove tested choice for further jumps		
+			avtuples.remove(t)
+
+	print(f"{key()} ⇒ finished all choices")
+
+
 def leap(lvl=0, path=[]):
 	global max_lvl_reached
 	
@@ -22,7 +133,7 @@ def leap(lvl=0, path=[]):
 		
 	# save
 	if lvl >= max_lvl_reached:
-		with open('8b-leaps_reached_2', 'a', encoding="utf8") as log:
+		with open('8b-leaps_reached_3', 'a', encoding="utf8") as log:
 			if lvl > max_lvl_reached:
 				log.write("-------------------------" + "\n\n")
 			log.write(f"{key()} {'.'.join([(str(x)+upper(t)) for x,t,_ in path])}" + "\n")
@@ -93,10 +204,13 @@ def leap(lvl=0, path=[]):
 if __name__ == "__main__":
 
 	diagram = Diagram(8, 1)			
+	mx = MX(diagram)
 		
 	import enav
 	enav.diagram = diagram
 	from enav import *	
+	
+	input2('∘')
 	
 	# ∘ bases ∘ ['0000001', '0000002', '0000003', '0000012', '0000013', '0000021', '0000022', '0000044', '0000045', '0000053', '0000054', '0000063', '0000064', '0000065'] ∘ #
 	extend('0000001'); ot()
@@ -141,8 +255,37 @@ if __name__ == "__main__":
 
 	# ---------------------------- #
 
+	# columns: 0002504 0002002 0002404 0010101 0001201 0010403 0034300 0023404 0122501 0024504 0023504 0032501 0024304 0011100 0122000 0121100 0131001 0131304 0134201
+	# elt('0002507', diagram.nodeByAddress['0002504'].ktype)
+	# elt('0002007', diagram.nodeByAddress['0002002'].ktype)
+	# elt('0002407', diagram.nodeByAddress['0002404'].ktype)
+	# elt('0010107', diagram.nodeByAddress['0010101'].ktype)
+	# elt('0001207', diagram.nodeByAddress['0001201'].ktype)
+	# elt('0010407', diagram.nodeByAddress['0010403'].ktype)
+	# elt('0034307', diagram.nodeByAddress['0034300'].ktype)
+	# elt('0023407', diagram.nodeByAddress['0023404'].ktype)
+	elt('0122507', diagram.nodeByAddress['0122501'].ktype)
+	elt('0024507', diagram.nodeByAddress['0024504'].ktype)
+	elt('0023507', diagram.nodeByAddress['0023504'].ktype)
+	elt('0032507', diagram.nodeByAddress['0032501'].ktype)
+	elt('0024307', diagram.nodeByAddress['0024304'].ktype)
+	elt('0011107', diagram.nodeByAddress['0011100'].ktype)
+	elt('0122007', diagram.nodeByAddress['0122000'].ktype)
+	elt('0121107', diagram.nodeByAddress['0121100'].ktype)
+	elt('0131007', diagram.nodeByAddress['0131001'].ktype)
+	elt('0131307', diagram.nodeByAddress['0131304'].ktype)
+	elt('0134207', diagram.nodeByAddress['0134201'].ktype)
+
+	# show(diagram)
+	# input2("...")
+	
+	# ---------------------------- #
+	
 	startTime = time()
 	leap()
+	#jump(mx.filter_avtuples())
+	#step([l for l in diagram.loops if l.availabled], 0, [])
+	input2(f"[leap] « [step] // nl")
 
 	# ============================ #
 	
