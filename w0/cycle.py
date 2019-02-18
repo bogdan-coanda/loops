@@ -4,7 +4,7 @@ import math
 
 class Cycle (object):
 	
-	__slots__ = ['index', 'address', 'nodes', 'px', 'py', 'isKernel', 'isUnchained']
+	__slots__ = ['index', 'address', 'nodes', 'px', 'py', 'isKernel', 'isUnchained', 'chain']
 	
 	def __init__(self, index, address, nodes):
 		self.index = index
@@ -23,6 +23,7 @@ class Cycle (object):
 		self.py = 0
 		self.isKernel = False
 		self.isUnchained = True
+		self.chain = None # set completely by draw()
 		
 		# [!unused!] self.inner_roots = None
 		# [!unused!] self.outer_roots = None

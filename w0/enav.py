@@ -5,6 +5,7 @@ diagram = None
 def extend(addr):
 	assert diagram.extendLoop(diagram.nodeByAddress[addr].loop)
 	print(f"[ex] ⇒ extended {addr}")
+	return [diagram.nodeByAddress[addr]]
 		
 def et(addr):
 	extended = []
@@ -32,6 +33,17 @@ def eg(box_addr, key):
 	print(f"[eg] ⇒ extended {len(extended)} loops in green box tuples for addr:{box_addr} in key:{key}")
 	return extended
 	
+def el(addr, ktype):
+	extended = []
+	parentLoop = diagram.nodeByAddress[addr].loop
+	knodes = [node for node in itertools.chain(*[node.cycle.nodes for node in parentLoop.nodes]) if node.loop.availabled and node.loop.ktype == ktype]
+	for i,node in enumerate(knodes):
+		if not node.loop.extended:
+			assert diagram.extendLoop(node.loop)
+			extended.append(node)
+	print(f"[el] ⇒ extended {len(extended)} ktype:{ktype} loops for parent {parentLoop}")	
+	return extended
+		
 def elt(addr, ktype):
 	extended = []
 	parentLoop = diagram.nodeByAddress[addr].loop
@@ -46,7 +58,20 @@ def elt(addr, ktype):
 	
 def ec(addr):
 	return elt(addr[:-1]+str(diagram.spClass-1), diagram.nodeByAddress[addr].ktype)
-	
+
+def es(addr, ktype):
+	extended = []
+	parentLoop = diagram.nodeByAddress[addr].loop
+	knodes = [node for node in itertools.chain(*[node.cycle.nodes for node in parentLoop.nodes]) if node.loop.availabled and node.loop.ktype == ktype]
+	headLoops = [node.loop for node in knodes if node.address[-2] in ['0', str(diagram.spClass-2)]]
+	knodes = [node for node in knodes if node.loop not in headLoops]	
+	for i,node in enumerate(knodes):
+		if not node.loop.extended:
+			assert diagram.extendLoop(node.loop)
+			extended.append(node)
+	print(f"[est] ⇒ extended {len(extended)} ktype:{ktype} loops for parent {parentLoop}")	
+	return extended
+		
 def est(addr, ktype):
 	extended = []
 	parentLoop = diagram.nodeByAddress[addr].loop

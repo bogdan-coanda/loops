@@ -203,19 +203,28 @@ def draw(diagram):
 		
 		RR = 4
 		DH = 2
-			
+
+		# setting node.cycle.chain
+		for cycle in diagram.cycles:
+			cycle.chain = None		
+		for chain in diagram.chains:		
+			for cycle in chain.cycles:
+				cycle.chain = chain
+									
 		for node in diagram.nodes:
 
 			oval = ui.Path.oval(node.px - RR/2, node.py - RR/2, RR, RR)
 			#if node.address.startswith('0000'):
 				#print("draw " + node.address + " | " + str((node.px - RR/2, node.py - RR/2, RR, RR)))
 
+
 			# § drawing chained node color fills
-			if node.chain is not None and not node.cycle.isUnchained:
+			if not node.cycle.isUnchained:
 				sh_looped_count += 1
-				if node.chain.id not in chainColors:
-					chainColors[node.chain.id] = 'white' if node.chain.id == (0 if diagram.startNode.chain is None else diagram.startNode.chain.id) else hls_to_rgb(random(), 0.5, 1)
-				ui.set_color(chainColors[node.chain.id])
+				chain = node.cycle.chain
+				if chain.id not in chainColors:
+					chainColors[chain.id] = 'white' if chain.id == (0 if diagram.startNode.chain is None else diagram.startNode.chain.id) else hls_to_rgb(random(), 0.5, 1)
+				ui.set_color(chainColors[chain.id])
 			else:
 				ui.set_color('white')
 			oval.fill()

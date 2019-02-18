@@ -475,7 +475,7 @@ if __name__ == "__main__":
 
 	# ---------------------------- #			
 
-	# nx = est('1220507', 2) # [C] [⟨column:93@0024403(ktype:5)|t:6|cL:36|bb:27⟩]
+	nx = est('1220507', 2) # [C] [⟨column:93@0024403(ktype:5)|t:6|cL:36|bb:27⟩]
 	# nx = est('1220507', 3) # [G] [⟨column:32@0002102(ktype:7)|t:6|cL:36|bb:15⟩] # ~> 1:elt:z
 	# nx = est('1220507', 5) # [C] [⟨column:95@0024502(ktype:5)|t:6|cL:36|bb:27⟩]
 	# nx = est('1220507', 7) # [K] [⟨column:109@0034300(ktype:6)|t:3|cL:18|bb:15⟩]
@@ -486,11 +486,11 @@ if __name__ == "__main__":
 			print(f'not av: {col}')			
 	avcolumns = [col for col in diagram.columns if col.isAvailabled()]
 
-	nx = elt('1220007', 7)
+	nx += elt('1220007', 7)
 	nx += elt('1220107', 3)
 	nx += elt('1220207', 2)
 	
-	# nx += elt('1234007', 6)
+	nx += elt('1234007', 6)
 	
 	# nx = est('0232307', 7)
 			
