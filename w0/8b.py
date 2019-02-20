@@ -133,7 +133,7 @@ def leap(lvl=0, path=[]):
 		
 	# save
 	if lvl >= max_lvl_reached:
-		with open('8b-leaps_reached_3', 'a', encoding="utf8") as log:
+		with open('8b-leaps_reached_4', 'a', encoding="utf8") as log:
 			if lvl > max_lvl_reached:
 				log.write("-------------------------" + "\n\n")
 			log.write(f"{key()} {'.'.join([(str(x)+upper(t)) for x,t,_ in path])}" + "\n")
@@ -210,10 +210,10 @@ if __name__ == "__main__":
 	enav.diagram = diagram
 	from enav import *	
 	
-	input2('∘')
+	#input2('∘')
 	
 	# ∘ bases ∘ ['0000001', '0000002', '0000003', '0000012', '0000013', '0000021', '0000022', '0000044', '0000045', '0000053', '0000054', '0000063', '0000064', '0000065'] ∘ #
-	extend('0000001'); ot()
+	extend('0000001'); #ot()
 	
 	# x0 = et('0000001') # {0:a}	
 	# x0 = et('0000002') # {1:b}
@@ -232,23 +232,23 @@ if __name__ == "__main__":
 	# et('0000054') # {1:q0}
 
 	# ∘ blue
-	x2 = eb('1000', 1) # {az}
+	# x2 = eb('1000', 1) # {az}
 	# x2 = eg('1000', 1) # {by}
 	
 	# ∘ long column 
-	x3 = elt('1000007', 5) # {a}	
+	# x3 = elt('1000007', 5) # {a}	
 	# x3 = elt('1000006', 5) # {y}	
 	# x3 = elt('1000206', 2) # {b}	
 	# x3 = elt('1000207', 2) # {z}
 			
 	# ∘ short column
-	x4 = est('1000207', 2) # {a}	
+	# x4 = est('1000207', 2) # {a}	
 	# x4 = est('1000206', 2) # {y}
 	# x4 = est('1000006', 5) # {b}	
 	# x4 = est('1000007', 5) # {z}
 	
 	# ∘ green
-	x5 = et('1000206') # {a}
+	# x5 = et('1000206') # {a}
 	# et('1000207') # {y}
 	# et('1000007') # {b}
 	# et('1000006') # {z}
@@ -264,22 +264,32 @@ if __name__ == "__main__":
 	# elt('0010407', diagram.nodeByAddress['0010403'].ktype)
 	# elt('0034307', diagram.nodeByAddress['0034300'].ktype)
 	# elt('0023407', diagram.nodeByAddress['0023404'].ktype)
-	elt('0122507', diagram.nodeByAddress['0122501'].ktype)
-	elt('0024507', diagram.nodeByAddress['0024504'].ktype)
-	elt('0023507', diagram.nodeByAddress['0023504'].ktype)
-	elt('0032507', diagram.nodeByAddress['0032501'].ktype)
-	elt('0024307', diagram.nodeByAddress['0024304'].ktype)
-	elt('0011107', diagram.nodeByAddress['0011100'].ktype)
-	elt('0122007', diagram.nodeByAddress['0122000'].ktype)
-	elt('0121107', diagram.nodeByAddress['0121100'].ktype)
-	elt('0131007', diagram.nodeByAddress['0131001'].ktype)
-	elt('0131307', diagram.nodeByAddress['0131304'].ktype)
-	elt('0134207', diagram.nodeByAddress['0134201'].ktype)
+	# elt('0122507', diagram.nodeByAddress['0122501'].ktype)
+	# elt('0024507', diagram.nodeByAddress['0024504'].ktype)
+	# elt('0023507', diagram.nodeByAddress['0023504'].ktype)
+	# elt('0032507', diagram.nodeByAddress['0032501'].ktype)
+	# elt('0024307', diagram.nodeByAddress['0024304'].ktype)
+	# elt('0011107', diagram.nodeByAddress['0011100'].ktype)
+	# elt('0122007', diagram.nodeByAddress['0122000'].ktype)
+	# elt('0121107', diagram.nodeByAddress['0121100'].ktype)
+	# elt('0131007', diagram.nodeByAddress['0131001'].ktype)
+	# elt('0131307', diagram.nodeByAddress['0131304'].ktype)
+	# elt('0134207', diagram.nodeByAddress['0134201'].ktype)
 
-	# show(diagram)
-	# input2("...")
+	elt('1000007', 5)
+	elt('1200407', 3)
+	est('1200507', 2)
+	est('1200107', 6)
 	
-	# ---------------------------- #
+	est('1000207', 2)
+	est('1002107', 4)
+	elt('1002007', 5)
+	elt('1002407', 7)
+	
+	show(diagram)
+	input2("...")
+	
+	# ---------------------------- #	
 	
 	startTime = time()
 	leap()
@@ -288,7 +298,7 @@ if __name__ == "__main__":
 	input2(f"[leap] « [step] // nl")
 
 	# ============================ #
-	
+	'''
 	elt('0001007', 5)
 	elt('0001207', 3)
 	elt('0010007', 6)
@@ -324,7 +334,7 @@ if __name__ == "__main__":
 				diagram.collapseBack(loop)				
 			
 	print(f"unavailed: {unavailed} | remaining avcolumns: {len([col for col in diagram.columns if col.isAvailabled()])}")
-				
+	'''
 	# ---------------------------- #
 	
 	diagram.point()

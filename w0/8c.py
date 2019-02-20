@@ -225,13 +225,13 @@ if __name__ == "__main__":
 	not av: ⟨column:22@0001504(ktype:3)|t:6|cL:36|bb:27⟩
 	not av: ⟨column:47@0010101(ktype:4)|t:6|cL:36|bb:15⟩	
 	'''
-	for id in [0, 1, 2, 3, 4, 5,
-		18, 25, 34,
-		13, 16, 49,
-		 9, 15, 28,
-		10, 22, 47
-	]:
-		diagram.columnByID[id].unavailabled = True
+	# for id in [0, 1, 2, 3, 4, 5,
+	# 	18, 25, 34,
+	# 	13, 16, 49,
+	# 	 9, 15, 28,
+	# 	10, 22, 47
+	# ]:
+	# 	diagram.columnByID[id].unavailabled = True
 						
 	avcolumns = [col for col in diagram.columns if col.isAvailabled()]
 	print(f"avcolumns: {len(avcolumns)}")	
@@ -239,7 +239,7 @@ if __name__ == "__main__":
 	# ---------------------------- #			
 	
 	# ∘ long column 
-	ec('0001003') # [C] [⟨column:6@0001003(ktype:3)|t:6|cL:36|bb:27⟩]	# x3 = elt('1000007', 5) # {a}		
+	# ec('0001003') # [C] [⟨column:6@0001003(ktype:3)|t:6|cL:36|bb:27⟩]	# x3 = elt('1000007', 5) # {a}		
 	# x3 = elt('1000006', 5) # {y}	
 	# x3 = elt('1000206', 2) # {b}	
 	# ec('0001402') # [E] [⟨column:21@0001402(ktype:6)|t:6|cL:36|bb:27⟩] # x3 = elt('1000207', 2) # {z}		
@@ -262,11 +262,11 @@ if __name__ == "__main__":
 	not av: ⟨column:83@0024001(ktype:5)|t:6|cL:36|bb:27⟩
 	not av: ⟨column:98@0032204(ktype:6)|t:6|cL:36|bb:26⟩	
 	'''
-	for id in [
-		 6,  7, 42, 66, 73,
-		21, 20, 29, 83, 98
-	]:
-		diagram.columnByID[id].unavailabled = True	
+	# for id in [
+	# 	 6,  7, 42, 66, 73,
+	# 	21, 20, 29, 83, 98
+	# ]:
+	# 	diagram.columnByID[id].unavailabled = True	
 		
 	# ---------------------------- #			
 
@@ -302,11 +302,11 @@ if __name__ == "__main__":
 	not av: ⟨column:30@0002101(ktype:3)|t:6|cL:36|bb:26⟩
 	not av: ⟨column:41@0002504(ktype:7)|t:3|cL:18|bb:15⟩	
 	'''
-	for id in [
-		50, 53,
-		30, 41
-	]:
-		diagram.columnByID[id].unavailabled = True	
+	# for id in [
+	# 	50, 53,
+	# 	30, 41
+	# ]:
+	# 	diagram.columnByID[id].unavailabled = True	
 		
 	print(f"avcolumns: {len([col for col in diagram.columns if col.isAvailabled()])}")			
 	for col in avcolumns:
@@ -318,7 +318,7 @@ if __name__ == "__main__":
 	avcolumns = [col for col in diagram.columns if col.isAvailabled()]
 	print(f"avcolumns: {len(avcolumns)}")			
 
-	ec('0010104') # [K] ⟨column:46@0010104(ktype:2)|t:6|cL:36|bb:15⟩ # 1:elt:a
+	# ec('0010104') # [K] ⟨column:46@0010104(ktype:2)|t:6|cL:36|bb:15⟩ # 1:elt:a
 	# ec('0002102') # [G] ⟨column:32@0002102(ktype:7)|t:6|cL:36|bb:15⟩ # 1:elt:z
 	for col in avcolumns:
 		if not col.isAvailabled():
@@ -360,11 +360,11 @@ if __name__ == "__main__":
 	not av: ⟨column:33@0002200(ktype:3)|t:6|cL:36|bb:26⟩
 	not av: ⟨column:60@0011100(ktype:4)|t:6|cL:36|bb:15⟩	
 	'''
-	for id in [
-		46, 45, 59,
-		32, 33, 60
-	]:
-		diagram.columnByID[id].unavailabled = True	
+	# for id in [
+	# 	46, 45, 59,
+	# 	32, 33, 60
+	# ]:
+	# 	diagram.columnByID[id].unavailabled = True	
 		
 	avcolumns = [col for col in diagram.columns if col.isAvailabled()]
 	print(f"avcolumns: {len(avcolumns)}")
@@ -372,19 +372,19 @@ if __name__ == "__main__":
 	# ---------------------------- #			
 
 	# ∘ blue {az} # 2:blue
-	et('1000107') 
+	# et('1000107') 
 	
 	# ∘ green # 3:green
-	et('1000206') # {a}
+	# et('1000206') # {a}
 	# et('1000006') # {z}
 
 	avcolumns = [col for col in diagram.columns if col.isAvailabled()]
 	print(f"avcolumns: {len(avcolumns)}")
 	
 	# ∘ blue {az} follow-up # 4:blue
-	et('1000307') 
-	et('1000407')
-	et('1000507')	
+	# et('1000307') 
+	# et('1000407')
+	# et('1000507')	
 					
 	# ex:a[0-5]
 	# for node in diagram.bases:
@@ -451,13 +451,13 @@ if __name__ == "__main__":
 	avcolumns: 83
 	not av: ⟨column:31@0002100(ktype:4)|t:6|cL:36|bb:27⟩	
 	'''
-	for id in [
-		23, 24,
-		12, 14, 
-		48, 31,
-		11, 17
-	]:
-		diagram.columnByID[id].unavailabled = True # ⇒ avcolumns: 82
+	# for id in [
+	# 	23, 24,
+	# 	12, 14, 
+	# 	48, 31,
+	# 	11, 17
+	# ]:
+	# 	diagram.columnByID[id].unavailabled = True # ⇒ avcolumns: 82
 		
 	avcolumns = [col for col in diagram.columns if col.isAvailabled()]
 	print(f"avcolumns: {len(avcolumns)}")			
@@ -465,7 +465,7 @@ if __name__ == "__main__":
 	# ---------------------------- #			
 
 	# ∘ short column # 5:est
-	est('1000207', 2) # [E] [⟨column:21@0001402(ktype:6)|t:6|cL:36|bb:27⟩] # {a} ~> 0:elt:z
+	# est('1000207', 2) # [E] [⟨column:21@0001402(ktype:6)|t:6|cL:36|bb:27⟩] # {a} ~> 0:elt:z
 	# x4 = est('1000206', 2) # {y}
 	# x4 = est('1000006', 5) # {b}	
 	# est('1000007', 5) # [C] [⟨column:6@0001003(ktype:3)|t:6|cL:36|bb:27⟩] # {z} ~> 0:elt:a
@@ -475,7 +475,7 @@ if __name__ == "__main__":
 
 	# ---------------------------- #			
 
-	nx = est('1220507', 2) # [C] [⟨column:93@0024403(ktype:5)|t:6|cL:36|bb:27⟩]
+	# nx = est('1220507', 2) # [C] [⟨column:93@0024403(ktype:5)|t:6|cL:36|bb:27⟩]
 	# nx = est('1220507', 3) # [G] [⟨column:32@0002102(ktype:7)|t:6|cL:36|bb:15⟩] # ~> 1:elt:z
 	# nx = est('1220507', 5) # [C] [⟨column:95@0024502(ktype:5)|t:6|cL:36|bb:27⟩]
 	# nx = est('1220507', 7) # [K] [⟨column:109@0034300(ktype:6)|t:3|cL:18|bb:15⟩]
@@ -486,17 +486,59 @@ if __name__ == "__main__":
 			print(f'not av: {col}')			
 	avcolumns = [col for col in diagram.columns if col.isAvailabled()]
 
-	nx += elt('1220007', 7)
-	nx += elt('1220107', 3)
-	nx += elt('1220207', 2)
-	
-	nx += elt('1234007', 6)
+	# nx += elt('1220007', 7)
+	# nx += elt('1220107', 3)
+	# nx += elt('1220207', 2)
+	# 
+	# nx += elt('1234007', 6)
 	
 	# nx = est('0232307', 7)
-			
+
+	# »»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» #
+	 
+	print(f"avcolumns: {len([col for col in diagram.columns if col.isAvailabled()])}")			
+	avcolumns = [col for col in diagram.columns if col.isAvailabled()]
+		
+	nx = []
+	
+	nx += elt('1000007', 5)
+	nx += elt('1200407', 3)
+	nx += est('1200507', 2)
+	nx += est('1200107', 6)
+	
+	nx = est('1000207', 2)
+	nx = est('1002107', 4)
+	nx = elt('1002007', 5)
+	nx = elt('1002407', 7)
+									
 	diagram.pointers = list(itertools.chain(*[itertools.chain(*[ntn.loop.nodes for ntn in n.tuple]) for n in nx]))
 	show(diagram)
-																					
+
+	print(f"avcolumns: {len([col for col in diagram.columns if col.isAvailabled()])}")			
+	for col in avcolumns:
+		if not col.isAvailabled():
+			print(f'not av: {col}')			
+	avcolumns = [col for col in diagram.columns if col.isAvailabled()]
+	
+	'''
+	[ex] ⇒ extended 0000001… 
+	avcolumns: 80
+	not av: ⟨column:15@0001204(ktype:6)|t:6|cL:36|bb:27⟩
+	not av: ⟨column:16@0001300(ktype:3)|t:6|cL:36|bb:27⟩
+	not av: ⟨column:34@0002204(ktype:5)|t:6|cL:36|bb:15⟩
+	not av: ⟨column:46@0010104(ktype:2)|t:6|cL:36|bb:15⟩
+	not av: ⟨column:50@0010204(ktype:6)|t:6|cL:36|bb:26⟩
+	not av: ⟨column:72@0023003(ktype:4)|t:6|cL:36|bb:27⟩
+	not av: ⟨column:78@0023300(ktype:4)|t:6|cL:36|bb:27⟩
+	not av: ⟨column:88@0024200(ktype:4)|t:6|cL:36|bb:27⟩
+	'''		
+	for id in [15, 16, 34, 46, 50, 72, 78, 88]:
+		diagram.columnByID[id].unavailabled = True # ⇒ avcolumns: 80j
+	
+	print(f"avcolumns: {len([col for col in diagram.columns if col.isAvailabled()])}")			
+	
+	# »»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»» #
+	
 	# ex:a[0-5]
 	# for node in diagram.bases:
 	# 	extend(node.address)

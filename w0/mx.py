@@ -36,7 +36,7 @@ class MX (object):
 		
 		for it, tuple in enumerate(avtuples):		
 			# print(f"[purge] testing: {[l.label() for l in sorted(tuple, key = lambda loop: (loop.ktype_radialIndex, loop.ktype))]}")
-			#if it % 10 == 0: print(f"[purge] @ {it}/{len(avtuples)}")
+			if it % 10 == 0: print(f"[purge] @ {it}/{len(avtuples)}")
 			
 			# try extend tuple
 			ec = 0

@@ -81,7 +81,8 @@ class Diagram (object):
 		self.walk()				
 		
 		# generate columns for leaps
-		self.generateColumns()
+		if self.spClass % 2 == 0:
+			self.generateColumns()
 												
 		# generate initial kernel if needed								
 		if self.kernelSize > 0:
@@ -330,7 +331,7 @@ class Diagram (object):
 
 		loop.extension_result.setExtensionDetails(new_chain, affected_loops, affected_chains, updated_chains)
 
-		loop.extension_result.kfPreviousFields = KillingField.fixExtendLoop(loop)
+		# loop.extension_result.kfPreviousFields = KillingField.fixExtendLoop(loop) // [~][kF]
 		#KillingField.assessAllLoops(self)
 
 		##assert set(list(itertools.chain(*[chain.avloops for chain in diagram.chains]))) == set([loop for loop in diagram.loops if loop.availabled and len([n for n in loop.nodes if n.cycle.chain])])
@@ -341,7 +342,7 @@ class Diagram (object):
 	def collapseBack(self, loop):	
 		#print(f"[collapse] loop: {loop}")		
 		
-		KillingField.fixCollapseBack(loop.extension_result.kfPreviousFields)				
+		# KillingField.fixCollapseBack(loop.extension_result.kfPreviousFields)				
 				
 		self.breakChain(loop.extension_result)
 		loop.extended = False
