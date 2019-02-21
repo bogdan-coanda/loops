@@ -578,11 +578,16 @@ class Diagram (object):
 				knodes = [node for node in itertools.chain(*[node.cycle.nodes for node in loop.nodes]) if node.loop.availabled and node.loop.ktype > 1]
 				for ktype in range(2, self.spClass):
 					column_nodes = [node for node in knodes if node.ktype == ktype]
-					if len(column_nodes) == self.spClass-1:
+					
+					# [~] keep just the shaft of the column
+					headLoops = [node.loop for node in column_nodes if node.address[-2] in ['0', str(self.spClass-2)]]
+					column_nodes = [node for node in column_nodes if node.loop not in headLoops]
+							
+					if len(column_nodes) > 0: # [~] == self.spClass-1:
 						kloops = set([n.loop for n in column_nodes])
-						assert len(kloops) == self.spClass-2
+						# assert len(kloops) == self.spClass-2
 						tuples = set([l.tuple for l in kloops])
-						self.columnAutoInc += 1
+						self.columnAutoInc += 1						
 						column = Column(self.columnAutoInc, tuples)
 						self.columns.append(column)
 						self.columnByID[column.id] = column
@@ -597,7 +602,7 @@ class Diagram (object):
 			if loop.ktype == 0:				
 				topDownCycles = sorted([n.cycle for n in loop.nodes], key = lambda c: c.py)
 				for ktype in range(2, self.spClass):
-					knode = [n for n in topDownCycles[0].nodes if n.ktype == ktype][0]
+					knode = [n for n in topDownCycles[2].nodes if n.ktype == ktype][0]
 					kcols = [col for col in self.columns if knode.loop.tuple in col.tuples]
 					assert len(kcols) == 1
 					loop.columnByKType[ktype] = kcols[0]

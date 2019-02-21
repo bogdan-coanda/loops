@@ -133,7 +133,7 @@ def leap(lvl=0, path=[]):
 		
 	# save
 	if lvl >= max_lvl_reached:
-		with open('8b-leaps_reached_4', 'a', encoding="utf8") as log:
+		with open('8b-leaps_reached_5sh', 'a', encoding="utf8") as log:
 			if lvl > max_lvl_reached:
 				log.write("-------------------------" + "\n\n")
 			log.write(f"{key()} {'.'.join([(str(x)+upper(t)) for x,t,_ in path])}" + "\n")
@@ -174,6 +174,8 @@ def leap(lvl=0, path=[]):
 	avcolumns = sorted(avcolumns, key = lambda c: (-nextavlen[c.firstNode.address], c.firstNode.address))
 	print(f"{key()} avcolumns: {len(avcolumns)}")
 	for ic, column in enumerate(avcolumns):
+		if ic == 4:
+			break
 				
 		extended = []
 		for tuple in column.tuples:
@@ -286,8 +288,29 @@ if __name__ == "__main__":
 	elt('1002007', 5)
 	elt('1002407', 7)
 	
-	show(diagram)
-	input2("...")
+	# [   2m17s.30][lvl:13] 1⁵⁶.0⁵⁰.0⁴⁵.0⁴⁰.0³³.1²⁷.3¹⁹.0¹³.0¹⁰.0⁷.0⁵.0³.0¹
+	# columns: 0001503 0002404 0001100 0024201 0002200 0001304 0011000 0023404 0024002 0134003 0010200 0023200 0033201
+	columns = [ 
+		# [   0m1s.804][lvl:6] 0¹².0¹¹.0¹⁰.1⁶.0³.0²
+		# columns: 0002200 0002404 0023102 0001200 0024201 0001503
+		# 
+		# [   0m1s.835][lvl:6] 0¹².0¹¹.0¹⁰.1⁶.0³.1²
+		# columns: 0002200 0002404 0023102 0001200 0024201 0122000
+		# 
+		# [   0m3s.423][lvl:6] 0¹².0¹¹.1¹⁰.1⁸.0².0¹
+		# columns: 0002200 0002404 0024201 0001304 0001100 0001503		
+		
+		#'0001503', '0002404', '0001100', 
+		# '0024201', '0002200', '0001304', 
+		# '0011000', '0023404', '0024002', 
+		#'0134003', '0010200', '0023200', '0033201'
+		]
+		
+	for addr in columns:
+		elt(addr[:-1]+'7', diagram.nodeByAddress[addr].ktype)
+	
+	# show(diagram)
+	# input2("...")
 	
 	# ---------------------------- #	
 	
