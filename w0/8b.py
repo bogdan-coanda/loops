@@ -174,7 +174,7 @@ def leap(lvl=0, path=[]):
 	avcolumns = sorted(avcolumns, key = lambda c: (-nextavlen[c.firstNode.address], c.firstNode.address))
 	print(f"{key()} avcolumns: {len(avcolumns)}")
 	for ic, column in enumerate(avcolumns):
-		if (lvl == 0 and ic < 2) or (lvl == 3 and path[0][0] == 2 and path[1][0] == 0 and path[2][0] == 0 and ic < 2):
+		if (lvl == 0 and ic < 3) or (lvl == 1 and ic < 1) or (lvl == 3 and path[0][0] == 3 and path[1][0] == 1 and path[2][0] == 0 and ic < 3):
 			unavailed.append(column)
 			column.unavailabled = True
 			continue
