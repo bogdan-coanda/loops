@@ -65,7 +65,7 @@ def jump(avtuples, lvl=0, path=[]):
 	# print(f"{key()}[mx] 3. avtuples: {len(avtuples)} / {len(diagram.loop_tuples)}")	
 
 	if lvl >= max_jump_lvl_reached:
-		with open('8d-jumps_reached', 'a', encoding="utf8") as log:
+		with open('8d-B-jumps_reached', 'a', encoding="utf8") as log:
 			if lvl > max_jump_lvl_reached:
 				log.write("-------------------------" + "\n\n")
 			log.write(f"{key()} {'.'.join([(str(x)+upper(t)) for x,t,_ in path])}" + "\n")
@@ -109,6 +109,9 @@ def jump(avtuples, lvl=0, path=[]):
 		
 	# go through all choices
 	for it, t in enumerate(min_matched_tuples):
+		if lvl == 0 and it < 1:
+			avtuples.remove(t)
+			continue
 		if t in avtuples: # [~][!] needed if no purge
 						
 			ec = 0
@@ -288,7 +291,8 @@ if __name__ == "__main__":
 				
 	# ============================ #	
 		
-	caddrs = ['0001110', '0001511', '0002225', '0023413', '0023512', '0113011']
+	#caddrs = ['0001110', '0001511', '0002225', '0023413', '0023512', '0113011']
+	caddrs = ['0001313', '0001512', '0010025', '0032312', '0032411', '0122213']
 	ctuples = itertools.chain(*[c.tuples for c in diagram.columns if c.firstNode.address in caddrs])
 	
 	extended = []
