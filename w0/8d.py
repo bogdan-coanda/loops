@@ -67,7 +67,7 @@ def jump(avtuples, lvl=0, path=[]):
 	if len(unicycle_chains) <= min_jump_unicycles:
 	#if lvl >= max_jump_lvl_reached:
 		# t13-05 # t12-03
-		with open('8d-t10-a3a4-min_unicycles_reached', 'a', encoding="utf8") as log:
+		with open('8d-t10-b0b1-min_unicycles_reached', 'a', encoding="utf8") as log:
 			if len(unicycle_chains) < min_jump_unicycles:
 			#if lvl > max_jump_lvl_reached:				
 				log.write("-------------------------" + "\n\n")
@@ -296,15 +296,16 @@ if __name__ == "__main__":
 	# ============================ #	
 		
 	caddrs = [
+		# [t10-a1a4] unicycle chains: 108
 		'0001110', # a0
 		'0001511', # a1
 		'0002225', # a2
-		# '0023413', # a3
-		# '0023512', # a4
+		'0023413', # a3
+		'0023512', # a4
 		#'0113011',
 		
-		'0010225', # b0
-		'0033210', # b1
+		# '0010225', # b0
+		# '0033210', # b1
 		'0023111', # b2
 		#'0001225', 	
 		'0002413', # b3
