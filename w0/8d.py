@@ -4,6 +4,7 @@ from common import *
 from mx import *
 from time import time
 
+max_jump_lvl_reached = 0
 
 
 def step(avloops, jump_lvl, jump_path, step_lvl=0, step_path=[]):
@@ -37,61 +38,73 @@ def step(avloops, jump_lvl, jump_path, step_lvl=0, step_path=[]):
 	
 
 def jump(avtuples, lvl=0, path=[]):
+	global max_jump_lvl_reached
 	
 	def key():
 		return f"[{tstr(time() - startTime):>11}][lvl:{lvl}]" 
 	
-	print(f"{key()} {'.'.join([(str(x)+upper(t)) for x,t in path])}")
+	print(f"{key()} {'.'.join([(str(x)+upper(t)) for x,t,_ in path])}")
 	
 	min_chlen = mx.min_chain_avloops_length()	
-	print(f"{key()}[mx] 1. min_chlen: {min_chlen}")	
+	# print(f"{key()}[mx] 1. min_chlen: {min_chlen}")	
 	
 	if min_chlen == 0:
-		print(f"{key()}[mx] ⇒ dead @ unconnectable")
+		# print(f"{key()}[mx] ⇒ dead @ unconnectable")
 		return
 		
 	unicycle_chains = mx.filter_unicycle_chains()	
-	print(f"{key()}[mx] 2. unicycle chains: {len(unicycle_chains)}")	
-		
+	# print(f"{key()}[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+				
 	if len(unicycle_chains) == 0:
-		print(f"{key()}[mx] ⇒ all cycles covered by tuples")
+		input2(f"{key()}[mx] ⇒ all cycles covered by tuples !!!")
 		step([l for l in diagram.loops if l.availabled], lvl, path)
 		input2(f"[jump] « [step] // cc")
 		return			
 		
 	avtuples = mx.filter_avtuples(avtuples)	
-	print(f"{key()}[mx] 3. avtuples: {len(avtuples)} / {len(diagram.loop_tuples)}")	
+	# print(f"{key()}[mx] 3. avtuples: {len(avtuples)} / {len(diagram.loop_tuples)}")	
+
+	if lvl >= max_jump_lvl_reached:
+		with open('8d-jumps_reached', 'a', encoding="utf8") as log:
+			if lvl > max_jump_lvl_reached:
+				log.write("-------------------------" + "\n\n")
+			log.write(f"{key()} {'.'.join([(str(x)+upper(t)) for x,t,_ in path])}" + "\n")
+			log.write(f"tuples: {' '.join([a for _,_,a in path])}" + "\n")
+			log.write(f"{key()}[mx] 1. min_chlen: {min_chlen}" + "\n")	
+			log.write(f"{key()}[mx] 2. unicycle chains: {len(unicycle_chains)}" + "\n")	
+			log.write(f"{key()}[mx] 3. avtuples: {len(avtuples)} / {len(diagram.loop_tuples)}" + "\n\n")	
+			max_jump_lvl_reached = lvl		
 
 	if len(avtuples) == 0:
-		print(f"{key()}[mx] ⇒ no tuples remaining")
+		# print(f"{key()}[mx] ⇒ no tuples remaining")
 		# step([l for l in diagram.loops if l.availabled], lvl, path)
 		# input2(f"[jump] « [step] // nt")
 		return			
 				
 	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
-	print(f"{key()}[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")		
+	# print(f"{key()}[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")		
 
 	if len(min_nodes) == 0:
-		print(f"{key()}[mx] ⇒ dead @ not coverable")
+		# print(f"{key()}[mx] ⇒ dead @ not coverable")
 		return
 		
 	if lvl < 1 and len(min_nodes) > 1:
-		print(f"{key()}[mx] ⇒ not single choice, purging…")
+		# print(f"{key()}[mx] ⇒ not single choice, purging…")
 		
 		# [~] next_single_choices is unused ?
 		avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
-		print(f"{key()}[mx][purge] avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+		# print(f"{key()}[mx][purge] avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
 
 		if len(avtuples) == 0:
-			print(f"{key()}[mx][purge] ⇒ no tuples remaining")
+			# print(f"{key()}[mx][purge] ⇒ no tuples remaining")
 			# step([l for l in diagram.loops if l.availabled], lvl, path)
 			# input2(f"[jump] « [step] // nt")
 			return			
 												
 		min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)
-		print(f"{key()}[mx][purge] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")
+		# print(f"{key()}[mx][purge] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")
 	else:
-		print(f"{key()}[mx] ⇒ single choice.")
+		# print(f"{key()}[mx] ⇒ single choice.")
 		pass
 		
 	# go through all choices
@@ -106,7 +119,7 @@ def jump(avtuples, lvl=0, path=[]):
 					break
 	
 			if ec == len(t): # if we've extended all of the tuple's loops
-				jump(avtuples, lvl+1, path+[(it,len(min_matched_tuples))])
+				jump(avtuples, lvl+1, path+[(it,len(min_matched_tuples),t[0].nodes[0].address)])
 	
 			for l in reversed(t[:ec]):
 				diagram.collapseBack(l)	
@@ -114,7 +127,7 @@ def jump(avtuples, lvl=0, path=[]):
 			# remove tested choice for further jumps		
 			avtuples.remove(t)
 
-	print(f"{key()} ⇒ finished all choices")
+	# print(f"{key()} ⇒ finished all choices")
 	
 	
 # ========================================== #
@@ -274,6 +287,18 @@ if __name__ == "__main__":
 	# ec('0113200') # ⟨column:112@0113200(ktype:5)|t:3|cL:18|bb:15⟩
 				
 	# ============================ #	
+		
+	caddrs = ['0001110', '0001511', '0002225', '0023413', '0023512', '0113011']
+	ctuples = itertools.chain(*[c.tuples for c in diagram.columns if c.firstNode.address in caddrs])
+	
+	extended = []
+	for tuple in ctuples:
+		for loop in tuple:
+			if diagram.extendLoop(loop):
+				extended.append(loop)
+			else:
+				break
+		
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #		
 		
 	min_chlen = mx.min_chain_avloops_length()	
@@ -284,6 +309,9 @@ if __name__ == "__main__":
 		
 	avtuples = mx.filter_avtuples()	
 	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")		
+	
+	# diagram.pointers = list(itertools.chain(*[l.nodes for l in extended]))
+	# show(diagram)
 	
 	startTime = time()
 	jump(avtuples)
@@ -503,6 +531,6 @@ if __name__ == "__main__":
 	# ---------------------------- #
 		
 	diagram.point()
-	# diagram.pointers += list(itertools.chain(*[n.loop.nodes for n in nx]))	
+	#diagram.pointers += list(itertools.chain(*[n.loop.nodes for n in nx]))	
 	# diagram.pointers = list(itertools.chain(*[n.loop.nodes for n in diagram.nodes if n.loop.availabled and n.ktype > 1 and n.address.startswith('00200')]))
 	show(diagram)
