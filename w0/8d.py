@@ -65,7 +65,7 @@ def jump(avtuples, lvl=0, path=[]):
 	# print(f"{key()}[mx] 3. avtuples: {len(avtuples)} / {len(diagram.loop_tuples)}")	
 
 	if lvl >= max_jump_lvl_reached:
-		with open('8d-B-jumps_reached', 'a', encoding="utf8") as log:
+		with open('8d-Aend-jumps_reached', 'a', encoding="utf8") as log:
 			if lvl > max_jump_lvl_reached:
 				log.write("-------------------------" + "\n\n")
 			log.write(f"{key()} {'.'.join([(str(x)+upper(t)) for x,t,_ in path])}" + "\n")
@@ -77,8 +77,8 @@ def jump(avtuples, lvl=0, path=[]):
 
 	if len(avtuples) == 0:
 		# print(f"{key()}[mx] ⇒ no tuples remaining")
-		# step([l for l in diagram.loops if l.availabled], lvl, path)
-		# input2(f"[jump] « [step] // nt")
+		step([l for l in diagram.loops if l.availabled], lvl, path)
+		input2(f"[jump] « [step] // nt")
 		return			
 				
 	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
@@ -97,8 +97,8 @@ def jump(avtuples, lvl=0, path=[]):
 
 		if len(avtuples) == 0:
 			# print(f"{key()}[mx][purge] ⇒ no tuples remaining")
-			# step([l for l in diagram.loops if l.availabled], lvl, path)
-			# input2(f"[jump] « [step] // nt")
+			step([l for l in diagram.loops if l.availabled], lvl, path)
+			input2(f"[jump] « [step] // nt")
 			return			
 												
 		min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)
@@ -109,9 +109,9 @@ def jump(avtuples, lvl=0, path=[]):
 		
 	# go through all choices
 	for it, t in enumerate(min_matched_tuples):
-		if lvl == 0 and it < 1:
-			avtuples.remove(t)
-			continue
+		# if lvl == 0 and it < 1:
+		# 	avtuples.remove(t)
+		# 	continue
 		if t in avtuples: # [~][!] needed if no purge
 						
 			ec = 0
@@ -292,7 +292,8 @@ if __name__ == "__main__":
 	# ============================ #	
 		
 	#caddrs = ['0001110', '0001511', '0002225', '0023413', '0023512', '0113011']
-	caddrs = ['0001313', '0001512', '0010025', '0032312', '0032411', '0122213']
+	# caddrs = ['0001313', '0001512', '0010025', '0032312', '0032411', '0122213']
+	caddrs = ['0010225', '0033210', '0023111', '0001225', '0002413', '0002025', '0010110', '0134012']
 	ctuples = itertools.chain(*[c.tuples for c in diagram.columns if c.firstNode.address in caddrs])
 	
 	extended = []
