@@ -5,7 +5,7 @@ from mx import *
 from time import time
 
 max_jump_lvl_reached = 0
-
+min_jump_unicycles = 99999999999999
 
 def step(avloops, jump_lvl, jump_path, step_lvl=0, step_path=[]):
 	
@@ -38,7 +38,7 @@ def step(avloops, jump_lvl, jump_path, step_lvl=0, step_path=[]):
 	
 
 def jump(avtuples, lvl=0, path=[]):
-	global max_jump_lvl_reached
+	global max_jump_lvl_reached, min_jump_unicycles
 	
 	def key():
 		return f"[{tstr(time() - startTime):>11}][lvl:{lvl}]" 
@@ -64,16 +64,20 @@ def jump(avtuples, lvl=0, path=[]):
 	avtuples = mx.filter_avtuples(avtuples)	
 	# print(f"{key()}[mx] 3. avtuples: {len(avtuples)} / {len(diagram.loop_tuples)}")	
 
-	if lvl >= max_jump_lvl_reached:
-		with open('8d-Aend-jumps_reached', 'a', encoding="utf8") as log:
-			if lvl > max_jump_lvl_reached:
+	if len(unicycle_chains) <= min_jump_unicycles:
+	#if lvl >= max_jump_lvl_reached:
+		# t13-05 # t12-03
+		with open('8d-t10-a0a1-min_unicycles_reached', 'a', encoding="utf8") as log:
+			if len(unicycle_chains) < min_jump_unicycles:
+			#if lvl > max_jump_lvl_reached:				
 				log.write("-------------------------" + "\n\n")
 			log.write(f"{key()} {'.'.join([(str(x)+upper(t)) for x,t,_ in path])}" + "\n")
 			log.write(f"tuples: {' '.join([a for _,_,a in path])}" + "\n")
 			log.write(f"{key()}[mx] 1. min_chlen: {min_chlen}" + "\n")	
 			log.write(f"{key()}[mx] 2. unicycle chains: {len(unicycle_chains)}" + "\n")	
 			log.write(f"{key()}[mx] 3. avtuples: {len(avtuples)} / {len(diagram.loop_tuples)}" + "\n\n")	
-			max_jump_lvl_reached = lvl		
+			#max_jump_lvl_reached = lvl		
+			min_jump_unicycles = len(unicycle_chains)
 
 	if len(avtuples) == 0:
 		# print(f"{key()}[mx] ⇒ no tuples remaining")
@@ -291,9 +295,18 @@ if __name__ == "__main__":
 				
 	# ============================ #	
 		
-	#caddrs = ['0001110', '0001511', '0002225', '0023413', '0023512', '0113011']
-	# caddrs = ['0001313', '0001512', '0010025', '0032312', '0032411', '0122213']
-	caddrs = ['0010225', '0033210', '0023111', '0001225', '0002413', '0002025', '0010110', '0134012']
+	caddrs = [
+		# '0001110', # a0
+		# '0001511', # a1
+		'0002225', # a2
+		'0023413', # a3
+		'0023512', # a4
+		#'0113011',
+		
+		'0010225', '0033210', '0023111', 
+		#'0001225', 	
+		'0002413', '0002025', '0010110', '0134012'
+	]
 	ctuples = itertools.chain(*[c.tuples for c in diagram.columns if c.firstNode.address in caddrs])
 	
 	extended = []
@@ -535,7 +548,8 @@ if __name__ == "__main__":
 	
 	# ---------------------------- #
 		
-	diagram.point()
+	#diagram.point()
 	#diagram.pointers += list(itertools.chain(*[n.loop.nodes for n in nx]))	
 	# diagram.pointers = list(itertools.chain(*[n.loop.nodes for n in diagram.nodes if n.loop.availabled and n.ktype > 1 and n.address.startswith('00200')]))
-	show(diagram)
+	#show(diagram)
+	print('[done]')
