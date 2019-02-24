@@ -67,7 +67,7 @@ def jump(avtuples, lvl=0, path=[]):
 	if len(unicycle_chains) <= min_jump_unicycles:
 	#if lvl >= max_jump_lvl_reached:
 		# t13-05 # t12-03
-		with open('8d-t9-a0-min_unicycles_reached', 'a', encoding="utf8") as log:
+		with open('8d-t8-a0-min_unicycles_reached', 'a', encoding="utf8") as log:
 			if len(unicycle_chains) < min_jump_unicycles:
 			#if lvl > max_jump_lvl_reached:				
 				log.write("-------------------------" + "\n\n")
@@ -304,8 +304,9 @@ if __name__ == "__main__":
 		#'0023512', # -a4
 		#'0113011',
 		
+		# [t9-b1] unicycle chains: 96
 		'0010225', # b0
-		'0033210', # b1
+		#'0033210', # -b1
 		'0023111', # b2
 		#'0001225', 	
 		'0002413', # b3
@@ -313,7 +314,7 @@ if __name__ == "__main__":
 		'0010110', # b5
 		'0134012'  # b6
 	]
-	assert len(caddrs) == 9
+	assert len(caddrs) == 8
 	ctuples = itertools.chain(*[c.tuples for c in diagram.columns if c.firstNode.address in caddrs])
 	
 	extended = []
