@@ -77,7 +77,7 @@ def jump(avtuples, lvl=0, path=[]):
 	if len(unicycle_chains) <= min_jump_unicycles:
 	#if lvl >= max_jump_lvl_reached:
 		# t13-05 # t12-03
-		with open('8d-t7-a0-min_unicycles_reached', 'a', encoding="utf8") as log:
+		with open('8d-t6-min_unicycles_reached', 'a', encoding="utf8") as log:
 			if len(unicycle_chains) < min_jump_unicycles:
 			#if lvl > max_jump_lvl_reached:				
 				log.write("-------------------------" + "\n\n")
@@ -315,16 +315,17 @@ if __name__ == "__main__":
 		
 		# [t9-b1] unicycle chains: 96
 		# [t8-b6] unicycle chains: 78
+		# [t7-b4 & t7-b5] unicycle chains: 78
 		'0010225', # b0
 		#'0033210', # -b1
 		'0023111', # b2
 		#'0001225', 	
 		'0002413', # b3
-		'0002025', # b4
-		'0010110', # b5
+		#'0002025', # =b4
+		#'0010110', # =b5
 		#'0134012'  # -b6
 	]
-	assert len(caddrs) == 7+1
+	assert len(caddrs) == 6
 	ctuples = itertools.chain(*[c.tuples for c in diagram.columns if c.firstNode.address in caddrs])
 	
 	extended = []
@@ -429,8 +430,11 @@ if __name__ == "__main__":
 	[missing:7] min chain count: 487 # 1230207
 	tuples: 22
 	[missing:5] min chain count: 487 # 0230024
+	tuples: 21
+	[missing:1] min chain count: 373 # 1121042
 	'''
-	taddrs = '0210165 1121042 1203107 1020507 0200203 0112507 1021107 0112107 0222207 1122006 1120024 0231143 1131407 0122051 1030354 0121421 0104403 0231161 1014201 0214563 1203024'.split(' ') #
+	'''
+	taddrs = '0210165 1203107 1020507 0200203 0112507 1021107 0112107 0222207 1122006 1120024 0231143 1131407 0122051 1030354 0121421 0104403 0231161 1014201 0214563 1203024'.split(' ') #
 	
 	print(f"tuples: {len(taddrs)}")
 	extended_per_tuple = []
