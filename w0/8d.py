@@ -6,13 +6,20 @@ from time import time
 
 max_jump_lvl_reached = 0
 min_jump_unicycles = 99999999999999
+sid = 0
 
-def step(avloops, jump_lvl, jump_path, step_lvl=0, step_path=[]):
+def step(jump_lvl, jump_path, step_lvl=0, step_path=[]):
+	global min_chain_count, sid
 	
 	def key():
-		return f"[{tstr(time() - startTime):>11}][lvl:{jump_lvl}»{step_lvl}]"
+		return f"[{sid}][{tstr(time() - startTime):>11}][lvl:{jump_lvl}»{step_lvl}]"
 		
-	print(f"{key()}[ch:{len(diagram.chains)}|av:{len(avloops)}] {'.'.join([(str(x)+upper(t)) for x,t in jump_path])}\n» {'.'.join([(str(x)+upper(t)) for x,t in step_path])}")
+	if sid % 100 == 0:
+		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.availabled])}] {'.'.join([(str(x)+upper(t)) for x,t in jump_path])}\n» {'.'.join([(str(x)+upper(t)) for x,t in step_path])}")
+	sid += 1
+	
+	if len(diagram.chains) < min_chain_count:
+		min_chain_count = len(diagram.chains)
 
 	if len(diagram.chains) == 1:
 		show(diagram)
@@ -27,7 +34,7 @@ def step(avloops, jump_lvl, jump_path, step_lvl=0, step_path=[]):
 	
 	for i,n in enumerate(sorted(min_chain.avnodes, key = lambda n: n.address)):
 		assert diagram.extendLoop(n.loop)		
-		step([l for l in avloops if l.availabled], jump_lvl, jump_path, step_lvl+1, step_path+[(i, min_avlen)])
+		step(jump_lvl, jump_path, step_lvl+1, step_path+[(i, min_avlen)])
 		diagram.collapseBack(n.loop)	
 		
 		seen.append(n.loop)
@@ -57,7 +64,7 @@ def jump(avtuples, lvl=0, path=[]):
 				
 	if len(unicycle_chains) == 0:
 		input2(f"{key()}[mx] ⇒ all cycles covered by tuples !!!")
-		step([l for l in diagram.loops if l.availabled], lvl, path)
+		step(lvl, path)
 		input2(f"[jump] « [step] // cc")
 		return			
 		
@@ -67,7 +74,7 @@ def jump(avtuples, lvl=0, path=[]):
 	if len(unicycle_chains) <= min_jump_unicycles:
 	#if lvl >= max_jump_lvl_reached:
 		# t13-05 # t12-03
-		with open('8d-t8-a0-min_unicycles_reached', 'a', encoding="utf8") as log:
+		with open('8d-t7-a0-min_unicycles_reached', 'a', encoding="utf8") as log:
 			if len(unicycle_chains) < min_jump_unicycles:
 			#if lvl > max_jump_lvl_reached:				
 				log.write("-------------------------" + "\n\n")
@@ -81,7 +88,7 @@ def jump(avtuples, lvl=0, path=[]):
 
 	if len(avtuples) == 0:
 		# print(f"{key()}[mx] ⇒ no tuples remaining")
-		step([l for l in diagram.loops if l.availabled], lvl, path)
+		step(lvl, path)
 		input2(f"[jump] « [step] // nt")
 		return			
 				
@@ -101,7 +108,7 @@ def jump(avtuples, lvl=0, path=[]):
 
 		if len(avtuples) == 0:
 			# print(f"{key()}[mx][purge] ⇒ no tuples remaining")
-			step([l for l in diagram.loops if l.availabled], lvl, path)
+			step(lvl, path)
 			input2(f"[jump] « [step] // nt")
 			return			
 												
@@ -137,9 +144,8 @@ def jump(avtuples, lvl=0, path=[]):
 	# print(f"{key()} ⇒ finished all choices")
 	
 	
-# ========================================== #
-
-
+# ========================================== #		
+		
 def simple_step(lvl=0, path=[]):
 	global sid
 	
@@ -305,6 +311,7 @@ if __name__ == "__main__":
 		#'0113011',
 		
 		# [t9-b1] unicycle chains: 96
+		# [t8-b6] unicycle chains: 78
 		'0010225', # b0
 		#'0033210', # -b1
 		'0023111', # b2
@@ -312,9 +319,9 @@ if __name__ == "__main__":
 		'0002413', # b3
 		'0002025', # b4
 		'0010110', # b5
-		'0134012'  # b6
+		#'0134012'  # -b6
 	]
-	assert len(caddrs) == 8
+	assert len(caddrs) == 7
 	ctuples = itertools.chain(*[c.tuples for c in diagram.columns if c.firstNode.address in caddrs])
 	
 	extended = []
@@ -326,7 +333,138 @@ if __name__ == "__main__":
 				break
 		
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #		
+	'''	
+	tuples: 67
+	[missing:64] min chain count: 343 # 0230024 
+	tuples: 66
+	[missing:61] min chain count: 361 # 0003162
+	tuples: 65
+	[missing:14] min chain count: 379	# 0021207
+	tuples: 64
+	[missing:7] min chain count: 397 # 1020307
+	tuples: 63
+	[missing:6] min chain count: 397 # 1231407
+	tuples: 62
+	[missing:5] min chain count: 397 # 0104007
+	tuples: 61
+	[missing:4] min chain count: 397 # 0101407
+	tuples: 60
+	[missing:3] min chain count: 397 # 0010200
+	tuples: 59
+	[missing:2] min chain count: 397 # 0101265
+	tuples: 58
+	[missing:1] min chain count: 397 # 1001361
+	tuples: 57
+	[missing:0] min chain count: 397 # 0200104
+	tuples: 56
+	[missing:2] min chain count: 403 # 1003307
+	tuples: 55
+	[missing:18] min chain count: 403 # 0023225
+	tuples: 54
+	[missing:17] min chain count: 403	# 0231161
+	tuples: 53
+	[missing:16] min chain count: 403	# 0104225
+	tuples: 52
+	[missing:15] min chain count: 403	# 0013002
+	tuples: 51
+	[missing:13] min chain count: 403 # 0113507
+	tuples: 50
+	[missing:10] min chain count: 403	# 1203365
+	tuples: 49
+	[missing:9] min chain count: 403 # 1020507
+	tuples: 48
+	[missing:18] min chain count: 403	# 1134407
+	tuples: 47
+	[missing:18] min chain count: 403 # 1033407
+	tuples: 46
+	[missing:18] min chain count: 403	# 0001144
+	tuples: 45
+	[missing:7] min chain count: 403 # 1233407
+	tuples: 44
+	[missing:6] min chain count: 403 # 0131000
+	tuples: 43
+	[missing:3] min chain count: 403 # 1121042
+	tuples: 42
+	[missing:15] min chain count: 403	# 1100507
+	tuples: 41
+	[missing:2] min chain count: 403 # 0030161
+	tuples: 40
+	[missing:14] min chain count: 403	# 0031010
+	tuples: 39
+	[missing:2] min chain count: 421 # 0002465
+	tuples: 38
+	[missing:2] min chain count: 445 # 1012033
+	tuples: 37
+	[missing:32] min chain count: 409	# 1103307
+	tuples: 36
+	[missing:35] min chain count: 391	# 0212307
+	tuples: 35
+	[missing:30] min chain count: 415	# 1213407
+	tuples: 34
+	[missing:29] min chain count: 415 # 1223107
+	tuples: 33
+	[missing:28] min chain count: 415 # 0122051
+	tuples: 32
+	[missing:23] min chain count: 415 # 1013033
+	tuples: 31
+	[missing:22] min chain count: 415	# 0213042
+	tuples: 30
+	[missing:20] min chain count: 415	# 0020063
+	tuples: 29
+	[missing:14] min chain count: 415	# 1000307
+	tuples: 28
+	[missing:4] min chain count: 415 # 1201343
+	tuples: 27
+	[missing:16] min chain count: 415	# 0004007
+	'''
+	'''
+	taddrs = '1211407 1121006 1203107 0231143 0222207 0204011 0112507 1021107 0112107 1112207 1021307 0004431 0210165 0004413 1100462 0104403 0200203 1014007 1122006 1131407 1122024 1120024 1104107 0214062 0214563 0234262'.split(' ') #
+	
+	print(f"tuples: {len(taddrs)}")
+	extended_per_tuple = []
+	
+	for it,addr in enumerate(taddrs[:-1]):
+		extended_per_tuple += [[]]
+		tuple = diagram.nodeByAddress[addr].loop.tuple		
+		for il,loop in enumerate(tuple):
+			if not loop.extended:
+				assert diagram.extendLoop(loop)
+				extended_per_tuple[it].append(loop)
+				
+	mccs = {}
+	λ = len(extended_per_tuple)
+	for target_index in reversed(range(len(taddrs))):
+		print(f"target_index: {target_index}")		
+		to_remove_length = len(taddrs) - target_index - 1# ()
+		print(f"to_remove_length: {to_remove_length}")
+		for index in range(to_remove_length):
+			#print(f"collapsing reversed index: {index}")			
+			extended = extended_per_tuple.pop()
+			for loop in reversed(extended):
+				diagram.collapseBack(loop)
+		for it in range(target_index + 1, len(taddrs)):
+			#print(f"re-extending it: {it}")
+			extended_per_tuple += [[]]
+			tuple = diagram.nodeByAddress[taddrs[it]].loop.tuple		
+			for il,loop in enumerate(tuple):
+				if not loop.extended:
+					assert diagram.extendLoop(loop)
+					extended_per_tuple[-1].append(loop)		 					
+		assert λ == len(extended_per_tuple)
 		
+		startTime = time()
+		min_chain_count = len(diagram.chains)+1
+		step(target_index, [])
+		mccs[target_index] = min_chain_count
+		
+	print(f"tuples: {len(taddrs)}")		
+	for target_index, min_chain_count in sorted(mccs.items(), key = lambda p: p[1]):
+		print(f"[missing:{target_index}] min chain count: {min_chain_count}")	
+
+	input2("--- --- ---")
+	'''
+	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #		
+					
 	min_chlen = mx.min_chain_avloops_length()	
 	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
 	
@@ -341,6 +479,7 @@ if __name__ == "__main__":
 	
 	startTime = time()
 	jump(avtuples)
+	# step(0, [])
 	
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #		
 		
@@ -556,8 +695,8 @@ if __name__ == "__main__":
 	
 	# ---------------------------- #
 		
-	#diagram.point()
+	# diagram.point()
 	#diagram.pointers += list(itertools.chain(*[n.loop.nodes for n in nx]))	
 	# diagram.pointers = list(itertools.chain(*[n.loop.nodes for n in diagram.nodes if n.loop.availabled and n.ktype > 1 and n.address.startswith('00200')]))
-	#show(diagram)
+	# show(diagram)
 	print('[done]')
