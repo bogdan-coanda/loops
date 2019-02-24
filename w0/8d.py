@@ -3,6 +3,9 @@ from uicanvas import *
 from common import *
 from mx import *
 from time import time
+import sys
+sys.setrecursionlimit(1024)
+
 
 max_jump_lvl_reached = 0
 min_jump_unicycles = 99999999999999
@@ -14,7 +17,7 @@ def step(jump_lvl, jump_path, step_lvl=0, step_path=[]):
 	def key():
 		return f"[{sid}][{tstr(time() - startTime):>11}][lvl:{jump_lvl}»{step_lvl}]"
 		
-	if sid % 100 == 0:
+	if sid % 1000 == 0:
 		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.availabled])}] {'.'.join([(str(x)+upper(t)) for x,t in jump_path])}\n» {'.'.join([(str(x)+upper(t)) for x,t in step_path])}")
 	sid += 1
 	
@@ -303,7 +306,7 @@ if __name__ == "__main__":
 		
 	caddrs = [
 		# [t10-a1a4] unicycle chains: 108
-		#'0001110', # a0
+		'0001110', # a0
 		#'0001511', # -a1
 		'0002225', # a2
 		'0023413', # a3
@@ -321,7 +324,7 @@ if __name__ == "__main__":
 		'0010110', # b5
 		#'0134012'  # -b6
 	]
-	assert len(caddrs) == 7
+	assert len(caddrs) == 7+1
 	ctuples = itertools.chain(*[c.tuples for c in diagram.columns if c.firstNode.address in caddrs])
 	
 	extended = []
@@ -335,90 +338,99 @@ if __name__ == "__main__":
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #		
 	'''	
 	tuples: 67
-	[missing:64] min chain count: 343 # 0230024 
+	[missing:11] min chain count: 337	# 1121006
 	tuples: 66
-	[missing:61] min chain count: 361 # 0003162
+	[missing:6] min chain count: 337 # 0101407
 	tuples: 65
-	[missing:14] min chain count: 379	# 0021207
+	[missing:5] min chain count: 337 # 0010200
 	tuples: 64
-	[missing:7] min chain count: 397 # 1020307
+	[missing:3] min chain count: 337 # 1001361
 	tuples: 63
-	[missing:6] min chain count: 397 # 1231407
+	[missing:2] min chain count: 337 # 1000307
 	tuples: 62
-	[missing:5] min chain count: 397 # 0104007
+	[missing:1] min chain count: 337 # 0131000
 	tuples: 61
-	[missing:4] min chain count: 397 # 0101407
+	[missing:0] min chain count: 337 # 0200104
 	tuples: 60
-	[missing:3] min chain count: 397 # 0010200
+	[missing:3] min chain count: 343 # 1020307
 	tuples: 59
-	[missing:2] min chain count: 397 # 0101265
+	[missing:2] min chain count: 349 # 1231407
 	tuples: 58
-	[missing:1] min chain count: 397 # 1001361
+	[missing:1] min chain count: 349 # 0104007
 	tuples: 57
-	[missing:0] min chain count: 397 # 0200104
+	[missing:2] min chain count: 355 # 1003307
 	tuples: 56
-	[missing:2] min chain count: 403 # 1003307
+	[missing:2] min chain count: 355 # 0030161
 	tuples: 55
-	[missing:18] min chain count: 403 # 0023225
+	[missing:1] min chain count: 361 # 1211407
 	tuples: 54
-	[missing:17] min chain count: 403	# 0231161
+	[missing:1] min chain count: 379 # 1134407
 	tuples: 53
-	[missing:16] min chain count: 403	# 0104225
+	[missing:8] min chain count: 367 # 1233407
 	tuples: 52
-	[missing:15] min chain count: 403	# 0013002
+	[missing:20] min chain count: 367	# 0113507
 	tuples: 51
-	[missing:13] min chain count: 403 # 0113507
+	[missing:18] min chain count: 367	# 1100507
 	tuples: 50
-	[missing:10] min chain count: 403	# 1203365
+	[missing:12] min chain count: 367	# 0003162
 	tuples: 49
-	[missing:9] min chain count: 403 # 1020507
+	[missing:20] min chain count: 367	# 1112207
 	tuples: 48
-	[missing:18] min chain count: 403	# 1134407
+	[missing:7] min chain count: 367 # 0020063
 	tuples: 47
-	[missing:18] min chain count: 403 # 1033407
+	[missing:21] min chain count: 367	# 1013033
 	tuples: 46
-	[missing:18] min chain count: 403	# 0001144
+	[missing:6] min chain count: 367 # 0004007
 	tuples: 45
-	[missing:7] min chain count: 403 # 1233407
+	[missing:21] min chain count: 367	# 1014007
 	tuples: 44
-	[missing:6] min chain count: 403 # 0131000
+	[missing:5] min chain count: 367 # 0013002
 	tuples: 43
-	[missing:3] min chain count: 403 # 1121042
+	[missing:3] min chain count: 367 # 0021207
 	tuples: 42
-	[missing:15] min chain count: 403	# 1100507
+	[missing:19] min chain count: 367	# 0213042
 	tuples: 41
-	[missing:2] min chain count: 403 # 0030161
+	[missing:6] min chain count: 379 # 1033407
 	tuples: 40
-	[missing:14] min chain count: 403	# 0031010
+	[missing:19] min chain count: 385	# 1122024
 	tuples: 39
-	[missing:2] min chain count: 421 # 0002465
+	[missing:11] min chain count: 397	# 1201343
 	tuples: 38
-	[missing:2] min chain count: 445 # 1012033
+	[missing:2] min chain count: 415 # 0002465
 	tuples: 37
-	[missing:32] min chain count: 409	# 1103307
+	[missing:0] min chain count: 445 # 0101265
 	tuples: 36
-	[missing:35] min chain count: 391	# 0212307
+	[missing:12] min chain count: 481	# 1021307
 	tuples: 35
-	[missing:30] min chain count: 415	# 1213407
+	[missing:9] min chain count: 517 # 1100462
 	tuples: 34
-	[missing:29] min chain count: 415 # 1223107
+	[missing:6] min chain count: 553 # 1012033
 	tuples: 33
-	[missing:28] min chain count: 415 # 0122051
+	[missing:13] min chain count: 571	# 0134507
 	tuples: 32
-	[missing:23] min chain count: 415 # 1013033
+	[missing:25] min chain count: 607	# 1234033
 	tuples: 31
-	[missing:22] min chain count: 415	# 0213042
+	[missing:30] min chain count: 475	# 0023465
 	tuples: 30
-	[missing:20] min chain count: 415	# 0020063
+	[missing:23] min chain count: 451	# 1014102
 	tuples: 29
-	[missing:14] min chain count: 415	# 1000307
+	[missing:21] min chain count: 451 # 0121322
 	tuples: 28
-	[missing:4] min chain count: 415 # 1201343
+	[missing:19] min chain count: 451 # 0104225
 	tuples: 27
-	[missing:16] min chain count: 415	# 0004007
+	[missing:18] min chain count: 451	# 0023225
+	tuples: 26
+	[missing:15] min chain count: 451	# 1213407
+	tuples: 25
+	[missing:14] min chain count: 451	# 1223107
+	tuples: 24
+	[missing:21] min chain count: 475	# 0214062
+	tuples: 23
+	[missing:7] min chain count: 487 # 1230207
+	tuples: 22
+	[missing:5] min chain count: 487 # 0230024
 	'''
-	'''
-	taddrs = '1211407 1121006 1203107 0231143 0222207 0204011 0112507 1021107 0112107 1112207 1021307 0004431 0210165 0004413 1100462 0104403 0200203 1014007 1122006 1131407 1122024 1120024 1104107 0214062 0214563 0234262'.split(' ') #
+	taddrs = '0210165 1121042 1203107 1020507 0200203 0112507 1021107 0112107 0222207 1122006 1120024 0231143 1131407 0122051 1030354 0121421 0104403 0231161 1014201 0214563 1203024'.split(' ') #
 	
 	print(f"tuples: {len(taddrs)}")
 	extended_per_tuple = []
@@ -462,7 +474,7 @@ if __name__ == "__main__":
 		print(f"[missing:{target_index}] min chain count: {min_chain_count}")	
 
 	input2("--- --- ---")
-	'''
+	#'''
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #		
 					
 	min_chlen = mx.min_chain_avloops_length()	
