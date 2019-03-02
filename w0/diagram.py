@@ -11,6 +11,7 @@ from uicanvas import *
 import pickle
 import sys
 from time import time
+from collections import defaultdict
 
 
 class Diagram (object):
@@ -19,7 +20,7 @@ class Diagram (object):
 		'nodes', 'nodeByAddress', 'nodeByPerm', 'startNode',
 		'cycles', 'cycleByAddress',
 		'chains',
-		'links',
+		'links', 'l3s', 'p3s',
 		'loops', 'loopByFirstAddress',
 		'W', 'H',
 		'pointers', 'pointer_avlen', 'pointer_sample',
@@ -155,6 +156,8 @@ class Diagram (object):
 	def generateLinks(self):
 		
 		self.links = [[] for _ in range(self.spClass)]
+		self.l3s = {} # node ⇒ [l3a, l3b, l3c]
+		self.p3s = defaultdict(lambda: [None]*3)
 		
 		for node in self.nodes:
 			node.links = [None]*self.spClass
@@ -170,8 +173,20 @@ class Diagram (object):
 				node.links[type] = link
 				next.prevs[type] = link
 				self.links[type].append(link)
+			# alternative l3s & p3s
+			next3a = self.nodeByPerm[L3a(node.perm)]
+			next3b = self.nodeByPerm[L3b(node.perm)]
+			next3c = self.nodeByPerm[L3c(node.perm)]
+			link3a = Link(3, node, next3a)
+			link3b = Link(3, node, next3b)
+			link3c = Link(3, node, next3c)
+			self.l3s[node] = [link3a, link3b, link3c]
+			self.p3s[next3a][0] = link3a
+			self.p3s[next3b][1] = link3b
+			self.p3s[next3c][2] = link3c
 			nc += 1
 			
+		assert len([n for n,ls in self.p3s.items() if len([l for l in ls if l is None])]) == 0
 		# assert len([l for l in self.links[1] if l.type is not 1]) is 0 # the original self.links = [[]] * self.spClass was basically broken…
 		#print("generated links")
 		

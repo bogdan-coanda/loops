@@ -1,5 +1,5 @@
 import ui
-from itertools import chain
+import itertools
 from colorsys import hls_to_rgb
 from random import random
 from node import *
@@ -175,6 +175,11 @@ def setRadialCoords(diagram):
 		orderedCycles[i].setCoords(RH, (6*(5-i))/5, MX + diagram.blue_18_inner_roots[(-i)%5][0], MY + diagram.blue_18_inner_roots[(-i)%5][1])		
 															
 
+def circular_dash(diameter, slices):
+	length = 3.1415926*diameter
+	return [length/2/slices, length/2/slices]
+	
+
 def draw(diagram, **kwargs):
 	superpermutation = kwargs['sp'] if 'sp' in kwargs else None
 	cyclePath = kwargs['cp'] if 'cp' in kwargs else None
@@ -182,7 +187,11 @@ def draw(diagram, **kwargs):
 	def drawLink(link):
 		line = ui.Path()
 		line.move_to(link.node.px, link.node.py)
-		line.line_to(link.next.px, link.next.py)			
+		#if link.next.address[-2:] == '00' and link.type == 2:
+		if link.node.px == link.next.px:
+			line.add_quad_curve(link.next.px, link.next.py, link.next.px - abs(link.node.py - link.next.py)/10, (link.node.py + link.next.py) / 2) # 20
+		else:
+			line.line_to(link.next.px, link.next.py)			
 		line.line_cap_style = ui.LINE_CAP_ROUND			
 		if link.type is 1:
 			line.line_width = 0.25
@@ -220,193 +229,110 @@ def draw(diagram, **kwargs):
 			rect.stroke()								
 								
 		HD = 32
-
-		chainColors = { }	
-		sh_looped_count = 0
 							
 		nc = 0
 		
 		RR = 4
 		DH = 2
+		
+		C2 = 1.5
+		C3 = 3.5
 
-		# setting node.cycle.chain
-		for cycle in diagram.cycles:
-			cycle.chain = None		
-		for chain in diagram.chains:		
-			for cycle in chain.cycles:
-				cycle.chain = chain
-									
+		top_unconnectable = []
+		top_l2_singles = []
+		top_l3_singles = []		
+		bot_unconnectable = []
+		bot_l2_singles = []
+		bot_l3_singles = []		
+				
+		links_types = { 1: 0, 2: 0, 3: 0 }
+							
 		for node in diagram.nodes:
 
 			oval = ui.Path.oval(node.px - RR/2, node.py - RR/2, RR, RR)
-			#if node.address.startswith('0000'):
-				#print("draw " + node.address + " | " + str((node.px - RR/2, node.py - RR/2, RR, RR)))
-
 
 			# § drawing chained node color fills
-			if not node.cycle.isUnchained:
-				sh_looped_count += 1
-				chain = node.cycle.chain
-				if chain.id not in chainColors:
-					chainColors[chain.id] = 'white' if chain.id == (0 if diagram.startNode.chain is None else diagram.startNode.chain.id) else hls_to_rgb(random(), 0.5, 1)
-				ui.set_color(chainColors[chain.id])
+			if node.cycle.chain:
+				ui.set_color(node.cycle.chain.color)
 			else:
 				ui.set_color('white')
 			oval.fill()
 
 			# § drawing chained node strokes
-			if node.chain is not None and (node.loop.extended or node.prevs[2].node.loop.extended):
-				# getting personal				
-				# ui.set_color(ℓ(diagram, node)) # 𝒞(node))
-				# oval.line_width = 4*DH
-				# oval.set_line_dash([1,1.05])
-				# ui.set_color('black')
-				#print("[nn] 𝒮: ", 𝒮(diagram, node))
-				ui.set_color(𝒮(diagram, node))
-				oval.fill()
-				oval.line_width = 1
-				oval.set_line_dash([1,0])
-			elif node.loop.availabled:
-				ui.set_color('black')
-				oval = ui.Path.oval(node.px - 1/2, node.py - 1/2, 1, 1)				
-				oval.line_width = 0.2
-				oval.set_line_dash([1,0])				
-				#ui.set_color(ℓ(diagram, node))
-				#oval.line_width = DH
-				#oval.set_line_dash([1,1.05])
-			elif node.chain is not None and not node.cycle.isUnchained:
-				ui.set_color('black')
-				oval.line_width = 0.2
-				oval.set_line_dash([1,0])
-			else:
+			if node.cycle.chain:
 				ui.set_color('gray')
+				oval.line_width = 0.2
+			else:
+				ui.set_color('black')
 				oval.line_width = 0.1
-				oval.set_line_dash([1,0])
 			oval.stroke()			
 			
-			# § drawing links
-			if not superpermutation and not cyclePath and node.chain is not None and not node.cycle.isUnchained:
-				nextLink = node.nextLink if node.nextLink else (node.links[2] if node.loop.extended else node.links[1])
-				drawLink(nextLink)
+			# § drawing incoming sockets
+			in2 = False
+			in3 = False
+			if node == node.cycle.top_node():
+				if node.prevLink == None:
+					if node.prevs[2].node.nextLink == None and (node.prevs[2].node.cycle.chain == None or node.prevs[2].node.cycle.chain != node.cycle.chain):
+						in2 = True
+						o2 = ui.Path.oval(node.px - RR/2 - C2/2, node.py - RR/2 - C2/2, RR + C2, RR + C2)
+						o2.line_width = 0.8
+						ui.set_color(ui.set_color(colors.normal(node.prevs[2].node.ktype)))
+						o2.stroke()
+					if node.prevs[3].node.nextLink == None and (node.prevs[3].node.cycle.chain == None or node.prevs[3].node.cycle.chain != node.cycle.chain):
+						in3 = True
+						o3 = ui.Path.oval(node.px - RR/2 - C3/2, node.py - RR/2 - C3/2, RR + C3, RR + C3)						
+						o3.line_width = 1.2
+						o3.set_line_dash(circular_dash(RR + C3, 8))						
+						ui.set_color(ui.set_color('limegreen'))
+						o3.stroke()
+												
+					if not in2 and not in3: top_unconnectable.append(node)
+					elif not in3: top_l2_singles.append(node)
+					elif not in2: top_l3_singles.append(node)
 			
-			nc += 1			
-		
-		# --- draw sp 
-		# draw superpermutation links if given
-		if superpermutation:
-			currPerm = superpermutation[:diagram.spClass]
-			currNode = diagram.nodeByPerm[currPerm]
-			pc = 1
-			ps = [currPerm]
-			linkType = 1
-			for index in range(1, len(superpermutation)-diagram.spClass+1):
-				nextPerm = superpermutation[index:index+diagram.spClass]
-				if len(set(nextPerm)) == diagram.spClass:
-					# valid link
-					pc += 1
-					ps.append(nextPerm)
-					nextNode = diagram.nodeByPerm[nextPerm]
-					# actual draw
-					drawLink(Link(linkType, currNode, nextNode))
-										
-					currPerm = nextPerm						
-					currNode = nextNode
-					linkType = 1		
-				else:
-					linkType += 1
-			print(f"[draw:sp] valid contained perm count: {pc} | distinct: {len(set(ps))}")
+			
+			# § drawing outgoing sockets
+			out2 = False
+			out3 = False
+			if node == node.cycle.bot_node():
+				if node.nextLink == None:
+					if node.links[2].next.prevLink == None and (node.links[2].next.cycle.chain == None or node.links[2].next.cycle.chain != node.cycle.chain):
+						out2 = True
+						o2 = ui.Path.oval(node.px - RR/2 - C2/2, node.py - RR/2 - C2/2, RR + C2, RR + C2)
+						o2.line_width = 0.8
+						ui.set_color(ui.set_color(colors.normal(node.ktype)))
+						o2.stroke()
+					if node.links[3].next.prevLink == None and (node.links[3].next.cycle.chain == None or node.links[3].next.cycle.chain != node.cycle.chain):
+						out3 = True
+						o3 = ui.Path.oval(node.px - RR/2 - C3/2, node.py - RR/2 - C3/2, RR + C3, RR + C3)						
+						o3.line_width = 1.2
+						o3.set_line_dash(circular_dash(RR + C3, 8))						
+						ui.set_color(ui.set_color('limegreen'))
+						o3.stroke()						
 
-		# --- draw cp 				
-		if cyclePath:
-			currNode = diagram.startNode
-			for ic, c in enumerate(cyclePath):
-				
-				if ic % 2 == 1:
-					if c == ' ':
-						link = currNode.links[4]
-					elif c == 'a':
-						link = diagram.l3s[currNode][0]
-					elif c == 'b':
-						link = diagram.l3s[currNode][1]
-					elif c == 'c':
-						link = diagram.l3s[currNode][2]
-					drawLink(link)
-					currNode = link.next					
-					continue
+					if not out2 and not out3: bot_unconnectable.append(node)
+					elif not out3: bot_l2_singles.append(node)
+					elif not out2: bot_l3_singles.append(node)
+
+
+			# § drawing links
+			if node == node.cycle.bot_node():
+				if node.nextLink:
+					drawLink(node.nextLink)						
+					links_types[node.nextLink.type] += 1
+			else:
+				drawLink(node.links[1])
+				links_types[1] += 1
+			
+			nc += 1														
 					
-				cycleCount = int(c)
-				for x in range(cycleCount):
-					
-					if x != 0:
-						drawLink(currNode.links[2])
-						currNode = currNode.links[2].next
-											
-					for y in range(diagram.spClass-1):
-						drawLink(currNode.links[1])
-						currNode = currNode.links[1].next
-					
-		
-		# draw loop labels
-		for cycle in diagram.cycles:
-			for node in cycle.nodes:
-				if node.loop.availabled or node.loop.extended:
-					next = node.links[1].next
-					centerX = (node.px + next.px)/2
-					centerY = (node.py + next.py)/2
-					centerX = cycle.px + (centerX - cycle.px)*1.6
-					centerY = cycle.py + (centerY - cycle.py)*1.6
-					text = str(node.loop.ktype_radialIndex)
-					#text = str(node.loop.ktype_columnIndex)
-					color = colors.normal(node.loop.ktype)
-					width, height = ui.measure_string(text, 0, ('HelveticaNeue-MediumItalic', 6), ui.ALIGN_CENTER, ui.LB_CHAR_WRAP)
-					ui.draw_string(text, (centerX - width / 2, centerY - height / 2, width, height), ('HelveticaNeue-MediumItalic', 6), color, ui.ALIGN_CENTER, ui.LB_CHAR_WRAP)	
-					if node.loop.extended:
-						border = ui.Path.oval(centerX - 5, centerY - 5, 10, 10)
-						ui.set_color(color)
-						border.stroke()
-		
-		# find min positive column count
-		min_count = diagram.spClass		
-		min_loops = []
-		for loop in diagram.loops:
-			if loop.ktype == 0:
-				count = len([col for col in loop.columnByKType.values() if col.isAvailabled()])
-				if count > 0 and count < min_count:
-					min_count = count
-					min_loops = [loop]
-				elif count == min_count:
-					min_loops.append(loop)
-				
-		# draw column markers	
-		if diagram.spClass % 2 == 0:
-			for loop in diagram.loops:
-				if loop.ktype == 0:				
-					topDownCycles = sorted([n.cycle for n in loop.nodes], key = lambda c: c.py)
-					my = topDownCycles[0].py - (topDownCycles[1].py - topDownCycles[0].py) / 2
-					mx = topDownCycles[0].px - (diagram.spClass - 3) * (4 + 1) / 2
-					
-					if loop in min_loops:
-						rect = ui.Path.rect(mx - 2 -  2, my - 2 - 2, 2 + 2 + (diagram.spClass - 3) * (4 + 1) + 2 + 2, 2 + 4 + 2)
-						rect.line_width = 1
-						ui.set_color('black')
-						rect.stroke()													
-						
-					for ktype in range(2, diagram.spClass):					
-						if loop.columnByKType[ktype].isAvailabled():
-							oval = ui.Path.oval(mx + (ktype - 2) * (4 + 1) - 2, my - 2, 4, 4)
-							ui.set_color(colors.normal(ktype))
-							oval.fill()
-							oval.line_width = 0.1
-							ui.set_color('black')
-							oval.stroke()					
-					
-					
-		for i,node_or_cycle in enumerate(diagram.pointers if diagram.pointers else []):
+		RR = 6
+		for i,node_or_cycle in enumerate(diagram.pointers if diagram.pointers else itertools.chain(*[[chain.headCycle.top_node(), chain.tailCycle.bot_node()] for chain in diagram.chains if chain.cycleCount > 1])):
 			if isinstance(node_or_cycle, Node):
 				oval = ui.Path.oval(node_or_cycle.cycle.px - HD/2, node_or_cycle.cycle.py - HD/2, HD, HD)
 			else:
 				oval = ui.Path.oval(node_or_cycle.px - HD/2, node_or_cycle.py - HD/2, HD, HD)
-			oval.line_width = 2
+			oval.line_width = 0.25
 			#if diagram.spClass % 2 is 0 and i % 2 is not 0:
 				#oval.set_line_dash([1,1.05])
 			ui.set_color('black')
@@ -414,7 +340,7 @@ def draw(diagram, **kwargs):
 			
 			if isinstance(node_or_cycle, Node):
 				oval = ui.Path.oval(node_or_cycle.px - RR, node_or_cycle.py - RR, 2*RR, 2*RR)
-				oval.line_width = 0.5
+				oval.line_width = 0.25
 				#if diagram.spClass % 2 is 0 and i % 2 is not 0:
 					#oval.set_line_dash([1,1.05])
 				ui.set_color('black')
@@ -422,8 +348,25 @@ def draw(diagram, **kwargs):
 						
 		img = ctx.get_image()
 		#img.show()
-		print("[show] chain count: " + str(len([c for c in diagram.chains if len(c.cycles) > 1])) + " | available loops: " + str(len([l for l in diagram.loops if l.availabled])) + f" | min columns [{min_count}] count: " + str(len(min_loops)) + " | looped: " + str(sh_looped_count) + "/" + str(len(diagram.nodes)) + " (" + "{0:.2f}".format(sh_looped_count*100.0/len(diagram.nodes)) + "%)" + " | remaining: " + str(len(diagram.nodes) - sh_looped_count))
+		print(f"[show] chains: {len(diagram.chains)} | connected cycles: {sum([chain.cycleCount for chain in diagram.chains if chain.cycleCount > 1])} | links: ℓ₁x{links_types[1]} ℓ₂x{links_types[2]} ℓ₃x{links_types[3]} | total: {links_types[1]+2*links_types[2]+3*links_types[3]}")
+		'''
+		for chain in diagram.chains:
+			print(chain)
+		if len(top_unconnectable):
+			print(f"top unconnectable: " + " ".join([n.cycle.address for n in top_unconnectable]))
+		if len(top_l2_singles):
+			print(f"top [2] singles: " + " ".join([n.cycle.address for n in top_l2_singles]))			
+		if len(top_l3_singles):
+			print(f"top [3] singles: " + " ".join([n.cycle.address for n in top_l3_singles]))						
+		if len(bot_unconnectable):
+			print(f"bot unconnectable: " + " ".join([n.cycle.address for n in bot_unconnectable]))
+		if len(bot_l2_singles):
+			print(f"bot [2] singles: " + " ".join([n.cycle.address for n in bot_l2_singles]))			
+		if len(bot_l3_singles):
+			print(f"bot [3] singles: " + " ".join([n.cycle.address for n in bot_l3_singles]))									
+		'''
 		return img
+		
 
 def drawCircledText(text, centerX, centerY, radius, textSize, color, borderWidth):
 	oval = ui.Path.oval(centerX - radius/2, centerY - radius/2, radius, radius)
@@ -467,31 +410,21 @@ def show(diagram, **kwargs):
 	return img
 	
 	
-if __name__ == "__main__":
+if __name__ == "__main__":	
 	from diagram import *
-	diagram = Diagram(6, 3)
+	diagram = Diagram(6)
 	
-	### « #5 | sol » @ sols.6.py ###
-	
-	'''
-	diagram.extendLoop(diagram.nodeByAddress['00001'].loop)
-	diagram.extendLoop(diagram.nodeByAddress['01033'].loop)
-	diagram.extendLoop(diagram.nodeByAddress['02302'].loop)
-	diagram.extendLoop(diagram.nodeByAddress['10030'].loop)
-	diagram.extendLoop(diagram.nodeByAddress['10105'].loop)
-	diagram.extendLoop(diagram.nodeByAddress['10205'].loop)
-	diagram.extendLoop(diagram.nodeByAddress['10242'].loop)
-	diagram.extendLoop(diagram.nodeByAddress['10305'].loop)
-	diagram.extendLoop(diagram.nodeByAddress['11005'].loop)
-	diagram.extendLoop(diagram.nodeByAddress['11105'].loop)
-	diagram.extendLoop(diagram.nodeByAddress['11205'].loop)
-	diagram.extendLoop(diagram.nodeByAddress['11305'].loop)
-	diagram.extendLoop(diagram.nodeByAddress['12004'].loop)
-	diagram.extendLoop(diagram.nodeByAddress['12013'].loop)
-	diagram.extendLoop(diagram.nodeByAddress['12022'].loop)
-	'''
-	
-	diagram.readdress('00005')
-	setRadialCoords(diagram)	
+	def connect(cycle_addr, link_type):
+		cycle = diagram.cycleByAddress[cycle_addr]
+		cycle.connected = True
+		cycle.bot_node().nextLink = cycle.bot_node().links[link_type]			
+		cycle.bot_node().nextLink.next.prevLink = cycle.bot_node().links[link_type]
+		
+	connect('0010', 2)
+	connect('0011', 2)
+	connect('0012', 2)
+	connect('0013', 2)
+	connect('0014', 2)
+			
 	show(diagram)
 	
