@@ -27,6 +27,7 @@ class Chain (object):
 	def connect(self, linkType):		
 		# connect to tail
 		next_link = self.tailCycle.bot_node().links[linkType]
+		assert next_link.available == True
 		next_cycle = next_link.next.cycle
 		
 		# print(f"[chain:connect] {self} | next link: {next_link} | next cycle: {next_cycle}")

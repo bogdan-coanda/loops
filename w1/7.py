@@ -23,9 +23,9 @@ def recalcSingles(diagram):
 		in3 = False
 		node = chain.headCycle.top_node()
 		if node.prevLink == None:
-			if node.prevs[2].node.nextLink == None and node.prevs[2].node.cycle.chain != node.cycle.chain:
+			if node.prevs[2].available and node.prevs[2].node.nextLink == None and node.prevs[2].node.cycle.chain != node.cycle.chain:
 				in2 = True
-			if node.prevs[3].node.nextLink == None and node.prevs[3].node.cycle.chain != node.cycle.chain:
+			if node.prevs[3].available and node.prevs[3].node.nextLink == None and node.prevs[3].node.cycle.chain != node.cycle.chain:
 				in3 = True
 										
 			if not in2 and not in3: top_unconnectable.append(node)
@@ -37,9 +37,9 @@ def recalcSingles(diagram):
 		out3 = False
 		node = chain.tailCycle.bot_node()
 		if node.nextLink == None:
-			if node.links[2].next.prevLink == None and node.links[2].next.cycle.chain != node.cycle.chain:
+			if node.links[2].available and node.links[2].next.prevLink == None and node.links[2].next.cycle.chain != node.cycle.chain:
 				out2 = True
-			if node.links[3].next.prevLink == None and node.links[3].next.cycle.chain != node.cycle.chain:
+			if node.links[3].available and node.links[3].next.prevLink == None and node.links[3].next.cycle.chain != node.cycle.chain:
 				out3 = True
 
 			if not out2 and not out3: bot_unconnectable.append(node)
@@ -115,51 +115,113 @@ def calcTotal():
 			links_types[cycle.bot_node().nextLink.type] += 1
 	return links_types[1] + 2 * links_types[2] + 3 * links_types[3]
 
-sid = 0
 
+def purge():
+	purgedStuff = []
+	nextLines = []
+	conn = True
+	
+	while True:		
+	
+		linksToPurge = []
+		nextLines = [] # reset next lines
+		
+		for chain in list(diagram.chains):		
+			for type in [2, 3]:
+				chain.connect(type)
+				conn, rv = connectSingles(diagram)
+				if conn: nextLines.append([chain, type, len(rv)])
+				else: linksToPurge.append(chain.tailCycle.bot_node().links[type])
+				revertSingles(rv)
+				chain.revert()	
+				
+		if not len(linksToPurge):
+			break
+			
+		for link in linksToPurge:
+			link.available = False
+		purgedStuff.append(('links', linksToPurge))					
+		# print(f"[purge] purged {len(linksToPurge)} links")
+		
+		conn, rv = connectSingles(diagram)
+		purgedStuff.append(('rv', rv))
+		# print(f"[purge] singles: {len(rv)} | conn: {conn}")
+		if not conn:
+			return (conn, purgedStuff, nextLines)
+
+	# print(f"[purge] ⇒ {len(purgedLinks)} links purged:\n" + "\n".join([str(line) for line in purgedLinks]))
+	nextLines = sorted([line for line in nextLines], key = lambda l: [-l[2], l[1], l[0].id])
+	# print(f"[purge] ⇒ remaining {len(nextLines)} links:\n" + "\n".join([str(line) for line in nextLines]))
+	return (conn, purgedStuff, nextLines)
+
+
+sid = 0
 def step(lvl=0, path=[]):
 	global min_total, sid
 	
 	def key():
 		return f"[{tstr(time() - startTime):>11}][lvl:{lvl}]" 
 
-	if sid % 1000 == 0:
-		print(f"{key()} {'.'.join([(str(x)+upper(t)) for x,t in path])}")
-	sid += 1
-	
-	# extend 2-link
-	headCycle.chain.connect(2)
-	conn, rv = connectSingles(diagram)
-	
-	if not conn:
+	def test():
 		if len(diagram.chains) == 1:
 			total = calcTotal()
 			if total < min_total:
 				min_total = total
 				show(diagram)
 				input2('found smth')
-	else:
-		step(lvl+1, path+[(0, len(rv))])
+
+	def unpurge():
+		for stuff in reversed(purgedStuff):
+			if stuff[0] == 'links':
+				for link in stuff[1]:
+					link.available = True
+			else: # 'rv'
+				revertSingles(stuff[1])
+
+
+	if sid % 10 == 0:
+		print(f"{key()} {'.'.join([(str(x)+upper(t)) for x,t in path])}")
+	sid += 1
 		
-	revertSingles(rv)
-	headCycle.chain.revert()	
+	# purge
+	conn, purgedStuff, nextLines = purge()
 	
-	# extend 3-link
-	headCycle.chain.connect(3)
+	if not conn:
+		test()
+		unpurge()
+		return			
+
+	if len(purgedStuff):
+		for stuff in purgedStuff:
+			path = path+[('|' if stuff[0] == 'links' else '§', len(stuff[1]))]
+			
+	headChain = nextLines[0][0]
+					
+	# extend 2-link
+	headChain.connect(2)
 	conn, rv = connectSingles(diagram)
 	
 	if not conn:
-		if len(diagram.chains) == 1:
-			total = calcTotal()
-			if total < min_total:
-				min_total = total			
-				show(diagram)
-				input2('found smth')
+		test()
+	else:
+		step(lvl+1, path+[(0, len(rv))])
+					
+	revertSingles(rv)
+	headChain.revert()	
+
+	# extend 3-link
+	headChain.connect(3)
+	conn, rv = connectSingles(diagram)
+	
+	if not conn:
+		test()
 	else:
 		step(lvl+1, path+[(1, len(rv))])
 	
 	revertSingles(rv)
-	headCycle.chain.revert()		
+	headChain.revert()		
+	
+	unpurge()
 	
 
 if __name__ == "__main__":
@@ -170,8 +232,177 @@ if __name__ == "__main__":
 	startTime = time()
 	step()
 	
+	'''
 	headCycle.chain.connect(2)
 	rv = connectSingles(diagram)	
+
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+		
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+		
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+			
+	# purge
+	purged, remain = purge()
+	
+	assert len(purged) == 0
+	assert headCycle.chain in diagram.chains
+	headLine = [l for l in remain if l[0] == headCycle.chain][0]
+	assert remain[0][3] == headLine[3]
+	'''
+	'''
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
 	
 	headCycle.chain.connect(2)
 	rv = connectSingles(diagram)
@@ -271,9 +502,73 @@ if __name__ == "__main__":
 	
 	headCycle.chain.connect(2)
 	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	purge()
+				
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	# headCycle.chain.connect(2)
+	# rv = connectSingles(diagram)
+	
 	
 	# revertSingles(rv)
 	# headCycle.chain.revert()	
+	'''
 													
 	show(diagram)
 	
