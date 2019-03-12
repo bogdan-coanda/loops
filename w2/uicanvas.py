@@ -4,7 +4,7 @@ from colorsys import hls_to_rgb
 from random import random
 from node import *
 from link import *
-from common import unitRoots
+from common import unitRoots, randomColor
 import math
 
 
@@ -210,6 +210,22 @@ def draw(diagram, **kwargs):
 			ui.set_color('fuchsia')
 		line.stroke()		
 	
+	def drawNodePointer(node, color='black'):
+		ui.set_color(color)
+		# draw cycle circle
+		oval = ui.Path.oval(node.cycle.px - HD/2, node.cycle.py - HD/2, HD, HD)
+		oval.line_width = 0.25 if color == 'black' else 1
+		if color != 'black':
+			oval.set_line_dash(circular_dash(HD, 16))
+		oval.stroke()		
+		# draw node circle
+		oval = ui.Path.oval(node.px - RR, node.py - RR, 2*RR, 2*RR)
+		oval.line_width = 0.25 if color == 'black' else 1
+		if color != 'black':
+			oval.set_line_dash(circular_dash(2*RR, 8))
+		oval.stroke()								
+		
+	
 	with ui.ImageContext(diagram.W, diagram.H) as ctx:
 	
 		ui.set_color('white')
@@ -252,7 +268,9 @@ def draw(diagram, **kwargs):
 			oval = ui.Path.oval(node.px - RR/2, node.py - RR/2, RR, RR)
 
 			# § drawing chained node color fills
-			if node.cycle.chain:
+			if len(node.cycle.chain.cycles) > 1:
+				if node.cycle.chain.color == None:
+					node.cycle.chain.color = 'orange' if node.cycle.chain.isOpen else randomColor()
 				ui.set_color(node.cycle.chain.color)
 			else:
 				ui.set_color('white')
@@ -266,31 +284,7 @@ def draw(diagram, **kwargs):
 				ui.set_color('black')
 				oval.line_width = 0.1
 			oval.stroke()			
-			'''
-			# § drawing incoming sockets
-			in2 = False
-			in3 = False
-			if node == node.cycle.top_node():
-				if node.prevLink == None:
-					if node.prevs[2].node.nextLink == None and (node.prevs[2].node.cycle.chain == None or node.prevs[2].node.cycle.chain != node.cycle.chain):
-						in2 = True
-						o2 = ui.Path.oval(node.px - RR/2 - C2/2, node.py - RR/2 - C2/2, RR + C2, RR + C2)
-						o2.line_width = 0.8
-						ui.set_color(ui.set_color(colors.normal(node.prevs[2].node.ktype)))
-						o2.stroke()
-					if node.prevs[3].node.nextLink == None and (node.prevs[3].node.cycle.chain == None or node.prevs[3].node.cycle.chain != node.cycle.chain):
-						in3 = True
-						o3 = ui.Path.oval(node.px - RR/2 - C3/2, node.py - RR/2 - C3/2, RR + C3, RR + C3)						
-						o3.line_width = 1.2
-						o3.set_line_dash(circular_dash(RR + C3, 8))						
-						ui.set_color(ui.set_color('limegreen'))
-						o3.stroke()
-												
-					if not in2 and not in3: top_unconnectable.append(node)
-					elif not in3: top_l2_singles.append(node)
-					elif not in2: top_l3_singles.append(node)
-			
-			
+			'''						
 			# § drawing outgoing sockets
 			out2 = False
 			out3 = False
@@ -314,23 +308,47 @@ def draw(diagram, **kwargs):
 					elif not out3: bot_l2_singles.append(node)
 					elif not out2: bot_l3_singles.append(node)
 			'''
-			if node.nextLink:
-				drawLink(node.nextLink)						
-				links_types[node.nextLink.type] += 1
-			elif node.cycle.chain.cycleCount > 1:
-				# § drawing links
-				if node == node.cycle.bot_node():
-					if node.nextLink:
-						drawLink(node.nextLink)						
-						links_types[node.nextLink.type] += 1
-				else:
-					drawLink(node.links[1])
-					links_types[1] += 1
 			
+			if node == diagram.openChain.tailNode: # the only node without a nextLink
+				pass
+			elif node.nextLink: # explicitly set in appendChain(), 
+				drawLink(node.nextLink)						
+				links_types[node.nextLink.type] += 1				
+			elif node.loop.extended: # implicit ℓ₂, by extendLoop(),
+				drawLink(node.links[2])
+				links_types[2] += 1
+			elif len(node.cycle.chain.cycles) > 1: # implicit ℓ₁, drawn only for multicycle chains
+				drawLink(node.links[1])
+				links_types[1] += 1					
+																
 			nc += 1														
-					
+
+		# draw loop labels
+		for cycle in diagram.cycles:
+			for node in cycle.nodes:
+				if node.loop.available or node.loop.extended:
+					next = node.links[1].next
+					centerX = (node.px + next.px)/2
+					centerY = (node.py + next.py)/2
+					centerX = cycle.px + (centerX - cycle.px)*1.6
+					centerY = cycle.py + (centerY - cycle.py)*1.6
+					text = str(node.loop.ktype_radialIndex)
+					#text = str(node.loop.ktype_columnIndex)
+					color = colors.normal(node.loop.ktype)
+					width, height = ui.measure_string(text, 0, ('HelveticaNeue-MediumItalic', 6), ui.ALIGN_CENTER, ui.LB_CHAR_WRAP)
+					ui.draw_string(text, (centerX - width / 2, centerY - height / 2, width, height), ('HelveticaNeue-MediumItalic', 6), color, ui.ALIGN_CENTER, ui.LB_CHAR_WRAP)	
+					if node.loop.extended:
+						border = ui.Path.oval(centerX - 5, centerY - 5, 10, 10)
+						ui.set_color(color)
+						border.stroke()
+																
 		RR = 6
-		for i,node_or_cycle in enumerate(diagram.pointers if diagram.pointers else itertools.chain(*[[chain.headCycle.top_node(), chain.tailCycle.bot_node()] for chain in diagram.chains if chain.cycleCount > 1])):
+		
+		drawNodePointer(diagram.openChain.tailNode)
+		drawNodePointer(diagram.openChain.tailNode.links[2].next, colors.normal(0))
+		drawNodePointer(diagram.openChain.tailNode.links[3].next, colors.normal(1))
+		
+		for i,node_or_cycle in enumerate(diagram.pointers):
 			if isinstance(node_or_cycle, Node):
 				oval = ui.Path.oval(node_or_cycle.cycle.px - HD/2, node_or_cycle.cycle.py - HD/2, HD, HD)
 			else:
@@ -351,7 +369,13 @@ def draw(diagram, **kwargs):
 						
 		img = ctx.get_image()
 		#img.show()
-		print(f"[show] chains: {len(diagram.chains)} | connected cycles: {sum([chain.cycleCount for chain in diagram.chains if chain.cycleCount > 1])} | links: ℓ₁x{links_types[1]} ℓ₂x{links_types[2]} ℓ₃x{links_types[3]} | total: {links_types[1]+2*links_types[2]+3*links_types[3]}")
+		
+		connected_cycles = sum([len(chain.cycles) for chain in diagram.chains if len(chain.cycles) > 1])
+		extension_length = diagram.spClass * (diagram.spClass - 1) - 1
+		total = links_types[1]+2*links_types[2]+3*links_types[3]
+		final = diagram.spClass + total + (len(diagram.cycles) - connected_cycles) / (diagram.spClass - 2) * extension_length
+		
+		print(f"[show] chains: {len(diagram.chains)} | connected cycles: {connected_cycles} | links: ℓ₁x{links_types[1]} ℓ₂x{links_types[2]} ℓ₃x{links_types[3]} | total: {total} | final: {final}")
 		'''
 		for chain in diagram.chains:
 			print(chain)
@@ -392,7 +416,7 @@ def drawBoxes5(cornerX, cornerY, inner_roots, outer_roots, diagram, cycleIndex, 
 		box.close()
 		
 		node = diagram.cycles[5*cycleIndex+(inner_off-i)%5].nodes[0]		
-		ui.set_color('white' if node.loop.extended or not node.loop.availabled else colors.light(node.ktype))
+		ui.set_color('white' if node.loop.extended or not node.loop.available else colors.light(node.ktype))
 		box.fill()				
 
 def drawBoxes6(cycle):											
@@ -403,7 +427,7 @@ def drawBoxes6(cycle):
 		box.line_to(cycle.px+cycle.outer_roots[i][0], cycle.py+cycle.outer_roots[i][1])	
 		box.line_to(cycle.px+cycle.inner_roots[(i+1)%6][0], cycle.py+cycle.inner_roots[(i+1)%6][1])
 		box.close()
-		ui.set_color('white' if cycle.nodes[i].loop.extended or not cycle.nodes[i].loop.availabled else colors.normal(cycle.nodes[i].ktype))
+		ui.set_color('white' if cycle.nodes[i].loop.extended or not cycle.nodes[i].loop.available else colors.normal(cycle.nodes[i].ktype))
 		box.fill()
 				
 				
@@ -419,7 +443,6 @@ if __name__ == "__main__":
 	
 	def connect(cycle_addr, link_type):
 		cycle = diagram.cycleByAddress[cycle_addr]
-		cycle.connected = True
 		cycle.bot_node().nextLink = cycle.bot_node().links[link_type]			
 		cycle.bot_node().nextLink.next.prevLink = cycle.bot_node().links[link_type]
 		

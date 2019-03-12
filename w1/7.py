@@ -69,7 +69,7 @@ def connectSingles(diagram):
 	while True:
 		topU, top2, top3, botU, bot2, bot3 = recalcSingles(diagram)	
 		if len(topU) + len(top2) + len(top3) + len(botU) + len(bot2) + len(bot3) == 0:
-			# print(f'[connectSingles] ⇒ connected {len(rv_chains)} singles')
+			# print(f'[connectSingles] ⇒ connected {len(rv_chains)} singles | connectable: {connectable}')
 			break
 		
 		if len(topU) + len(botU) > 0:
@@ -141,17 +141,17 @@ def purge():
 		for link in linksToPurge:
 			link.available = False
 		purgedStuff.append(('links', linksToPurge))					
-		# print(f"[purge] purged {len(linksToPurge)} links")
+		print(f"[purge] purged {len(linksToPurge)} links")
 		
 		conn, rv = connectSingles(diagram)
 		purgedStuff.append(('rv', rv))
-		# print(f"[purge] singles: {len(rv)} | conn: {conn}")
+		print(f"[purge] singles: {len(rv)} | conn: {conn}")
 		if not conn:
 			return (conn, purgedStuff, nextLines)
 
-	# print(f"[purge] ⇒ {len(purgedLinks)} links purged:\n" + "\n".join([str(line) for line in purgedLinks]))
+	print(f"[purge] ⇒ {len(purgedStuff)} stuff purged")#:\n" + "\n".join([str(line) for line in purgedLinks]))
 	nextLines = sorted([line for line in nextLines], key = lambda l: [-l[2], l[1], l[0].id])
-	# print(f"[purge] ⇒ remaining {len(nextLines)} links:\n" + "\n".join([str(line) for line in nextLines]))
+	print(f"[purge] ⇒ remaining {len(nextLines)} links")#:\n" + "\n".join([str(line) for line in nextLines]))
 	return (conn, purgedStuff, nextLines)
 
 
@@ -179,23 +179,24 @@ def step(lvl=0, path=[]):
 				revertSingles(stuff[1])
 
 
-	if sid % 10 == 0:
+	if sid % 100 == 0:
 		print(f"{key()} {'.'.join([(str(x)+upper(t)) for x,t in path])}")
 	sid += 1
 		
 	# purge
-	conn, purgedStuff, nextLines = purge()
-	
-	if not conn:
-		test()
-		unpurge()
-		return			
-
-	if len(purgedStuff):
-		for stuff in purgedStuff:
-			path = path+[('|' if stuff[0] == 'links' else '§', len(stuff[1]))]
-			
-	headChain = nextLines[0][0]
+	# conn, purgedStuff, nextLines = purge()
+	# 
+	# if not conn:
+	# 	test()
+	# 	unpurge()
+	# 	return			
+	# 
+	# if len(purgedStuff):
+	# 	for stuff in purgedStuff:
+	# 		path = path+[('|' if stuff[0] == 'links' else '§', len(stuff[1]))]
+	# 
+	# headChain = nextLines[0][0]
+	headChain = headCycle.chain
 					
 	# extend 2-link
 	headChain.connect(2)
@@ -221,231 +222,408 @@ def step(lvl=0, path=[]):
 	revertSingles(rv)
 	headChain.revert()		
 	
-	unpurge()
+	# unpurge()
 	
 
 if __name__ == "__main__":
 
 	diagram = Diagram(7)
 	headCycle = diagram.cycleByAddress['00000']
-	
-	startTime = time()
-	step()
-	
-	'''
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)	
-
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-		
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-		
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
 			
+	def connect(ccs):
+		for ix,x in enumerate(ccs):
+			if x != ' ':
+				cc = int(x)
+				if ix == 0 and headCycle.chain.cycleCount > 1:	
+					headCycle.chain.connect(2)
+				for _ in range(cc-1): 
+					headCycle.chain.connect(2)
+				if ix != len(ccs)-1:
+					headCycle.chain.connect(3)	
+			elif ix == 0:
+				headCycle.chain.connect(3)
+				
+	def connex(path):
+		for x in path:
+			if x == '.':
+				headCycle.chain.connect(2)
+			elif x == '∘':
+				headCycle.chain.connect(3)
+			elif x in ['0','1','2','3','4','5','6','7','8','9']:
+				cc = int(x)
+				for _ in range(cc-1): 
+					headCycle.chain.connect(2)
+		
+
+	# connect('4 6666 2 666 2 6666')
+
+	# ~~~ k01:
+	# connect('66666')
+	# ---
+	# connect('5') # 8
+	# connect('14') # 11
+	# connect('23') # 11
+	# connect('32') # 11
+	# connect('41') # 11
+	# connect('5') # 10	
+	# 30 cycles | 5 segments | ℓ₃: 4
+	# 6 cycles/segment
+
+	# ~~~ xxx:
+	# connect('6666 3 6666 3')
+	# 54 cycles | 10 segments | ℓ₃: 9
+	# 5.4 cycles/segment
+							
+	# ~~~ ---:
+	# connect('4 6666 2 2 6666 4 4 6666 2 3 6666 3 2 6666 4')	
+	# 150 cycles | 30 segments | ℓ₃: 29
+	# 5 cycles/segment
+	
+	# ~~~ nsk: 
+	# connect('666 3 66 4 666 4 66 4 666 4 66 3 666')		
+	# connect('5') # 8 # §5
+	# connect('14') # 11 # §64
+	# connect('23') # 11 # §663
+	# connect('32') # 11 # §6662
+	# connect('14') # 11 # §66634
+	# connect('23') # 11 # §666363
+	# connect('32') # 11 # §6663662
+	# connect('23') # 11 # §66636643
+	# connect('32') # 11 # §666366462
+	# connect('41') # 11 # §6663664661
+	# connect('5') # 10 # §6663664666
+	# connect(' 41') # 12 # §666366466641
+	# connect('5') # 10 # §666366466646
+	# connect(' 5') # 11 # §6663664666465
+	# connect('14') # 11 # §66636646664664
+	# connect(' 5') # 11 # §666366466646645
+	# connect('14') # 11 # §6663664666466464
+	# connect('23') # 11 # §66636646664664663
+	# connect('32') # 11 # §666366466646646662
+	# connect('23') # 11 # §6663664666466466643
+	# connect('32') # 11 # §66636646664664666462
+	# connect('41') # 11 # §666366466646646664661
+	# connect('23') # 11 # §6663664666466466646633
+	# connect('32') # 11 # §66636646664664666466362
+	# connect('41') # 11 # §666366466646646664663661
+	# connect('5') # 10 # §666366466646646664663666
+	
+			
+	# connect('5') ⇒ 
+	# connect('14')	
+	# connect(' 5')
+	
+	# connect('14') ⇒ 
+	# connect('23')
+	# connect('14')
+	# connect(' 5')
+	
+	# connect('23') ⇒ 
+	# connect('32')
+	# connect('23')
+	# connect('14')
+	# connect(' 5')
+	
+	# connect('32') ⇒ 
+	# connect('41')
+	# connect('32')
+	# connect('23')
+	# connect('14')
+	# connect(' 5')
+			
+	# connect('41') ⇒ 
+	# connect('5')
+	# connect('41')
+	# connect('32')
+	# connect('23')
+	# connect('14')
+	# connect(' 5')
+	
+	# connex('5 .1∘4 .2∘3 .3∘2 .1∘4 .2∘3 .3∘2 .2∘3 .3∘2 .4∘1 .5 [∘4∘1] .5 ∘5 .1∘4 ∘5 .1∘4 .2∘3 .3∘2 .2∘3 .3∘2 .4∘1 .2∘3 .3∘2 .4∘1 .5')	
+	# ∘5  ⇒  .1 / ∘5
+	# .1  ⇒  .2 / .1 / ∘5
+	# .2  ⇒  .3 / .2 / .1 / ∘5
+	# .3  ⇒  .4 / .3 / .2 / .1 / ∘5
+	# .4  ⇒  .5 / .4 / .3 / .2 / .1 / ∘5
+	# .5  ⇒  ∘4 / ∘5
+	# ∘4  ⇒  .5
+	#         §  0/2  0/3  0/4  0/5  0/6  ⇒  K01
+	# connex('5 .1∘4 .2∘3 .3∘2 .4∘1   .5 ')
+	#       §  0/2  0/3  0/4  0/5  2/6  0/5  0/6   0/2    1/2  0/2  0/3  2/4  0/3  0/4  0/5  2/6  0/5  0/6   0/2    1/2  0/2  0/3  2/4  0/3  0/4  0/5  2/6  0/5  2/6 
+	connex('5 .1∘4 .2∘3 .3∘2 .4∘1 .3∘2 .4∘1   .5 [∘4∘1].5  ∘5 .1∘4 .2∘3 .1∘4 .2∘3 .3∘2 .4∘1 .3∘2 .4∘1   .5 [∘4∘1].5  ∘5 .1∘4 .2∘3 .1∘4 .2∘3 .3∘2 .4∘1 .3∘2 .4∘1 .3∘2 .2∘3 .3∘2 .4∘1 .3∘2 .4∘1 .5 [∘4∘1].5 ∘5 .1∘4 .2∘3 .1∘4 .2∘3 .3∘2 .4∘1 .3∘2 .4∘1 .5 [∘4∘1].5 ∘5 .1∘4 .2∘3 .1∘4 .2∘3 .3∘2 .4∘1 .5')
+			
+	# 
+	# connect('23') # §66643
+	# connect('32') # §666462
+	# connect('41') # §6664661
+	# connect('5 ') # 10 !!! # §6664666∘
+	# connect(' 41') # 12 !!! # §666466641
+	# connect('5 ') # 10 !!! # §666466646∘
+	# connect(' 5') # 11 # §6664666465
+	# 
+	# connect('14') # 11 # §66646664664	
+	# connect('23') # 11 # §666466646663
+	# 
+	# connect('14') # §6664666466644
+	# connect('23') # §66646664666463
+	# 
+	# connect('32') # 11 
+	# connect('23') # 11
+	# connect('32') # 11
+	# connect('41') # 11
+	# headCycle = diagram.cycleByAddress['12114']
+	# connect('5 ') # 10 !!!
+	# connect(' 41') # 12 !!!
+	# connect('5 ') # 10 !!!
+	# connect(' 41') # 11
+	# 
+	# 
+	# 
+	# connect('5')
+	
+	# connect('14 ') # 11
+	# connect(' 5') # 11
+	# connect('14') # 11
+	# connect('23') # 11
+	# connect('32') # 11
+	# connect('23') # 11
+	# connect('32') # 11
+	# connect('41') # 11
+	# connect('23') # 11
+	# connect('32') # 11
+	# connect('41') # 11
+	# connect('5') # 10
+	# 130 cycles | 24 segments | ℓ₃: 23
+	# 5.41666… cycles per segment
+	
+	
+	# rv = connectSingles(diagram)
+	
+	#connect('6666 2 6666 4')	
+	
+	# startTime = time()
+	# step()
+	
+	# diagram.cycleByAddress['00005'].chain.connect(3)
+	# rv = connectSingles(diagram)		
+	# 
+	# diagram.cycleByAddress['00000'].chain.connect(2)
+	# rv = connectSingles(diagram)		
+	# 
+	# diagram.cycleByAddress['00001'].chain.connect(3)
+	# rv = connectSingles(diagram)		
+	# 
+	# diagram.cycleByAddress['10005'].chain.connect(2)
+	# rv = connectSingles(diagram)		
+									
+	'''
+
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(3)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+
+	headCycle.chain.connect(3)
+	rv = connectSingles(diagram)
+
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+		
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+		
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+		
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+
+	headCycle.chain.connect(3)
+	rv = connectSingles(diagram)
+
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+		
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(3)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(3)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(3)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(3)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+	
+	headCycle.chain.connect(2)
+	rv = connectSingles(diagram)
+																																																														
 	# purge
-	purged, remain = purge()
+	conn, purgedStuff, nextLines = purge()
 	
-	assert len(purged) == 0
-	assert headCycle.chain in diagram.chains
-	headLine = [l for l in remain if l[0] == headCycle.chain][0]
-	assert remain[0][3] == headLine[3]
 	'''
-	'''
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
-	headCycle.chain.connect(2)
-	rv = connectSingles(diagram)
-	
+	'''		
 	headCycle.chain.connect(2)
 	rv = connectSingles(diagram)
 	
