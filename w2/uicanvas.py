@@ -261,7 +261,7 @@ def draw(diagram, **kwargs):
 		bot_l2_singles = []
 		bot_l3_singles = []		
 				
-		links_types = { 1: 0, 2: 0, 3: 0 }
+		links_types = { 1: 0, 2: 0, 3: 0, 4: 0 }
 							
 		for node in diagram.nodes:
 
@@ -372,10 +372,10 @@ def draw(diagram, **kwargs):
 		
 		connected_cycles = sum([len(chain.cycles) for chain in diagram.chains if len(chain.cycles) > 1])
 		extension_length = diagram.spClass * (diagram.spClass - 1) - 1
-		total = links_types[1]+2*links_types[2]+3*links_types[3]
+		total = links_types[1]+2*links_types[2]+3*links_types[3]+4*links_types[4]
 		final = diagram.spClass + total + (len(diagram.cycles) - connected_cycles) / (diagram.spClass - 2) * extension_length
 		
-		print(f"[show] chains: {len(diagram.chains)} | connected cycles: {connected_cycles} | links: ℓ₁x{links_types[1]} ℓ₂x{links_types[2]} ℓ₃x{links_types[3]} | total: {total} | final: {final}")
+		print(f"[show] chains: {len(diagram.chains)} | connected cycles: {connected_cycles} | links: ℓ₁x{links_types[1]} ℓ₂x{links_types[2]} ℓ₃x{links_types[3]} ℓ₄x{links_types[4]} | total: {total} | final: {final}")
 		'''
 		for chain in diagram.chains:
 			print(chain)
