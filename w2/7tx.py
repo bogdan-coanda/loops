@@ -4,7 +4,7 @@ from time import time
 
 
 step_id = 0
-min_step_chains = 156
+min_step_chains = 126
 
 
 def step(lvl=0, path=[]):
@@ -13,7 +13,7 @@ def step(lvl=0, path=[]):
 	def key():
 		return f"[{step_id:>4}][{tstr(time() - startTime):>11}][lvl:{lvl}]"
 		
-	if step_id % 100 == 0:
+	if step_id % 1000 == 0:
 		print(f"{key()}[ch:{len(diagram.chains)}] {'.'.join([(str(x)+upper(t)) for x,t in path])}")
 	step_id += 1
 
@@ -30,25 +30,38 @@ def step(lvl=0, path=[]):
 	min_chain = sorted(diagram.chains, key = lambda chain: (len(chain.avnodes), chain.id))[0]
 	# print(f"{key()} chosen min: {min_chain}")
 	
-	if len(min_chain.avnodes) > 1:
-		nextChainResults = []
-		for chain in list(diagram.chains):
-			chainResult = 0
-			for node in chain.avnodes:
-				assert diagram.extendLoop(node.loop)
-				chainResult += min([len(ch.avnodes) for ch in diagram.chains])
-				diagram.collapseBack(node.loop)
-			if chainResult == 0:
-				print(f"{key()} purging to zero")
-				return
-			nextChainResults.append((chain, chainResult))			
-		nextChainResults = sorted(nextChainResults, key = lambda cr: (cr[1], -len(cr[0].avnodes), cr[0].id))
-		oldMinChainResult = [cr for cr in nextChainResults if cr[0] == min_chain][0][1]
-		if oldMinChainResult != nextChainResults[0][1]:
-			print(f"{key()} purging from min: {min_chain} with result: {oldMinChainResult} to min: {nextChainResults[0][0]} with result: {nextChainResults[0][1]}")
-		min_chain = nextChainResults[0][0]
-	
 	seen = []
+	
+	# if len(min_chain.avnodes) > 1:	
+	# 	loopResults = {}
+	# 	for loop in diagram.loops:
+	# 		if loop.available:
+	# 			dead = False
+	# 
+	# 			assert diagram.extendLoop(loop)
+	# 			result = min([len(ch.avnodes) for ch in diagram.chains])
+	# 			if result == 0:
+	# 				dead = True
+	# 			else:
+	# 				loopResults[loop] = result
+	# 
+	# 			diagram.collapseBack(loop)
+	# 			if dead:
+	# 				diagram.setLoopUnavailable(loop)
+	# 				seen.append(loop)
+	# 
+		# if len(seen) > 0:
+		# 	print(f"{key()} surviving loops: {len(loopResults)} | dead loops: {len(seen)}")
+	# 
+	# 	nextChainResults = []
+	# 	for chain in list(diagram.chains):
+	# 		nextChainResults.append((chain, sum([loopResults[n.loop] for n in chain.avnodes])))			
+	# 	nextChainResults = sorted(nextChainResults, key = lambda cr: (cr[1], len(cr[0].avnodes), cr[0].id))
+		# oldMinChainResult = [cr for cr in nextChainResults if cr[0] == min_chain][0][1]
+		# if oldMinChainResult != nextChainResults[0][1]:
+		# 	print(f"{key()} purging from min: {min_chain} with result: {oldMinChainResult} to min: {nextChainResults[0][0]} with result: {nextChainResults[0][1]}")
+	# 	min_chain = nextChainResults[0][0]
+		
 	min_avlen = len(min_chain.avnodes)
 	
 	for i,n in enumerate(sorted(min_chain.avnodes, key = lambda n: n.address)):
@@ -65,7 +78,7 @@ def step(lvl=0, path=[]):
 
 if __name__ == "__main__":
 
-	diagram = Diagram(7, simpleKernel=True)
+	diagram = Diagram(7, kernelPath='')
 	
 	# diagram.setOpenChain('123450')
 	# node = diagram.nodeByAddress['123316']
@@ -74,7 +87,7 @@ if __name__ == "__main__":
 	# diagram.openChain.tailNode = node
 
 	def cOc(segment):
-		for x in segment:
+		for i,x in enumerate(segment):
 			if x in [' ', '-']:
 				pass
 			elif x == 'b':
@@ -85,7 +98,7 @@ if __name__ == "__main__":
 				assert diagram.connectOpenChain(int(x))		
 
 	def pOc(segment):
-		for x in reversed(segment):
+		for i,x in enumerate(reversed(segment)):
 			if x == ' ':
 				pass
 			elif x == 'b':
@@ -126,14 +139,31 @@ if __name__ == "__main__":
 	# [1∘4][2∘3][3∘2][4∘1][3∘2][4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][3∘2][4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][3∘2][4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][∘3∘2][4∘1][5][∘3∘2][4∘1][2∘3][3∘2][4∘1][5][∘3∘2][4∘1][2∘3][3∘2][4∘1][5][∘3∘2][4∘1][5][∘3∘2][4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][5]
 	# | current min off: -4  |  » ∘ «
 
-	# startTime = time()
-	# step()			
-
 	# cOc('22222 32222 23222 22322 32222 23222 22322 23222 22322 22232 22223 22232 2222-3-2222 23222 32222 23222 22322 22232 22322 22232 22223 22322 22232 22223 22222')
 	#       [5]  [∘5]  [1∘4] [2∘3] [∘5]  [1∘4] [2∘3] [1∘4] [2∘3] [3∘2] [4∘1] [3∘2]  [4 -∘- 4]  [1∘4] [∘5]  [1∘4] [2∘3] [3∘2] [2∘3] [3∘2] [4∘1] [2∘3] [3∘2] [4∘1]  [5]
 	
-	cOc('2222-3-2222')
+	''' --- The Possibilities --- 
+	id = "+" | links = [4,2,2,2,2] | segment =   "[+5]" | size = 12
+	id =  9  | links = [3,3,2,2,2] | segment = "[∘1∘4]" | size = 12
+	id =  8  | links = [3,2,3,2,2] | segment = "[∘2∘3]" | size = 12
+	id =  7  | links = [3,2,2,3,2] | segment = "[∘3∘2]" | size = 12
+	id =  6  | links = [3,2,2,2,3] | segment = "[∘4∘1]" | size = 12					
+	id =  5  | links = [3,2,2,2,2] | segment =   "[∘5]" | size = 11
+	id =  4  | links = [2,3,2,2,2] | segment =  "[1∘4]" | size = 11
+	id =  3  | links = [2,2,3,2,2] | segment =  "[2∘3]" | size = 11
+	id =  2  | links = [2,2,2,3,2] | segment =  "[3∘2]" | size = 11
+	id =  1  | links = [2,2,2,2,3] | segment =  "[4∘1]" | size = 11	
+	id =  0  | links = [2,2,2,2,2] | segment =    "[5]" | size = 10	
+	'''
+	# K                2     1     0     6     0     5     4     5     4     3     2     3     2     1     0
+	#        «K»     [3∘2] [4∘1]  [5] [∘4∘1]  [5]  [∘5]  [1∘4] [∘5]  [1∘4] [2∘3] [3∘2] [2∘3] [3∘2] [4∘1]  [5]
+	cOc('2232-2-2322 22232 22223 22222 32223 22222 32222 23222 32222 23222 22322 22232 22322 22232 22223 22222')
+	pOc(list(reversed('22232 22223 22222 32223 22222 32222 23222 32222 23222 22322 22232 22322 22232 22223 22222')))
 	
+	
+	startTime = time()
+	step()			
+		
 	diagram.point()
 	show(diagram)
 
