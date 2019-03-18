@@ -75,16 +75,16 @@ if __name__ == "__main__":
 	min_off_reached = 0
 
 	btcc = 0
-	def bt(lvl=0, offset=0, path=[]):
+	def bt(lvl=0, offset=0, path=[], segments=[5]):
 		global btcc, max_lvl_reached, min_off_reached
 		
 		# kill early
 		if offset	> 0:
 			return
-		if lvl > 35:
-			return
-		if len([c for c in diagram.cycles if c.address.startswith('00') and c.address[2] != '0' and c.chain.isOpen]) > 0:
-			return
+		# if lvl > 35:
+		# 	return
+		# if len([c for c in diagram.cycles if c.address.startswith('00') and c.address[2] != '0' and c.chain.isOpen]) > 0:
+		# 	return
 
 		# path = [(function index, function path), … ]
 		if btcc % 1000 == 0:
@@ -114,11 +114,21 @@ if __name__ == "__main__":
 			show(diagram)
 			print(f"[{btcc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]) + '\n')			
 			input2(f"| current min off: {min_off_reached}")
-		
+
+		if segments == list(reversed(segments)):
+			show(diagram)
+			print(f"[{btcc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]) + '\n')			
+			input2(f"| reversible segments: {''.join([str(s) for s in segments])}")
+						
+		if offset == -3 and segments == list(reversed(segments)):
+			show(diagram)
+			print(f"[{btcc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]) + '\n')
+			input2(f"| reversible [off:-3]: {''.join([str(s) for s in segments])}")
+					
 		if offset == -4 and path[-1][0] == 0:
 			show(diagram)
 			print(f"[{btcc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]) + '\n')
-			input2(f"| [-4]")
+			input2(f"| [off:-4]")
 
 		if diagram.openChain.tailNode.address.endswith('000456'):
 			show(diagram)
@@ -128,32 +138,32 @@ if __name__ == "__main__":
 		# --- THE ENGINE --- #								
 
 		# 2 ⇐ [0] // dc_5, dc_41, dc_32, dc_23, dc_14
-		if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+		if diagram.isOpenChainConnectable(2):
 			diagram.connectOpenChain(2)		
 			
 			## 2 ⇐ [1] // dc_5, dc_41, dc_32, dc_23
-			if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+			if diagram.isOpenChainConnectable(2):
 				diagram.connectOpenChain(2)
 				
 				### 2 ⇐ [2] // dc_5, dc_41, dc_32
-				if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+				if diagram.isOpenChainConnectable(2):
 					diagram.connectOpenChain(2)				
 
 					#### 2 ⇐ [3] // dc_5, dc_41
-					if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+					if diagram.isOpenChainConnectable(2):
 						diagram.connectOpenChain(2)				
 															
 						##### 2 ⇐ [4] // dc_5
-						if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+						if diagram.isOpenChainConnectable(2):
 							diagram.connectOpenChain(2)									
-							bt(lvl+1, offset+(10-11), path+[(0, '[5]')])
+							bt(lvl+1, offset+(10-11), path+[(0, '[5]')], segments[:-1]+[segments[-1]+5])
 							diagram.revertOpenChain() 
 						##### 2 ⇐ [4]
 						
 						##### 3 ⇐ [4] // dc_41
-						if diagram.openChain.tailNode.links[3].next.cycle.chain != diagram.openChain:
+						if diagram.isOpenChainConnectable(3):
 							diagram.connectOpenChain(3)
-							bt(lvl+1, offset+(11-11), path+[(1, '[4∘1]')])
+							bt(lvl+1, offset+(11-11), path+[(1, '[4∘1]')], segments[:-1]+[segments[-1]+4,1])
 							diagram.revertOpenChain() 
 						##### 3 ⇐ [4]
 
@@ -161,13 +171,13 @@ if __name__ == "__main__":
 					#### 2 ⇐ [3]
 
 					#### 3 ⇐ [3] // dc_32
-					if diagram.openChain.tailNode.links[3].next.cycle.chain != diagram.openChain:
+					if diagram.isOpenChainConnectable(3):
 						diagram.connectOpenChain(3)				
 															
 						##### 2 ⇐ [4] // dc_32
-						if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+						if diagram.isOpenChainConnectable(2):
 							diagram.connectOpenChain(2)									
-							bt(lvl+1, offset+(11-11), path+[(2, '[3∘2]')])
+							bt(lvl+1, offset+(11-11), path+[(2, '[3∘2]')], segments[:-1]+[segments[-1]+3,2])
 							diagram.revertOpenChain() 
 						##### 2 ⇐ [4]
 
@@ -178,17 +188,17 @@ if __name__ == "__main__":
 				### 2 ⇐ [2]
 				
 				### 3 ⇐ [2] // dc_23
-				if diagram.openChain.tailNode.links[3].next.cycle.chain != diagram.openChain:
+				if diagram.isOpenChainConnectable(3):
 					diagram.connectOpenChain(3)				
 
 					#### 2 ⇐ [3] // dc_23
-					if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+					if diagram.isOpenChainConnectable(2):
 						diagram.connectOpenChain(2)				
 															
 						##### 2 ⇐ [4] // dc_23
-						if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+						if diagram.isOpenChainConnectable(2):
 							diagram.connectOpenChain(2)									
-							bt(lvl+1, offset+(11-11), path+[(3, '[2∘3]')])
+							bt(lvl+1, offset+(11-11), path+[(3, '[2∘3]')], segments[:-1]+[segments[-1]+2,3])
 							diagram.revertOpenChain() 
 						##### 2 ⇐ [4]
 						
@@ -202,21 +212,21 @@ if __name__ == "__main__":
 			## 2 ⇐ [1]
 
 			## 3 ⇐ [1] // dc_14
-			if diagram.openChain.tailNode.links[3].next.cycle.chain != diagram.openChain:
+			if diagram.isOpenChainConnectable(3):
 				diagram.connectOpenChain(3)
 				
 				### 2 ⇐ [2] // dc_14
-				if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+				if diagram.isOpenChainConnectable(2):
 					diagram.connectOpenChain(2)				
 
 					#### 2 ⇐ [3] // dc_14
-					if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+					if diagram.isOpenChainConnectable(2):
 						diagram.connectOpenChain(2)				
 															
 						##### 2 ⇐ [4] // dc_14
-						if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
-							diagram.connectOpenChain(2)									
-							bt(lvl+1, offset+(11-11), path+[(4, '[1∘4]')])
+						if diagram.isOpenChainConnectable(2):
+							diagram.connectOpenChain(2)
+							bt(lvl+1, offset+(11-11), path+[(4, '[1∘4]')], segments[:-1]+[segments[-1]+1,4])
 							diagram.revertOpenChain() 
 						##### 2 ⇐ [4]
 
@@ -233,32 +243,32 @@ if __name__ == "__main__":
 		# 2 ⇐ [0]
 
 		# 3 ⇐ [0] // dc_05, dc_041, dc_032, dc_023, dc_014
-		if diagram.openChain.tailNode.links[3].next.cycle.chain != diagram.openChain:
+		if diagram.isOpenChainConnectable(3):
 			diagram.connectOpenChain(3)		
 			
 			## 2 ⇐ [1] // dc_05, dc_041, dc_032, dc_023
-			if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+			if diagram.isOpenChainConnectable(2):
 				diagram.connectOpenChain(2)
 				
 				### 2 ⇐ [2] // dc_05, dc_041, dc_032
-				if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+				if diagram.isOpenChainConnectable(2):
 					diagram.connectOpenChain(2)				
 
 					#### 2 ⇐ [3] // dc_05, dc_041
-					if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+					if diagram.isOpenChainConnectable(2):
 						diagram.connectOpenChain(2)				
 															
 						##### 2 ⇐ [4] // dc_05
-						if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+						if diagram.isOpenChainConnectable(2):
 							diagram.connectOpenChain(2)									
-							bt(lvl+1, offset+(11-11), path+[(5, '[∘5]')])
+							bt(lvl+1, offset+(11-11), path+[(5, '[∘5]')], segments+[5])
 							diagram.revertOpenChain() 
 						##### 2 ⇐ [4]
 						
 						##### 3 ⇐ [4] // dc_041
-						if diagram.openChain.tailNode.links[3].next.cycle.chain != diagram.openChain:
+						if diagram.isOpenChainConnectable(3):
 							diagram.connectOpenChain(3)
-							bt(lvl+1, offset+(12-11), path+[(6, '[∘4∘1]')])
+							bt(lvl+1, offset+(12-11), path+[(6, '[∘4∘1]')], segments+[4,1])
 							diagram.revertOpenChain() 
 						##### 3 ⇐ [4]
 
@@ -266,13 +276,13 @@ if __name__ == "__main__":
 					#### 2 ⇐ [3]
 
 					#### 3 ⇐ [3] // dc_032
-					if diagram.openChain.tailNode.links[3].next.cycle.chain != diagram.openChain:
+					if diagram.isOpenChainConnectable(3):
 						diagram.connectOpenChain(3)				
 															
 						##### 2 ⇐ [4] // dc_032
-						if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+						if diagram.isOpenChainConnectable(2):
 							diagram.connectOpenChain(2)									
-							bt(lvl+1, offset+(12-11), path+[(7, '[∘3∘2]')])
+							bt(lvl+1, offset+(12-11), path+[(7, '[∘3∘2]')], segments+[3,2])
 							diagram.revertOpenChain() 
 						##### 2 ⇐ [4]
 
@@ -283,17 +293,17 @@ if __name__ == "__main__":
 				### 2 ⇐ [2]
 				
 				### 3 ⇐ [2] // dc_023
-				if diagram.openChain.tailNode.links[3].next.cycle.chain != diagram.openChain:
+				if diagram.isOpenChainConnectable(3):
 					diagram.connectOpenChain(3)				
 
 					#### 2 ⇐ [3] // dc_023
-					if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+					if diagram.isOpenChainConnectable(2):
 						diagram.connectOpenChain(2)				
 															
 						##### 2 ⇐ [4] // dc_023
-						if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+						if diagram.isOpenChainConnectable(2):
 							diagram.connectOpenChain(2)									
-							bt(lvl+1, offset+(12-11), path+[(8, '[∘2∘3]')])
+							bt(lvl+1, offset+(12-11), path+[(8, '[∘2∘3]')], segments+[2,3])
 							diagram.revertOpenChain() 
 						##### 2 ⇐ [4]
 						
@@ -307,21 +317,21 @@ if __name__ == "__main__":
 			## 2 ⇐ [1]
 
 			## 3 ⇐ [1] // dc_014
-			if diagram.openChain.tailNode.links[3].next.cycle.chain != diagram.openChain:
+			if diagram.isOpenChainConnectable(3):
 				diagram.connectOpenChain(3)
 				
 				### 2 ⇐ [2] // dc_014
-				if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+				if diagram.isOpenChainConnectable(2):
 					diagram.connectOpenChain(2)				
 
 					#### 2 ⇐ [3] // dc_014
-					if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+					if diagram.isOpenChainConnectable(2):
 						diagram.connectOpenChain(2)				
 															
 						##### 2 ⇐ [4] // dc_014
-						if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+						if diagram.isOpenChainConnectable(2):
 							diagram.connectOpenChain(2)									
-							bt(lvl+1, offset+(12-11), path+[(9, '[∘1∘4]')])
+							bt(lvl+1, offset+(12-11), path+[(9, '[∘1∘4]')], segments+[1,4])
 							diagram.revertOpenChain() 
 						##### 2 ⇐ [4]
 
@@ -338,23 +348,23 @@ if __name__ == "__main__":
 		# 3 ⇐ [0]
 		
 		# 4 ⇐ [0] // dc_x5
-		# if diagram.openChain.tailNode.links[4].next.cycle.chain != diagram.openChain:
+		# if diagram.isOpenChainConnectable(4):
 		# 	diagram.connectOpenChain(4)		
 		# 
 			## 2 ⇐ [1] // dc_x5
-		# 	if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+		# 	if diagram.isOpenChainConnectable(2):
 		# 		diagram.connectOpenChain(2)
 		# 
 				### 2 ⇐ [2] // dc_x5
-		# 		if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+		# 		if diagram.isOpenChainConnectable(2):
 		# 			diagram.connectOpenChain(2)				
 		# 
 					#### 2 ⇐ [3] // dc_x5
-		# 			if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+		# 			if diagram.isOpenChainConnectable(2):
 		# 				diagram.connectOpenChain(2)				
 		# 
 						##### 2 ⇐ [4] // dc_x5
-		# 				if diagram.openChain.tailNode.links[2].next.cycle.chain != diagram.openChain:
+		# 				if diagram.isOpenChainConnectable(2):
 		# 					diagram.connectOpenChain(2)									
 		# 					bt(lvl+1, offset+(12-11), path+[('+', '[+5]')])
 		# 					diagram.revertOpenChain() 

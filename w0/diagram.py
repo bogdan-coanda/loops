@@ -335,21 +335,7 @@ class Diagram (object):
 		# they're the loops that are re-availabled on collapse
 		new_chain, affected_loops, updated_chains = self.makeChain(affected_chains)				
 				
-		#for node in loop.nodes:
-			#assert not node.links[1].next.loop.availabled and not node.prevs[1].node.loop.availabled, "broken extension neighbours!!!"
-			
-		#for lp in self.loops:
-			#if lp.availabled:
-				#assert self.checkAvailability(lp), "broken checked loops"
-				
-		#assert len([node for node in loop.nodes if node.links[1].next.loop.availabled or node.prevs[1].node.loop.availabled]) is 0, "broken extension neighbours!!!"		
-
 		loop.extension_result.setExtensionDetails(new_chain, affected_loops, affected_chains, updated_chains)
-
-		# loop.extension_result.kfPreviousFields = KillingField.fixExtendLoop(loop) // [~][kF]
-		#KillingField.assessAllLoops(self)
-
-		##assert set(list(itertools.chain(*[chain.avloops for chain in diagram.chains]))) == set([loop for loop in diagram.loops if loop.availabled and len([n for n in loop.nodes if n.cycle.chain])])
 												
 		return True
 			

@@ -230,9 +230,20 @@ if __name__ == "__main__":
 		# 3 ⇐ [0]
 															
 	print("\n\n -------------- \n\n")
-				
-	bt()
-				
+
+	# bt()
+
+	r = dc_13()
+	r = dc_22()
+	r = dc_31()
+	r = dc_4()
+	# r = dc_31()
+	# r = dc_4()
+	# r = dc_022()
+	# r = dc_4()
+	# r = dc_022()
+	# r = dc_04()
+							
 	# diagram.connectOpenChain(2)
 	# diagram.connectOpenChain(2)
 	# diagram.revertOpenChain()
@@ -256,6 +267,6 @@ if __name__ == "__main__":
 	# diagram.connectOpenChain(3)
 	# 
 	# 
-	# show(diagram)
-	# if not r:
-	# 	print("--- failed last command ---")
+	show(diagram)
+	if not r:
+		print("--- failed last command ---")

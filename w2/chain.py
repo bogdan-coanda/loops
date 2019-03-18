@@ -2,8 +2,20 @@ class Chain (object):
 	
 	__slots__ = ['id', 'avnodes',
 		'cycles', # [~] set of all contained cycles [!] [dbg] needed just for asserts, debugging, and showing unconnectable chains
-		'isOpen', 'tailNode',
-		'color' # assigned on draw
+		
+		# open chain
+		'isOpen', 'headNode', 'tailNode',
+		
+		# assigned on draw
+		'color', 
+		
+		# affected chains are the underlying chains that are tied together by this new chain
+		# they're the chains that need to be added to the diagram on this chain's demise
+		'affected_chains',
+						
+		# affected loops are avloops set to unavailabled because we're connecting the affected chains together
+		# they're the loops that need to be re-availabled on this chain's demise
+		'affected_loops'
 	] 
 
 	chainAutoInc = 0
@@ -16,6 +28,7 @@ class Chain (object):
 		self.cycles = [] # set outside init
 		
 		self.isOpen = False
+		self.headNode = None
 		self.tailNode = None
 		
 		self.color = None

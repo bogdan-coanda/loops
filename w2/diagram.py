@@ -11,6 +11,7 @@ from collections import defaultdict
 
 class Diagram (object):
 	
+	
 	__slots__ = [
 		'spClass',
 		'nodes', 'nodeByAddress', 'nodeByPerm', 'startNode',
@@ -25,7 +26,7 @@ class Diagram (object):
 	]
 
 		
-	def __init__(self, N):
+	def __init__(self, N, **kwargs):
 				
 		self.spClass = N
 			
@@ -33,17 +34,21 @@ class Diagram (object):
 		self.draw_boxes = []
 		self.changelog = []
 		
-		self.generateGraph()						
-		
-								
-	def generateGraph(self):
+		self.generateGraph(**kwargs)						
+
+
+	# --- slots∘init ------------------------------------------------------------------------------------------------------------------------------------------------------------- #
+	# --- generators ------------------------------------------------------------------------------------------------------------------------------------------------------------- #
+	
+	
+	def generateGraph(self, **kwargs):
 		
 		self.generateNodes()
 		self.generateCycles()
 		self.generateLinks()
 		self.generateLoops()
 		self.generateChains()
-		self.generateKernel()		
+		self.generateKernel(kernelPath=(None if 'kernelPath' not in kwargs else kwargs['kernelPath']))		
 		
 
 	def generateNodes(self):
@@ -199,7 +204,7 @@ class Diagram (object):
 			new_chain = Chain()
 																			
 			# move cycle
-			new_chain.avnodes = set(cycle.nodes)
+			new_chain.avnodes = list(cycle.nodes)
 			cycle.chain = new_chain
 			
 			# [~][dbg] start cycles list
@@ -208,24 +213,125 @@ class Diagram (object):
 			self.chains.add(new_chain)
 			
 	
-	def generateKernel(self):
+	def generateKernel(self, kernelPath=None):
 		
 		self.headCycle = self.startNode.cycle
 		self.openChain = self.headCycle.chain
 		
-		# set tail node
+		# setup open chain
 		self.openChain.isOpen = True
+		self.openChain.headNode = self.startNode
 		self.openChain.tailNode = self.startNode.prevs[1].node
 		
-		# append enough cycles to be completable by extensions (extensions add [sp-2] new cycles ⇒ the kernel needs to be of size [y(sp-2)] ⇒ we append [sp-3] cycles)
-		for _ in range(self.spClass-3):
-			self.connectOpenChain(2)
+		# manually turn off loops surrounding the opening		
+		self.setLoopUnavailable(self.openChain.headNode.loop)
+		self.setLoopUnavailable(self.openChain.tailNode.loop)
+		self.setLoopUnavailable(self.openChain.tailNode.prevs[1].node.loop)
+				
+		if kernelPath == None:
+			# append enough cycles to be completable by extensions (extensions add [sp-2] new cycles ⇒ the kernel needs to be of size [y(sp-2)] ⇒ we append [sp-3] cycles)
+			for _ in range(self.spClass-3):
+				self.connectOpenChain(2)			
+		else:
+			# append given path 
+			for linkType in [int(x) for x in kernelPath]:
+				self.connectOpenChain(linkType)			
 			
 		self.changelog.append(('kernel'))
 	
-	# --- generating ------------------------------------------------------------------------------------------------------------------------------------------------------------- #
-	# --- basic ops -------------------------------------------------------------------------------------------------------------------------------------------------------------- #
+	
+	# --- generators ------------------------------------------------------------------------------------------------------------------------------------------------------------- #
+	# --- internals -------------------------------------------------------------------------------------------------------------------------------------------------------------- #
+	
+	
+	def __makeChain__(self, affected_chains):
+
+		# create new chain
+		new_chain = Chain()
+		affected_loops = []
 		
+		# gather together all non-repeating avnodes.loops, this is checkAvailability() behaviour
+		seenOnceLoops = []
+		# seen at least once nodes cache (for faster filtering after the gathering)
+		seenNodes = []
+																	
+		# for each old chain
+		for index, old_chain in enumerate(affected_chains):
+			
+			# for each available node
+			for node in list(old_chain.avnodes): # duplicate list for safety reasons
+				loop = node.loop
+				
+				# if still available
+				if loop.available:
+					
+					# if not yet seen
+					if loop not in seenOnceLoops:
+						# seen once
+						seenOnceLoops.append(loop)
+						seenNodes.append(node)							
+							
+					# if seen once (seen more condition not possible as we're guarded by loop.availabled)
+					else:
+						# seen more
+						seenOnceLoops.remove(loop)
+						self.setLoopUnavailable(loop)
+						# remember erased loop						
+						affected_loops.append(loop)
+										
+			# kill chain
+			self.chains.remove(old_chain)			
+																		
+		# filter all corresponding remaining avnodes
+		new_chain.avnodes = [node for node in seenNodes if node.loop.available]
+		# [~][dbg] merge cycles lists
+		new_chain.cycles = list(itertools.chain(*[chain.cycles for chain in affected_chains]))
+		
+		# move all cycles new chain (will have to be undone on breakChain())
+		for cycle in new_chain.cycles:
+			cycle.chain = new_chain
+																																					
+		# a new chain is born
+		self.chains.add(new_chain)
+		new_chain.affected_chains = affected_chains
+		new_chain.affected_loops = affected_loops
+		
+		# is open chain?
+		if self.openChain in affected_chains:
+			new_chain.isOpen = True
+			# assume details didn't change (true for extending loops, will be updated afterwards when extending the open chain)
+			new_chain.headNode = self.openChain.headNode
+			new_chain.tailNode = self.openChain.tailNode
+			self.openChain = new_chain
+		
+		return new_chain
+	
+
+	def __breakChain__(self, new_chain):
+				
+		# remove/add chains
+		self.chains.remove(new_chain)
+		for chain in new_chain.affected_chains:
+			self.chains.add(chain)			
+			# remap cycles
+			for cycle in chain.cycles:
+				cycle.chain = chain
+							
+		# re-available affected loops
+		for loop in reversed(new_chain.affected_loops):
+			self.resetLoopAvailable(loop)
+			
+		# reverse open chain?
+		if self.openChain == new_chain:
+			oldChain = [chain for chain in new_chain.affected_chains if chain.isOpen]
+			assert len(oldChain) == 1
+			self.openChain = oldChain[0]
+			
+	
+	# --- internals -------------------------------------------------------------------------------------------------------------------------------------------------------------- #
+	# --- basic ops -------------------------------------------------------------------------------------------------------------------------------------------------------------- #
+				
+				
 	def setLoopUnavailable(self, loop):
 		# print(f"[setLoopUnavailable] called with {loop}")
 		assert loop.available is True
@@ -254,90 +360,198 @@ class Diagram (object):
 								
 		loop.available = True
 		for ch, n in unavailabled_chain_node_pairs:
-			ch.avnodes.add(n)
+			ch.avnodes.append(n)
 		# print(f"[resetLoopAvailable] ⇒ done")
 		
 		
 	# --- basic ops -------------------------------------------------------------------------------------------------------------------------------------------------------------- #
-	# --- open chain ------------------------------------------------------------------------------------------------------------------------------------------------------------- #
+	# --- extending -------------------------------------------------------------------------------------------------------------------------------------------------------------- #
 	
-	def connectOpenChain(self, linkType):
-		
-		# print(f"[cOc] called with linkType: {linkType}")
-		# print("\n".join([str((i, self.changelog[i])) for i in range(len(self.changelog))]))
-		
-		nextLink = self.openChain.tailNode.links[linkType]
-		nextNode = nextLink.next
-		nextChain = nextNode.cycle.chain
-		# print(f"[cOc] nextChain: {nextChain} | openChain: {self.openChain}")
-		if nextChain == self.openChain:
-			# print(f"[cOc] ⇒ self-connect // giving up")
+	
+	def extendLoop(self, loop):				
+		# print(f"[extend] loop: {loop}")
+						
+		# assert/return false if not we can't or already did extend		
+		if loop.available is False or loop.extended is True:
 			return False
-				
-		# connect link
-		self.openChain.tailNode.nextLink = nextNode.prevLink = nextLink
-		self.openChain.tailNode = nextNode.prevs[1].node
-				
-		# update chain avnodes
-		openLoops = set([n.loop for n in self.openChain.avnodes])
-		assert len(openLoops) == len(self.openChain.avnodes)				
-		nextLoops = set([n.loop for n in nextChain.avnodes])
-		assert len(nextLoops) == len(nextChain.avnodes)		
-		commonLoops = openLoops.intersection(nextLoops)
-		commonLoops.add(nextLink.node.loop)
-		commonLoops.add(nextLink.node.prevs[1].node.loop)
-		commonLoops.add(nextLink.next.loop)
-		commonLoops = list(commonLoops)
-		prevNodes = set(self.openChain.avnodes)
-		self.openChain.avnodes.difference_update([n for n in self.openChain.avnodes if n.loop in commonLoops])
-		self.openChain.avnodes.update(nextChain.avnodes.difference([n for n in nextChain.avnodes if n.loop in commonLoops]))
+			
+		loop.extended = True																		
+		new_chain = self.__makeChain__([node.cycle.chain for node in loop.nodes])				
+
+		self.changelog.append(('extended', loop, new_chain))												
+		return True
+			
+																						
+	def collapseBack(self, loop):	
+		# print(f"[collapse] loop: {loop}")		
 		
-		# kill common loops
-		unavailabledCommonLoops = []
-		for loop in commonLoops:
+		key, _loop, new_chain = self.changelog.pop()
+		assert key == 'extended' and loop == _loop
+								
+		self.__breakChain__(new_chain)
+		loop.extended = False
+			
+	
+	# --- extending -------------------------------------------------------------------------------------------------------------------------------------------------------------- #	
+	# --- open chain ------------------------------------------------------------------------------------------------------------------------------------------------------------- #
+
+	
+	def isOpenChainPrependable(self, linkType):
+		# [~] incorrect, we could also connect to singled extensions
+		return len(self.openChain.headNode.prevs[linkType].node.cycle.chain.cycles) == 1
+					
+
+	def prependOpenChain(self, linkType):		
+		# print(f"[cOc] called with linkType: {linkType}")
+		
+		if linkType == '3b':
+			prevLink = self.p3s[self.openChain.headNode][1]
+		else:
+			prevLink = self.openChain.headNode.prevs[linkType]
+			
+		prevNode = prevLink.node
+		prevChain = prevNode.cycle.chain
+
+		assert prevChain != self.openChain, 'should have called .isOpenChainPrependable() first'
+				
+		# manually connect link
+		self.openChain.headNode.prevLink = prevNode.nextLink = prevLink		
+				
+		# make new chain
+		new_chain = self.__makeChain__([self.openChain, prevChain])
+				
+		# update head node
+		new_chain.headNode = prevNode.links[1].next
+				
+		# manually unavail loops surrounding connected link
+		def test(loop):
 			if loop.available:
 				self.setLoopUnavailable(loop)
-				unavailabledCommonLoops.append(loop)				
-				
-		# add new cycle to chain
-		nextNode.cycle.chain = self.openChain
-		self.openChain.cycles.append(nextNode.cycle)
+				new_chain.affected_loops.append(loop)		
+		test(prevLink.node.loop)
+		test(prevLink.node.prevs[1].node.loop)
+		test(prevLink.node.links[1].next.loop)
+		# if nextLink.next.loop.available:
+		# 	self.setLoopUnavailable(nextLink.next.loop)
+		# 	new_chain.affected_loops.append(nextLink.next.loop)			
+		# if nextLink.next.prevs[1].node.loop.available:
+		# 	self.setLoopUnavailable(nextLink.next.prevs[1].node.loop)
+		# 	new_chain.affected_loops.append(nextLink.next.prevs[1].node.loop)						
+		# if nextLink.next.prevs[1].node.prevs[1].node.loop.available:
+		# 	self.setLoopUnavailable(nextLink.next.prevs[1].node.prevs[1].node.loop)
+		# 	new_chain.affected_loops.append(nextLink.next.prevs[1].node.prevs[1].node.loop)									
 
-		# remove overwritten chain
-		self.chains.remove(nextChain)
-		self.changelog.append(('connected', linkType, nextLink, commonLoops, unavailabledCommonLoops, prevNodes, nextChain))
-		# print(f"[+][changelog:connectOpenChain] {self.changelog[-1]}")
+		self.changelog.append(('prepended', linkType, prevLink, new_chain))
+		# print(f"[cOc] ⇒ done")
+		return True
+		
+		
+	def revertOpenChainPrepend(self):		
+		# print(f"[rOc] called")
+		
+		key, linkType, prevLink, new_chain = self.changelog.pop()
+		assert key == 'prepended'
+
+		self.__breakChain__(new_chain)						
+								
+		assert self.openChain.headNode.prevLink == prevLink
+		
+		# manually remove link
+		self.openChain.headNode.prevLink = prevLink.node.nextLink = None
+		# print(f"[rOc] ⇒ done")
+				
+		
+	def isOpenChainConnectable(self, linkType):
+		# [~] incorrect, we could also connect to singled extensions
+		return len(self.openChain.tailNode.links[linkType].next.cycle.chain.cycles) == 1
+
+								
+	def connectOpenChain(self, linkType):		
+		# print(f"[cOc] called with linkType: {linkType}")
+		
+		if linkType == '3b':
+			nextLink = self.l3s[self.openChain.tailNode][1]
+		else:
+			nextLink = self.openChain.tailNode.links[linkType]
+			
+		nextNode = nextLink.next
+		nextChain = nextNode.cycle.chain
+
+		assert nextChain != self.openChain, 'should have called .isOpenChainConnectable() first'
+				
+		# manually connect link
+		self.openChain.tailNode.nextLink = nextNode.prevLink = nextLink		
+				
+		# make new chain
+		new_chain = self.__makeChain__([self.openChain, nextChain])
+				
+		# update tail node
+		new_chain.tailNode = nextNode.prevs[1].node
+				
+		# manually unavail loops surrounding connected link
+		if nextLink.next.loop.available:
+			self.setLoopUnavailable(nextLink.next.loop)
+			new_chain.affected_loops.append(nextLink.next.loop)			
+		if nextLink.next.prevs[1].node.loop.available:
+			self.setLoopUnavailable(nextLink.next.prevs[1].node.loop)
+			new_chain.affected_loops.append(nextLink.next.prevs[1].node.loop)						
+		if nextLink.next.prevs[1].node.prevs[1].node.loop.available:
+			self.setLoopUnavailable(nextLink.next.prevs[1].node.prevs[1].node.loop)
+			new_chain.affected_loops.append(nextLink.next.prevs[1].node.prevs[1].node.loop)						
+													
+		self.changelog.append(('connected', linkType, nextLink, new_chain))
 		# print(f"[cOc] ⇒ done")
 		return True
 		
 	
-	def revertOpenChain(self):
-		
+	def revertOpenChainConnect(self):		
 		# print(f"[rOc] called")
-		# print("\n".join([str((i, self.changelog[i])) for i in range(len(self.changelog))]))
 		
-		# print(f"[-][changelog:revertOpenChain] {self.changelog[-1]}")
-		lastChange = self.changelog.pop()
-		key, linkType, nextLink, commonLoops, unavailabledCommonLoops, prevNodes, nextChain = lastChange
+		key, linkType, nextLink, new_chain = self.changelog.pop()
 		assert key == 'connected'
+
+		self.__breakChain__(new_chain)						
+								
+		assert self.openChain.tailNode.nextLink == nextLink
 		
-		self.chains.add(nextChain)
-		
-		self.openChain.cycles.remove(nextLink.next.cycle)
-		nextLink.next.cycle.chain = nextChain
-		
-		for loop in reversed(unavailabledCommonLoops):
-			self.resetLoopAvailable(loop)
-			
-		self.openChain.avnodes = prevNodes
-				
-		self.openChain.tailNode = nextLink.node
+		# manually remove link
 		self.openChain.tailNode.nextLink = nextLink.next.prevLink = None
 		# print(f"[rOc] ⇒ done")
 		
 		
+	# --- open chain ------------------------------------------------------------------------------------------------------------------------------------------------------------- #	
+	
+	def point(self):
+		self.pointers = []
+			
+		if len(self.chains) is 1 and len(list(self.chains)[0].cycles) is len(self.cycles):
+			return
+				
+		chain_avlen, smallest_chain_group = (len(self.cycles), [])
+		sorted_chain_groups = sorted(groupby(self.chains, K = lambda chain: len(chain.avnodes)).items())
+		if len(sorted_chain_groups) > 0:
+			chain_avlen, smallest_chain_group	= sorted_chain_groups[0]		
+		
+		self.pointers = list(itertools.chain(*[[[n for n in node.loop.nodes if n.cycle.chain is chain][0] for node in chain.avnodes] if chain_avlen is not 0 else chain.cycles for chain in smallest_chain_group]))
+			
+	# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- #
+
+				
 if __name__ == "__main__":
 	from uicanvas import *
 
-	diagram = Diagram(6)	
+	diagram = Diagram(6, kernelPath='')	
+	
+	diagram.connectOpenChain(2)
+	diagram.revertOpenChainConnect()
+
+	diagram.prependOpenChain(3)
+	diagram.revertOpenChainPrepend()
+
+	diagram.extendLoop(diagram.nodeByAddress['00041'].loop)
+	diagram.collapseBack(diagram.nodeByAddress['00041'].loop)
+
+	assert sum([len(chain.cycles) for chain in diagram.chains]) == len(diagram.cycles)
+	assert sum([len(chain.avnodes) for chain in diagram.chains]) == len([n for n in diagram.nodes if n.loop.available])
+	
 	show(diagram)	
