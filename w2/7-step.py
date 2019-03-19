@@ -4,7 +4,7 @@ from time import time
 
 
 step_id = 0
-min_step_chains = 126
+min_step_chains = 116
 
 
 def step(lvl=0, path=[]):
@@ -13,7 +13,7 @@ def step(lvl=0, path=[]):
 	def key():
 		return f"[{step_id:>4}][{tstr(time() - startTime):>11}][lvl:{lvl}]"
 		
-	if step_id % 1000 == 0:
+	if step_id % 10000 == 0:
 		print(f"{key()}[ch:{len(diagram.chains)}] {'.'.join([(str(x)+upper(t)) for x,t in path])}")
 	step_id += 1
 
@@ -32,35 +32,35 @@ def step(lvl=0, path=[]):
 	
 	seen = []
 	
-	# if len(min_chain.avnodes) > 1:	
-	# 	loopResults = {}
-	# 	for loop in diagram.loops:
-	# 		if loop.available:
-	# 			dead = False
-	# 
-	# 			assert diagram.extendLoop(loop)
-	# 			result = min([len(ch.avnodes) for ch in diagram.chains])
-	# 			if result == 0:
-	# 				dead = True
-	# 			else:
-	# 				loopResults[loop] = result
-	# 
-	# 			diagram.collapseBack(loop)
-	# 			if dead:
-	# 				diagram.setLoopUnavailable(loop)
-	# 				seen.append(loop)
-	# 
+	if step_id % 1000 == 0 and len(min_chain.avnodes) > 1:	
+		loopResults = {}
+		for loop in diagram.loops:
+			if loop.available:
+				dead = False
+
+				assert diagram.extendLoop(loop)
+				result = min([len(ch.avnodes) for ch in diagram.chains])
+				if result == 0:
+					dead = True
+				else:
+					loopResults[loop] = result
+
+				diagram.collapseBack(loop)
+				if dead:
+					diagram.setLoopUnavailable(loop)
+					seen.append(loop)
+
 		# if len(seen) > 0:
 		# 	print(f"{key()} surviving loops: {len(loopResults)} | dead loops: {len(seen)}")
-	# 
-	# 	nextChainResults = []
-	# 	for chain in list(diagram.chains):
-	# 		nextChainResults.append((chain, sum([loopResults[n.loop] for n in chain.avnodes])))			
-	# 	nextChainResults = sorted(nextChainResults, key = lambda cr: (cr[1], len(cr[0].avnodes), cr[0].id))
+
+		nextChainResults = []
+		for chain in list(diagram.chains):
+			nextChainResults.append((chain, sum([loopResults[n.loop] for n in chain.avnodes])))			
+		nextChainResults = sorted(nextChainResults, key = lambda cr: (cr[1], len(cr[0].avnodes), cr[0].id))
 		# oldMinChainResult = [cr for cr in nextChainResults if cr[0] == min_chain][0][1]
 		# if oldMinChainResult != nextChainResults[0][1]:
 		# 	print(f"{key()} purging from min: {min_chain} with result: {oldMinChainResult} to min: {nextChainResults[0][0]} with result: {nextChainResults[0][1]}")
-	# 	min_chain = nextChainResults[0][0]
+		min_chain = nextChainResults[0][0]
 		
 	min_avlen = len(min_chain.avnodes)
 	
