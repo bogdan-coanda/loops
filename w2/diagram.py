@@ -7,6 +7,7 @@ from loop import *
 from common import *
 from measures import *
 from collections import defaultdict
+import functools
 
 
 class Diagram (object):
@@ -22,7 +23,9 @@ class Diagram (object):
 		'loops', 'loopByFirstAddress', 'radialLoopsByKType',
 		'W', 'H',
 		'pointers', 'draw_boxes',
-		'changelog'
+		'changelog',
+		'__adv__', '__jmp__', #'__nxt__',
+		'bases', 'node_tuples', 'loop_tuples'
 	]
 
 		
@@ -33,6 +36,8 @@ class Diagram (object):
 		self.pointers = []
 		self.draw_boxes = []
 		self.changelog = []
+		
+		self.loop_tuples = []
 		
 		self.generateGraph(**kwargs)						
 
@@ -520,6 +525,116 @@ class Diagram (object):
 		
 		
 	# --- open chain ------------------------------------------------------------------------------------------------------------------------------------------------------------- #	
+	# --- walk/tuples ------------------------------------------------------------------------------------------------------------------------------------------------------------ #
+	
+	def walk(self, bases, alternating):
+		
+		if alternating:
+			
+			# define alternating movement methods
+			# [!] needs to be called with bases like [.openChain.headNode, .openChain.tailNode.prevs[1].node]
+			# ... because we need to keep the odd pointers on the starting nodes for extending loops corresponding to loops starting at the even pointers
+			# ... in this regard, we are forced to call adv/jmp instead of a generic nxt function to advance the pointers
+			def jmp(pointers, bid): # jmp(from 0 to len(loopBrethren)-1)
+				for i in range(len(pointers)):
+					if i % 2 == 0:
+						pointers[i] = pointers[i].loopBrethren[bid]
+					else:
+						pointers[i] = pointers[i].loopBrethren[-1-bid]				
+						
+			def adv(pointers, cid): # adv(0) advances once, to match jmp(0) which jumps once
+				for i in range(len(pointers)):
+					if i % 2 == 0:
+						for _ in range(1+cid):
+							pointers[i] = pointers[i].links[1].next
+					else:
+						for _ in range(1+cid):
+							pointers[i] = pointers[i].prevs[1].node			
+			
+			# def nxt(pointers, lid): # go to the next node by link type
+			# 	for i in range(len(pointers)):
+			# 		if i % 2 == 0:
+			# 			pointers[i] = pointers[i].links[lid].next
+			# 		else:
+			# 			pointers[i] = pointers[i].prevs[lid].node				
+				
+		else: 
+			
+			# define unidirectional movement methods
+
+			def jmp(pointers, bid): # jmp(from 0 to len(loopBrethren)-1)
+				for i in range(len(pointers)):
+					pointers[i] = pointers[i].loopBrethren[bid]
+						
+			def adv(pointers, cid): # adv(0) advances once, to match jmp(0) which jumps once
+				for i in range(len(pointers)):
+					for _ in range(1+cid):
+						pointers[i] = pointers[i].links[1].next
+				
+			# def nxt(pointers, lid): # go to the next node by link type
+			# 	for i in range(len(pointers)):
+			# 		pointers[i] = pointers[i].links[lid].next
+										
+		self.__jmp__ = jmp
+		self.__adv__ = adv
+		self.bases = bases
+		
+		# do the actual walking			
+		self.__walk__(self.bases, adv, jmp)
+											
+											
+	def __walk__(self, base_nodes, adv, jmp):
+					
+		self.node_tuples = []
+		self.loop_tuples = []
+		for node in self.nodes:
+			node.tuple = node.loop.tuple = None
+		
+		adv_queue = [list(base_nodes)]
+		jmp_queue = []
+		while len(adv_queue) > 0 or len(jmp_queue) > 0:
+			
+			curr_node_tuple = adv_queue.pop() if len(adv_queue) else jmp_queue.pop()
+			if curr_node_tuple[0].tuple is not None:
+				continue
+				
+			self.node_tuples.append(curr_node_tuple)			
+			for node in curr_node_tuple:
+				node.tuple = curr_node_tuple				
+								
+			curr_loop_tuple = tuple([node.loop for node in curr_node_tuple])
+			if curr_loop_tuple[0].tuple is None:
+				self.loop_tuples.append(curr_loop_tuple)				
+				for loop in curr_loop_tuple:
+					loop.tuple = curr_loop_tuple				
+
+			# for i in range(1, self.spClass):																						
+			# 	pointers = list(curr_node_tuple)
+			# 	nxt(pointers, i)
+			# 	if pointers[0].tuple is None:
+			# 		queue.append(pointers)
+			
+			pointers = list(curr_node_tuple)
+			adv(pointers, 1)
+			if pointers[0].tuple is None:
+				adv_queue.append(pointers)
+	
+			pointers = list(curr_node_tuple)
+			jmp(pointers, 0)
+			if pointers[0].tuple is None:
+				jmp_queue.append(pointers)
+
+																																																											
+		if len([n for n in self.nodes if n.tuple is None]) is not 0:
+			self.pointers = [n for n in self.nodes if n.tuple is None]
+			import uicanvas
+			uicanvas.show(self)
+			input2(f"[__walk__] broken!")
+		print("generated tuples")
+		
+																								
+	# --- walk/tuples ------------------------------------------------------------------------------------------------------------------------------------------------------------ #	
+	# --- pointers --------------------------------------------------------------------------------------------------------------------------------------------------------------- #	
 	
 	def point(self):
 		self.pointers = []
@@ -533,7 +648,12 @@ class Diagram (object):
 			chain_avlen, smallest_chain_group	= sorted_chain_groups[0]		
 		
 		self.pointers = list(itertools.chain(*[[[n for n in node.loop.nodes if n.cycle.chain is chain][0] for node in chain.avnodes] if chain_avlen is not 0 else chain.cycles for chain in smallest_chain_group]))
-			
+
+	def point_next_tuple(self, linkType):
+		if len(self.pointers):
+			self.pointers = self.pointers[0].links[linkType].next.tuple
+
+	# --- pointers --------------------------------------------------------------------------------------------------------------------------------------------------------------- #	
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- #
 
 				
@@ -553,5 +673,9 @@ if __name__ == "__main__":
 
 	assert sum([len(chain.cycles) for chain in diagram.chains]) == len(diagram.cycles)
 	assert sum([len(chain.avnodes) for chain in diagram.chains]) == len([n for n in diagram.nodes if n.loop.available])
-	
+
+	diagram.walk([diagram.openChain.headNode, diagram.openChain.tailNode], True)
+	diagram.pointers = [diagram.openChain.headNode, diagram.openChain.tailNode]
+	diagram.__jmp__(diagram.pointers, 1)
+			
 	show(diagram)	

@@ -1,6 +1,6 @@
 class Node (object):
 	
-	__slots__ = ['index', 'perm', 'address', 'cycle', 'nextLink', 'prevLink', 'px', 'py', 'loop', 'links', 'prevs', 'cycleBrethren', 'loopBrethren', 'ktype']
+	__slots__ = ['index', 'perm', 'address', 'cycle', 'nextLink', 'prevLink', 'px', 'py', 'loop', 'links', 'prevs', 'cycleBrethren', 'loopBrethren', 'ktype', 'tuple']
 	
 	def __init__(self, index, perm, address):
 		self.index = index
@@ -30,7 +30,9 @@ class Node (object):
 			if δ is 0:
 				self.ktype = q
 		
-																		
+		self.tuple = None
+		
+
 	def __repr__(self):
 		return f"⟨node:{self.perm}@{self.address}|{'§' if self.cycle.chain else '∘'}⟩"		
 		

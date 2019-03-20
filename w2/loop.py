@@ -7,7 +7,8 @@ class Loop (object):
 	__slots__ = [
 		'index', 'nodes', '_firstAddress',
 		'available', 'extended', 'extension_result',
-		'ktype', 'ktype_radialIndex'
+		'ktype', 'ktype_radialIndex',
+		'tuple'
 	]
 	
 			
@@ -21,6 +22,9 @@ class Loop (object):
 		# @generateLoops
 		self.ktype = None
 		self.ktype_radialIndex = None
+		
+		# @walk
+		self.tuple = None 
 								
 
 	def setNodes(self, nodes):

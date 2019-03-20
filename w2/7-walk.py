@@ -1,72 +1,45 @@
 from diagram import *
 from uicanvas import *
+from mx import *
 from time import time
 
+step_cc = -1
+step_id = -1
+jump_id = -1
+min_jump_chains_reached = 136 # 141 chains
+min_step_chains_reached = 116
+jump_step_required_lvl = 30
 
-step_id = 0
-min_step_chains = 116
-
-
-def step(lvl=0, path=[]):
-	global step_id, min_step_chains
+def step(avloops, jump_lvl, jump_path, step_lvl=0, step_path=[]):
+	global step_cc, step_id, min_step_chains_reached
+	if step_lvl == 0:
+		step_cc += 1
+	step_id += 1
 	
 	def key():
-		return f"[{step_id:>4}][{tstr(time() - startTime):>11}][lvl:{lvl}]"
-		
-	if step_id % 1000 == 0:
-		print(f"{key()}[ch:{len(diagram.chains)}] {'.'.join([(str(x)+upper(t)) for x,t in path])}")
-	step_id += 1
-
+		return f"[{step_cc:>2}»{step_id:>4}][{tstr(time() - startTime):>11}][lvl:{jump_lvl}»{step_lvl}]"
+			
+	print(f"{key()}[ch:{len(diagram.chains)}|av:{len(avloops)}] {'.'.join([(str(x)+upper(t)) for x,t in jump_path])}\n» {'.'.join([(str(x)+upper(t)) for x,t in step_path])}")
+	
 	if len(diagram.chains) == 1:
 		show(diagram)
 		input2(f"{key()} sol found.")
 		return
 		
-	if len(diagram.chains) < min_step_chains:
-		min_step_chains = len(diagram.chains)
+	if len(diagram.chains) < min_step_chains_reached:
+		min_step_chains_reached = len(diagram.chains)
 		show(diagram)
-		input2(f"{key()} min step chains: {min_step_chains} so far…")		
-		
+		input2(f"{key()} new min step chains: {min_step_chains_reached}")
+				
 	min_chain = sorted(diagram.chains, key = lambda chain: (len(chain.avnodes), chain.id))[0]
 	# print(f"{key()} chosen min: {min_chain}")
 	
 	seen = []
-	
-	if step_id % 1000 == 0 and len(min_chain.avnodes) > 1:	
-		loopResults = {}
-		for loop in diagram.loops:
-			if loop.available:
-				dead = False
-
-				assert diagram.extendLoop(loop)
-				result = min([len(ch.avnodes) for ch in diagram.chains])
-				if result == 0:
-					dead = True
-				else:
-					loopResults[loop] = result
-
-				diagram.collapseBack(loop)
-				if dead:
-					diagram.setLoopUnavailable(loop)
-					seen.append(loop)
-
-		if len(seen) > 0:
-			print(f"{key()} surviving loops: {len(loopResults)} | dead loops: {len(seen)}")
-
-		nextChainResults = []
-		for chain in list(diagram.chains):
-			nextChainResults.append((chain, sum([loopResults[n.loop] for n in chain.avnodes])))			
-		nextChainResults = sorted(nextChainResults, key = lambda cr: (cr[1], len(cr[0].avnodes), cr[0].id))
-		oldMinChainResult = [cr for cr in nextChainResults if cr[0] == min_chain][0][1]
-		if oldMinChainResult != nextChainResults[0][1]:
-			print(f"{key()} purging from min: {min_chain} with result: {oldMinChainResult} to min: {nextChainResults[0][0]} with result: {nextChainResults[0][1]}")
-		min_chain = nextChainResults[0][0]
-		
 	min_avlen = len(min_chain.avnodes)
 	
 	for i,n in enumerate(sorted(min_chain.avnodes, key = lambda n: n.address)):
 		assert diagram.extendLoop(n.loop)		
-		step(lvl+1, path+[(i, min_avlen)])
+		step([l for l in avloops if l.available], jump_lvl, jump_path, step_lvl+1, step_path+[(i, min_avlen)])
 		diagram.collapseBack(n.loop)	
 		
 		seen.append(n.loop)
@@ -75,17 +48,113 @@ def step(lvl=0, path=[]):
 	for l in reversed(seen):
 		diagram.resetLoopAvailable(l)
 		
+		
+def jump(avtuples, lvl=0, path=[]):
+	global jump_id, min_jump_chains_reached
+	jump_id += 1
+		
+	def key():
+		return f"[{jump_id:>4}][{tstr(time() - startTime):>11}][lvl:{lvl}]" 
+	
+	if jump_id % 100 == 0:
+		print(f"{key()} {'.'.join([(str(x)+upper(t)) for x,t in path])}")
+	
+	if len(diagram.chains) < min_jump_chains_reached:
+		min_jump_chains_reached = len(diagram.chains)
+		show(diagram)
+		input2(f"{key()} new min jump chains: {min_jump_chains_reached}")
+	
+	min_chlen = mx.min_chain_avloops_length()	
+	# print(f"{key()}[mx] 1. min_chlen: {min_chlen}")	
+	
+	if min_chlen == 0:
+		# print(f"{key()}[mx] ⇒ dead @ unconnectable")
+		return
+		
+	unicycle_chains = mx.filter_unicycle_chains()	
+	# print(f"{key()}[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+		
+	if len(unicycle_chains) == 0:
+		print(f"{key()}[mx] ⇒ all cycles covered by tuples")
+		step([l for l in diagram.loops if l.available], lvl, path)
+		input2(f"[jump] « [step] // cc")
+		return			
+		
+	avtuples = mx.filter_avtuples(avtuples)	
+	# print(f"{key()}[mx] 3. avtuples: {len(avtuples)} / {len(diagram.loop_tuples)}")	
+
+	if len(avtuples) == 0:
+		if lvl >= jump_step_required_lvl:
+			print(f"{key()}[mx] ⇒ no tuples remaining")			
+			step([l for l in diagram.loops if l.available], lvl, path)
+			# input2(f"[jump] « [step] // nt")
+		return			
+				
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	# print(f"{key()}[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")		
+
+	if len(min_nodes) == 0:
+		if lvl >= jump_step_required_lvl:
+			print(f"{key()}[mx] ⇒ not coverable by tuples | {min_cycle}")
+			step([l for l in diagram.loops if l.available], lvl, path)
+			# input2(f"[jump] « [step] // nc")		
+		return
+		
+	if lvl < 12 and len(min_nodes) > 1:
+		# print(f"{key()}[mx] ⇒ not single choice, purging…")
+		
+		# [~] next_single_choices is unused ?
+		avtuples, next_sample_lengths, next_single_choices = mx.purge(avtuples, unicycle_chains)
+		# print(f"{key()}[mx][purge] avtuples: {len(avtuples)} | sample lengths: {sorted(groupby(next_sample_lengths.items(), K = lambda p: p[1], G = lambda g: len(g)).items())} | single choices: {len(next_single_choices)}")
+
+		if len(avtuples) == 0:
+			if lvl >= jump_step_required_lvl:
+				print(f"{key()}[mx][purge] ⇒ no tuples remaining")
+				step([l for l in diagram.loops if l.available], lvl, path)
+				# input2(f"[jump] « [step] // nt")
+			return			
+												
+		min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples, next_sample_lengths)
+		# print(f"{key()}[mx][purge] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {[next_sample_lengths[t] for t in min_matched_tuples]}")
+		
+		if len(min_nodes) == 0:
+			if lvl >= jump_step_required_lvl:
+				print(f"{key()}[mx] ⇒ not coverable by tuples | {min_cycle}")
+				step([l for l in diagram.loops if l.available], lvl, path)
+				# input2(f"[jump] « [step] // nc")		
+			return
+				
+	else:
+		# print(f"{key()}[mx] ⇒ single choice.")
+		pass
+		
+	# go through all choices
+	for it, t in enumerate(min_matched_tuples):
+		if t in avtuples: # [~][!] needed if no purge
+						
+			ec = 0
+			for lt, l in enumerate(t):
+				if diagram.extendLoop(l):
+					ec += 1
+				else:
+					break
+	
+			if ec == len(t): # if we've extended all of the tuple's loops
+				jump(avtuples, lvl+1, path+[(it,len(min_matched_tuples))])
+	
+			for l in reversed(t[:ec]):
+				diagram.collapseBack(l)	
+				
+			# remove tested choice for further jumps		
+			avtuples.remove(t)
+
+	# print(f"{key()} ⇒ finished all choices")
+			
 
 if __name__ == "__main__":
 
 	diagram = Diagram(7, kernelPath='')
 	
-	# diagram.setOpenChain('123450')
-	# node = diagram.nodeByAddress['123316']
-	# diagram.openChain = node.cycle.chain
-	# diagram.openChain.isOpen = True
-	# diagram.openChain.tailNode = node
-
 	def cOc(segment):
 		for i,x in enumerate(segment):
 			if x in [' ', '-']:
@@ -107,40 +176,6 @@ if __name__ == "__main__":
 				assert diagram.prependOpenChain(4)
 			else:
 				assert diagram.prependOpenChain(int(x))
-
-	# pOc('3 22232 22223 22222')
-	
-	# cOc('32222')# 23222 22323 22222 32222 23222 22322')
-
-	# paths: (0, '[5]') - (1, '[4∘1]') - (2, '[3∘2]') - (3, '[2∘3]') - (4, '[1∘4]') - (5, '[∘5]') - (6, '[∘4∘1]') - (7, '[∘3∘2]') - (8, '[∘2∘3]') - (9, '[∘1∘4]')
-	
-	#       4     3     2     4     3     2     3     2     1     0     6    =0     5=    4     5     4     3     2     3     2     1     3     2     1     0
-	#     [1∘4] [2∘3] [3∘2] [1∘4] [2∘3] [3∘2] [2∘3] [3∘2] [4∘1]  [5] [∘4∘1]  [5]  [∘5]  [1∘4] [∘5]  [1∘4] [2∘3] [3∘2] [2∘3] [3∘2] [4∘1] [2∘3] [3∘2] [4∘1]  [5]
-	#cOc('23222 22322 22232 23222 22322 22232 22322 22232 22223 22222 32223 22222 3 22222 32223 22222 32222 23222 22322 23222 22322 22232 23222 22322 22232 2222')	
-	#cOc('23222 22322 22232 23222 22322 22232 22322 22232 22223 22222 32223 22222 32222 23222 32222 23222 22322 22232 22322 22232 22223 22322 22232 22223 22222')
-	#  5   1|4		2|3		3|2   1|4	  2|3   3|2   2|3   3|2   4|1    5   |4|1 	  5   |5		1|4   |5    1|4   2|3   3|2   2|3   3|2   4|1   2|3   3|2		4|1		 5
-	#     6     6     6     3     6     6     4     6     6     6       4    6         6     4     6      6     6     4     6     6     3     6     6     6	
-
-			
-	
-	# [show] chains: 571 | connected cycles: 150 | links: ℓ₁x900 ℓ₂x123 ℓ₃x26 ℓ₄x0 | total: 1224 | final: 5905.0	
-	# [  34][lvl:29] off: -3 § 43212105454323212105454323210
-	# cOc('23222 22322 22232 22223 22232 22223 22222 32222 23222 32222 23222 22322 22232 22322 22232 22223 22232 22223 22222 32222 23222 32222 23222 22322 22232 22322 22232 22223 22222')
-	#    [1∘4] [2∘3] [3∘2] [4∘1] [3∘2] [4∘1]  [5]  [∘5]  [1∘4] [∘5]  [1∘4] [2∘3] [3∘2] [2∘3] [3∘2] [4∘1] [3∘2] [4∘1]  [5]  [∘5]  [1∘4] [∘5]  [1∘4] [2∘3] [3∘2] [2∘3] [3∘2] [4∘1]  [5]	
-
-
-	# [show] chains: 561 | connected cycles: 160 | links: ℓ₁x960 ℓ₂x131 ℓ₃x28 ℓ₄x0 | total: 1306 | final: 5905.0
-	# [  37][lvl:31] off: -3 § 4321210545432321210545432321210
-	# [1∘4][2∘3][3∘2][4∘1][3∘2][4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][3∘2][4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][3∘2][4∘1][5]
-
-
-	# [show] chains: 381 | connected cycles: 340 | links: ℓ₁x2040 ℓ₂x276 ℓ₃x63 ℓ₄x0 | total: 2781 | final: 5904.0
-	# [58831][lvl:67] off: -4 § 4321210545432321210545432321210545437107132107132107107105454323210
-	# [1∘4][2∘3][3∘2][4∘1][3∘2][4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][3∘2][4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][3∘2][4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][∘3∘2][4∘1][5][∘3∘2][4∘1][2∘3][3∘2][4∘1][5][∘3∘2][4∘1][2∘3][3∘2][4∘1][5][∘3∘2][4∘1][5][∘3∘2][4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][5]
-	# | current min off: -4  |  » ∘ «
-
-	# cOc('22222 32222 23222 22322 32222 23222 22322 23222 22322 22232 22223 22232 2222-3-2222 23222 32222 23222 22322 22232 22322 22232 22223 22322 22232 22223 22222')
-	#       [5]  [∘5]  [1∘4] [2∘3] [∘5]  [1∘4] [2∘3] [1∘4] [2∘3] [3∘2] [4∘1] [3∘2]  [4 -∘- 4]  [1∘4] [∘5]  [1∘4] [2∘3] [3∘2] [2∘3] [3∘2] [4∘1] [2∘3] [3∘2] [4∘1]  [5]
 	
 	''' --- The Possibilities --- 
 	id = "+" | links = [4,2,2,2,2] | segment =   "[+5]" | size = 12
@@ -155,21 +190,57 @@ if __name__ == "__main__":
 	id =  1  | links = [2,2,2,2,3] | segment =  "[4∘1]" | size = 11	
 	id =  0  | links = [2,2,2,2,2] | segment =    "[5]" | size = 10	
 	'''
-	# K                2     1     0     6     0     5     4     5     4     3     2     3     2     1     0
-	#        «K»     [3∘2] [4∘1]  [5] [∘4∘1]  [5]  [∘5]  [1∘4] [∘5]  [1∘4] [2∘3] [3∘2] [2∘3] [3∘2] [4∘1]  [5]
-	cOc('2232-2-2322 22232 22223 22222 32223 22222 32222 23222 32222 23222 22322 22232 22322 22232 22223 22222')
-	pOc(list(reversed('22232 22223 22222 32223 22222 32222 23222 32222 23222 22322 22232 22322 22232 22223 22222')))
 	
+	'''# [  18][lvl:15] off: -2 § K210605454323210
+	#         K          2     1     0     6     0     5     4     5     4     3     2     3     2     1     0
+	#   «2232«2»2322»  [3∘2] [4∘1]  [5] [∘4∘1]  [5]  [∘5]  [1∘4] [∘5]  [1∘4] [2∘3] [3∘2] [2∘3] [3∘2] [4∘1]  [5]
+	cOc('2232-2-2322   22232 22223 22222 32223 22222 32222 23222 32222 23222 22322 22232 22322 22232 22223 22222')
+	pOc(list(reversed('22232 22223 22222 32223 22222 32222 23222 32222 23222 22322 22232 22322 22232 22223 22222'))) #'''
+	
+	# [  19][lvl:16] off: -2 § K2106054543232105
+	#         K          2     1     0     6     0     5     4     5     4     3     2     3     2     1     0     5
+	#   «2232«2»2322»  [3∘2] [4∘1]  [5] [∘4∘1]  [5]  [∘5]  [1∘4] [∘5]  [1∘4] [2∘3] [3∘2] [2∘3] [3∘2] [4∘1]  [5]  [∘5]
+	cOc('2232-2-2322   22232 22223 22222 32223 22222 32222 23222 32222 23222 22322 22232 22322 22232 22223 22222 32222')
+	pOc(list(reversed('22232 22223 22222 32223 22222 32222 23222 32222 23222 22322 22232 22322 22232 22223 22222 32222'))) #'''
+	
+	'''# [  21][lvl:17] off: -2 § K21060545432321060
+	#         K          2     1     0     6     0     5     4     5     4     3     2     3     2     1     0     6     0
+	#   «2232«2»2322»  [3∘2] [4∘1]  [5] [∘4∘1]  [5]  [∘5]  [1∘4] [∘5]  [1∘4] [2∘3] [3∘2] [2∘3] [3∘2] [4∘1]  [5] [∘4∘1]  [5]
+	cOc('2232-2-2322   22232 22223 22222 32223 22222 32222 23222 32222 23222 22322 22232 22322 22232 22223 22222 32223 22222')
+	pOc(list(reversed('22232 22223 22222 32223 22222 32222 23222 32222 23222 22322 22232 22322 22232 22223 22222 32223 22222'))) #'''
+	
+	'''#[   27][lvl:21] off: -2 § K210605454323210623210
+	#         K          2     1     0     6     0     5     4     5     4     3     2     3     2     1     0     6     2     3     2     1     0
+	#   «2232«2»2322»  [3∘2] [4∘1]  [5] [∘4∘1]  [5]  [∘5]  [1∘4] [∘5]  [1∘4] [2∘3] [3∘2] [2∘3] [3∘2] [4∘1]  [5] [∘4∘1] [3∘2] [2∘3] [3∘2] [4∘1]  [5]
+	cOc('2232-2-2322   22232 22223 22222 32223 22222 32222 23222 32222 23222 22322 22232 22322 22232 22223 22222 32223 22232 22322 22232 22223 22222')
+	pOc(list(reversed('22232 22223 22222 32223 22222 32222 23222 32222 23222 22322 22232 22322 22232 22223 22222 32223 22232 22322 22232 22223 22222'))) #'''
+	
+	show(diagram)
+	input2('---')
+	
+	print(f"[mx] 0. walk | loop tuples: {len(diagram.loop_tuples)}")
+	diagram.walk([diagram.openChain.headNode, diagram.openChain.tailNode.prevs[1].node], True)				
+	print(f"[mx] 0. walk | loop tuples: {len(diagram.loop_tuples)}")						
+	mx = MX(diagram)
+		
+	min_chlen = mx.min_chain_avloops_length()	
+	print(f"[mx] 1. min chain avloops length: {min_chlen}")	
+	
+	unicycle_chains = mx.filter_unicycle_chains()	
+	print(f"[mx] 2. unicycle chains: {len(unicycle_chains)}")	
+	
+	print(f"[mx] 3. loop tuples: {len(diagram.loop_tuples)} | av loops: {len([l for l in diagram.loops if l.available])}")
+	avtuples = mx.filter_avtuples()	
+	print(f"[mx] 3. avtuples: {len(avtuples)} | all tuples: {len(diagram.loop_tuples)}")		
+	
+	min_ratio, min_cycle, min_nodes, min_matched_tuples = mx.find_min_matched_tuples(unicycle_chains, avtuples)	
+	print(f"[mx] ⇒ mr: {min_ratio} | mc: {min_cycle} | mn: {[n.address for n in min_nodes]} | mt: {len(min_matched_tuples)}")			
 	
 	startTime = time()
-	step()			
+	jump(avtuples)			
+		
 		
 	diagram.point()
 	show(diagram)
 
-
-	'''
-	[1000][   0m0s.894][lvl:59][ch:276] 0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0².0².0².0².0².0².0².0².0².0².0².0².0².0².0².0³.0².0³.0².0².0².0¹.0¹.0².0².0².0².1².0².1².1².0².0².1².0².0².0¹.1².1².1².0¹.1².0².0¹.0¹.0¹.0¹.1².0¹	
-	[1000][    1m23s.2][lvl:55][ch:296] 0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0⁴.0¹.0⁴.0¹.0⁴.0¹.0³.0³.0².0¹.0⁴.0².0¹.0⁴.0¹.0⁴.0¹.0³.0⁴.0¹.0¹.0¹.0².0¹.1².0¹.0³.0¹.0¹.0⁴.0².0³.0¹.0⁶.0¹.0¹.0³.0¹.0¹.1³.0¹.0¹.3⁴.0¹.0¹
-	'''
 	

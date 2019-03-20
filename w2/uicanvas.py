@@ -344,9 +344,10 @@ def draw(diagram, **kwargs):
 																
 		RR = 6
 		
+		drawNodePointer(diagram.openChain.headNode)
 		drawNodePointer(diagram.openChain.tailNode)
-		drawNodePointer(diagram.openChain.tailNode.links[2].next, colors.normal(0))
-		drawNodePointer(diagram.openChain.tailNode.links[3].next, colors.normal(1))
+		#drawNodePointer(diagram.openChain.tailNode.links[2].next, colors.normal(0))
+		#drawNodePointer(diagram.openChain.tailNode.links[3].next, colors.normal(1))
 		
 		for i,node_or_cycle in enumerate(diagram.pointers):
 			if isinstance(node_or_cycle, Node):

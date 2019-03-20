@@ -712,21 +712,24 @@ class Diagram (object):
 if __name__ == "__main__":
 		
 	diagram = Diagram(6, 1)
-	diagram.extendLoop(diagram.nodeByAddress['00001'].loop)
-	diagram.collapseBack(diagram.nodeByAddress['00001'].loop)
-	show(diagram)
-	input()
-			
-	print("----------")
-	print(diagram.nodes[0].links)
-	dpkl = diagram.pickle()
-	print("diagram pickle size: " + str(len(dpkl)))# + "\n\n" + str(dpkl) + "\n")
-	print(diagram.nodes[0].links)
-	d2 = Diagram.unpickle(dpkl)
-	print(d2.nodes[0].links)
-	print("==========")
+	# diagram.extendLoop(diagram.nodeByAddress['00001'].loop)
+	# diagram.collapseBack(diagram.nodeByAddress['00001'].loop)
+	# show(diagram)
+	# input()
+	# 
+	# print("----------")
+	# print(diagram.nodes[0].links)
+	# dpkl = diagram.pickle()
+	# print("diagram pickle size: " + str(len(dpkl)))# + "\n\n" + str(dpkl) + "\n")
+	# print(diagram.nodes[0].links)
+	# d2 = Diagram.unpickle(dpkl)
+	# print(d2.nodes[0].links)
+	# print("==========")
+	# 
+	# diagram.extendLoop(diagram.nodeByAddress['00001'].loop)
+	# diagram.collapseBack(diagram.nodeByAddress['00001'].loop)
 	
-	diagram.extendLoop(diagram.nodeByAddress['00001'].loop)
-	diagram.collapseBack(diagram.nodeByAddress['00001'].loop)
+	diagram.pointers = diagram.bases
+	
 	show(diagram)
 	input()
