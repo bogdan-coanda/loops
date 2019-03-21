@@ -157,7 +157,7 @@ def jump(pre_key, mx, avtuples, lvl=0, path=[]):
 
 if __name__ == "__main__":
 
-	diagram = Diagram(7, kernelPath='223222322')
+	diagram = Diagram(7, kernelPath='232222232')
 	startTime = time()
 		
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- #	
@@ -619,7 +619,50 @@ if __name__ == "__main__":
 																					
 	print("\n\n -------------- \n\n")		
 	
-	bi()	
+	def cOc(segment):
+		for i,x in enumerate(segment):
+			if x in [' ', '-']:
+				pass
+			elif x == 'b':
+				assert diagram.connectOpenChain('l3b')
+			elif x == '+':
+				assert diagram.connectOpenChain(4)
+			else:
+				assert diagram.connectOpenChain(int(x))		
+
+	def pOc(segment):
+		for i,x in enumerate(reversed(segment)):
+			if x == ' ':
+				pass
+			elif x == 'b':
+				assert diagram.prependOpenChain('l3b')
+			elif x == '+':
+				assert diagram.prependOpenChain(4)
+			else:
+				assert diagram.prependOpenChain(int(x))
+				
+	''' --- The Possibilities --- 
+	id = "+" | links = [4,2,2,2,2] | segment =   "[+5]" | size = 12
+	id =  9  | links = [3,3,2,2,2] | segment = "[∘1∘4]" | size = 12
+	id =  8  | links = [3,2,3,2,2] | segment = "[∘2∘3]" | size = 12
+	id =  7  | links = [3,2,2,3,2] | segment = "[∘3∘2]" | size = 12
+	id =  6  | links = [3,2,2,2,3] | segment = "[∘4∘1]" | size = 12					
+	id =  5  | links = [3,2,2,2,2] | segment =   "[∘5]" | size = 11
+	id =  4  | links = [2,3,2,2,2] | segment =  "[1∘4]" | size = 11
+	id =  3  | links = [2,2,3,2,2] | segment =  "[2∘3]" | size = 11
+	id =  2  | links = [2,2,2,3,2] | segment =  "[3∘2]" | size = 11
+	id =  1  | links = [2,2,2,2,3] | segment =  "[4∘1]" | size = 11	
+	id =  0  | links = [2,2,2,2,2] | segment =    "[5]" | size = 10	
+	'''	
+	
+	# K        3  
+	sides = '22322'
+	
+	cOc(sides)
+	pOc(list(reversed(sides)))
+		
+	
+	bi(1, 0, [('K3', f'«2232«2»2322»|{sides}|')])
 		
 	show(diagram)	
 	
