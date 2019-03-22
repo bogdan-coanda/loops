@@ -239,7 +239,7 @@ class Diagram (object):
 				self.connectOpenChain(2)			
 		else:
 			# append given path 
-			for linkType in [int(x) for x in kernelPath]:
+			for linkType in [int(x) for x in kernelPath if x in '0123456789']:
 				self.connectOpenChain(linkType)			
 			
 		self.changelog.append(('kernel'))

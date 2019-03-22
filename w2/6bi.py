@@ -8,8 +8,8 @@ from time import time
 step_cc = -1
 step_id = -1
 jump_id = -1
-min_jump_chains_reached = 136 # 141 chains
-min_step_chains_reached = 116
+min_jump_chains_reached = 99999999
+min_step_chains_reached = 99999999
 jump_step_required_lvl = 30
 
 
@@ -154,10 +154,17 @@ def jump(pre_key, mx, avtuples, lvl=0, path=[]):
 	# print(f"{key()} ⇒ finished all choices")
 	
 	
+	
+	
+	
+	
+	
 
 if __name__ == "__main__":
 
-	diagram = Diagram(7, kernelPath='232222232')
+	KP = '232 2 223'
+
+	diagram = Diagram(6, kernelPath=KP)
 	startTime = time()
 		
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- #	
@@ -185,15 +192,15 @@ if __name__ == "__main__":
 			
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- #
 	
-	max_lvl_reached = 42 # [2866099]
+	max_lvl_reached = 0
 	min_off_reached = 0
 
 	bicc = 0
-	def bi(lvl=0, offset=0, path=[('K', '«2232«2»2322»')]):
+	def bi(lvl=0, offset=0, path=[('K', f'«{KP[:3]}«{KP[3]}»{KP[4:]}»')]):
 		global bicc, max_lvl_reached, min_off_reached
 		
 		# kill early
-		if offset	> 0:
+		if offset	> 2:
 			return
 
 		# path = [(function index, function path), … ]
@@ -205,7 +212,7 @@ if __name__ == "__main__":
 
 		for ch in diagram.chains:
 			if len(ch.avnodes) == 0:
-				assert len(ch.cycles) == 1
+				# assert len(ch.cycles) == 1
 				# diagram.pointers = ch.cycles
 				# show(diagram)
 				# print(f"[{bicc:>4}][lvl:{lvl}] off: {offset} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]) + '\n')					
@@ -234,102 +241,65 @@ if __name__ == "__main__":
 			show(diagram)
 			print(f"[{bicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]) + '\n')
 			input2(f"| [off:-3]")
+			lazarus(f"[{bicc:>4}][lvl:{lvl}]")
 					
 		if offset == -4:# and path[-1][0] == 0:
 			show(diagram)
 			print(f"[{bicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]) + '\n')
 			input2(f"| [off:-4]")
-
-		# if diagram.openChain.tailNode.address.endswith('000456'):
-		# 	show(diagram)
-		# 	print(f"[{bicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]) + '\n')
-		# 	input2(f"| [:456]")
+			lazarus(f"[{bicc:>4}][lvl:{lvl}]")
 			
 		# --- THE ENGINE --- #								
 
 		''' --- The Possibilities --- 
-		id = "+" | links = [4,2,2,2,2] | segment =   "[+5]" | size = 12
-		id =  9  | links = [3,3,2,2,2] | segment = "[∘1∘4]" | size = 12
-		id =  8  | links = [3,2,3,2,2] | segment = "[∘2∘3]" | size = 12
-		id =  7  | links = [3,2,2,3,2] | segment = "[∘3∘2]" | size = 12
-		id =  6  | links = [3,2,2,2,3] | segment = "[∘4∘1]" | size = 12					
-		id =  5  | links = [3,2,2,2,2] | segment =   "[∘5]" | size = 11
-		id =  4  | links = [2,3,2,2,2] | segment =  "[1∘4]" | size = 11
-		id =  3  | links = [2,2,3,2,2] | segment =  "[2∘3]" | size = 11
-		id =  2  | links = [2,2,2,3,2] | segment =  "[3∘2]" | size = 11
-		id =  1  | links = [2,2,2,2,3] | segment =  "[4∘1]" | size = 11	
-		id =  0  | links = [2,2,2,2,2] | segment =    "[5]" | size = 10	
+		id = "+" | links = [4,2,2,2] | segment =   "[+4]" | size = 10
+		id =  7  | links = [3,3,2,2] | segment = "[∘1∘3]" | size = 10
+		id =  6  | links = [3,2,3,2] | segment = "[∘2∘2]" | size = 10					
+		id =  5  | links = [3,2,2,3] | segment = "[∘3∘1]" | size = 10
+		id =  4  | links = [3,2,2,2] | segment =   "[∘4]" | size = 9
+		id =  3  | links = [2,3,2,2] | segment =  "[1∘3]" | size = 9
+		id =  2  | links = [2,2,3,2] | segment =  "[2∘2]" | size = 9
+		id =  1  | links = [2,2,2,3] | segment =  "[3∘1]" | size = 9	
+		id =  0  | links = [2,2,2,2] | segment =    "[4]" | size = 8
 		'''
 	
-		# [0] ⇒ 2 // [5], [4∘1], [3∘2], [2∘3], [1∘4]
+		# [0] ⇒ 2 // [4], [3∘1], [2∘2], [1∘3]
 		if diagram.isOpenChainConnectable(2):
 			diagram.connectOpenChain(2)
 			if diagram.isOpenChainPrependable(2):
 				diagram.prependOpenChain(2)
 				
-				## [1] ⇒ 2 // [5], [4∘1], [3∘2], [2∘3]
+				## [1] ⇒ 2 // [4], [3∘1], [2∘2]
 				if diagram.isOpenChainConnectable(2):
 					diagram.connectOpenChain(2)
 					if diagram.isOpenChainPrependable(2):
 						diagram.prependOpenChain(2)
 
-						### [2] ⇒ 2 // [5], [4∘1], [3∘2]
+						### [2] ⇒ 2 // [4], [3∘1]
 						if diagram.isOpenChainConnectable(2):
 							diagram.connectOpenChain(2)
 							if diagram.isOpenChainPrependable(2):
 								diagram.prependOpenChain(2)
 	
-								#### [3] ⇒ 2 // [5], [4∘1]
+								#### [3] ⇒ 2 // [4]
 								if diagram.isOpenChainConnectable(2):
 									diagram.connectOpenChain(2)			
 									if diagram.isOpenChainPrependable(2):
 										diagram.prependOpenChain(2)
-
-										##### [4] ⇒ 2 // [5]
-										if diagram.isOpenChainConnectable(2):
-											diagram.connectOpenChain(2)									
-											if diagram.isOpenChainPrependable(2):
-												diagram.prependOpenChain(2)
 												
-												bi(lvl+1, offset+(10-11), path+[(0, '[5]')])
-											
-												diagram.revertOpenChainPrepend()
-											diagram.revertOpenChainConnect()											
-										##### [4] ⇒ 2
-										
-										##### [4] ⇒ 3 // [4∘1]
-										if diagram.isOpenChainConnectable(3):
-											diagram.connectOpenChain(3)
-											if diagram.isOpenChainPrependable(3):
-												diagram.prependOpenChain(3)
+										bi(lvl+1, offset+(8-9), path+[(0, '[4]')])
 												
-												bi(lvl+1, offset+(11-11), path+[(1, '[4∘1]')])
-												
-												diagram.revertOpenChainPrepend()
-											diagram.revertOpenChainConnect()											
-										##### [4] ⇒ 3
-	
 										diagram.revertOpenChainPrepend()
 									diagram.revertOpenChainConnect()
 								#### [3] ⇒ 2
 			
-								#### [3] ⇒ 3 // [3∘2]
+								#### [3] ⇒ 3 // [3∘1]
 								if diagram.isOpenChainConnectable(3):
 									diagram.connectOpenChain(3)				
 									if diagram.isOpenChainPrependable(3):
 										diagram.prependOpenChain(3)
-										
-										##### [4] ⇒ 2 // [3∘2]
-										if diagram.isOpenChainConnectable(2):
-											diagram.connectOpenChain(2)									
-											if diagram.isOpenChainPrependable(2):
-												diagram.prependOpenChain(2)											
-											
-												bi(lvl+1, offset+(11-11), path+[(2, '[3∘2]')])
-											
-												diagram.revertOpenChainPrepend()
-											diagram.revertOpenChainConnect()											
-										##### [4] ⇒ 2
+																					
+										bi(lvl+1, offset+(9-9), path+[(1, '[3∘1]')])			
 			
 										diagram.revertOpenChainPrepend()
 									diagram.revertOpenChainConnect()
@@ -339,29 +309,19 @@ if __name__ == "__main__":
 							diagram.revertOpenChainConnect()		
 						### [2] ⇒ 2
 						
-						### [2] ⇒ 3 // [2∘3]
+						### [2] ⇒ 3 // [2∘2]
 						if diagram.isOpenChainConnectable(3):
 							diagram.connectOpenChain(3)				
 							if diagram.isOpenChainPrependable(3):
 								diagram.prependOpenChain(3)
 		
-								#### [3] ⇒ 2 // [2∘3]
+								#### [3] ⇒ 2 // [2∘2]
 								if diagram.isOpenChainConnectable(2):
 									diagram.connectOpenChain(2)				
 									if diagram.isOpenChainPrependable(2):
 										diagram.prependOpenChain(2)
-											
-										##### [4] ⇒ 2 // [2∘3]
-										if diagram.isOpenChainConnectable(2):
-											diagram.connectOpenChain(2)					
-											if diagram.isOpenChainPrependable(2):
-												diagram.prependOpenChain(2)
-																			
-												bi(lvl+1, offset+(11-11), path+[(3, '[2∘3]')])
-												
-												diagram.revertOpenChainPrepend()
-											diagram.revertOpenChainConnect()
-										##### [4] ⇒ 2
+																														
+										bi(lvl+1, offset+(9-9), path+[(2, '[2∘2]')])
 
 										diagram.revertOpenChainPrepend()
 									diagram.revertOpenChainConnect()
@@ -375,35 +335,25 @@ if __name__ == "__main__":
 					diagram.revertOpenChainConnect()							
 				## [1] ⇒ 2
 	
-				## [1] ⇒ 3 // [1∘4]
+				## [1] ⇒ 3 // [1∘3]
 				if diagram.isOpenChainConnectable(3):
 					diagram.connectOpenChain(3)
 					if diagram.isOpenChainPrependable(3):
 						diagram.prependOpenChain(3)					
 						
-						### [2] ⇒ 2 // [1∘4]
+						### [2] ⇒ 2 // [1∘3]
 						if diagram.isOpenChainConnectable(2):
 							diagram.connectOpenChain(2)				
 							if diagram.isOpenChainPrependable(2):
 								diagram.prependOpenChain(2)
 										
-								#### [3] ⇒ 2 // [1∘4]
+								#### [3] ⇒ 2 // [1∘3]
 								if diagram.isOpenChainConnectable(2):
 									diagram.connectOpenChain(2)				
 									if diagram.isOpenChainPrependable(2):
 										diagram.prependOpenChain(2)
-																												
-										##### [4] ⇒ 2 // [1∘4]
-										if diagram.isOpenChainConnectable(2):
-											diagram.connectOpenChain(2)
-											if diagram.isOpenChainPrependable(2):
-												diagram.prependOpenChain(2)
 																							
-												bi(lvl+1, offset+(11-11), path+[(4, '[1∘4]')])
-											
-												diagram.revertOpenChainPrepend()
-											diagram.revertOpenChainConnect()
-										##### [4] ⇒ 2
+										bi(lvl+1, offset+(9-9), path+[(3, '[1∘3]')])
 										
 										diagram.revertOpenChainPrepend()
 									diagram.revertOpenChainConnect()			
@@ -421,76 +371,44 @@ if __name__ == "__main__":
 			diagram.revertOpenChainConnect()			
 		# [0] ⇒ 2 #
 		
-		# [0] ⇒ 3 // [∘5], [∘4∘1], [∘3∘2], [∘2∘3], [∘1∘4]
+		# [0] ⇒ 3 // [∘4], [∘3∘1], [∘2∘2], [∘1∘3]
 		if diagram.isOpenChainConnectable(3):
 			diagram.connectOpenChain(3)		
 			if diagram.isOpenChainPrependable(3):
 				diagram.prependOpenChain(3)								
 			
-				## [1] ⇒ 2 // [∘5], [∘4∘1], [∘3∘2], [∘2∘3]
+				## [1] ⇒ 2 // [∘4], [∘3∘1], [∘2∘2]
 				if diagram.isOpenChainConnectable(2):
 					diagram.connectOpenChain(2)
 					if diagram.isOpenChainPrependable(2):
 						diagram.prependOpenChain(2)
 													
-						### [2] ⇒ 2 // [∘5], [∘4∘1], [∘3∘2]
+						### [2] ⇒ 2 // [∘4], [∘3∘1]
 						if diagram.isOpenChainConnectable(2):
 							diagram.connectOpenChain(2)				
 							if diagram.isOpenChainPrependable(2):
 								diagram.prependOpenChain(2)
 										
-								#### [3] ⇒ 2 // [∘5], [∘4∘1]
+								#### [3] ⇒ 2 // [∘4]
 								if diagram.isOpenChainConnectable(2):
 									diagram.connectOpenChain(2)				
 									if diagram.isOpenChainPrependable(2):
 										diagram.prependOpenChain(2)
 																													
-										##### [4] ⇒ 2 // [∘5]
-										if diagram.isOpenChainConnectable(2):
-											diagram.connectOpenChain(2)					
-											if diagram.isOpenChainPrependable(2):
-												diagram.prependOpenChain(2)
-																											
-												bi(lvl+1, offset+(11-11), path+[(5, '[∘5]')])
-
-												diagram.revertOpenChainPrepend()
-											diagram.revertOpenChainConnect()
-										##### [4] ⇒ 2
-										
-										##### [4] ⇒ 3 // [∘4∘1]
-										if diagram.isOpenChainConnectable(3):
-											diagram.connectOpenChain(3)
-											if diagram.isOpenChainPrependable(3):
-												diagram.prependOpenChain(3)
-																							
-												bi(lvl+1, offset+(12-11), path+[(6, '[∘4∘1]')])
-												
-												diagram.revertOpenChainPrepend()
-											diagram.revertOpenChainConnect()
-										##### [4] ⇒ 3
+										bi(lvl+1, offset+(9-9), path+[(4, '[∘4]')])
 
 										diagram.revertOpenChainPrepend()
 									diagram.revertOpenChainConnect()
 								#### [3] ⇒ 2
 			
-								#### [3] ⇒ 3 // [∘3∘2]
+								#### [3] ⇒ 3 // [∘3∘1]
 								if diagram.isOpenChainConnectable(3):
 									diagram.connectOpenChain(3)				
 									if diagram.isOpenChainPrependable(3):
 										diagram.prependOpenChain(3)
-																												
-										##### [4] ⇒ 2 // [∘3∘2]
-										if diagram.isOpenChainConnectable(2):
-											diagram.connectOpenChain(2)									
-											if diagram.isOpenChainPrependable(2):
-												diagram.prependOpenChain(2)
 																							
-												bi(lvl+1, offset+(12-11), path+[(7, '[∘3∘2]')])
+										bi(lvl+1, offset+(10-9), path+[(5, '[∘3∘1]')])
 												
-												diagram.revertOpenChainPrepend()
-											diagram.revertOpenChainConnect()
-										##### [4] ⇒ 2
-
 										diagram.revertOpenChainPrepend()
 									diagram.revertOpenChainConnect()
 								#### [3] ⇒ 3
@@ -499,29 +417,19 @@ if __name__ == "__main__":
 							diagram.revertOpenChainConnect()
 						### [2] ⇒ 2
 						
-						### [2] ⇒ 3 // [∘2∘3]
+						### [2] ⇒ 3 // [∘2∘2]
 						if diagram.isOpenChainConnectable(3):
 							diagram.connectOpenChain(3)				
 							if diagram.isOpenChainPrependable(3):
 								diagram.prependOpenChain(3)
 										
-								#### [3] ⇒ 2 // [∘2∘3]
+								#### [3] ⇒ 2 // [∘2∘2]
 								if diagram.isOpenChainConnectable(2):
 									diagram.connectOpenChain(2)				
 									if diagram.isOpenChainPrependable(2):
 										diagram.prependOpenChain(2)
-																												
-										##### [4] ⇒ 2 // [∘2∘3]
-										if diagram.isOpenChainConnectable(2):
-											diagram.connectOpenChain(2)					
-											if diagram.isOpenChainPrependable(2):
-												diagram.prependOpenChain(2)
-																											
-												bi(lvl+1, offset+(12-11), path+[(8, '[∘2∘3]')])
-												
-												diagram.revertOpenChainPrepend()
-											diagram.revertOpenChainConnect()
-										##### [4] ⇒ 2
+
+										bi(lvl+1, offset+(10-9), path+[(6, '[∘2∘2]')])
 
 										diagram.revertOpenChainPrepend()
 									diagram.revertOpenChainConnect()
@@ -529,42 +437,32 @@ if __name__ == "__main__":
 
 								diagram.revertOpenChainPrepend()
 							diagram.revertOpenChainConnect()
-						### [2] ⇒ 2
+						### [2] ⇒ 3
 
 						diagram.revertOpenChainPrepend()
 					diagram.revertOpenChainConnect()
 				## [1] ⇒ 2
 	
-				## [1] ⇒ 3 // [∘1∘4]
+				## [1] ⇒ 3 // [∘1∘3]
 				if diagram.isOpenChainConnectable(3):
 					diagram.connectOpenChain(3)
 					if diagram.isOpenChainPrependable(3):
 						diagram.prependOpenChain(3)
 											
-						### [2] ⇒ 2 // [∘1∘4]
+						### [2] ⇒ 2 // [∘1∘3]
 						if diagram.isOpenChainConnectable(2):
 							diagram.connectOpenChain(2)				
 							if diagram.isOpenChainPrependable(2):
 								diagram.prependOpenChain(2)	
 									
-								#### [3] ⇒ 2 // [∘1∘4]
+								#### [3] ⇒ 2 // [∘1∘3]
 								if diagram.isOpenChainConnectable(2):
 									diagram.connectOpenChain(2)				
 									if diagram.isOpenChainPrependable(2):
 										diagram.prependOpenChain(2)
 																												
-										##### [4] ⇒ 2 // [∘1∘4]
-										if diagram.isOpenChainConnectable(2):
-											diagram.connectOpenChain(2)									
-											if diagram.isOpenChainPrependable(2):
-												diagram.prependOpenChain(2)
-																							
-												bi(lvl+1, offset+(12-11), path+[(9, '[∘1∘4]')])
+										bi(lvl+1, offset+(10-9), path+[(7, '[∘1∘3]')])
 												
-												diagram.revertOpenChainPrepend()
-											diagram.revertOpenChainConnect()
-										##### [4] ⇒ 2
-
 										diagram.revertOpenChainPrepend()
 									diagram.revertOpenChainConnect()
 								#### [3] ⇒ 2
@@ -580,41 +478,48 @@ if __name__ == "__main__":
 				diagram.revertOpenChainPrepend()			
 			diagram.revertOpenChainConnect()			
 		# [0] ⇒ 3
-		
-		# 4 ⇐ [0] // dc_x5
-		# if diagram.isOpenChainConnectable(4):
-		# 	diagram.connectOpenChain(4)		
-		# 
-			## 2 ⇐ [1] // dc_x5
-		# 	if diagram.isOpenChainConnectable(2):
-		# 		diagram.connectOpenChain(2)
-		# 
-				### 2 ⇐ [2] // dc_x5
-		# 		if diagram.isOpenChainConnectable(2):
-		# 			diagram.connectOpenChain(2)				
-		# 
-					#### 2 ⇐ [3] // dc_x5
-		# 			if diagram.isOpenChainConnectable(2):
-		# 				diagram.connectOpenChain(2)				
-		# 
-						##### 2 ⇐ [4] // dc_x5
-		# 				if diagram.isOpenChainConnectable(2):
-		# 					diagram.connectOpenChain(2)									
-		# 					bi(lvl+1, offset+(12-11), path+[('+', '[+5]')])
-		# 					diagram.revertOpenChain() 
-						##### 2 ⇐ [4]
-		# 
-		# 				diagram.revertOpenChain() 
-					#### 2 ⇐ [3]
-		# 
-		# 			diagram.revertOpenChain() 
-				### 2 ⇐ [2]
-		# 
-		# 		diagram.revertOpenChain() 
-			## 2 ⇐ [1]
-		# 
-		# 	diagram.revertOpenChain() 
-		# 4 ⇐ [0]
+
+		# [0] ⇒ 4 // [+4]
+		if diagram.isOpenChainConnectable(4):
+			diagram.connectOpenChain(4)		
+			if diagram.isOpenChainPrependable(4):
+				diagram.prependOpenChain(4)								
+				
+				# [1] ⇒ 2 // [+4]
+				if diagram.isOpenChainConnectable(2):
+					diagram.connectOpenChain(2)
+					if diagram.isOpenChainPrependable(2):
+						diagram.prependOpenChain(2)
+						
+						## [2] ⇒ 2 // [+4]
+						if diagram.isOpenChainConnectable(2):
+							diagram.connectOpenChain(2)				
+							if diagram.isOpenChainPrependable(2):
+								diagram.prependOpenChain(2)	
+
+								### [3] ⇒ 2 // [+4]
+								if diagram.isOpenChainConnectable(2):
+									diagram.connectOpenChain(2)				
+									if diagram.isOpenChainPrependable(2):
+										diagram.prependOpenChain(2)
+										
+										bi(lvl+1, offset+(10-9), path+[('+', '[+4]')])
+						
+										diagram.revertOpenChainPrepend()			
+									diagram.revertOpenChainConnect()			
+								### [3] ⇒ 2
+
+								diagram.revertOpenChainPrepend()			
+							diagram.revertOpenChainConnect()			
+						## [2] ⇒ 2
+				
+						diagram.revertOpenChainPrepend()
+					diagram.revertOpenChainConnect()
+				## [1] ⇒ 2
+				
+				diagram.revertOpenChainPrepend()			
+			diagram.revertOpenChainConnect()			
+		# [0] ⇒ 4
 		
 																					
 	print("\n\n -------------- \n\n")		
@@ -641,45 +546,28 @@ if __name__ == "__main__":
 			else:
 				assert diagram.prependOpenChain(int(x))
 				
-	''' --- The Possibilities --- 
-	id = "+" | links = [4,2,2,2,2] | segment =   "[+5]" | size = 12
-	id =  9  | links = [3,3,2,2,2] | segment = "[∘1∘4]" | size = 12
-	id =  8  | links = [3,2,3,2,2] | segment = "[∘2∘3]" | size = 12
-	id =  7  | links = [3,2,2,3,2] | segment = "[∘3∘2]" | size = 12
-	id =  6  | links = [3,2,2,2,3] | segment = "[∘4∘1]" | size = 12					
-	id =  5  | links = [3,2,2,2,2] | segment =   "[∘5]" | size = 11
-	id =  4  | links = [2,3,2,2,2] | segment =  "[1∘4]" | size = 11
-	id =  3  | links = [2,2,3,2,2] | segment =  "[2∘3]" | size = 11
-	id =  2  | links = [2,2,2,3,2] | segment =  "[3∘2]" | size = 11
-	id =  1  | links = [2,2,2,2,3] | segment =  "[4∘1]" | size = 11	
-	id =  0  | links = [2,2,2,2,2] | segment =    "[5]" | size = 10	
-	'''	
-	
+		''' --- The Possibilities --- 
+	id = "+" | links = [4,2,2,2] | segment =   "[+4]" | size = 10
+	id =  7  | links = [3,3,2,2] | segment = "[∘1∘3]" | size = 10
+	id =  6  | links = [3,2,3,2] | segment = "[∘2∘2]" | size = 10					
+	id =  5  | links = [3,2,2,3] | segment = "[∘3∘1]" | size = 10
+	id =  4  | links = [3,2,2,2] | segment =   "[∘4]" | size = 9
+	id =  3  | links = [2,3,2,2] | segment =  "[1∘3]" | size = 9
+	id =  2  | links = [2,2,3,2] | segment =  "[2∘2]" | size = 9
+	id =  1  | links = [2,2,2,3] | segment =  "[3∘1]" | size = 9	
+	id =  0  | links = [2,2,2,2] | segment =    "[4]" | size = 8
+	'''
+			
 	# K        4  
-	sides = '23222'
+	# sides = '23222'
+	# 
+	# cOc(sides)
+	# pOc(list(reversed(sides)))
+	# 
+	# 
+	# bi(1, 0, [('K4', f'«2232«2»2322»|{sides}|')])
 	
-	cOc(sides)
-	pOc(list(reversed(sides)))
-		
-	
-	bi(1, 0, [('K4', f'«2232«2»2322»|{sides}|')])
+	bi()
 		
 	show(diagram)	
-	
-	'''
-	[24013][lvl:24] off: -2 § K454323210605454354323210
-	«2222«3»2222»[1∘4][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][5][∘4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][5]	
-	| current min off: -2  |  » ∘ «	
-	
-	[157039][lvl:29] off: -2 § K32108254323210710605454323210
-	«2223«2»3222»[2∘3][3∘2][4∘1][5][∘2∘3][3∘2][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][5][∘3∘2][4∘1][5][∘4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][5]
-	| current min off: -2  |  » ∘ «
-	
-	
-	[show] chains: 561 | connected cycles: 160 | links: ℓ₁x960 ℓ₂x131 ℓ₃x28 ℓ₄x0 | total: 1306 | final: 5905.0
-￼	[  18][lvl:15] off: -2 § K210605454323210
-	«2232«2»2322»[3∘2][4∘1][5][∘4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][5]
-	| current min off: -2  |  » ∘ «
-	
-	
-	'''	
+
