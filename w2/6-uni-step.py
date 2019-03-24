@@ -28,6 +28,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 		
 	if len(diagram.chains) < min_step_chains_reached:
 		min_step_chains_reached = len(diagram.chains)
+		diagram.point()
 		show(diagram)
 		input2(f"{key()} new min step chains: {min_step_chains_reached}")
 				
@@ -56,7 +57,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 
 if __name__ == "__main__":
 
-	KP = '323'
+	KP = '222'
 
 	diagram = Diagram(6, kernelPath=KP)
 	startTime = time()
@@ -65,8 +66,8 @@ if __name__ == "__main__":
 				
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- #
 	
-	max_lvl_reached = 20
-	min_off_reached = 0
+	max_lvl_reached = -1
+	min_off_reached = 1
 
 	unicc = 0
 	def uni(lvl=0, offset=0, path=[('K', f'|{KP}»')]):
@@ -93,6 +94,7 @@ if __name__ == "__main__":
 						
 		if lvl > max_lvl_reached:
 			max_lvl_reached = lvl
+			diagram.point()
 			show(diagram)
 			print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]) + '\n')			
 			input2(f"| current max lvl: {max_lvl_reached}")
@@ -367,6 +369,49 @@ if __name__ == "__main__":
 	# 
 	# uni(1, 0, [('K4', f'«2232«2»2322»|{sides}|')])
 	
-	uni()
+	cOc('2322 2232 2223 2222 4222 2322 2232 2223 2222 4222 2322 2232 2223 2222')
+	diagram.extendLoop(diagram.nodeByAddress['11005'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['11105'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['11205'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['11305'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['10104'].loop)
+	diagram.extendLoop(diagram.nodeByAddress['00042'].loop)
+	
+
+	# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- #
+
+	base_unloops = set([l for l in diagram.loops if not l.available])
+	added_unloops_per_avloop = {}
+	min_chlen_per_avloop = {}
+	
+	for il, loop in enumerate(diagram.loops):
+		if loop.available:
+			
+			assert diagram.extendLoop(loop)
+			
+			added_unloops_per_avloop[loop] = [l for l in diagram.loops if not l.available and l not in base_unloops]
+			min_chlen_per_avloop[loop] = min([len(ch.avnodes) for ch in diagram.chains])
+			
+			diagram.collapseBack(loop)
+			
+			print(f"[un]#{il}: {loop} | unloops: {len(added_unloops_per_avloop[loop])} | min chlen: {min_chlen_per_avloop[loop]}")
+	
+	for ic,chain in enumerate(diagram.chains):
+		if len(chain.avnodes) > 0:
+			chloops = set(added_unloops_per_avloop[chain.avnodes[0].loop])
+			chloops.difference_update([n.loop for n in chain.avnodes])
+			for node in chain.avnodes[1:]:
+				chloops.intersection_update(added_unloops_per_avloop[node.loop])
 		
+		if len(chloops) > 0:
+			print(f"[ch]#{ic}: {chain}⇒{chain.cycles[0]} | chloops: {len(chloops)} // {chloops}")	
+		print(f"[ch]#{ic}: {chain}⇒{chain.cycles[0]} | total unloops: {sum([len(added_unloops_per_avloop[n.loop]) for n in chain.avnodes])} | ratio: {sum([len(added_unloops_per_avloop[n.loop]) for n in chain.avnodes]) / len(chain.avnodes)}")
+		
+	# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- #
+		
+	
+	step(f"§")
+	#uni()
+		
+	diagram.point()
 	show(diagram)	
