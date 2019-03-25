@@ -29,6 +29,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 		
 	if len(diagram.chains) < min_step_chains_reached:
 		min_step_chains_reached = len(diagram.chains)
+		diagram.point()		
 		show(diagram)
 		input2(f"{key()} new min step chains: {min_step_chains_reached}")
 				
@@ -70,23 +71,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	if len(seen) > 0:
 		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t in step_path])}")		
 		print(f"{key()}[purge] ⇒ killed: {len(seen)} | ⇒ min chlen: {min([len(ch.avnodes) for ch in diagram.chains])}")
-	# 
-	# 
-	# 	for ic,chain in enumerate(diagram.chains):
-	# 		if len(chain.avnodes) > 0:
-	# 			chloops = set(added_unloops_per_avloop[chain.avnodes[0].loop])
-	# 			chloops.difference_update([n.loop for n in chain.avnodes])
-	# 			for node in chain.avnodes[1:]:
-	# 				chloops.intersection_update(added_unloops_per_avloop[node.loop])
-	# 
-	# 			if len(chloops) > 0:
-	# 				diagram.pointers = chain.cycles
-	# 				show(diagram)
-	# 				input2(f"[ch]#{ic}: {chain}⇒{chain.cycles[0]} | chloops: {len(chloops)}\n{chloops}")	
-		#print(f"[ch]#{ic}: {chain}⇒{chain.cycles[0]} | total unloops: {sum([len(added_unloops_per_avloop[n.loop]) for n in chain.avnodes])} | ratio: {sum([len(added_unloops_per_avloop[n.loop]) for n in chain.avnodes]) / len(chain.avnodes)}")				
-	#'''
-	# input2("[step:un/ch]")			
-				
+
 	min_chain = sorted(diagram.chains, key = lambda chain: (len(chain.avnodes), chain.id))[0]
 	# print(f"{key()} chosen min: {min_chain}")
 	
