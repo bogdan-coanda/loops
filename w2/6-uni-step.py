@@ -20,18 +20,18 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	def key():
 		return f"{pre_key}[{step_cc:>2}»{step_id:>4}][{tstr(time() - startTime):>11}][lvl:{step_lvl}]"
 
-	if step_id % 1 == 0:							
+	if step_id % 10000 == 0:							
 		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}")
 	
 	if len(diagram.chains) == 1:
-		show(diagram)
+		# show(diagram)
 		
-		with open('6.sols.txt', 'a', encoding="utf8") as log:
+		with open('6.Ω.sols.txt', 'a', encoding="utf8") as log:
 			log.write(' '.join([addr for _,_,addr in step_path]) + "\n")
-		with open('6.path.txt', 'a', encoding="utf8") as log:
+		with open('6.Ω.path.txt', 'a', encoding="utf8") as log:
 			log.write('.'.join([(str(x)+upper(t)) for x,t,_ in step_path]) + "\n")
 					
-		input2(f"{key()} #{sols_cc} sol found.")
+		print(f"{key()} #{sols_cc} sol found.")
 		sols_cc += 1
 		return
 		
@@ -461,7 +461,7 @@ if __name__ == "__main__":
 	'''	
 
 	#cOc('2322 2232 2223 2222')
-	cOc('2322 2232 2223 2222 4222 2322 2232 2223 2222 4222 2322 2232 2223 2222')
+	#cOc('2322 2232 2223 2222 4222 2322 2232 2223 2222 4222 2322 2232 2223 2222')
 		
 	# n0 = diagram.nodeByAddress['00001']
 	# diagram.extendLoop(n0.loop)

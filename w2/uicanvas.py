@@ -341,9 +341,10 @@ def draw(diagram, **kwargs):
 						border = ui.Path.oval(centerX - 5, centerY - 5, 10, 10)
 						ui.set_color(color)
 						border.stroke()
-					text = str(len(node.loop.sols))
-					width, height = ui.measure_string(text, 0, ('HelveticaNeue-MediumItalic', 4), ui.ALIGN_CENTER, ui.LB_CHAR_WRAP)
-					ui.draw_string(text, (centerX - width / 2, centerY - height / 2 - 5, width, height), ('HelveticaNeue-MediumItalic', 4), 'black', ui.ALIGN_CENTER, ui.LB_CHAR_WRAP)					
+					if diagram.draw_sol_counts:
+						text = str(len(node.loop.sols))
+						width, height = ui.measure_string(text, 0, ('HelveticaNeue-MediumItalic', 4), ui.ALIGN_CENTER, ui.LB_CHAR_WRAP)
+						ui.draw_string(text, (centerX - width / 2, centerY - height / 2 - 5, width, height), ('HelveticaNeue-MediumItalic', 4), 'black', ui.ALIGN_CENTER, ui.LB_CHAR_WRAP)					
 		
 		# draw cycle centers
 		# for cycle in diagram.cycles:
@@ -385,9 +386,9 @@ def draw(diagram, **kwargs):
 		total = links_types[1]+2*links_types[2]+3*links_types[3]+4*links_types[4] - (len([ch for ch in diagram.chains if len(ch.cycles) > 1]) - 1) * diagram.spClass
 		final = diagram.spClass + total + (len(diagram.chains) - 1) / (diagram.spClass - 2) * extension_length
 		
-		print(f"[show] connected cycles: {connected_cycles}")
-		print(f"[show] extension length: {extension_length}")
-				
+		# print(f"[show] connected cycles: {connected_cycles}")
+		# print(f"[show] extension length: {extension_length}")
+	
 		print(f"[show] chains: {len(diagram.chains)} | connected cycles: {connected_cycles} | links: ℓ₁x{links_types[1]} ℓ₂x{links_types[2]} ℓ₃x{links_types[3]} ℓ₄x{links_types[4]} | total: {total} | final: {final}")
 		'''
 		for chain in diagram.chains:

@@ -25,7 +25,8 @@ class Diagram (object):
 		'pointers', 'draw_boxes',
 		'changelog',
 		'__adv__', '__jmp__', #'__nxt__',
-		'bases', 'node_tuples', 'loop_tuples'
+		'bases', 'node_tuples', 'loop_tuples',
+		'draw_sol_counts'
 	]
 
 		
@@ -35,6 +36,7 @@ class Diagram (object):
 			
 		self.pointers = []
 		self.draw_boxes = []
+		self.draw_sol_counts = False if 'drawSolCounts' not in kwargs else kwargs['drawSolCounts']
 		self.changelog = []
 		
 		self.loop_tuples = []
