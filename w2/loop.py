@@ -8,7 +8,8 @@ class Loop (object):
 		'index', 'nodes', '_firstAddress',
 		'available', 'extended', 'extension_result',
 		'ktype', 'ktype_radialIndex',
-		'tuple'
+		'tuple',
+		'sols'
 	]
 	
 			
@@ -25,6 +26,7 @@ class Loop (object):
 		
 		# @walk
 		self.tuple = None 
+		self.sols = set()
 								
 
 	def setNodes(self, nodes):

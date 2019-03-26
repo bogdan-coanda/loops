@@ -332,7 +332,7 @@ def draw(diagram, **kwargs):
 					centerY = (node.py + next.py)/2
 					centerX = cycle.px + (centerX - cycle.px)*1.6
 					centerY = cycle.py + (centerY - cycle.py)*1.6
-					text = str(node.loop.ktype_radialIndex)
+					text = str(node.loop.ktype_radialIndex)# + ":" + str(len(node.loop.sols))
 					#text = str(node.loop.ktype_columnIndex)
 					color = colors.normal(node.loop.ktype)
 					width, height = ui.measure_string(text, 0, ('HelveticaNeue-MediumItalic', 6), ui.ALIGN_CENTER, ui.LB_CHAR_WRAP)
@@ -341,7 +341,16 @@ def draw(diagram, **kwargs):
 						border = ui.Path.oval(centerX - 5, centerY - 5, 10, 10)
 						ui.set_color(color)
 						border.stroke()
-																
+					text = str(len(node.loop.sols))
+					width, height = ui.measure_string(text, 0, ('HelveticaNeue-MediumItalic', 4), ui.ALIGN_CENTER, ui.LB_CHAR_WRAP)
+					ui.draw_string(text, (centerX - width / 2, centerY - height / 2 - 5, width, height), ('HelveticaNeue-MediumItalic', 4), 'black', ui.ALIGN_CENTER, ui.LB_CHAR_WRAP)					
+		
+		# draw cycle centers
+		# for cycle in diagram.cycles:
+			# text = str(sum([len(node.loop.sols) for node in cycle.nodes]))
+			# width, height = ui.measure_string(text, 0, ('HelveticaNeue-MediumItalic', 4), ui.ALIGN_CENTER, ui.LB_CHAR_WRAP)
+			# ui.draw_string(text, (cycle.px - width / 2, cycle.py - height / 2, width, height), ('HelveticaNeue-MediumItalic', 4), 'black', ui.ALIGN_CENTER, ui.LB_CHAR_WRAP)
+			
 		RR = 6
 		
 		drawNodePointer(diagram.openChain.headNode)
