@@ -309,7 +309,7 @@ def draw(diagram, **kwargs):
 					elif not out2: bot_l3_singles.append(node)
 			'''
 			
-			if node == diagram.openChain.tailNode: # the only node without a nextLink
+			if diagram.openChain and node == diagram.openChain.tailNode: # the only node without a nextLink
 				pass
 			elif node.nextLink: # explicitly set in appendChain(), 
 				drawLink(node.nextLink)						
@@ -354,10 +354,11 @@ def draw(diagram, **kwargs):
 			
 		RR = 6
 		
-		drawNodePointer(diagram.openChain.headNode)
-		drawNodePointer(diagram.openChain.tailNode)
-		#drawNodePointer(diagram.openChain.tailNode.links[2].next, colors.normal(0))
-		#drawNodePointer(diagram.openChain.tailNode.links[3].next, colors.normal(1))
+		if diagram.openChain:
+			drawNodePointer(diagram.openChain.headNode)
+			drawNodePointer(diagram.openChain.tailNode)
+			#drawNodePointer(diagram.openChain.tailNode.links[2].next, colors.normal(0))
+			#drawNodePointer(diagram.openChain.tailNode.links[3].next, colors.normal(1))
 		
 		for i,node_or_cycle in enumerate(diagram.pointers):
 			if isinstance(node_or_cycle, Node):

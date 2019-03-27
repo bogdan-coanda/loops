@@ -10,9 +10,13 @@ step_id = -1
 min_step_chains_reached = 99999999
 sols_cc = 0
 
+in_history = True
+#               0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22
+history_path = [0, 2, 1, 0, 0, 3, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+
 
 def step(pre_key, step_lvl=0, step_path=[]):
-	global step_cc, step_id, min_step_chains_reached, sols_cc
+	global step_cc, step_id, min_step_chains_reached, sols_cc, in_history
 	if step_lvl == 0:
 		step_cc += 1
 	step_id += 1
@@ -44,7 +48,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	# unloops/chloops
 	seen = []
 						
-	while step_lvl % 10 == 0 and min([len(ch.avnodes) for ch in diagram.chains]) > 1:
+	while step_lvl % 12 == 0 and min([len(ch.avnodes) for ch in diagram.chains]) > 1:
 		killedSomething = False
 	
 		for il, loop in enumerate(diagram.loops):
@@ -77,8 +81,24 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	# print(f"{key()} chosen min: {min_chain}")
 	
 	min_avlen = len(min_chain.avnodes)
-	
+
+	if step_lvl >= len(history_path):
+		in_history = False
+			
 	for i,n in enumerate(sorted(min_chain.avnodes, key = lambda n: n.address)):
+		
+		if in_history == True:
+			if i < history_path[step_lvl]:
+				print(f"{key()}[history] i: {i} < hp[{step_lvl}]: {history_path[step_lvl]}")
+				seen.append(n.loop)
+				diagram.setLoopUnavailable(n.loop)				
+				continue
+			elif i > history_path[step_lvl]:
+				print(f"{key()}[history] i: {i} > hp[{step_lvl}]: {history_path[step_lvl]}")
+				in_history = False
+			else:
+				print(f"{key()}[history] i: {i} == hp[{step_lvl}]: {history_path[step_lvl]}")
+			
 		assert diagram.extendLoop(n.loop)		
 		step(pre_key, step_lvl+1, step_path+[(i, min_avlen, n.loop.firstAddress())])
 		diagram.collapseBack(n.loop)	
