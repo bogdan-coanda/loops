@@ -390,7 +390,7 @@ def draw(diagram, **kwargs):
 		# print(f"[show] connected cycles: {connected_cycles}")
 		# print(f"[show] extension length: {extension_length}")
 	
-		print(f"[show] chains: {len(diagram.chains)} | connected cycles: {connected_cycles} | links: ℓ₁x{links_types[1]} ℓ₂x{links_types[2]} ℓ₃x{links_types[3]} ℓ₄x{links_types[4]} | total: {total} | final: {final}")
+		print(f"[show] chains: {len(diagram.chains)} ({len([ch for ch in diagram.chains if len(ch.cycles) == 1])}/{len([ch for ch in diagram.chains if len(ch.cycles) != 1])}) | connected cycles: {connected_cycles} | links: ℓ₁x{links_types[1]} ℓ₂x{links_types[2]} ℓ₃x{links_types[3]} ℓ₄x{links_types[4]} | total: {total} | final: {final}")
 		'''
 		for chain in diagram.chains:
 			print(chain)

@@ -229,8 +229,8 @@ if __name__ == "__main__":
 		if len(loop.sols) == 0 and loop.available:
 			diagram.setLoopUnavailable(loop)
 	#'''
-	max_sol_count = max([len(loop.sols) for loop in diagram.loops if loop.available and len(loop.sols) > 0]) if len(diagram.chains) > 1 else -1
-	diagram.pointers = [node for node in diagram.nodes if node.loop.available and len(node.loop.sols) == max_sol_count]
+	# max_sol_count = max([len(loop.sols) for loop in diagram.loops if loop.available and len(loop.sols) > 0]) if len(diagram.chains) > 1 else -1
+	# diagram.pointers = [node for node in diagram.nodes if node.loop.available and len(node.loop.sols) == max_sol_count]
 
 									
 	show(diagram)
