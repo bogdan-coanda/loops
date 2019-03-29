@@ -20,18 +20,58 @@ if __name__ == "__main__":
 	# cOc('2322 2232 2223 2222')
 	# cOc('2322 2232 2223 2222 4222 2322 2232 2223 2222 4222 2322 2232 2223 2222')
 
+	ktype_loops = groupby(diagram.loops, K = lambda l: l.ktype)
+	ktype_pairs = defaultdict(list)
+	for kt1 in range(0, 5):
+		for kt2 in range(kt1+1, 6):
+			seen1 = []
+			seen2 = []
+			for loop1 in sorted([l for l in diagram.loops if l.ktype == kt1], key = lambda l: l.ktype_radialIndex):
+				if loop1 not in seen1:
+					ls2 = sorted(set([[ncn.loop for ncn in n.cycle.nodes if ncn.ktype == kt2][0] for n in loop1.nodes]), key = lambda l: l.ktype_radialIndex)
+					ls1 = sorted(set([[ncn.loop for ncn in n.cycle.nodes if ncn.ktype == kt1][0] for n in ls2[0].nodes]), key = lambda l: l.ktype_radialIndex)
+					for l in ls1:
+						assert l not in seen1
+					for l in ls2:
+						assert l not in seen2						
+					seen1 += ls1
+					seen2 += ls2
+					ktype_pairs[(kt1, kt2)].append(ls1)
+					ktype_pairs[(kt2, kt1)].append(ls2)
+					
+	# for kt1 in range(0, 5):
+	# 	for kt2 in range(kt1+1, 6):
+	# 		for i in range(6):
+	# 			print(f"({kt1}, {kt2}) ⇒ {[color_string(l.ktype) + ':' + str(l.ktype_radialIndex) for l in ktype_pairs[(kt1, kt2)][i]]}")				
+	# 			print(f"({kt2}, {kt1}) ⇒ {[color_string(l.ktype) + ':' + str(l.ktype_radialIndex) for l in ktype_pairs[(kt2, kt1)][i]]}")								
+				
+	sol_counts = []
 	with open('6.Ω.sols.txt', 'r', encoding="utf8") as log:
 		for sol, line in enumerate(log):
 			if sol % 10000 == 0:
 				print(f"@{sol}")
+				
 			for addr in line.split():
+				assert addr == diagram.nodeByAddress[addr].loop.firstAddress()
 				diagram.nodeByAddress[addr].loop.sols.append(sol)
 				
+			addrs = set(line.split())
+			counts = defaultdict(int)
+			for kt1 in range(0, 5):
+				for kt2 in range(kt1+1, 6):
+					for i in range(6):
+						counts[len(addrs.intersection(ktype_pairs[(kt1, kt2)][i]))] += 1						
+			sol_counts.append(counts)
+				
+	print("sol counts:")
+	for c,g in groupby(enumerate(sol_counts), K = lambda sc: sc[1], G = lambda g: len(g)).items():
+		print(f"{c}: {g}")
+	print("--- -------")
 	sloops = sorted([loop for loop in diagram.loops if loop.available], key = lambda loop: -len(loop.sols))
 	for loop in sloops[:10] + sloops[-10:]:
 		print(f"{loop}: {len(loop.sols)}")
 	
-	
+	'''	
 	addrs = [
 		
 		'10042', # sols: 1087888 # ⟨violet:1⟩  # {YV:0}
@@ -93,9 +133,8 @@ if __name__ == "__main__":
 			if len(loop.sols) == 0 and loop.available:
 				diagram.setLoopUnavailable(loop)
 
-	#'''
 	max_sol_count = max([len(loop.sols) for loop in diagram.loops if loop.available and len(loop.sols) > 0]) if len(diagram.chains) > 1 else -1
 	diagram.pointers = [node for node in diagram.nodes if node.loop.available and len(node.loop.sols) == max_sol_count]
-
+	#'''
 									
 	show(diagram)

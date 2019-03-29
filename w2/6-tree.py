@@ -699,8 +699,11 @@ if __name__ == "__main__":
 					
 	for kt1 in range(0, 5):
 		for kt2 in range(kt1+1, 6):
-			print(f"({kt1}, {kt2}) ⇒ {[color_string(l.ktype) + ':' + str(l.ktype_radialIndex) for l in ktype_pairs[(kt1, kt2)]]}")				
-			print(f"({kt2}, {kt1}) ⇒ {[color_string(l.ktype) + ':' + str(l.ktype_radialIndex) for l in ktype_pairs[(kt2, kt1)]]}")								
+			assert len(ktype_pairs[(kt1, kt2)]) == 6
+			assert len(ktype_pairs[(kt2, kt1)]) == 6
+			for i in range(6):
+				print(f"({kt1}, {kt2}) ⇒ {[color_string(l.ktype) + ':' + str(l.ktype_radialIndex) for l in ktype_pairs[(kt1, kt2)][i]]}")				
+				print(f"({kt2}, {kt1}) ⇒ {[color_string(l.ktype) + ':' + str(l.ktype_radialIndex) for l in ktype_pairs[(kt2, kt1)][i]]}")								
 	# for loop in sorted(diagram.loops, key = lambda l: (l.ktype, l.ktype_radialIndex)):
 		# print(f"{color_string(loop.ktype)}_{loop.ktype_radialIndex} = '{loop.firstAddress()}'")
 	
