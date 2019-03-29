@@ -1,5 +1,7 @@
 from diagram import *
 from uicanvas import *
+from common import *
+from collections import defaultdict
 
 
 def cOc(segment):
@@ -206,7 +208,7 @@ if __name__ == "__main__":
 	## loops += [diagram.nodeByAddress['02311'].loop]
 	## loops += [diagram.nodeByAddress['02320'].loop]
 	## loops += [diagram.nodeByAddress['02343'].loop]
-
+	'''
 	blue_0  = '00005'
 	blue_1  = '00105'
 	blue_2  = '00205'
@@ -356,9 +358,9 @@ if __name__ == "__main__":
 	violet_21 = '02123'
 	violet_22 = '02302'
 	violet_23 = '02343'
-		
+	'''
 	# ---  blue ∘ green  --- #
-	
+	'''
 	# addrs += [blue_0, blue_1, blue_2, blue_3]
 	# addrs += [green_0, green_1, green_2, green_3]
 
@@ -495,7 +497,7 @@ if __name__ == "__main__":
 	# addrs += [orange_4, orange_5, orange_6, orange_7]
 
 	# addrs += [green_7, green_14, green_15, green_23]
-	# addrs += [orange_12, orange_13, orange_15]#, orange_14
+	addrs += [orange_12, orange_13, orange_15]#, orange_14
 	
 	# ---  green ∘ red  --- #
 	
@@ -656,7 +658,7 @@ if __name__ == "__main__":
 										
 	# addrs += [red_11, red_19, red_22, red_23]		
 	# addrs += [violet_7, violet_10, violet_11, violet_23]
-											
+	'''									
 	# ---  --- - ---  --- #
 	
 	
@@ -672,6 +674,35 @@ if __name__ == "__main__":
 	# 		print(f"loops += diagram.nodeByAddress['{loop.firstAddress()}']")
 		
 	show(diagram)
+	
+	ktype_loops = groupby(diagram.loops, K = lambda l: l.ktype)
+	ktype_pairs = defaultdict(list)
+	for kt1 in range(0, 5):
+		for kt2 in range(kt1+1, 6):
+			seen1 = []
+			seen2 = []
+			for loop1 in sorted([l for l in diagram.loops if l.ktype == kt1], key = lambda l: l.ktype_radialIndex):
+				if loop1 not in seen1:
+					ls2 = sorted(set([[ncn.loop for ncn in n.cycle.nodes if ncn.ktype == kt2][0] for n in loop1.nodes]), key = lambda l: l.ktype_radialIndex)
+					ls1 = sorted(set([[ncn.loop for ncn in n.cycle.nodes if ncn.ktype == kt1][0] for n in ls2[0].nodes]), key = lambda l: l.ktype_radialIndex)
+					for l in ls1:
+						assert l not in seen1
+					for l in ls2:
+						assert l not in seen2						
+					seen1 += ls1
+					seen2 += ls2
+					ktype_pairs[(kt1, kt2)].append(ls1)
+					ktype_pairs[(kt2, kt1)].append(ls2)
+					print(f"({kt1}, {kt2}) ⇒ {[color_string(l.ktype) + ':' + str(l.ktype_radialIndex) for l in ls1]}")				
+					print(f"({kt2}, {kt1}) ⇒ {[color_string(l.ktype) + ':' + str(l.ktype_radialIndex) for l in ls2]}")
+					print('')					
+					
+	for kt1 in range(0, 5):
+		for kt2 in range(kt1+1, 6):
+			print(f"({kt1}, {kt2}) ⇒ {[color_string(l.ktype) + ':' + str(l.ktype_radialIndex) for l in ktype_pairs[(kt1, kt2)]]}")				
+			print(f"({kt2}, {kt1}) ⇒ {[color_string(l.ktype) + ':' + str(l.ktype_radialIndex) for l in ktype_pairs[(kt2, kt1)]]}")								
+	# for loop in sorted(diagram.loops, key = lambda l: (l.ktype, l.ktype_radialIndex)):
+		# print(f"{color_string(loop.ktype)}_{loop.ktype_radialIndex} = '{loop.firstAddress()}'")
 	
 	'''
 	rx = [n for n in diagram.cycleByAddress['0000'].nodes if n.ktype == 4][0].loop

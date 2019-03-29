@@ -26,7 +26,7 @@ class Loop (object):
 		
 		# @walk
 		self.tuple = None 
-		self.sols = set()
+		self.sols = []
 								
 
 	def setNodes(self, nodes):
