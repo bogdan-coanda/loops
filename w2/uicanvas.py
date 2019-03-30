@@ -309,7 +309,7 @@ def draw(diagram, **kwargs):
 					elif not out2: bot_l3_singles.append(node)
 			'''
 			
-			if node == diagram.openChain.tailNode: # the only node without a nextLink
+			if diagram.openChain and node == diagram.openChain.tailNode: # the only node without a nextLink
 				pass
 			elif node.nextLink: # explicitly set in appendChain(), 
 				drawLink(node.nextLink)						
@@ -354,10 +354,11 @@ def draw(diagram, **kwargs):
 			
 		RR = 6
 		
-		drawNodePointer(diagram.openChain.headNode)
-		drawNodePointer(diagram.openChain.tailNode)
-		#drawNodePointer(diagram.openChain.tailNode.links[2].next, colors.normal(0))
-		#drawNodePointer(diagram.openChain.tailNode.links[3].next, colors.normal(1))
+		if diagram.openChain:
+			drawNodePointer(diagram.openChain.headNode)
+			drawNodePointer(diagram.openChain.tailNode)
+			#drawNodePointer(diagram.openChain.tailNode.links[2].next, colors.normal(0))
+			#drawNodePointer(diagram.openChain.tailNode.links[3].next, colors.normal(1))
 		
 		for i,node_or_cycle in enumerate(diagram.pointers):
 			if isinstance(node_or_cycle, Node):
@@ -389,7 +390,7 @@ def draw(diagram, **kwargs):
 		# print(f"[show] connected cycles: {connected_cycles}")
 		# print(f"[show] extension length: {extension_length}")
 	
-		print(f"[show] chains: {len(diagram.chains)} | connected cycles: {connected_cycles} | links: ℓ₁x{links_types[1]} ℓ₂x{links_types[2]} ℓ₃x{links_types[3]} ℓ₄x{links_types[4]} | total: {total} | final: {final}")
+		print(f"[show] chains: {len(diagram.chains)} ({len([ch for ch in diagram.chains if len(ch.cycles) == 1])}/{len([ch for ch in diagram.chains if len(ch.cycles) != 1])}) | connected cycles: {connected_cycles} | links: ℓ₁x{links_types[1]} ℓ₂x{links_types[2]} ℓ₃x{links_types[3]} ℓ₄x{links_types[4]} | total: {total} | final: {final}")
 		'''
 		for chain in diagram.chains:
 			print(chain)

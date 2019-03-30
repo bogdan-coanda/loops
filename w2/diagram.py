@@ -40,6 +40,7 @@ class Diagram (object):
 		self.changelog = []
 		
 		self.loop_tuples = []
+		self.openChain = None
 		
 		self.generateGraph(**kwargs)						
 
@@ -55,7 +56,7 @@ class Diagram (object):
 		self.generateLinks()
 		self.generateLoops()
 		self.generateChains()
-		self.generateKernel(kernelPath=(None if 'kernelPath' not in kwargs else kwargs['kernelPath']))		
+		self.generateKernel(kernelPath=(None if 'kernelPath' not in kwargs else kwargs['kernelPath']), noKernel=(False if 'noKernel' not in kwargs else kwargs['noKernel']))		
 		
 
 	def generateNodes(self):
@@ -220,30 +221,31 @@ class Diagram (object):
 			self.chains.add(new_chain)
 			
 	
-	def generateKernel(self, kernelPath=None):
-		
-		self.headCycle = self.startNode.cycle
-		self.openChain = self.headCycle.chain
-		
-		# setup open chain
-		self.openChain.isOpen = True
-		self.openChain.headNode = self.startNode
-		self.openChain.tailNode = self.startNode.prevs[1].node
-		
-		# manually turn off loops surrounding the opening		
-		self.setLoopUnavailable(self.openChain.headNode.loop)
-		self.setLoopUnavailable(self.openChain.tailNode.loop)
-		self.setLoopUnavailable(self.openChain.tailNode.prevs[1].node.loop)
-				
-		if kernelPath == None:
-			# append enough cycles to be completable by extensions (extensions add [sp-2] new cycles ⇒ the kernel needs to be of size [y(sp-2)] ⇒ we append [sp-3] cycles)
-			for _ in range(self.spClass-3):
-				self.connectOpenChain(2)			
-		else:
-			# append given path 
-			for linkType in [int(x) for x in kernelPath if x in '0123456789']:
-				self.connectOpenChain(linkType)			
+	def generateKernel(self, kernelPath=None, noKernel=False):
+		if not noKernel:		
 			
+			self.headCycle = self.startNode.cycle
+			self.openChain = self.headCycle.chain
+			
+			# setup open chain
+			self.openChain.isOpen = True
+			self.openChain.headNode = self.startNode
+			self.openChain.tailNode = self.startNode.prevs[1].node
+			
+			# manually turn off loops surrounding the opening		
+			self.setLoopUnavailable(self.openChain.headNode.loop)
+			self.setLoopUnavailable(self.openChain.tailNode.loop)
+			self.setLoopUnavailable(self.openChain.tailNode.prevs[1].node.loop)
+				
+			if kernelPath == None:
+				# append enough cycles to be completable by extensions (extensions add [sp-2] new cycles ⇒ the kernel needs to be of size [y(sp-2)] ⇒ we append [sp-3] cycles)
+				for _ in range(self.spClass-3):
+					self.connectOpenChain(2)			
+			else:
+				# append given path 
+				for linkType in [int(x) for x in kernelPath if x in '0123456789']:
+					self.connectOpenChain(linkType)			
+				
 		self.changelog.append(('kernel'))
 	
 	
