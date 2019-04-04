@@ -407,6 +407,7 @@ def draw(diagram, **kwargs):
 		if len(bot_l3_singles):
 			print(f"bot [3] singles: " + " ".join([n.cycle.address for n in bot_l3_singles]))									
 		'''
+		print(img.size)
 		return img
 		
 
