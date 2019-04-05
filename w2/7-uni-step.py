@@ -3,15 +3,22 @@ from uicanvas import *
 from mx import *
 from time import time
 
+'''
+[  34][lvl:29] off: -3 §[ 0»809085][ 31m21s.686][lvl:56][ch:291|av:242] 0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0².0².0².0².0².0².0².0².0².0².0².0².0².0².0².0³.0².0³.0².1².0³.2³.0².1².1².1².1².0².1².1².1².1².0².1².0².0¹.1².0².0².1².1².1².1².0².0².0²
+[  34][lvl:29] off: -3 §[ 0»809085][ 31m21s.686][lvl:56][purge] ⇒ killed: 8 | ⇒ min chlen: 1
+[show] chains: 131 (111/20) | connected cycles: 609 | links: ℓ₁x3585 ℓ₂x651 ℓ₃x26 ℓ₄x0 | total: 4832 | final: 5905.0
+[  34][lvl:29] off: -3 §[ 0»809188][ 31m22s.266][lvl:88] new min step chains: 131  |  » ∘ «
+'''
 
 
 step_cc = -1
 step_id = -1
-min_step_chains_reached = 156
+min_step_chains_reached = 136
+sols_cc = 0
 
 
 def step(pre_key, step_lvl=0, step_path=[]):
-	global step_cc, step_id, min_step_chains_reached
+	global step_cc, step_id, min_step_chains_reached, sols_cc
 	if step_lvl == 0:
 		step_cc += 1
 	step_id += 1
@@ -20,13 +27,20 @@ def step(pre_key, step_lvl=0, step_path=[]):
 		return f"{pre_key}[{step_cc:>2}»{step_id:>4}][{tstr(time() - startTime):>11}][lvl:{step_lvl}]"
 			
 	if step_id % 1000 == 0:
-		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t in step_path])}")
+		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}")
 	
 	if len(diagram.chains) == 1:
-		show(diagram)
-		input2(f"{key()} sol found.")
-		return
 		
+		with open('6.Ω.sols.txt', 'a', encoding="utf8") as log:
+			log.write(' '.join([addr for _,_,addr in step_path]) + "\n")
+		with open('6.Ω.path.txt', 'a', encoding="utf8") as log:
+			log.write('.'.join([(str(x)+upper(t)) for x,t,_ in step_path]) + "\n")
+		
+		show(diagram)								
+		input2(f"{key()} #{sols_cc} sol found.")
+		sols_cc += 1
+		return
+				
 	if len(diagram.chains) < min_step_chains_reached:
 		min_step_chains_reached = len(diagram.chains)
 		diagram.point()		
@@ -36,50 +50,43 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	# unloops/chloops
 	seen = []
 						
-	while min([len(ch.avnodes) for ch in diagram.chains]) > 1:
+	while step_lvl % 14 == 0 and min([len(ch.avnodes) for ch in diagram.chains]) > 1:
 		killedSomething = False
-		
-		# keep just the last iteration		
-		# base_unloops = set([l for l in diagram.loops if not l.available])
-		# added_unloops_per_avloop = {}
-		# min_chlen_per_avloop = {}
 	
 		for il, loop in enumerate(diagram.loops):
 			if loop.available:
 				
 				assert diagram.extendLoop(loop)
-		
-				# added_unloops_per_avloop[loop] = [l for l in diagram.loops if not l.available and l not in base_unloops]
-				min_chlen_per_current_avloop = min([len(ch.avnodes) for ch in diagram.chains])
-				
+				min_chlen_per_current_avloop = min([len(ch.avnodes) for ch in diagram.chains])				
 				diagram.collapseBack(loop)
 				
 				if min_chlen_per_current_avloop == 0:
 					diagram.setLoopUnavailable(loop)
 					seen.append(loop)
 					killedSomething = True
-					#print(f"[un]#{il}: {loop} | unloops: {len(added_unloops_per_avloop[loop])} | min chlen: {min_chlen_per_avloop[loop]}")
-	
+					
+				# print(f"[un]#{il}: {loop} | min chlen: {min_chlen_per_current_avloop}")	
+				
 				if min([len(n.cycle.chain.avnodes) for n in loop.nodes]) == 0:
 					killedSomething = False
 					break
 	
-		#print(f"current min chlen: {min([len(ch.avnodes) for ch in diagram.chains])}")
+		# print(f"current min chlen: {min([len(ch.avnodes) for ch in diagram.chains])}")
 		if not killedSomething:
 			break
 			
 	if len(seen) > 0:
-		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t in step_path])}")		
+		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}")		
 		print(f"{key()}[purge] ⇒ killed: {len(seen)} | ⇒ min chlen: {min([len(ch.avnodes) for ch in diagram.chains])}")
 
 	min_chain = sorted(diagram.chains, key = lambda chain: (len(chain.avnodes), chain.id))[0]
 	# print(f"{key()} chosen min: {min_chain}")
 	
 	min_avlen = len(min_chain.avnodes)
-	
+		
 	for i,n in enumerate(sorted(min_chain.avnodes, key = lambda n: n.address)):
 		assert diagram.extendLoop(n.loop)		
-		step(pre_key, step_lvl+1, step_path+[(i, min_avlen)])
+		step(pre_key, step_lvl+1, step_path+[(i, min_avlen, n.loop.firstAddress())])
 		diagram.collapseBack(n.loop)	
 		
 		seen.append(n.loop)
@@ -102,10 +109,14 @@ if __name__ == "__main__":
 	startTime = time()
 		
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- #	
-				
+	'''
+[  34][lvl:29] off: -3 § K43212105454323212105454323210
+|2222»[1∘4][2∘3][3∘2][4∘1][3∘2][4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][3∘2][4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][5]
+| current min off: -3  |  » ∘ «
+	'''					
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- #
 	
-	max_lvl_reached = 29 # -1
+	max_lvl_reached = 29
 	min_off_reached = 1
 
 	unicc = 0
@@ -115,8 +126,6 @@ if __name__ == "__main__":
 		# kill early
 		if offset	> 0:
 			return
-		# if lvl > 30:
-		# 	return
 
 		# path = [(function index, function path), … ]
 		if unicc % 1 == 0:
@@ -138,9 +147,9 @@ if __name__ == "__main__":
 						
 		if lvl > max_lvl_reached:
 			max_lvl_reached = lvl
-			print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))			
 			diagram.point()
-			show(diagram)
+			show(diagram)			
+			print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))			
 			input2(f"| current max lvl: {max_lvl_reached}")
 
 		if offset < min_off_reached:

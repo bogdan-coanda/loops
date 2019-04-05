@@ -74,7 +74,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 			break
 			
 	# if len(seen) > 0:
-	# 	print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t in step_path])}")		
+	# 	print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}")		
 	# print(f"{key()}[purge] ⇒ killed: {len(seen)} | ⇒ min chlen: {min([len(ch.avnodes) for ch in diagram.chains])}")
 										
 	min_chain = sorted(diagram.chains, key = lambda chain: (len(chain.avnodes), chain.id))[0]
@@ -502,7 +502,7 @@ if __name__ == "__main__":
 		'02004', '02104', '02204', '02304', # green_8, green_9, green_10, green_11
 		'12344', '12321', '12312', '12303', # violet_11, violet_19, violet_22, violet_23		
 	]:			
-		diagram.extendLoop(diagram.nodeByAddress[addr].loop)
+		diagram.extendLoop(diagram.nodeByAddress[addr].loop) 
 	
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- #
 		
