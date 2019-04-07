@@ -8,12 +8,26 @@ from time import time
 [  34][lvl:29] off: -3 §[ 0»809085][ 31m21s.686][lvl:56][purge] ⇒ killed: 8 | ⇒ min chlen: 1
 [show] chains: 131 (111/20) | connected cycles: 609 | links: ℓ₁x3585 ℓ₂x651 ℓ₃x26 ℓ₄x0 | total: 4832 | final: 5905.0
 [  34][lvl:29] off: -3 §[ 0»809188][ 31m22s.266][lvl:88] new min step chains: 131  |  » ∘ «
+
+[  34][lvl:29] off: -3 §[ 0»3455478][ 147m16s.41][lvl:70][ch:221|av:148] 0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0².0².0².0².0².0².0².0².0².0².0².0².0².0².0².0³.0².0³.1².0².0³.1².0².1².0².1².1².1².1².0².0².0¹.1².0².0².0².1².0¹.0².0¹.0².0².1².1².1².1².1².1².1².1².0².1².0².0².1².0¹.0¹.0².1².1²
+[  34][lvl:29] off: -3 §[ 0»3455478][ 147m16s.41][lvl:70][purge] ⇒ killed: 17 | ⇒ min chlen: 1
+[show] chains: 126 (110/16) | connected cycles: 610 | links: ℓ₁x3586 ℓ₂x657 ℓ₃x26 ℓ₄x0 | total: 4873 | final: 5905.0
+[  34][lvl:29] off: -3 §[ 0»3455497][147m16s.661][lvl:89] new min step chains: 126  |  » ∘ «
+
+[show] chains: 121 (107/14) | connected cycles: 613 | links: ℓ₁x3601 ℓ₂x663 ℓ₃x26 ℓ₄x0 | total: 4914 | final: 5905.0
+[  34][lvl:29] off: -3 §[ 0»3455498][258m28s.996][lvl:90] new min step chains: 121  |  » ∘ «
+
+[show] chains: 116 (102/14) | connected cycles: 618 | links: ℓ₁x3630 ℓ₂x669 ℓ₃x26 ℓ₄x0 | total: 4955 | final: 5905.0
+[  34][lvl:29] off: -3 §[ 0»3455499][259m15s.805][lvl:91] new min step chains: 116  |  » ∘ «
+
+[show] chains: 111 (97/14) | connected cycles: 623 | links: ℓ₁x3659 ℓ₂x675 ℓ₃x26 ℓ₄x0 | total: 4996 | final: 5905.0
+[  34][lvl:29] off: -3 §[ 0»3455500][259m52s.567][lvl:92] new min step chains: 111  |  » ∘ «
 '''
 
 
 step_cc = -1
 step_id = -1
-min_step_chains_reached = 136
+min_step_chains_reached = 111
 sols_cc = 0
 
 
@@ -50,7 +64,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	# unloops/chloops
 	seen = []
 						
-	while step_lvl % 14 == 0 and min([len(ch.avnodes) for ch in diagram.chains]) > 1:
+	while min([len(ch.avnodes) for ch in diagram.chains]) > 1: # step_lvl % 14 == 0 and 
 		killedSomething = False
 	
 		for il, loop in enumerate(diagram.loops):
