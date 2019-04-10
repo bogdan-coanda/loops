@@ -1,17 +1,20 @@
-import console; 
+#import console; 
 import os;
-import ui;
+#import ui;
+import webbrowser
 
+from node import *
 from loop import color_string
+from common import randomColor
 
 
 def show(diagram):	
 
 	svg = '<?xml version="1.0" encoding="UTF-8" ?>'
 	
-	windowWidth = ui.get_window_size().width
-	if windowWidth * diagram.H / diagram.W > ui.get_window_size().height:
-		windowWidth = ui.get_window_size().height * diagram.W / diagram.H
+	windowWidth = 1800 # ui.get_window_size().width
+	if windowWidth * diagram.H / diagram.W > 920: # ui.get_window_size().height:
+		windowWidth = 920 * diagram.W / diagram.H # ui.get_window_size().height
 	
 	svg += f'<svg width="{windowWidth}" height="{windowWidth * diagram.H / diagram.W}" viewBox="0 0 {diagram.W} {diagram.H}" xmlns="http://www.w3.org/2000/svg">'
 
@@ -120,8 +123,10 @@ def show(diagram):
 	
 	file = f'__diagram_{diagram.spClass}__.svg'
 	with open(file, 'w') as out_file:
-		out_file.write(svg)		
-	console.quicklook(os.path.abspath(file))
+		out_file.write(svg)
+
+	webbrowser.open('file://' + os.path.realpath(file))
+	# console.quicklook(os.path.abspath(file))
 	
 	
 	

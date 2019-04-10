@@ -1,5 +1,5 @@
 from diagram import *
-from uicanvas import *
+from universe import *
 from mx import *
 from time import time
 

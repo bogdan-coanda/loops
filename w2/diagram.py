@@ -212,7 +212,7 @@ class Diagram (object):
 			new_chain = Chain()
 																			
 			# move cycle
-			new_chain.avnodes = list(cycle.nodes)
+			new_chain.avnodes = set(cycle.nodes)
 			cycle.chain = new_chain
 			
 			# [~][dbg] start cycles list
@@ -292,7 +292,7 @@ class Diagram (object):
 			self.chains.remove(old_chain)			
 																		
 		# filter all corresponding remaining avnodes
-		new_chain.avnodes = [node for node in seenNodes if node.loop.available]
+		new_chain.avnodes = set([node for node in seenNodes if node.loop.available])
 		# [~][dbg] merge cycles lists
 		new_chain.cycles = list(itertools.chain(*[chain.cycles for chain in affected_chains]))
 		
@@ -369,7 +369,7 @@ class Diagram (object):
 								
 		loop.available = True
 		for ch, n in unavailabled_chain_node_pairs:
-			ch.avnodes.append(n)
+			ch.avnodes.add(n)
 		# print(f"[resetLoopAvailable] ⇒ done")
 		
 		
