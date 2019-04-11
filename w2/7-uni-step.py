@@ -66,19 +66,19 @@ def step(pre_key, step_lvl=0, step_path=[]):
 
 	min_chain = None
 	for ch in diagram.chains:
-		if min_chain == None or len(ch.avnodes) < len(min_chain.avnodes) or (len(ch.avnodes) == len(min_chain.avnodes) and ch.id < min_chain.id):
+		if min_chain == None or ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id):
 			min_chain = ch
 	# print(f"{key()} chosen min: {min_chain}")
 	
-	min_avlen = len(min_chain.avnodes)
+	min_avlen = min_chain.avcount
 		
-	for i,n in enumerate(sorted(min_chain.avnodes, key = lambda n: n.loop.firstAddress())):
-		assert diagram.extendLoop(n.loop)		
-		step(pre_key, step_lvl+1, step_path+[(i, min_avlen, n.loop.firstAddress())])
-		diagram.collapseBack(n.loop)	
+	for i,loop in enumerate(sorted(min_chain.avloops(), key = lambda loop: loop.firstAddress())):
+		assert diagram.extendLoop(loop)		
+		step(pre_key, step_lvl+1, step_path+[(i, min_avlen, loop.firstAddress())])
+		diagram.collapseBack(loop)	
 		
-		seen.append(n.loop)
-		diagram.setLoopUnavailable(n.loop)
+		seen.append(loop)
+		diagram.setLoopUnavailable(loop)
 		
 	for l in reversed(seen):
 		diagram.resetLoopAvailable(l)	
@@ -126,7 +126,7 @@ if __name__ == "__main__":
 		# --- THE CHECKS --- #
 
 		for ch in diagram.chains:
-			if len(ch.avnodes) == 0:
+			if ch.avcount == 0:
 				# diagram.pointers = ch.cycles
 				# show(diagram)
 				# print(f"[{unicc:>4}][lvl:{lvl}] off: {offset} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))					
