@@ -64,14 +64,14 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	# unloops/chloops
 	seen = []
 						
-	while min([len(ch.avnodes) for ch in diagram.chains]) > 1: # step_lvl % 14 == 0 and 
+	while False: # min([len(ch.avloops()) for ch in diagram.chains]) > 1: # step_lvl % 14 == 0 and 
 		killedSomething = False
 	
 		for il, loop in enumerate(diagram.loops):
 			if loop.available:
 				
 				assert diagram.extendLoop(loop)
-				min_chlen_per_current_avloop = min([len(ch.avnodes) for ch in diagram.chains])				
+				min_chlen_per_current_avloop = min([len(ch.avloops()) for ch in diagram.chains])				
 				diagram.collapseBack(loop)
 				
 				if min_chlen_per_current_avloop == 0:
@@ -81,30 +81,31 @@ def step(pre_key, step_lvl=0, step_path=[]):
 					
 				# print(f"[un]#{il}: {loop} | min chlen: {min_chlen_per_current_avloop}")	
 				
-				if min([len(n.cycle.chain.avnodes) for n in loop.nodes]) == 0:
+				if min([len(n.cycle.chain.avloops()) for n in loop.nodes]) == 0:
 					killedSomething = False
 					break
 	
-		# print(f"current min chlen: {min([len(ch.avnodes) for ch in diagram.chains])}")
+		# print(f"current min chlen: {min([len(ch.avloops()) for ch in diagram.chains])}")
 		if not killedSomething:
 			break
 			
 	if len(seen) > 0:
 		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}")		
-		print(f"{key()}[purge] ⇒ killed: {len(seen)} | ⇒ min chlen: {min([len(ch.avnodes) for ch in diagram.chains])}")
+		print(f"{key()}[purge] ⇒ killed: {len(seen)} | ⇒ min chlen: {min([len(ch.avloops()) for ch in diagram.chains])}")
 
-	min_chain = sorted(diagram.chains, key = lambda chain: (len(chain.avnodes), chain.id))[0]
+	min_chain = sorted(diagram.chains, key = lambda chain: (len(chain.avloops()), chain.id))[0]
 	# print(f"{key()} chosen min: {min_chain}")
 	
-	min_avlen = len(min_chain.avnodes)
+	min_loops = min_chain.avloops()
+	min_avlen = len(min_loops)
 		
-	for i,n in enumerate(sorted(min_chain.avnodes, key = lambda n: n.address)):
-		assert diagram.extendLoop(n.loop)		
-		step(pre_key, step_lvl+1, step_path+[(i, min_avlen, n.loop.firstAddress())])
-		diagram.collapseBack(n.loop)	
+	for i,loop in enumerate(sorted(min_loops, key = lambda l: l.firstAddress())):
+		assert diagram.extendLoop(loop)		
+		step(pre_key, step_lvl+1, step_path+[(i, min_avlen, loop.firstAddress())])
+		diagram.collapseBack(loop)	
 		
-		seen.append(n.loop)
-		diagram.setLoopUnavailable(n.loop)
+		seen.append(loop)
+		diagram.setLoopUnavailable(loop)
 		
 	for l in reversed(seen):
 		diagram.resetLoopAvailable(l)	
@@ -152,7 +153,7 @@ if __name__ == "__main__":
 		# --- THE CHECKS --- #
 
 		for ch in diagram.chains:
-			if len(ch.avnodes) == 0:
+			if len(ch.avloops()) == 0:
 				# diagram.pointers = ch.cycles
 				# show(diagram)
 				# print(f"[{unicc:>4}][lvl:{lvl}] off: {offset} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))					
@@ -710,7 +711,7 @@ if __name__ == "__main__":
 			assert diagram.extendLoop(loop)
 			
 			added_unloops_per_avloop[loop] = [l for l in diagram.loops if not l.available and l not in base_unloops]
-			min_chlen_per_avloop[loop] = min([len(ch.avnodes) for ch in diagram.chains])
+			min_chlen_per_avloop[loop] = min([len(ch.avloops()) for ch in diagram.chains])
 			
 			diagram.collapseBack(loop)
 			
@@ -718,15 +719,15 @@ if __name__ == "__main__":
 				print(f"[un]#{il}: {loop} | unloops: {len(added_unloops_per_avloop[loop])} | min chlen: {min_chlen_per_avloop[loop]}")
 	
 	for ic,chain in enumerate(diagram.chains):
-		if len(chain.avnodes) > 0:
-			chloops = set(added_unloops_per_avloop[chain.avnodes[0].loop])
-			chloops.difference_update([n.loop for n in chain.avnodes])
-			for node in chain.avnodes[1:]:
+		if len(chain.avloops()) > 0:
+			chloops = set(added_unloops_per_avloop[chain.avloops()[0].loop])
+			chloops.difference_update([n.loop for n in chain.avloops()])
+			for node in chain.avloops()[1:]:
 				chloops.intersection_update(added_unloops_per_avloop[node.loop])
 		
 		if len(chloops) > 0:
 			print(f"[ch]#{ic}: {chain}⇒{chain.cycles[0]} | chloops: {len(chloops)} // {chloops}")	
-		print(f"[ch]#{ic}: {chain}⇒{chain.cycles[0]} | total unloops: {sum([len(added_unloops_per_avloop[n.loop]) for n in chain.avnodes])}")
+		print(f"[ch]#{ic}: {chain}⇒{chain.cycles[0]} | total unloops: {sum([len(added_unloops_per_avloop[n.loop]) for n in chain.avloops()])}")
 	'''
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- #
 		

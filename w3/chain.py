@@ -1,6 +1,6 @@
 class Chain (object):
 	
-	__slots__ = ['id', 'avnodes',
+	__slots__ = ['id', 'loops',
 		'cycles', # [~] set of all contained cycles [!] [dbg] needed just for asserts, debugging, and showing unconnectable chains
 		
 		# open chain
@@ -24,7 +24,7 @@ class Chain (object):
 		self.id = Chain.chainAutoInc
 		Chain.chainAutoInc += 1
 		
-		self.avnodes = []
+		self.loops = []
 		self.cycles = [] # set outside init
 		
 		self.isOpen = False
@@ -39,6 +39,10 @@ class Chain (object):
 		
 		
 	def __repr__(self):
-		return f"⟨chain:{self.id}|av:{len(self.avnodes)}⟩"
-		
+		return f"⟨chain:{self.id}|av:{len(self.avloops())}/{len(self.loops)}⟩"
+
+
+	def avloops(self):
+		return [l for l in self.loops if l.available]	
+	
 						

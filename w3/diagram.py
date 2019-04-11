@@ -212,7 +212,7 @@ class Diagram (object):
 			new_chain = Chain()
 																			
 			# move cycle
-			new_chain.avnodes = set(cycle.nodes)
+			new_chain.loops = set([n.loop for n in cycle.nodes])
 			cycle.chain = new_chain
 			
 			# [~][dbg] start cycles list
@@ -259,17 +259,14 @@ class Diagram (object):
 		new_chain = Chain()
 		affected_loops = []
 		
-		# gather together all non-repeating avnodes.loops, this is checkAvailability() behaviour
-		seenOnceLoops = []
-		# seen at least once nodes cache (for faster filtering after the gathering)
-		seenNodes = []
+		# gather together all non-repeating available loops; this is checkAvailability() behaviour
+		seenOnceLoops = set()
 																	
 		# for each old chain
 		for index, old_chain in enumerate(affected_chains):
 			
-			# for each available node
-			for node in list(old_chain.avnodes): # duplicate list for safety reasons
-				loop = node.loop
+			# for each available loops
+			for loop in old_chain.loops:
 				
 				# if still available
 				if loop.available:
@@ -277,8 +274,7 @@ class Diagram (object):
 					# if not yet seen
 					if loop not in seenOnceLoops:
 						# seen once
-						seenOnceLoops.append(loop)
-						seenNodes.append(node)							
+						seenOnceLoops.add(loop)
 							
 					# if seen once (seen more condition not possible as we're guarded by loop.availabled)
 					else:
@@ -291,8 +287,8 @@ class Diagram (object):
 			# kill chain
 			self.chains.remove(old_chain)			
 																		
-		# filter all corresponding remaining avnodes
-		new_chain.avnodes = set([node for node in seenNodes if node.loop.available])
+		# set new chain loops
+		new_chain.loops = seenOnceLoops
 		# [~][dbg] merge cycles lists
 		new_chain.cycles = list(itertools.chain(*[chain.cycles for chain in affected_chains]))
 		
@@ -346,13 +342,8 @@ class Diagram (object):
 		assert loop.available is True
 		
 		loop.available = False
-		unavailabled_chain_node_pairs = []				
-		self.changelog.append(('unavailabled', loop, unavailabled_chain_node_pairs))		
+		self.changelog.append(('unavailabled', loop))		
 		
-		for node in loop.nodes:
-			if node in node.cycle.chain.avnodes: # [~] why would the loop not be here ? got removed twice ? got debugged twice over already and proven correct ? as is it needed during makeChain ?
-				node.cycle.chain.avnodes.remove(node)
-				unavailabled_chain_node_pairs.append((node.cycle.chain, node))
 		# print(f"[+][changelog:setLoopUnavailable] {self.changelog[-1]}")
 		# print(f"[setLoopUnavailable] ⇒ done")
 
@@ -364,12 +355,10 @@ class Diagram (object):
 		assert loop.available == False
 		
 		lastChange = self.changelog.pop()
-		key, _loop, unavailabled_chain_node_pairs = lastChange
+		key, _loop = lastChange
 		assert key == 'unavailabled' and loop == _loop
 								
 		loop.available = True
-		for ch, n in unavailabled_chain_node_pairs:
-			ch.avnodes.add(n)
 		# print(f"[resetLoopAvailable] ⇒ done")
 		
 		
@@ -647,11 +636,11 @@ class Diagram (object):
 			return
 				
 		chain_avlen, smallest_chain_group = (len(self.cycles), [])
-		sorted_chain_groups = sorted(groupby(self.chains, K = lambda chain: len(chain.avnodes)).items())
+		sorted_chain_groups = sorted(groupby(self.chains, K = lambda chain: len(chain.avloops())).items())
 		if len(sorted_chain_groups) > 0:
 			chain_avlen, smallest_chain_group	= sorted_chain_groups[0]		
 		
-		self.pointers = list(itertools.chain(*[[[n for n in node.loop.nodes if n.cycle.chain is chain][0] for node in chain.avnodes] if chain_avlen is not 0 else chain.cycles for chain in smallest_chain_group]))
+		self.pointers = list(itertools.chain(*[[[n for n in loop.nodes if n.cycle.chain is chain][0] for loop in chain.avloops()] if chain_avlen is not 0 else chain.cycles for chain in smallest_chain_group]))
 
 	def point_next_tuple(self, linkType):
 		if len(self.pointers):
@@ -676,7 +665,7 @@ if __name__ == "__main__":
 	diagram.collapseBack(diagram.nodeByAddress['00041'].loop)
 
 	assert sum([len(chain.cycles) for chain in diagram.chains]) == len(diagram.cycles)
-	assert sum([len(chain.avnodes) for chain in diagram.chains]) == len([n for n in diagram.nodes if n.loop.available])
+	assert sum([len(chain.avloops()) for chain in diagram.chains]) == len([n for n in diagram.nodes if n.loop.available])
 
 	diagram.walk([diagram.openChain.headNode, diagram.openChain.tailNode], True)
 	diagram.pointers = [diagram.openChain.headNode, diagram.openChain.tailNode]

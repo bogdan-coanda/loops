@@ -64,7 +64,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	# unloops/chloops
 	seen = []
 						
-	while min([len(ch.avnodes) for ch in diagram.chains]) > 1: # step_lvl % 14 == 0 and 
+	while False: # step_lvl % 14 == 0 and min([len(ch.avnodes) for ch in diagram.chains]) > 1: # 
 		killedSomething = False
 	
 		for il, loop in enumerate(diagram.loops):
@@ -93,12 +93,15 @@ def step(pre_key, step_lvl=0, step_path=[]):
 		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}")		
 		print(f"{key()}[purge] ⇒ killed: {len(seen)} | ⇒ min chlen: {min([len(ch.avnodes) for ch in diagram.chains])}")
 
-	min_chain = sorted(diagram.chains, key = lambda chain: (len(chain.avnodes), chain.id))[0]
+	min_chain = None
+	for ch in diagram.chains:
+		if min_chain == None or len(ch.avnodes) < len(min_chain.avnodes) or (len(ch.avnodes) == len(min_chain.avnodes) and ch.id < min_chain.id):
+			min_chain = ch
 	# print(f"{key()} chosen min: {min_chain}")
 	
 	min_avlen = len(min_chain.avnodes)
 		
-	for i,n in enumerate(sorted(min_chain.avnodes, key = lambda n: n.address)):
+	for i,n in enumerate(sorted(min_chain.avnodes, key = lambda n: n.loop.firstAddress())):
 		assert diagram.extendLoop(n.loop)		
 		step(pre_key, step_lvl+1, step_path+[(i, min_avlen, n.loop.firstAddress())])
 		diagram.collapseBack(n.loop)	
