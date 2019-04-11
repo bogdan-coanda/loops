@@ -40,7 +40,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	def key():
 		return f"{pre_key}[{step_cc:>2}»{step_id:>4}][{tstr(time() - startTime):>11}][lvl:{step_lvl}]"
 			
-	if step_id % 1000 == 0:
+	if step_id % 10000 == 0:
 		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}")
 	
 	if len(diagram.chains) == 1:
