@@ -63,35 +63,6 @@ def step(pre_key, step_lvl=0, step_path=[]):
 				
 	# unloops/chloops
 	seen = []
-						
-	while False: # step_lvl % 14 == 0 and min([len(ch.avnodes) for ch in diagram.chains]) > 1: # 
-		killedSomething = False
-	
-		for il, loop in enumerate(diagram.loops):
-			if loop.available:
-				
-				assert diagram.extendLoop(loop)
-				min_chlen_per_current_avloop = min([len(ch.avnodes) for ch in diagram.chains])				
-				diagram.collapseBack(loop)
-				
-				if min_chlen_per_current_avloop == 0:
-					diagram.setLoopUnavailable(loop)
-					seen.append(loop)
-					killedSomething = True
-					
-				# print(f"[un]#{il}: {loop} | min chlen: {min_chlen_per_current_avloop}")	
-				
-				if min([len(n.cycle.chain.avnodes) for n in loop.nodes]) == 0:
-					killedSomething = False
-					break
-	
-		# print(f"current min chlen: {min([len(ch.avnodes) for ch in diagram.chains])}")
-		if not killedSomething:
-			break
-			
-	if len(seen) > 0:
-		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}")		
-		print(f"{key()}[purge] ⇒ killed: {len(seen)} | ⇒ min chlen: {min([len(ch.avnodes) for ch in diagram.chains])}")
 
 	min_chain = None
 	for ch in diagram.chains:
