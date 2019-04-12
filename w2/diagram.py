@@ -388,7 +388,8 @@ class Diagram (object):
 	def collapseBack(self, loop):	
 		# print(f"[collapse] loop: {loop}")		
 		
-		key, _loop, new_chain = self.changelog.pop()
+		lastChange = self.changelog.pop()
+		key, _loop, new_chain = lastChange
 		assert key == 'extended' and loop == _loop
 								
 		self.__breakChain__(new_chain)

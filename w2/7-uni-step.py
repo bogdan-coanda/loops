@@ -1,7 +1,8 @@
 from diagram import *
-from universe import *
+from uicanvas import *
 from mx import *
 from time import time
+from collections import defaultdict
 
 '''
 [  34][lvl:29] off: -3 §[ 0»809085][ 31m21s.686][lvl:56][ch:291|av:242] 0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0².0².0².0².0².0².0².0².0².0².0².0².0².0².0².0³.0².0³.0².1².0³.2³.0².1².1².1².1².0².1².1².1².1².0².1².0².0¹.1².0².0².1².1².1².1².0².0².0²
@@ -27,7 +28,7 @@ from time import time
 
 step_cc = -1
 step_id = -1
-min_step_chains_reached = 111
+min_step_chains_reached = 116
 sols_cc = 0
 
 
@@ -63,6 +64,133 @@ def step(pre_key, step_lvl=0, step_path=[]):
 				
 	# unloops/chloops
 	seen = []
+
+	# --- --- --- #
+		
+	tested = False
+																								
+	while min([ch.avcount for ch in diagram.chains]) > 1:
+
+		tested = True
+
+		avlen_per_loop = []				
+		avlen_per_pair = []
+		#avlen_per_trio = []
+		dead_children_per_loop = defaultdict(int)
+						
+		killedSomething = False
+					
+		for il, loop1 in enumerate(diagram.loops):
+			if loop1.available:
+				print(f"il: {il}")
+				assert diagram.extendLoop(loop1)
+				
+				avlen = len([l for l in diagram.loops if l.available])				
+				min_chlen = min([ch.avcount for ch in diagram.chains])
+
+				diagram.collapseBack(loop1)
+													
+				if min_chlen == 0:
+					diagram.setLoopUnavailable(loop1)
+					seen.append(loop1)
+					if min([n.cycle.chain.avcount for n in loop1.nodes]) == 0:
+						break
+					else:
+						killedSomething = True
+						
+				else:
+					avlen_per_loop.append([avlen, min_chlen, [loop1]])
+	
+					assert diagram.extendLoop(loop1)
+					for jl, loop2 in enumerate(diagram.loops):
+						if jl > il and loop2.available:
+							assert diagram.extendLoop(loop2)
+							
+							avlen = len([l for l in diagram.loops if l.available])
+							min_chlen = min([ch.avcount for ch in diagram.chains])
+							
+							if min_chlen == 0:
+								dead_children_per_loop[loop1] += 1
+							else:
+								avlen_per_pair.append([avlen, min_chlen, [loop1, loop2]])
+								
+							diagram.collapseBack(loop2)
+					diagram.collapseBack(loop1)			
+				
+		if not killedSomething:
+			break
+
+									
+	if tested:
+		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}")		
+		print(f"{key()}[purge] ⇒ killed: {len(seen)} | ⇒ min chlen: {min([ch.avcount for ch in diagram.chains])}")
+				
+		print('--- loops ---')		
+		savl = sorted(avlen_per_loop)				
+		for i in range(0, 14):
+			print(f"#{i}: {savl[i][0]} | {savl[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savl[i][2]]}")
+		for i in range(len(savl)-14, len(savl)):
+			print(f"#{i}: {savl[i][0]} | {savl[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savl[i][2]]}")
+		print(f"[loops] tested {len(savl)} loops.")			
+
+		print('--- pairs ---')		
+		savp = sorted(avlen_per_pair)		
+		for i in range(0, 14):
+			print(f"#{i}: {savp[i][0]} | {savp[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savp[i][2]]}")
+		for i in range(len(savp)-14, len(savp)):
+			print(f"#{i}: {savp[i][0]} | {savp[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savp[i][2]]}")
+		print(f"[pairs] tested {len(savp)} pairs.")			
+					
+		print('∘∘∘ deaths ∘∘∘')
+		savd = sorted(dead_children_per_loop.items(), key = lambda dc: (-dc[1], dc[0]))
+		for i in range(0, 14):
+			print(f"#{i}: {savd[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in [savd[i][0]]]}")
+		for i in range(len(savd)-14, len(savd)):
+			print(f"#{i}: {savd[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in [savd[i][0]]]}")					
+		print(f"[deaths] found {len(savd)} killer loops.")
+		print('∘∘∘ ∘∘∘∘∘∘ ∘∘∘')
+								
+		prime_killer_loop = savd[0][0]
+		print('--- prime killer loop ---')
+		for i in range(0, len(savl)):
+			if prime_killer_loop in savl[i][2]:			
+				print(f"#{i}: {savl[i][0]} | {savl[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savl[i][2]]}")
+				break
+		print('--- prime killer pairs ---')		
+		savp_pkl_cc = 0
+		for i in range(0, len(savp)):
+			if prime_killer_loop in savp[i][2]:						
+				print(f"#{i}: {savp[i][0]} | {savp[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savp[i][2]]}")
+				savp_pkl_cc += 1
+				if savp_pkl_cc >= 14:
+					break
+		print('--- prime killer cycles/chains ---')
+		for n in prime_killer_loop.nodes:
+			print(f"{n.cycle} | {n.cycle.chain}")
+
+		prime_pair = savp[0][2]
+		print('--- prime pair loops ---')
+		for i in range(0, len(savl)):
+			if prime_pair[0] in savl[i][2] or prime_pair[1] in savl[i][2]:			
+				print(f"#{i}: {savl[i][0]} | {savl[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savl[i][2]]}")
+		print('--- prime killer pairs ---')		
+		savp_pkl_cc = 0
+		for i in range(0, len(savp)):
+			if prime_pair[0] in savp[i][2] or prime_pair[1] in savp[i][2]:			
+				print(f"#{i}: {savp[i][0]} | {savp[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savp[i][2]]}")
+				savp_pkl_cc += 1
+				if savp_pkl_cc >= 28:
+					break				
+		print('--- prime pair cycles/chains ---')
+		for n in prime_pair[0].nodes:
+			print(f"#[0] | {n.cycle} | {n.cycle.chain}")
+		for n in prime_pair[1].nodes:
+			print(f"#[1] | {n.cycle} | {n.cycle.chain}")
+								
+		input2('--- ----- ---- ------/------ ---')		
+				
+	# ∘∘∘ ∘∘∘ ∘∘∘ #
+						
 
 	min_chain = None
 	for ch in diagram.chains:

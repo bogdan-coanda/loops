@@ -45,7 +45,10 @@ class Loop (object):
 				
 	def __repr__(self):
 		return f"⟨loop:[{color_string(self.ktype)}:{self.ktype_radialIndex}]:{self.firstAddress()}|{'Av' if self.available else ''}{'Ex' if self.extended else ''}⟩"
-		
+
+	def __lt__(self, other):
+		return self._firstAddress < other._firstAddress		
+						
 						
 	def adjacentLoops(self):
 		return [node.links[1].next.links[1].next.prevs[2].node.loop for node in self.nodes]

@@ -45,7 +45,7 @@ class Chain (object):
 		
 		
 	def __repr__(self):
-		return f"⟨chain:{self.id}|av:{self.avcount}/{len(self._nodes_)}⟩"
+		return f"⟨chain:{self.id}|av:{self.avcount}/{len(self._loops_)}⟩"
 		
 
 	def set_loops(self, loops):
