@@ -250,19 +250,55 @@ class Diagram (object):
 	
 	
 	# --- generators ------------------------------------------------------------------------------------------------------------------------------------------------------------- #
-	# --- killing map ------------------------------------------------------------------------------------------------------------------------------------------------------------- #
-	
+	# --- killing map ------------------------------------------------------------------------------------------------------------------------------------------------------------ #
+
+
 	def buildKillingMap(self):
 		
-		km = defaultdict(int)
+		km = {}
 		
-		for loop in self.loops:
-			if loop.available:
-				affected_chains = [n.cycle.chain for n in loop.nodes]
+		for ib, base_loop in enumerate(self.loops):
+			if base_loop.available:
+				# print(f"[buildKillingMap] ib: {ib}")
+
 				seenOnceLoops = set()
 				seenMoreLoops = set()
-	
-	# --- killing map -------------------------------------------------------------------------------------------------------------------------------------------------------------- #
+																		
+				# for each old chain
+				for n in base_loop.nodes:
+					for conn_loop in n.cycle.chain._loops_:
+						if conn_loop.available:
+						
+							# if not yet seen
+							if conn_loop not in seenOnceLoops:
+								# seen once
+								seenOnceLoops.add(conn_loop)
+									
+							# if seen once (seen more condition not possible as we're guarded by loop.availabled)
+							elif conn_loop not in seenMoreLoops:
+								# seen twice
+								seenOnceLoops.remove(conn_loop)
+								seenMoreLoops.add(conn_loop)
+								
+				km[base_loop] = len(seenMoreLoops)	
+				
+		# assert we're killing the right loops
+		
+		base_len = len([l for l in self.loops if l.available])
+		
+		for il, loop in enumerate(self.loops):
+			if loop.available:
+				# print(f"[buildKillingMap] il: {il}")
+				assert self.extendLoop(loop)
+				conn_len = len([l for l in self.loops if l.available])
+				km_len = km[loop]
+				assert base_len - conn_len == km_len
+				self.collapseBack(loop)
+		
+		return km
+		
+				
+	# --- killing map ------------------------------------------------------------------------------------------------------------------------------------------------------------ #
 	# --- internals -------------------------------------------------------------------------------------------------------------------------------------------------------------- #
 	
 	

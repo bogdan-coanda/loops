@@ -41,7 +41,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	def key():
 		return f"{pre_key}[{step_cc:>2}»{step_id:>4}][{tstr(time() - startTime):>11}][lvl:{step_lvl}]"
 			
-	if step_id % 10000 == 0:
+	if step_id % 1 == 0:
 		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}")
 	
 	if len(diagram.chains) == 1:
@@ -68,9 +68,40 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	# --- --- --- #
 		
 	looped = 0
-																								
-	while min([ch.avcount for ch in diagram.chains]) > 1:
-
+	
+	curr_len = len([l for l in diagram.loops if l.available])
+	min_avcount = min([ch.avcount for ch in diagram.chains])
+	
+	if min_avcount > 1:
+		km = diagram.buildKillingMap()
+		sk = sorted(km.items(), key = lambda p: (-p[1], p[0]))
+		for i in list(range(0, 1)) + list(range(len(sk)-1, len(sk))):
+			print(f"#{i}: {sk[i][1]} ⇒ {curr_len-sk[i][1]} | {color_string(sk[i][0].ktype)+':'+str(sk[i][0].ktype_radialIndex)}")
+		print(f"[km] tested {len(sk)} loops.")
+		
+		minmax_per_chain = []
+		for ch in diagram.chains:
+			if ch.avcount == 2:
+				chloops = ch.avloops()
+				if km[chloops[0]] > km[chloops[1]]:
+					minmax_per_chain.append((curr_len-km[chloops[0]], curr_len-km[chloops[1]], (chloops[0], chloops[1]), ch))
+				else:	
+					minmax_per_chain.append((curr_len-km[chloops[1]], curr_len-km[chloops[0]], (chloops[1], chloops[0]), ch))
+					
+		smm = sorted(minmax_per_chain, key = lambda p: p[:3])
+		for i in range(len(smm)) if len(smm) < 2 else list(range(0, 1)) + list(range(len(smm)-1, len(smm))):
+			print(f"#{i} | min: {smm[i][0]} | max: {smm[i][1]} | {smm[i][3]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in smm[i][2]]}")
+		print(f"[km] tested {len(smm)} 2-avloop chains.")		
+		
+		median_per_chain = []
+		for ch in diagram.chains:
+			median_per_chain.append((sum([curr_len-km[l] for l in ch.avloops()]) / ch.avcount, ch.avcount, ch))
+		smed = sorted(median_per_chain, key = lambda p: p[:-1])
+		for i in range(len(smed)) if len(smed) < 2 else list(range(0, 1)) + list(range(len(smed)-1, len(smed))):
+			print(f"#{i} | median: {smed[i][0]:.2f} | avcount: {smed[i][1]} | {smed[i][2]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex)+'`#`'+str(curr_len-km[l]) for l in smed[i][2].avloops()]}")
+		print(f"[km] tested {len(smed)} chains.")		
+				
+	'''															
 		looped += 1
 
 		avlen_per_loop = []				
@@ -226,26 +257,38 @@ def step(pre_key, step_lvl=0, step_path=[]):
 			print(f"#[1] | {n.cycle} | {n.cycle.chain}")
 								
 		input2('--- ----- ---- ------/------ ---')		
-	
-		''' 
-		[±] for each 2-avloop chain get the two avlen_per_loop values into a (min, max) pair per chain ⇒ sort by (min,max,…)
-		[±] construct a global killingField map … by cummulating pairs of loops intersecting in pairs of cycles ? ⇒ need thorough asserts by avlen_per_loop table
+
+	'''
 		
-		'''
-				
+	#[±] for each 2-avloop chain get the two avlen_per_loop values into a (min, max) pair per chain ⇒ sort by (min,max,…)
+	#[±] construct a global killingField map … by cummulating pairs of loops intersecting in pairs of cycles ? ⇒ need thorough asserts by avlen_per_loop table
+		
+	
 								
 	# ∘∘∘ ∘∘∘ ∘∘∘ #
-						
 
 	min_chain = None
 	for ch in diagram.chains:
 		if min_chain == None or ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id):
 			min_chain = ch
+																
+	# if min_avcount > 1 and len(smm) > 0:
+	# 	min_max_2avloops_chain = smm[0]
+	# 	min_chain = min_max_2avloops_chain[3]
+	# 	print(f"⇒ choosing {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in min_max_2avloops_chain[2]]} over {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in sorted(min_chain.avloops(), key = lambda loop: loop.firstAddress())]}\n")
+	# 	assert set(min_max_2avloops_chain[2]) == set(min_chain.avloops())
+		
 	# print(f"{key()} chosen min: {min_chain}")
 	
-	min_avlen = min_chain.avcount
+	if min_avcount > 1:
+		min_chain = smed[0][2]
 		
-	for i,loop in enumerate(sorted(min_chain.avloops(), key = lambda loop: loop.firstAddress())):
+	min_avlen = min_chain.avcount
+	
+	min_loops = sorted(min_chain.avloops(), key = lambda loop: (curr_len - km[loop], loop.firstAddress()) if min_avcount > 1 else loop.firstAddress())
+				
+	for i,loop in enumerate(min_loops):
+		print(f"{key()} extending {loop}\n")
 		assert diagram.extendLoop(loop)		
 		step(pre_key, step_lvl+1, step_path+[(i, min_avlen, loop.firstAddress())])
 		diagram.collapseBack(loop)	
