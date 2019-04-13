@@ -67,22 +67,22 @@ def step(pre_key, step_lvl=0, step_path=[]):
 
 	# --- --- --- #
 		
-	tested = False
+	looped = 0
 																								
 	while min([ch.avcount for ch in diagram.chains]) > 1:
 
-		tested = True
+		looped += 1
 
 		avlen_per_loop = []				
 		avlen_per_pair = []
-		#avlen_per_trio = []
+		avlen_per_trio = []
 		dead_children_per_loop = defaultdict(int)
 						
 		killedSomething = False
 					
 		for il, loop1 in enumerate(diagram.loops):
 			if loop1.available:
-				print(f"il: {il}")
+				print(f"[{looped}][{tstr(time() - startTime):>11}] il: {il}")
 				assert diagram.extendLoop(loop1)
 				
 				avlen = len([l for l in diagram.loops if l.available])				
@@ -113,7 +113,21 @@ def step(pre_key, step_lvl=0, step_path=[]):
 								dead_children_per_loop[loop1] += 1
 							else:
 								avlen_per_pair.append([avlen, min_chlen, [loop1, loop2]])
-								
+
+
+								for kl, loop3 in enumerate(diagram.loops):
+									if kl > jl and loop3.available:
+										assert diagram.extendLoop(loop3)
+										
+										avlen = len([l for l in diagram.loops if l.available])
+										min_chlen = min([ch.avcount for ch in diagram.chains])
+										
+										if min_chlen != 0:
+											avlen_per_trio.append([avlen, min_chlen, [loop1, loop2, loop3]])
+											
+										diagram.collapseBack(loop3)
+															
+																								
 							diagram.collapseBack(loop2)
 					diagram.collapseBack(loop1)			
 				
@@ -121,7 +135,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 			break
 
 									
-	if tested:
+	if looped > 0:
 		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}")		
 		print(f"{key()}[purge] ⇒ killed: {len(seen)} | ⇒ min chlen: {min([ch.avcount for ch in diagram.chains])}")
 				
@@ -140,7 +154,15 @@ def step(pre_key, step_lvl=0, step_path=[]):
 		for i in range(len(savp)-14, len(savp)):
 			print(f"#{i}: {savp[i][0]} | {savp[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savp[i][2]]}")
 		print(f"[pairs] tested {len(savp)} pairs.")			
-					
+
+		print('--- trios ---')		
+		savt = sorted(avlen_per_trio)		
+		for i in range(0, 14):
+			print(f"#{i}: {savt[i][0]} | {savt[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savt[i][2]]}")
+		for i in range(len(savt)-14, len(savt)):
+			print(f"#{i}: {savt[i][0]} | {savt[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savt[i][2]]}")
+		print(f"[pairs] tested {len(savt)} trios.")			
+												
 		print('∘∘∘ deaths ∘∘∘')
 		savd = sorted(dead_children_per_loop.items(), key = lambda dc: (-dc[1], dc[0]))
 		for i in range(0, 14):
@@ -162,8 +184,16 @@ def step(pre_key, step_lvl=0, step_path=[]):
 			if prime_killer_loop in savp[i][2]:						
 				print(f"#{i}: {savp[i][0]} | {savp[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savp[i][2]]}")
 				savp_pkl_cc += 1
-				if savp_pkl_cc >= 14:
+				if savp_pkl_cc >= 7:
 					break
+		print('--- prime killer trios ---')		
+		savt_pkl_cc = 0
+		for i in range(0, len(savt)):
+			if prime_killer_loop in savt[i][2]:						
+				print(f"#{i}: {savt[i][0]} | {savt[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savt[i][2]]}")
+				savt_pkl_cc += 1
+				if savt_pkl_cc >= 7:
+					break					
 		print('--- prime killer cycles/chains ---')
 		for n in prime_killer_loop.nodes:
 			print(f"{n.cycle} | {n.cycle.chain}")
@@ -173,14 +203,22 @@ def step(pre_key, step_lvl=0, step_path=[]):
 		for i in range(0, len(savl)):
 			if prime_pair[0] in savl[i][2] or prime_pair[1] in savl[i][2]:			
 				print(f"#{i}: {savl[i][0]} | {savl[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savl[i][2]]}")
-		print('--- prime killer pairs ---')		
+		print('--- prime pair pairs ---')		
 		savp_pkl_cc = 0
 		for i in range(0, len(savp)):
 			if prime_pair[0] in savp[i][2] or prime_pair[1] in savp[i][2]:			
 				print(f"#{i}: {savp[i][0]} | {savp[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savp[i][2]]}")
 				savp_pkl_cc += 1
-				if savp_pkl_cc >= 28:
+				if savp_pkl_cc >= 7:
 					break				
+		print('--- prime pair trios ---')		
+		savt_pkl_cc = 0
+		for i in range(0, len(savt)):
+			if prime_pair[0] in savt[i][2] or prime_pair[1] in savt[i][2]:			
+				print(f"#{i}: {savt[i][0]} | {savt[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savt[i][2]]}")
+				savt_pkl_cc += 1
+				if savt_pkl_cc >= 7:
+					break									
 		print('--- prime pair cycles/chains ---')
 		for n in prime_pair[0].nodes:
 			print(f"#[0] | {n.cycle} | {n.cycle.chain}")
@@ -188,7 +226,14 @@ def step(pre_key, step_lvl=0, step_path=[]):
 			print(f"#[1] | {n.cycle} | {n.cycle.chain}")
 								
 		input2('--- ----- ---- ------/------ ---')		
+	
+		''' 
+		[±] for each 2-avloop chain get the two avlen_per_loop values into a (min, max) pair per chain ⇒ sort by (min,max,…)
+		[±] construct a global killingField map … by cummulating pairs of loops intersecting in pairs of cycles ? ⇒ need thorough asserts by avlen_per_loop table
+		
+		'''
 				
+								
 	# ∘∘∘ ∘∘∘ ∘∘∘ #
 						
 
