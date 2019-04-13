@@ -282,18 +282,16 @@ class Diagram (object):
 								
 				km[base_loop] = len(seenMoreLoops)	
 				
-		# assert we're killing the right loops
-		
-		base_len = len([l for l in self.loops if l.available])
-		
-		for il, loop in enumerate(self.loops):
-			if loop.available:
+		# assert we're killing the right loops		
+		# base_len = len([l for l in self.loops if l.available])		
+		# for il, loop in enumerate(self.loops):
+		# 	if loop.available:
 				# print(f"[buildKillingMap] il: {il}")
-				assert self.extendLoop(loop)
-				conn_len = len([l for l in self.loops if l.available])
-				km_len = km[loop]
-				assert base_len - conn_len == km_len
-				self.collapseBack(loop)
+		# 		assert self.extendLoop(loop)
+		# 		conn_len = len([l for l in self.loops if l.available])
+		# 		km_len = km[loop]
+		# 		assert base_len - conn_len == km_len
+		# 		self.collapseBack(loop)
 		
 		return km
 		
