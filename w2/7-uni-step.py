@@ -1,5 +1,5 @@
 from diagram import *
-from uicanvas import *
+from universe import *
 from mx import *
 from time import time
 from collections import defaultdict
@@ -28,7 +28,7 @@ from collections import defaultdict
 
 step_cc = -1
 step_id = -1
-min_step_chains_reached = 116
+min_step_chains_reached = 146
 sols_cc = 0
 
 
@@ -66,14 +66,14 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	seen = []
 
 	# --- --- --- #
-		
-	looped = 0
+	'''
+	#looped = 0
 	
-	curr_len = len([l for l in diagram.loops if l.available])
-	min_avcount = min([ch.avcount for ch in diagram.chains])
+	#curr_len = len([l for l in diagram.loops if l.available])
+	#min_avcount = min([ch.avcount for ch in diagram.chains])
 	
-	if min_avcount > 1:
-		km = diagram.buildKillingMap()
+	#if min_avcount > 1:
+		#km = diagram.buildKillingMap()
 		
 		# sk = sorted(km.items(), key = lambda p: (-p[1], p[0]))
 		# for i in list(range(0, 1)) + list(range(len(sk)-1, len(sk))):
@@ -111,7 +111,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 		# for i in range(len(smed)) if len(smed) < 2 else list(range(0, 1)) + list(range(len(smed)-1, len(smed))):
 		# 	print(f"#{i} | median: {smed[i][0]:.2f} | avcount: {smed[i][1]} | {smed[i][2]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex)+'`#`'+str(curr_len-km[l]) for l in smed[i][2].avloops()]}")
 		# print(f"[km] tested {len(smed)} chains.")		
-				
+	'''			
 	'''															
 		looped += 1
 
@@ -282,26 +282,29 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	for ch in diagram.chains:
 		if min_chain == None or ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id):
 			min_chain = ch
-																
-	# if min_avcount > 1 and len(smm) > 0:
-	# 	min_max_2avloops_chain = smm[0]
-	# 	min_chain = min_max_2avloops_chain[3]
-	# 	print(f"⇒ choosing {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in min_max_2avloops_chain[2]]} over {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in sorted(min_chain.avloops(), key = lambda loop: loop.firstAddress())]}\n")
-	# 	assert set(min_max_2avloops_chain[2]) == set(min_chain.avloops())
-		
-	# print(f"{key()} chosen min: {min_chain}")
 	
-	if min_avcount > 1:
-		min_chain = min_chsmed # smed[0][2]
+
+	if min_chain.avcount > 1: 
+		km = diagram.buildKillingMap()
+				
+		max_killed = None
+		for ch in diagram.chains:
+			avg_killed = sum([km[l] for l in ch._loops_ if l.available]) / ch.avcount
+			if max_killed == None or avg_killed > max_killed or (avg_killed == max_killed and (ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id))):
+				max_killed = avg_killed
+				min_chain = ch
 		
-	min_avlen = min_chain.avcount
-	
-	min_loops = sorted(min_chain.avloops(), key = lambda loop: (curr_len - km[loop], loop.firstAddress()) if min_avcount > 1 else loop.firstAddress())
+		min_loops = sorted(min_chain.avloops(), key = lambda loop: (-km[loop], loop.firstAddress()))
+	else:
+		min_loops = min_chain.avloops()
+
 				
 	for i,loop in enumerate(min_loops):
-		# print(f"{key()} extending {loop}\n")
-		assert diagram.extendLoop(loop)		
-		step(pre_key, step_lvl+1, step_path+[(i, min_avlen, loop.firstAddress())])
+		#print(f"{key()}[{i}/{min_chain.avcount}] extending {loop}\n")
+		assert diagram.extendLoop(loop)	
+		#if len(min_loops) > 1:
+		#	diagram.updateKillingMap(km, diagram.changelog[-1][2])
+		step(pre_key, step_lvl+1, step_path+[(i, len(min_loops), loop.firstAddress())])
 		diagram.collapseBack(loop)	
 		
 		seen.append(loop)

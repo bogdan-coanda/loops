@@ -295,6 +295,39 @@ class Diagram (object):
 		
 		return km
 		
+
+	def updateKillingMap(self, km, new_chain):
+
+		for ib, base_loop in enumerate(new_chain._loops_):
+			if base_loop.available:
+				# print(f"[buildKillingMap] ib: {ib}")
+
+				seenOnceLoops = set()
+				seenMoreLoops = set()
+																		
+				# for each old chain
+				for n in base_loop.nodes:
+					for conn_loop in n.cycle.chain._loops_:
+						if conn_loop.available:
+						
+							# if not yet seen
+							if conn_loop not in seenOnceLoops:
+								# seen once
+								seenOnceLoops.add(conn_loop)
+									
+							# if seen once (seen more condition not possible as we're guarded by loop.availabled)
+							elif conn_loop not in seenMoreLoops:
+								# seen twice
+								seenOnceLoops.remove(conn_loop)
+								seenMoreLoops.add(conn_loop)
+								
+				km[base_loop] = len(seenMoreLoops)	
+
+		# assert we're still killing the right loops		
+		km2 = self.buildKillingMap()
+		for loop, killed in km2.items():
+			assert km[loop] == killed
+
 				
 	# --- killing map ------------------------------------------------------------------------------------------------------------------------------------------------------------ #
 	# --- internals -------------------------------------------------------------------------------------------------------------------------------------------------------------- #
