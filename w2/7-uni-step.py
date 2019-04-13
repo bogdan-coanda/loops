@@ -27,7 +27,7 @@ from time import time
 
 step_cc = -1
 step_id = -1
-min_step_chains_reached = 111
+min_step_chains_reached = 116
 sols_cc = 0
 
 

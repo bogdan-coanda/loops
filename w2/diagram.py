@@ -260,7 +260,7 @@ class Diagram (object):
 		affected_loops = []
 		
 		# gather together all non-repeating available nodes.loops, this is checkAvailability() behaviour
-		seenOnceLoops = []
+		seenOnceLoops = set()
 																	
 		# for each old chain
 		for index, old_chain in enumerate(affected_chains):
@@ -274,7 +274,7 @@ class Diagram (object):
 					# if not yet seen
 					if loop not in seenOnceLoops:
 						# seen once
-						seenOnceLoops.append(loop)
+						seenOnceLoops.add(loop)
 							
 					# if seen once (seen more condition not possible as we're guarded by loop.availabled)
 					else:
