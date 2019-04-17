@@ -1,5 +1,5 @@
 from diagram import *
-from universe import *
+from uicanvas import *
 from mx import *
 from time import time
 from collections import defaultdict
@@ -28,7 +28,7 @@ from collections import defaultdict
 
 step_cc = -1
 step_id = -1
-min_step_chains_reached = 146
+min_step_chains_reached = 126
 sols_cc = 0
 
 
@@ -41,7 +41,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	def key():
 		return f"{pre_key}[{step_cc:>2}»{step_id:>4}][{tstr(time() - startTime):>11}][lvl:{step_lvl}]"
 			
-	if step_id % 1000 == 0:
+	if step_id % 100 == 0:
 		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}")
 	
 	if len(diagram.chains) == 1:
@@ -283,27 +283,105 @@ def step(pre_key, step_lvl=0, step_path=[]):
 		if min_chain == None or ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id):
 			min_chain = ch
 	
-
-	if min_chain.avcount > 1: 
-		km = diagram.buildKillingMap()
-				
-		max_killed = None
-		for ch in diagram.chains:
-			avg_killed = sum([km[l] for l in ch._loops_ if l.available]) / ch.avcount
-			if max_killed == None or avg_killed > max_killed or (avg_killed == max_killed and (ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id))):
-				max_killed = avg_killed
-				min_chain = ch
+	if min_chain.avcount > 1: # and step_lvl % 4 == 0: 
+	
+		purged = -1
 		
-		min_loops = sorted(min_chain.avloops(), key = lambda loop: (-km[loop], loop.firstAddress()))
+		while True:
+				
+			km = diagram.buildKillingMap()
+			
+			# ---  common  --- #
+	
+			collectedCommonKills = set()
+			for ic, ch in enumerate(diagram.chains):
+				commonKills = None
+				for loop in ch.avloops():
+					if commonKills == None:
+						commonKills = km[loop]
+					else:
+						commonKills.intersection_update(km[loop])
+						if len(commonKills) == 0:
+							break
+				if len(commonKills) > 0:
+					collectedCommonKills.update(commonKills)
+					#print(f"{key()}[common:{ic}] found {len(commonKills)} common kills in {ch}\ncommon kills:\n" + '\n'.join([str(l) for l in commonKills]) + "\nby chain loops:\n" + '\n'.join([str(l) for l in ch.avloops()]))
+
+			if len(collectedCommonKills) > 0:		
+				for loop in collectedCommonKills:
+					diagram.setLoopUnavailable(loop)
+					seen.append(loop)
+				
+				#input2(f"{key()}[common] cleansed {len(collectedCommonKills)} common kills found in {len(diagram.chains)} chains")
+				min_chlen = min([ch.avcount for ch in diagram.chains])
+				if min_chlen == 0:
+					# input2(f"cleansed … and dying")
+					for l in reversed(seen):
+						diagram.resetLoopAvailable(l)					
+					return
+				elif min_chlen == 1:
+					# input2(f"{key()} cleansed to single")
+					break					
+								
+			# ---  purge  --- #
+			
+			purged = 0						
+			
+			for loop in diagram.loops:
+				if loop.available:
+	
+					diagram.extendLoop(loop)
+					min_chlen = min([ch.avcount for ch in diagram.chains])
+					chain_count = len(diagram.chains)
+					diagram.collapseBack(loop)
+	
+					if min_chlen == 0 and chain_count > 1:
+						diagram.setLoopUnavailable(loop)
+						seen.append(loop)
+						purged += 1
+	
+			if purged > 0:
+				# input2(f"{key()} purged {len(seen)} loops")
+				min_chlen = min([ch.avcount for ch in diagram.chains])
+				if min_chlen == 0:
+					# input2(f"purged … and dying")
+					for l in reversed(seen):
+						diagram.resetLoopAvailable(l)					
+					return
+				elif min_chlen == 1:				
+					# input2(f"{key()} purged to single")
+					break
+			else:
+				min_chlen = min([ch.avcount for ch in diagram.chains])
+				break				
+		
+		# --- ----- --- #		
+
+		if min_chlen == 1:
+			min_chain = None
+			for ch in diagram.chains:
+				if ch.avcount == 1 and (min_chain == None or ch.id < min_chain.id):
+					min_chain = ch
+										
+		else:
+			if len(seen) > 0:
+				km = diagram.buildKillingMap()
+
+			max_killed = None
+			for ch in diagram.chains:
+				avg_killed = sum([len(km[l]) for l in ch._loops_ if l.available]) / ch.avcount
+				if max_killed == None or avg_killed > max_killed or (avg_killed == max_killed and (ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id))):
+					max_killed = avg_killed
+					min_chain = ch			
+		
+		min_loops = sorted(min_chain.avloops(), key = lambda loop: (-len(km[loop]), loop.firstAddress()))
 	else:
 		min_loops = min_chain.avloops()
-
+		
 				
 	for i,loop in enumerate(min_loops):
 		#print(f"{key()}[{i}/{min_chain.avcount}] extending {loop}\n")
 		assert diagram.extendLoop(loop)	
-		#if len(min_loops) > 1:
-		#	diagram.updateKillingMap(km, diagram.changelog[-1][2])
 		step(pre_key, step_lvl+1, step_path+[(i, len(min_loops), loop.firstAddress())])
 		diagram.collapseBack(loop)	
 		
