@@ -295,9 +295,9 @@ def step(pre_key, step_lvl=0, step_path=[]):
 			
 			# ---  common  --- #
 	
-			collectedCommonKills = set()
+			hasCommonKills = False
 			for ic, ch in enumerate(diagram.chains):
-				commonKills = None
+				commonKills = None # reduce(set.intersection, [km[loop] for loop in ch.avloops()])
 				for loop in ch.avloops():
 					if commonKills == None:
 						commonKills = set(km[loop])
@@ -305,16 +305,16 @@ def step(pre_key, step_lvl=0, step_path=[]):
 						commonKills.intersection_update(km[loop])
 						if len(commonKills) == 0:
 							break
-				if len(commonKills) > 0:
-					collectedCommonKills.update(commonKills)
+				if commonKills is not None and len(commonKills) > 0:
+					for loop in commonKills:
+						if loop.available:
+							diagram.setLoopUnavailable(loop)
+							seen.append(loop)					
+							hasCommonKills = True
 					# print(f"{key()}[common:{ic}] found {len(commonKills)} common kills in {ch}\ncommon kills:\n" + '\n'.join([str(l) for l in commonKills]) + "\nby chain loops:\n" + '\n'.join([str(l) for l in ch.avloops()]))
 
-			if len(collectedCommonKills) > 0:		
-				for loop in collectedCommonKills:
-					diagram.setLoopUnavailable(loop)
-					seen.append(loop)
+			if hasCommonKills:		
 				
-				# print(f"{key()}[common] cleansed {len(collectedCommonKills)} common kills found in {len(diagram.chains)} chains")
 				min_chlen = min([ch.avcount for ch in diagram.chains])
 				if min_chlen == 0:
 					# print(f"cleansed … and dying")
@@ -382,7 +382,14 @@ def step(pre_key, step_lvl=0, step_path=[]):
 			
 			for ic, ch in enumerate(diagram.chains):
 				
-				common_singles = reduce(set.intersection, sorted([singles_per_loop[loop] for loop in ch.avloops()], key = lambda s: len(s)))
+				common_singles = None # reduce(set.intersection, [singles_per_loop[loop] for loop in ch.avloops()])
+				for loop in ch.avloops():
+					if common_singles == None:
+						common_singles = set(singles_per_loop[loop])
+					else:
+						common_singles.intersection_update(singles_per_loop[loop])
+						if len(common_singles) == 0:
+							break				
 				if len(common_singles) > 0:
 					min_loops = [list(common_singles)[0]]
 					singled = True
@@ -392,6 +399,8 @@ def step(pre_key, step_lvl=0, step_path=[]):
 				avg_killed = sum([len(km[l]) for l in ch._loops_ if l.available]) / ch.avcount
 										
 				if max_killed == None or (len(ch.cycles) <= len(min_chain.cycles) and (avg_killed > max_killed or (avg_killed == max_killed and (ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id))))):
+				# if max_killed == None or ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and (len(ch.cycles) <= len(min_chain.cycles) and (avg_killed > max_killed or (avg_killed == max_killed and (ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id)))))):
+				# if max_killed == None or (avg_killed > max_killed or (avg_killed == max_killed and (ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id)))):
 					# print(f"new max_killed: {avg_killed} (ch:{ch}) >  prev max_killed: {max_killed}")
 					max_killed = avg_killed
 					min_chain = ch			
