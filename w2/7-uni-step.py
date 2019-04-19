@@ -42,7 +42,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	def key():
 		return f"{pre_key}[{step_cc:>2}»{step_id:>4}][{tstr(time() - startTime):>11}][lvl:{step_lvl}]"
 			
-	if step_id % 100 == 0:
+	if step_id % 1000 == 0:
 		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}")
 	
 	if len(diagram.chains) == 1:
@@ -284,7 +284,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 		if min_chain == None or ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id):
 			min_chain = ch
 	
-	if min_chain.avcount > 1: # and step_lvl % 4 == 0: 
+	if min_chain.avcount > 1: # or step_lvl % 4 == 0: 
 	
 		purged = -1
 		singled = False
@@ -378,6 +378,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 				km = diagram.buildKillingMap()
 
 			max_killed = None
+			max_has_singles = None	
 			min_loops = None
 			
 			for ic, ch in enumerate(diagram.chains):
@@ -398,11 +399,18 @@ def step(pre_key, step_lvl=0, step_path=[]):
 										
 				avg_killed = sum([len(km[l]) for l in ch._loops_ if l.available]) / ch.avcount
 										
-				if max_killed == None or (len(ch.cycles) <= len(min_chain.cycles) and (avg_killed > max_killed or (avg_killed == max_killed and (ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id))))):
+				# if max_killed == None or (len(ch.cycles) <= len(min_chain.cycles) and (avg_killed > max_killed or (avg_killed == max_killed and (ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id))))):
 				# if max_killed == None or ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and (len(ch.cycles) <= len(min_chain.cycles) and (avg_killed > max_killed or (avg_killed == max_killed and (ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id)))))):
 				# if max_killed == None or (avg_killed > max_killed or (avg_killed == max_killed and (ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id)))):
-					# print(f"new max_killed: {avg_killed} (ch:{ch}) >  prev max_killed: {max_killed}")
+					
+				avg_has_singles = sum([len(singles_per_loop[l]) > 0 for l in ch._loops_ if l.available]) / ch.avcount
+					
+				# [~] prioritize for having singles for each loop in the chain!!!
+				if max_killed == None or (avg_has_singles >= max_has_singles and (len(ch.cycles) <= len(min_chain.cycles) and (avg_killed > max_killed or (avg_killed == max_killed and (ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id)))))):
+						
+					# print(f"new max_hax_singles: {avg_has_singles} (ch:{ch}) >  prev max_has_singles: {max_has_singles}")
 					max_killed = avg_killed
+					max_has_singles = avg_has_singles
 					min_chain = ch			
 		
 		if not singled:
