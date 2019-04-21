@@ -412,7 +412,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 					# print(f"{key()}[singles] found {ch} with {len(common_singles)} common singles")
 					min_loops = [list(common_singles)[0]]
 					singled = True
-					# break
+					break
 									
 				chavloops = ch.avloops()
 				
