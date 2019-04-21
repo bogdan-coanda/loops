@@ -445,24 +445,24 @@ def step(pre_key, step_lvl=0, step_path=[]):
 					maz_has_singles = avg_has_singles
 					maz_sum_singles = avg_sum_singles
 					miz_chain = ch					
-
-				if maα_killed == None or (
-					len(ch.cycles) <= len(miα_chain.cycles) and avg_has_singles > maα_has_singles or (
-					avg_has_singles == maα_has_singles and (avg_sum_singles > maα_sum_singles or (
-					avg_sum_singles == maα_sum_singles and (avg_killed > maα_killed or (
-					avg_killed == maα_killed and (ch.avcount < miα_chain.avcount or (
-					ch.avcount == miα_chain.avcount and ch.id < miα_chain.id)))))))):					
-											
-					maα_killed = avg_killed
-					maα_has_singles = avg_has_singles
-					maα_sum_singles = avg_sum_singles
-					miα_chain = ch
 				'''											
-				if max_killed == None or ch.avcount < min_chain.avcount or (
-					ch.avcount == min_chain.avcount and (avg_has_singles > max_has_singles or (
-					avg_has_singles == max_has_singles and (avg_sum_singles > max_sum_singles or (
+				if max_killed == None or (
+					len(ch.cycles) <= len(min_chain.cycles) and avg_has_singles > max_has_singles or (
+					avg_has_singles == max_has_singles and (ch.avcount < min_chain.avcount or (
+					ch.avcount == min_chain.avcount and (avg_sum_singles > max_sum_singles or (
 					avg_sum_singles == max_sum_singles and (avg_killed > max_killed or (
-					avg_killed == max_killed and ch.id < min_chain.id))))))):
+					avg_killed == max_killed and ch.id < min_chain.id)))))))):					
+											
+					# maα_killed = avg_killed
+					# maα_has_singles = avg_has_singles
+					# maα_sum_singles = avg_sum_singles
+					# miα_chain = ch
+					
+					# # if max_killed == None or ch.avcount < min_chain.avcount or (
+					# ch.avcount == min_chain.avcount and (avg_has_singles > max_has_singles or (
+					# avg_has_singles == max_has_singles and (avg_sum_singles > max_sum_singles or (
+					# avg_sum_singles == max_sum_singles and (avg_killed > max_killed or (
+					# avg_killed == max_killed and ch.id < min_chain.id))))))):
 											
 					# print(f"new max_hax_singles: {avg_has_singles} >=  prev max_has_singles: {max_has_singles} | (ch:{ch})")
 					max_killed = avg_killed
@@ -471,15 +471,15 @@ def step(pre_key, step_lvl=0, step_path=[]):
 					min_chain = ch
 				
 			'''
-			print(f'---  singled:{singled} & averaged --- | min chain: {min_chain} | has singles: {max_has_singles} | sum singles: {max_sum_singles} | killed: {max_killed}')
-			for ch in [min_chain, miα_chain, miz_chain, miq_chain]:
-				print(f"#: {ch}")				
+			for ch in [min_chain]:
+				print(f"#: {ch} | singled? {singled} | min_chlen: {min_chlen}")				
 				for il,loop in enumerate(ch.avloops()):
 					print(f"# / {il} | singles: {len(singles_per_loop[loop])} | kills: {len(km[loop])}")				
-			print(f'---  previouα finds --- | min chain: {miα_chain} | has singles: {maα_has_singles} | sum singles: {maα_sum_singles} | killed: {maα_killed}')													
-			print(f'---  previouz finds --- | min chain: {miz_chain} | has singles: {maz_has_singles} | sum singles: {maz_sum_singles} | killed: {maz_killed}')					
-			input2(f'---  very old finds --- | min chain: {miq_chain} | has singles: {maq_has_singles} | sum singles: {maq_sum_singles} | killed: {maq_killed}')
-			'''
+			input2(f'---  chosen  --- | min chain: {min_chain} | singles has: {max_has_singles} / sum: {max_sum_singles} | killed: {max_killed}')					
+			#print(f'---  previouα finds --- | min chain: {miα_chain} | has singles: {maα_has_singles} | sum singles: {maα_sum_singles} | killed: {maα_killed}')													
+			#print(f'---  previouz finds --- | min chain: {miz_chain} | has singles: {maz_has_singles} | sum singles: {maz_sum_singles} | killed: {maz_killed}')					
+			#input2(f'---  very old finds --- | min chain: {miq_chain} | has singles: {maq_has_singles} | sum singles: {maq_sum_singles} | killed: {maq_killed}')
+			#'''
 		if not singled:
 			if min_chlen == 1:
 				min_loops = min_chain.avloops()
