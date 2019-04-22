@@ -6,30 +6,12 @@ from collections import defaultdict
 from functools import reduce
 
 '''
-[  34][lvl:29] off: -3 §[ 0»809085][ 31m21s.686][lvl:56][ch:291|av:242] 0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0².0².0².0².0².0².0².0².0².0².0².0².0².0².0².0³.0².0³.0².1².0³.2³.0².1².1².1².1².0².1².1².1².1².0².1².0².0¹.1².0².0².1².1².1².1².0².0².0²
-[  34][lvl:29] off: -3 §[ 0»809085][ 31m21s.686][lvl:56][purge] ⇒ killed: 8 | ⇒ min chlen: 1
-[show] chains: 131 (111/20) | connected cycles: 609 | links: ℓ₁x3585 ℓ₂x651 ℓ₃x26 ℓ₄x0 | total: 4832 | final: 5905.0
-[  34][lvl:29] off: -3 §[ 0»809188][ 31m22s.266][lvl:88] new min step chains: 131  |  » ∘ «
-
-[  34][lvl:29] off: -3 §[ 0»3455478][ 147m16s.41][lvl:70][ch:221|av:148] 0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0².0².0².0².0².0².0².0².0².0².0².0².0².0².0².0³.0².0³.1².0².0³.1².0².1².0².1².1².1².1².0².0².0¹.1².0².0².0².1².0¹.0².0¹.0².0².1².1².1².1².1².1².1².1².0².1².0².0².1².0¹.0¹.0².1².1²
-[  34][lvl:29] off: -3 §[ 0»3455478][ 147m16s.41][lvl:70][purge] ⇒ killed: 17 | ⇒ min chlen: 1
-[show] chains: 126 (110/16) | connected cycles: 610 | links: ℓ₁x3586 ℓ₂x657 ℓ₃x26 ℓ₄x0 | total: 4873 | final: 5905.0
-[  34][lvl:29] off: -3 §[ 0»3455497][147m16s.661][lvl:89] new min step chains: 126  |  » ∘ «
-
-[show] chains: 121 (107/14) | connected cycles: 613 | links: ℓ₁x3601 ℓ₂x663 ℓ₃x26 ℓ₄x0 | total: 4914 | final: 5905.0
-[  34][lvl:29] off: -3 §[ 0»3455498][258m28s.996][lvl:90] new min step chains: 121  |  » ∘ «
-
-[show] chains: 116 (102/14) | connected cycles: 618 | links: ℓ₁x3630 ℓ₂x669 ℓ₃x26 ℓ₄x0 | total: 4955 | final: 5905.0
-[  34][lvl:29] off: -3 §[ 0»3455499][259m15s.805][lvl:91] new min step chains: 116  |  » ∘ «
-
-[show] chains: 111 (97/14) | connected cycles: 623 | links: ℓ₁x3659 ℓ₂x675 ℓ₃x26 ℓ₄x0 | total: 4996 | final: 5905.0
-[  34][lvl:29] off: -3 §[ 0»3455500][259m52s.567][lvl:92] new min step chains: 111  |  » ∘ «
 '''
 
 
 step_cc = -1
 step_id = -1
-min_step_chains_reached = 126
+min_step_chains_reached = 106
 sols_cc = 0
 
 
@@ -42,7 +24,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	def key():
 		return f"{pre_key}[{step_cc:>2}»{step_id:>4}][{tstr(time() - startTime):>11}][lvl:{step_lvl}]"
 			
-	if step_id % 1000 == 0:
+	if step_id % 10000 == 0:
 		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}")
 	
 	if len(diagram.chains) == 1:
@@ -75,7 +57,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 		if min_chain == None or ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id):
 			min_chain = ch
 	
-	if min_chain.avcount > 1: # or step_lvl % 4 == 0: 
+	if min_chain.avcount > 1 and step_id % 4 == 0: 
 	
 		purged = -1
 		singled = False
@@ -119,7 +101,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 			# ---  purge  --- #
 			
 			purged = 0	
-			singles_per_loop = defaultdict(set)
+			singles_per_loop = {}
 			
 			for loop in diagram.loops:
 				if loop.available:
@@ -127,9 +109,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 					diagram.extendLoop(loop)
 					min_chlen = min([ch.avcount for ch in diagram.chains])
 					chain_count = len(diagram.chains)
-					future_singles = set([ch.avloops()[0] for ch in diagram.chains if ch.avcount == 1])
-					if len(future_singles) > 0:
-						singles_per_loop[loop] = future_singles
+					singles_per_loop[loop] = set([ch.avloops()[0] for ch in diagram.chains if ch.avcount == 1])
 					diagram.collapseBack(loop)
 	
 					if min_chlen == 0 and chain_count > 1:

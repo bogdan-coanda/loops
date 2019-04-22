@@ -259,7 +259,7 @@ class Diagram (object):
 		
 		km = {}
 		
-		for ib, base_loop in enumerate(self.loops):
+		for base_loop in self.loops:
 			if base_loop.available:
 				# print(f"[buildKillingMap] ib: {ib}")
 
@@ -280,6 +280,7 @@ class Diagram (object):
 							elif conn_loop not in seenMoreLoops:
 								# seen twice
 								seenOnceLoops.remove(conn_loop)
+								# if conn_loop != base_loop:
 								seenMoreLoops.add(conn_loop)
 								
 				km[base_loop] = seenMoreLoops.difference([base_loop]) # [~] without the loop that makes all this possible
