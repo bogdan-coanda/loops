@@ -67,216 +67,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	seen = []
 
 	# --- --- --- #
-	'''
-	#looped = 0
 	
-	#curr_len = len([l for l in diagram.loops if l.available])
-	#min_avcount = min([ch.avcount for ch in diagram.chains])
-	
-	#if min_avcount > 1:
-		#km = diagram.buildKillingMap()
-		
-		# sk = sorted(km.items(), key = lambda p: (-p[1], p[0]))
-		# for i in list(range(0, 1)) + list(range(len(sk)-1, len(sk))):
-		# 	print(f"#{i}: {sk[i][1]} ⇒ {curr_len-sk[i][1]} | {color_string(sk[i][0].ktype)+':'+str(sk[i][0].ktype_radialIndex)}")
-		# print(f"[km] tested {len(sk)} loops.")
-		
-		# minmax_per_chain = []
-		# for ch in diagram.chains:
-		# 	if ch.avcount == 2:
-		# 		chloops = ch.avloops()
-		# 		if km[chloops[0]] > km[chloops[1]]:
-		# 			minmax_per_chain.append((curr_len-km[chloops[0]], curr_len-km[chloops[1]], (chloops[0], chloops[1]), ch))
-		# 		else:	
-		# 			minmax_per_chain.append((curr_len-km[chloops[1]], curr_len-km[chloops[0]], (chloops[1], chloops[0]), ch))
-		# 
-		# smm = sorted(minmax_per_chain, key = lambda p: p[:3])
-		# for i in range(len(smm)) if len(smm) < 2 else list(range(0, 1)) + list(range(len(smm)-1, len(smm))):
-		# 	print(f"#{i} | min: {smm[i][0]} | max: {smm[i][1]} | {smm[i][3]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in smm[i][2]]}")
-		# print(f"[km] tested {len(smm)} 2-avloop chains.")		
-		
-		# median_per_chain = []
-		# for ch in diagram.chains:
-		# 	median_per_chain.append((sum([curr_len-km[l] for l in ch.avloops()]) / ch.avcount, ch.avcount, ch))
-		# smed = sorted(median_per_chain, key = lambda p: p[:-1])
-		
-		min_median = None
-		min_chsmed = None
-		for ch in diagram.chains:
-			median = sum([curr_len-km[l] for l in ch.avloops()]) / ch.avcount
-			if min_median == None or median < min_median or (median == min_median and (ch.avcount < min_chsmed.avcount or (ch.avcount == min_chsmed.avcount and ch.id < min_chsmed.id))):
-				min_median = median
-				min_chsmed = ch
-		
-		
-		# for i in range(len(smed)) if len(smed) < 2 else list(range(0, 1)) + list(range(len(smed)-1, len(smed))):
-		# 	print(f"#{i} | median: {smed[i][0]:.2f} | avcount: {smed[i][1]} | {smed[i][2]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex)+'`#`'+str(curr_len-km[l]) for l in smed[i][2].avloops()]}")
-		# print(f"[km] tested {len(smed)} chains.")		
-	'''			
-	'''															
-		looped += 1
-
-		avlen_per_loop = []				
-		avlen_per_pair = []
-		avlen_per_trio = []
-		dead_children_per_loop = defaultdict(int)
-						
-		killedSomething = False
-					
-		for il, loop1 in enumerate(diagram.loops):
-			if loop1.available:
-				print(f"[{looped}][{tstr(time() - startTime):>11}] il: {il}")
-				assert diagram.extendLoop(loop1)
-				
-				avlen = len([l for l in diagram.loops if l.available])				
-				min_chlen = min([ch.avcount for ch in diagram.chains])
-
-				diagram.collapseBack(loop1)
-													
-				if min_chlen == 0:
-					diagram.setLoopUnavailable(loop1)
-					seen.append(loop1)
-					if min([n.cycle.chain.avcount for n in loop1.nodes]) == 0:
-						break
-					else:
-						killedSomething = True
-						
-				else:
-					avlen_per_loop.append([avlen, min_chlen, [loop1]])
-	
-					assert diagram.extendLoop(loop1)
-					for jl, loop2 in enumerate(diagram.loops):
-						if jl > il and loop2.available:
-							assert diagram.extendLoop(loop2)
-							
-							avlen = len([l for l in diagram.loops if l.available])
-							min_chlen = min([ch.avcount for ch in diagram.chains])
-							
-							if min_chlen == 0:
-								dead_children_per_loop[loop1] += 1
-							else:
-								avlen_per_pair.append([avlen, min_chlen, [loop1, loop2]])
-
-
-								for kl, loop3 in enumerate(diagram.loops):
-									if kl > jl and loop3.available:
-										assert diagram.extendLoop(loop3)
-										
-										avlen = len([l for l in diagram.loops if l.available])
-										min_chlen = min([ch.avcount for ch in diagram.chains])
-										
-										if min_chlen != 0:
-											avlen_per_trio.append([avlen, min_chlen, [loop1, loop2, loop3]])
-											
-										diagram.collapseBack(loop3)
-															
-																								
-							diagram.collapseBack(loop2)
-					diagram.collapseBack(loop1)			
-				
-		if not killedSomething:
-			break
-
-									
-	if looped > 0:
-		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}")		
-		print(f"{key()}[purge] ⇒ killed: {len(seen)} | ⇒ min chlen: {min([ch.avcount for ch in diagram.chains])}")
-				
-		print('--- loops ---')		
-		savl = sorted(avlen_per_loop)				
-		for i in range(0, 14):
-			print(f"#{i}: {savl[i][0]} | {savl[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savl[i][2]]}")
-		for i in range(len(savl)-14, len(savl)):
-			print(f"#{i}: {savl[i][0]} | {savl[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savl[i][2]]}")
-		print(f"[loops] tested {len(savl)} loops.")			
-
-		print('--- pairs ---')		
-		savp = sorted(avlen_per_pair)		
-		for i in range(0, 14):
-			print(f"#{i}: {savp[i][0]} | {savp[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savp[i][2]]}")
-		for i in range(len(savp)-14, len(savp)):
-			print(f"#{i}: {savp[i][0]} | {savp[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savp[i][2]]}")
-		print(f"[pairs] tested {len(savp)} pairs.")			
-
-		print('--- trios ---')		
-		savt = sorted(avlen_per_trio)		
-		for i in range(0, 14):
-			print(f"#{i}: {savt[i][0]} | {savt[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savt[i][2]]}")
-		for i in range(len(savt)-14, len(savt)):
-			print(f"#{i}: {savt[i][0]} | {savt[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savt[i][2]]}")
-		print(f"[pairs] tested {len(savt)} trios.")			
-												
-		print('∘∘∘ deaths ∘∘∘')
-		savd = sorted(dead_children_per_loop.items(), key = lambda dc: (-dc[1], dc[0]))
-		for i in range(0, 14):
-			print(f"#{i}: {savd[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in [savd[i][0]]]}")
-		for i in range(len(savd)-14, len(savd)):
-			print(f"#{i}: {savd[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in [savd[i][0]]]}")					
-		print(f"[deaths] found {len(savd)} killer loops.")
-		print('∘∘∘ ∘∘∘∘∘∘ ∘∘∘')
-								
-		prime_killer_loop = savd[0][0]
-		print('--- prime killer loop ---')
-		for i in range(0, len(savl)):
-			if prime_killer_loop in savl[i][2]:			
-				print(f"#{i}: {savl[i][0]} | {savl[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savl[i][2]]}")
-				break
-		print('--- prime killer pairs ---')		
-		savp_pkl_cc = 0
-		for i in range(0, len(savp)):
-			if prime_killer_loop in savp[i][2]:						
-				print(f"#{i}: {savp[i][0]} | {savp[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savp[i][2]]}")
-				savp_pkl_cc += 1
-				if savp_pkl_cc >= 7:
-					break
-		print('--- prime killer trios ---')		
-		savt_pkl_cc = 0
-		for i in range(0, len(savt)):
-			if prime_killer_loop in savt[i][2]:						
-				print(f"#{i}: {savt[i][0]} | {savt[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savt[i][2]]}")
-				savt_pkl_cc += 1
-				if savt_pkl_cc >= 7:
-					break					
-		print('--- prime killer cycles/chains ---')
-		for n in prime_killer_loop.nodes:
-			print(f"{n.cycle} | {n.cycle.chain}")
-
-		prime_pair = savp[0][2]
-		print('--- prime pair loops ---')
-		for i in range(0, len(savl)):
-			if prime_pair[0] in savl[i][2] or prime_pair[1] in savl[i][2]:			
-				print(f"#{i}: {savl[i][0]} | {savl[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savl[i][2]]}")
-		print('--- prime pair pairs ---')		
-		savp_pkl_cc = 0
-		for i in range(0, len(savp)):
-			if prime_pair[0] in savp[i][2] or prime_pair[1] in savp[i][2]:			
-				print(f"#{i}: {savp[i][0]} | {savp[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savp[i][2]]}")
-				savp_pkl_cc += 1
-				if savp_pkl_cc >= 7:
-					break				
-		print('--- prime pair trios ---')		
-		savt_pkl_cc = 0
-		for i in range(0, len(savt)):
-			if prime_pair[0] in savt[i][2] or prime_pair[1] in savt[i][2]:			
-				print(f"#{i}: {savt[i][0]} | {savt[i][1]} | {[color_string(l.ktype)+':'+str(l.ktype_radialIndex) for l in savt[i][2]]}")
-				savt_pkl_cc += 1
-				if savt_pkl_cc >= 7:
-					break									
-		print('--- prime pair cycles/chains ---')
-		for n in prime_pair[0].nodes:
-			print(f"#[0] | {n.cycle} | {n.cycle.chain}")
-		for n in prime_pair[1].nodes:
-			print(f"#[1] | {n.cycle} | {n.cycle.chain}")
-								
-		input2('--- ----- ---- ------/------ ---')		
-
-	'''
-		
-	#[±] for each 2-avloop chain get the two avlen_per_loop values into a (min, max) pair per chain ⇒ sort by (min,max,…)
-	#[±] construct a global killingField map … by cummulating pairs of loops intersecting in pairs of cycles ? ⇒ need thorough asserts by avlen_per_loop table
-		
-	
-								
 	# ∘∘∘ ∘∘∘ ∘∘∘ #
 
 	min_chain = None
@@ -376,19 +167,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 			
 			if len(seen) > 0:
 				km = diagram.buildKillingMap()
-			'''
-			maq_killed = None
-			maq_has_singles = None	
-			maq_sum_singles = None
-			
-			maz_killed = None
-			maz_has_singles = None	
-			maz_sum_singles = None
 
-			maα_killed = None
-			maα_has_singles = None	
-			maα_sum_singles = None
-			'''										
 			max_killed = None
 			max_has_singles = None	
 			max_sum_singles = None
@@ -417,53 +196,19 @@ def step(pre_key, step_lvl=0, step_path=[]):
 				chavloops = ch.avloops()
 				
 				avg_killed = sum([len(km[l]) for l in chavloops]) / ch.avcount
-										
-				# if max_killed == None or (len(ch.cycles) <= len(min_chain.cycles) and (avg_killed > max_killed or (avg_killed == max_killed and (ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id))))):
-				# if max_killed == None or ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and (len(ch.cycles) <= len(min_chain.cycles) and (avg_killed > max_killed or (avg_killed == max_killed and (ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id)))))):
-				# if max_killed == None or (avg_killed > max_killed or (avg_killed == max_killed and (ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id)))):
-					
+															
 				avg_has_singles = sum([len(singles_per_loop[l]) > 0 for l in chavloops]) / ch.avcount
 					
 				avg_sum_singles = sum([len(singles_per_loop[l]) for l in chavloops]) / ch.avcount
 					
 				# print(f"#{ic} ⇒ common singles: {len(common_singles)} | avg kills: {avg_killed:.2} | has singles: {avg_has_singles:.2} | sum singles: {avg_sum_singles}")
-				'''				
-				# [~] prioritize for having singles for each loop in the chain!!!
-				if maq_killed == None or (avg_has_singles >= maq_has_singles and len(ch.cycles) <= len(miq_chain.cycles) and (avg_killed > maq_killed or (avg_killed == maq_killed and (ch.avcount < miq_chain.avcount or (ch.avcount == miq_chain.avcount and ch.id < miq_chain.id))))):
-					
-					maq_killed = avg_killed
-					maq_has_singles = avg_has_singles
-					maq_sum_singles = avg_sum_singles
-					miq_chain = ch
-					
-				# if max_has_singles == None or avg_has_singles > max_has_singles or (avg_has_singles == max_has_singles and (ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id))):
-																
-				# [~] …and prioritize for max sum singles
-				if maz_killed == None or avg_sum_singles > maz_sum_singles or (avg_sum_singles == maz_sum_singles and avg_has_singles >= maz_has_singles and len(ch.cycles) <= len(miz_chain.cycles) and (avg_killed > maz_killed or (avg_killed == maz_killed and (ch.avcount < miz_chain.avcount or (ch.avcount == miz_chain.avcount and ch.id < miz_chain.id))))):
-					
-					maz_killed = avg_killed
-					maz_has_singles = avg_has_singles
-					maz_sum_singles = avg_sum_singles
-					miz_chain = ch					
-				'''											
 				if max_killed == None or (
 					len(ch.cycles) <= len(min_chain.cycles) and avg_has_singles > max_has_singles or (
 					avg_has_singles == max_has_singles and (ch.avcount < min_chain.avcount or (
 					ch.avcount == min_chain.avcount and (avg_sum_singles > max_sum_singles or (
 					avg_sum_singles == max_sum_singles and (avg_killed > max_killed or (
 					avg_killed == max_killed and ch.id < min_chain.id)))))))):					
-											
-					# maα_killed = avg_killed
-					# maα_has_singles = avg_has_singles
-					# maα_sum_singles = avg_sum_singles
-					# miα_chain = ch
-					
-					# # if max_killed == None or ch.avcount < min_chain.avcount or (
-					# ch.avcount == min_chain.avcount and (avg_has_singles > max_has_singles or (
-					# avg_has_singles == max_has_singles and (avg_sum_singles > max_sum_singles or (
-					# avg_sum_singles == max_sum_singles and (avg_killed > max_killed or (
-					# avg_killed == max_killed and ch.id < min_chain.id))))))):
-											
+																						
 					# print(f"new max_hax_singles: {avg_has_singles} >=  prev max_has_singles: {max_has_singles} | (ch:{ch})")
 					max_killed = avg_killed
 					max_has_singles = avg_has_singles
@@ -476,9 +221,6 @@ def step(pre_key, step_lvl=0, step_path=[]):
 				for il,loop in enumerate(ch.avloops()):
 					print(f"# / {il} | singles: {len(singles_per_loop[loop])} | kills: {len(km[loop])}")				
 			input2(f'---  chosen  --- | min chain: {min_chain} | singles has: {max_has_singles} / sum: {max_sum_singles} | killed: {max_killed}')					
-			#print(f'---  previouα finds --- | min chain: {miα_chain} | has singles: {maα_has_singles} | sum singles: {maα_sum_singles} | killed: {maα_killed}')													
-			#print(f'---  previouz finds --- | min chain: {miz_chain} | has singles: {maz_has_singles} | sum singles: {maz_sum_singles} | killed: {maz_killed}')					
-			#input2(f'---  very old finds --- | min chain: {miq_chain} | has singles: {maq_has_singles} | sum singles: {maq_sum_singles} | killed: {maq_killed}')
 			#'''
 		if not singled:
 			if min_chlen == 1:
