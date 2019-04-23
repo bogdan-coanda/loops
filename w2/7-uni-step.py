@@ -57,7 +57,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 		if min_chain == None or ch.avcount < min_chain.avcount or (ch.avcount == min_chain.avcount and ch.id < min_chain.id):
 			min_chain = ch
 	
-	if min_chain.avcount > 1 and step_id % 4 == 0: 
+	if min_chain.avcount > 1: # and step_id % 4 == 0: 
 	
 		purged = -1
 		singled = False
@@ -213,10 +213,12 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	# print(f"⇒ chosen min loops: {len(min_loops)} | min chain: {min_chain}")
 			
 	for i,loop in enumerate(min_loops):
-		# print(f"{key()}[{i}/{min_chain.avcount}] extending {loop}")
-		assert diagram.extendLoop(loop)	
-		step(pre_key, step_lvl+1, step_path+[(i, len(min_loops), loop.firstAddress())])
-		diagram.collapseBack(loop)	
+		# input2(f"{key()}[{i}/{min_chain.avcount}] extending {loop}")
+		
+		if step_lvl != 10 or i== 5:
+			assert diagram.extendLoop(loop)	
+			step(pre_key, step_lvl+1, step_path+[(i, len(min_loops), loop.firstAddress())])
+			diagram.collapseBack(loop)	
 		
 		seen.append(loop)
 		diagram.setLoopUnavailable(loop)
