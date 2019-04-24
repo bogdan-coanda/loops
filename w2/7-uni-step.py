@@ -215,10 +215,9 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	for i,loop in enumerate(min_loops):
 		# input2(f"{key()}[{i}/{min_chain.avcount}] extending {loop}")
 		
-		if step_lvl != 10 or i== 5:
-			assert diagram.extendLoop(loop)	
-			step(pre_key, step_lvl+1, step_path+[(i, len(min_loops), loop.firstAddress())])
-			diagram.collapseBack(loop)	
+		assert diagram.extendLoop(loop)	
+		step(pre_key, step_lvl+1, step_path+[(i, len(min_loops), loop.firstAddress())])
+		diagram.collapseBack(loop)	
 		
 		seen.append(loop)
 		diagram.setLoopUnavailable(loop)
@@ -244,10 +243,14 @@ if __name__ == "__main__":
 [  34][lvl:29] off: -3 § K43212105454323212105454323210
 |2222»[1∘4][2∘3][3∘2][4∘1][3∘2][4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][3∘2][4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][5]
 | current min off: -3  |  » ∘ «
+
+[  37][lvl:31] off: -3 § K4321210545432321210545432321210
+|2222»[1∘4][2∘3][3∘2][4∘1][3∘2][4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][3∘2][4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][3∘2][4∘1][5]
+| [off:-3]  |  » ∘ «
 	'''					
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- #
 	
-	max_lvl_reached = 29
+	max_lvl_reached = 31
 	min_off_reached = 1
 
 	unicc = 0
@@ -299,7 +302,8 @@ if __name__ == "__main__":
 			show(diagram)
 			print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))
 			input2(f"| [off:-3]")
-			step(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} §")
+			if unicc > 34:
+				step(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} §")
 								
 		if offset == -4:# and path[-1][0] == 0:
 			show(diagram)
