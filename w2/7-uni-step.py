@@ -250,7 +250,7 @@ if __name__ == "__main__":
 	'''					
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- #
 	
-	max_lvl_reached = 31
+	max_lvl_reached = 82
 	min_off_reached = 1
 
 	unicc = 0
@@ -262,7 +262,7 @@ if __name__ == "__main__":
 			return
 
 		# path = [(function index, function path), … ]
-		if unicc % 1 == 0:
+		if unicc % 1000 == 0:
 			print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}")
 			# print(''.join([p for x,p in path]))
 			# diagram.point(); show(diagram)
@@ -293,28 +293,29 @@ if __name__ == "__main__":
 			input2(f"| current min off: {min_off_reached}")
 
 		if offset == -2:
+			pass
 			#show(diagram)
-			print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))
+			#print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))
 			#input2(f"| [off:-2]")
 			#step(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} §")
 																														
 		if offset == -3:
-			show(diagram)
-			print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))
-			input2(f"| [off:-3]")
-			if unicc > 34:
+			if unicc > 2694:
+				#show(diagram)
+				#print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))
+				#input2(f"| [off:-3]")
 				step(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} §")
 								
 		if offset == -4:# and path[-1][0] == 0:
-			show(diagram)
+			#show(diagram)
 			print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))
-			input2(f"| [off:-4]")
+			print(f"| [off:-4]")
 			step(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} §")
 		
-		if diagram.openChain.tailNode.address.endswith('456'):
-			show(diagram)
-			print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))
-			input2(f"| […456]")			
+		#if diagram.openChain.tailNode.address.endswith('456'):
+		#	show(diagram)
+		#	print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))
+		#	input2(f"| […456]")			
 		
 		# --- THE ENGINE --- #								
 
