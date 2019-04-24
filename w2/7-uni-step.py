@@ -250,12 +250,15 @@ if __name__ == "__main__":
 	'''					
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- #
 	
-	max_lvl_reached = 82
+	max_lvl_reached = 93 # 82 // [+5] 93
 	min_off_reached = 1
 
 	unicc = 0
+	u3 = 0
+	u4 = 0
+	
 	def uni(lvl=0, offset=0, path=[('K', f'|{KP}»')]):
-		global unicc, max_lvl_reached, min_off_reached
+		global unicc, u3, u4, max_lvl_reached, min_off_reached
 		
 		# kill early
 		if offset	> 0:
@@ -292,24 +295,26 @@ if __name__ == "__main__":
 			print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))			
 			input2(f"| current min off: {min_off_reached}")
 
-		if offset == -2:
-			pass
-			#show(diagram)
-			#print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))
-			#input2(f"| [off:-2]")
-			#step(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} §")
+		# if offset == -2:
+		# 	pass
+		# 	show(diagram)
+		# 	print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))
+		# 	input2(f"| [off:-2]")
+		# 	step(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} §")
 																														
 		if offset == -3:
+			u3 += 1
 			if unicc > 2694:
 				#show(diagram)
-				#print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))
-				#input2(f"| [off:-3]")
+				# print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))
+				print(f"| [off:-3] § u3: {u3} | u4: {u4}")
 				step(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} §")
 								
 		if offset == -4:# and path[-1][0] == 0:
+			u4 += 1
 			#show(diagram)
 			print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))
-			print(f"| [off:-4]")
+			print(f"| [off:-4] § u3: {u3} | u4: {u4}")
 			step(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} §")
 		
 		#if diagram.openChain.tailNode.address.endswith('456'):
