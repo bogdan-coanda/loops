@@ -19,7 +19,10 @@ class Chain (object):
 						
 		# affected loops are avloops set to unavailabled because we're connecting the affected chains together
 		# they're the loops that need to be re-availabled on this chain's demise
-		'affected_loops'
+		'affected_loops',
+		
+		# open chain loops set to unavailable on the new chain created by make_chain
+		'openChain_loops'
 	] 
 
 	chainAutoInc = 0
@@ -54,4 +57,6 @@ class Chain (object):
 	
 
 	def avloops(self):
-		return [loop for loop in self._loops_ if loop.available]
+		ls = [loop for loop in self._loops_ if loop.available]
+		assert len(ls) == self.avcount
+		return ls

@@ -17,7 +17,7 @@ def groupby(L, K = id, V = id, G = id, S = id):
 	return S({ k:G(g) for k,g in r.items() })
 	
 def tstr(s):
-	return "" + str(int(floor(s / 60))) + "m" + str(int(floor(s)) % 60) + "s." + str(int(s * 1000) % 1000)
+	return f"{int(floor(s / 60))}m{int(floor(s)) % 60:>02}s.{int(s * 1000) % 1000:>03}"
 	
 def ui2pil(ui_img):
 	png_data = ui_img.to_png()

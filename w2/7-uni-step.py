@@ -24,7 +24,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	def key():
 		return f"{pre_key}[{step_cc:>2}»{step_id:>4}][{tstr(time() - startTime):>11}][lvl:{step_lvl}]"
 			
-	if step_id % 10000 == 0:
+	if step_id % 1 == 0:
 		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}")
 	
 	if len(diagram.chains) == 1:
@@ -247,6 +247,12 @@ if __name__ == "__main__":
 [  37][lvl:31] off: -3 § K4321210545432321210545432321210
 |2222»[1∘4][2∘3][3∘2][4∘1][3∘2][4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][3∘2][4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][3∘2][2∘3][3∘2][4∘1][3∘2][4∘1][5]
 | [off:-3]  |  » ∘ «
+
+--- ∘ ---
+
+[ 146][lvl:29] off: -3 § K43212105454343212105454343210
+|2222»[1∘4][2∘3][3∘2][4∘1][3∘2][4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][1∘4][2∘3][3∘2][4∘1][3∘2][4∘1][5][∘5][1∘4][∘5][1∘4][2∘3][1∘4][2∘3][3∘2][4∘1][5]
+| [off:-3] § u3: 2 | u4: 0  |  » ∘ «
 	'''					
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- #
 	
@@ -264,8 +270,16 @@ if __name__ == "__main__":
 		if offset	> 0:
 			return
 
+		# kill by upper bound
+		if lvl >= 7 and offset > -1: # from [lvl:5][off:-1]
+			return 
+		if lvl >= 19 and offset > -2: # from [lvl:17][off:-2]
+			return 
+		if lvl >= 29 and offset > -3: # from [lvl:29][off:-3]
+			return 
+						
 		# path = [(function index, function path), … ]
-		if unicc % 1000 == 0:
+		if unicc % 1 == 0:
 			print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}")
 			# print(''.join([p for x,p in path]))
 			# diagram.point(); show(diagram)
@@ -304,17 +318,17 @@ if __name__ == "__main__":
 																														
 		if offset == -3:
 			u3 += 1
-			if unicc > 2694:
-				#show(diagram)
-				# print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))
-				print(f"| [off:-3] § u3: {u3} | u4: {u4}")
+			show(diagram)
+			print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))
+			input2(f"| [off:-3] § u3: {u3} | u4: {u4}")
+			if unicc > 34:				
 				step(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} §")
 								
 		if offset == -4:# and path[-1][0] == 0:
 			u4 += 1
-			#show(diagram)
+			show(diagram)
 			print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))
-			print(f"| [off:-4] § u3: {u3} | u4: {u4}")
+			input2(f"| [off:-4] § u3: {u3} | u4: {u4}")
 			step(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} §")
 		
 		#if diagram.openChain.tailNode.address.endswith('456'):

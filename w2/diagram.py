@@ -543,16 +543,17 @@ class Diagram (object):
 		new_chain.tailNode = nextNode.prevs[1].node
 				
 		# manually unavail loops surrounding connected link
+		new_chain.openChain_loops = []
 		if nextLink.next.loop.available:
 			self.setLoopUnavailable(nextLink.next.loop)
-			new_chain.affected_loops.append(nextLink.next.loop)			
+			new_chain.openChain_loops.append(nextLink.next.loop)			
 		if nextLink.next.prevs[1].node.loop.available:
 			self.setLoopUnavailable(nextLink.next.prevs[1].node.loop)
-			new_chain.affected_loops.append(nextLink.next.prevs[1].node.loop)						
+			new_chain.openChain_loops.append(nextLink.next.prevs[1].node.loop)			
 		if nextLink.next.prevs[1].node.prevs[1].node.loop.available:
 			self.setLoopUnavailable(nextLink.next.prevs[1].node.prevs[1].node.loop)
-			new_chain.affected_loops.append(nextLink.next.prevs[1].node.prevs[1].node.loop)						
-													
+			new_chain.openChain_loops.append(nextLink.next.prevs[1].node.prevs[1].node.loop)						
+		
 		self.changelog.append(('connected', linkType, nextLink, new_chain))
 		# print(f"[cOc] ⇒ done")
 		return True
@@ -563,6 +564,9 @@ class Diagram (object):
 		
 		key, linkType, nextLink, new_chain = self.changelog.pop()
 		assert key == 'connected'
+
+		for loop in reversed(new_chain.openChain_loops):
+			self.resetLoopAvailable(loop)		
 
 		self.__breakChain__(new_chain)						
 								
