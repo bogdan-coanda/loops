@@ -266,7 +266,7 @@ if __name__ == "__main__":
 	
 	U1 = 7  # from [lvl:5][off:-1]
 	U2 = 19 # from [lvl:17][off:-2]
-	U3 = 31 # from [lvl:29][off:-3]
+	U3 = 33 # from [lvl:29][off:-3]
 	UCC = { -3: 0, -4: 0 } # 3: 34
 	
 	def uni(lvl=0, offset=0, path=[('K', f'|{KP}»')]):
