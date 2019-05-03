@@ -4,6 +4,7 @@ from mx import *
 from time import time
 from collections import defaultdict
 from functools import reduce
+import pathlib
 
 '''
 '''
@@ -24,14 +25,14 @@ def step(pre_key, step_lvl=0, step_path=[]):
 	def key():
 		return f"{pre_key}[{step_cc:>2}»{step_id:>4}][{tstr(time() - startTime):>11}][lvl:{step_lvl}]"
 			
-	if step_id % 1 == 0:
+	if step_id % 1000 == 0:
 		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}")
 	
 	if len(diagram.chains) == 1:
 		
-		with open('6.Ω.sols.txt', 'a', encoding="utf8") as log:
+		with open('7.Ω.sols.txt', 'a', encoding="utf8") as log:
 			log.write(' '.join([addr for _,_,addr in step_path]) + "\n")
-		with open('6.Ω.path.txt', 'a', encoding="utf8") as log:
+		with open('7.Ω.path.txt', 'a', encoding="utf8") as log:
 			log.write('.'.join([(str(x)+upper(t)) for x,t,_ in step_path]) + "\n")
 		
 		show(diagram)								
@@ -263,6 +264,11 @@ if __name__ == "__main__":
 	u3 = 0
 	u4 = 0
 	
+	U1 = 7  # from [lvl:5][off:-1]
+	U2 = 19 # from [lvl:17][off:-2]
+	U3 = 31 # from [lvl:29][off:-3]
+	UCC = { -3: 0, -4: 0 } # 3: 34
+	
 	def uni(lvl=0, offset=0, path=[('K', f'|{KP}»')]):
 		global unicc, u3, u4, max_lvl_reached, min_off_reached
 		
@@ -270,12 +276,14 @@ if __name__ == "__main__":
 		if offset	> 0:
 			return
 
+
+
 		# kill by upper bound
-		if lvl >= 7 and offset > -1: # from [lvl:5][off:-1]
+		if lvl >= U1 and offset > -1:
 			return 
-		if lvl >= 19 and offset > -2: # from [lvl:17][off:-2]
+		if lvl >= U2 and offset > -2: 
 			return 
-		if lvl >= 29 and offset > -3: # from [lvl:29][off:-3]
+		if lvl >= U3 and offset > -3: 
 			return 
 						
 		# path = [(function index, function path), … ]
@@ -316,21 +324,63 @@ if __name__ == "__main__":
 		# 	input2(f"| [off:-2]")
 		# 	step(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} §")
 																														
-		if offset == -3:
-			u3 += 1
-			show(diagram)
-			print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))
-			input2(f"| [off:-3] § u3: {u3} | u4: {u4}")
-			if unicc > 34:				
-				step(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} §")
-								
-		if offset == -4:# and path[-1][0] == 0:
-			u4 += 1
-			show(diagram)
-			print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))
-			input2(f"| [off:-4] § u3: {u3} | u4: {u4}")
-			step(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} §")
+		if offset <= -3 and offset >= -4:
+
+			curr_path = ''.join([str(x) for x,p in path])
+			
+			is_done = False
+			done_cfg = pathlib.Path('7.Ω.u.done.txt') 
+			if done_cfg.is_file(): 
+				with open('7.Ω.u.done.txt', 'r', encoding="utf8") as log:
+					for line_index, line in enumerate(log):			
+						_, _, _, _, u_path, _, _ = line.split()
+						if u_path == curr_path:
+							is_done = True
+							break
 		
+			if not is_done:
+				
+				is_seen = False
+				seen_cfg = pathlib.Path('7.Ω.u.seen.txt')
+				
+				u_index = 0
+				u_counts = "counts:0/0"
+				
+				if seen_cfg.is_file():
+					with open('7.Ω.u.seen.txt', 'r', encoding="utf8") as log:
+						for line_index, line in enumerate(log):
+							u_index, u_offset, u_unicc, u_lvl, u_path, u_bounds, u_counts = line.split()
+							if u_path == curr_path:
+								is_seen = True
+								break
+				
+				u_index = int(u_index) + 1
+				u_counts = [int(x) for x in u_counts.split(':')[1].split('/')]
+				u_counts[abs(offset)-3] += 1
+
+				if not is_seen:
+					with open('7.Ω.u.seen.txt', 'a', encoding="utf8") as log:						
+						log.write(f"{u_index:>4} off:{offset} unicc:{unicc:<4} lvl:{lvl} {curr_path} bounds:{U1}/{U2}/{U3} counts:{'/'.join([str(x) for x in u_counts])}" + "\n")
+						show(diagram)
+						print(f"#{u_index} [{unicc:>4}][lvl:{lvl}] off: {offset} § {''.join([str(x) for x,p in path])}")
+						input2(f"| [off:{offset}] § counts:{'/'.join([str(x) for x in u_counts])}")
+						
+					step(f"[{unicc:>4}][lvl:{lvl}] off: {offset} §")						
+					with open('7.Ω.u.done.txt', 'a', encoding="utf8") as log:
+						log.write(f"{u_index:>4} off:{offset} unicc:{unicc:<4} lvl:{lvl} {curr_path} bounds:{U1}/{U2}/{U3} counts:{'/'.join([str(x) for x in u_counts])}" + "\n")
+						input2(f"#{u_index} [{unicc}][lvl:{lvl}] off: {offset} » done: {''.join([str(x) for x,_ in path])}")
+												
+				else: # is seen
+					input2(f"[{unicc:>4}][lvl:{lvl}] off: {offset} § already seen: {''.join([str(x) for x,p in path])}")
+									
+			else: # is done
+				input2(f"[{unicc}][lvl:{lvl}] off: {offset} § already done: {''.join([str(x) for x,p in path])}")			
+									
+		if offset <= -4:
+			show(diagram)
+			print(f"[{unicc}][lvl:{lvl}] off: {offset} § {''.join([str(x) for x,p in path])}")
+			input2(f"| [off:{offset}] § u3: {u3} | u4: {u4} | u?: !")
+						
 		#if diagram.openChain.tailNode.address.endswith('456'):
 		#	show(diagram)
 		#	print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}" + '\n' + ''.join([p for x,p in path]))
