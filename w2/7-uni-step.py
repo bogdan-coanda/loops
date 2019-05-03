@@ -372,10 +372,10 @@ if __name__ == "__main__":
 						input2(f"#{u_index} [{unicc}][lvl:{lvl}] off: {offset} » done: {''.join([str(x) for x,_ in path])}")
 												
 				else: # is seen
-					input2(f"[{unicc:>4}][lvl:{lvl}] off: {offset} § already seen: {''.join([str(x) for x,p in path])}")
+					print(f"[{unicc:>4}][lvl:{lvl}] off: {offset} § already seen: {''.join([str(x) for x,p in path])}")
 									
 			else: # is done
-				input2(f"[{unicc}][lvl:{lvl}] off: {offset} § already done: {''.join([str(x) for x,p in path])}")			
+				print(f"[{unicc}][lvl:{lvl}] off: {offset} § already done: {''.join([str(x) for x,p in path])}")			
 									
 		if offset <= -4:
 			show(diagram)
