@@ -258,7 +258,7 @@ if __name__ == "__main__":
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- #
 	
 	max_lvl_reached = 93 # 82 // [+5] 93
-	min_off_reached = 1
+	min_off_reached = -3 # 1
 
 	unicc = 0
 	u3 = 0
@@ -333,7 +333,7 @@ if __name__ == "__main__":
 			if done_cfg.is_file(): 
 				with open('7.Ω.u.done.txt', 'r', encoding="utf8") as log:
 					for line_index, line in enumerate(log):			
-						_, _, _, _, u_path, _, _ = line.split()
+						_, _, _, _, _, _, _, u_path = line.split()
 						if u_path == curr_path:
 							is_done = True
 							break
@@ -349,7 +349,7 @@ if __name__ == "__main__":
 				if seen_cfg.is_file():
 					with open('7.Ω.u.seen.txt', 'r', encoding="utf8") as log:
 						for line_index, line in enumerate(log):
-							u_index, u_offset, u_unicc, u_lvl, u_path, u_bounds, u_counts = line.split()
+							u_index, u_reachts, u_offset, u_counts, u_bounds, u_unicc, u_lvl, u_path = line.split()
 							if u_path == curr_path:
 								is_seen = True
 								break
@@ -359,15 +359,16 @@ if __name__ == "__main__":
 				u_counts[abs(offset)-3] += 1
 
 				if not is_seen:
-					with open('7.Ω.u.seen.txt', 'a', encoding="utf8") as log:						
-						log.write(f"{u_index:>4} off:{offset} unicc:{unicc:<4} lvl:{lvl} {curr_path} bounds:{U1}/{U2}/{U3} counts:{'/'.join([str(x) for x in u_counts])}" + "\n")
+					with open('7.Ω.u.seen.txt', 'a', encoding="utf8") as log:
+						log.write(f"{u_index:>4}  {tstr(time()-startTime):>12}  off:{offset}  counts:{'/'.join([str(x) for x in u_counts])}  bounds:{U1}/{U2}/{U3}  unicc:{unicc:<4}  lvl:{lvl}  {curr_path}" + "\n")
 						show(diagram)
 						print(f"#{u_index} [{unicc:>4}][lvl:{lvl}] off: {offset} § {''.join([str(x) for x,p in path])}")
 						input2(f"| [off:{offset}] § counts:{'/'.join([str(x) for x in u_counts])}")
 						
+					step_enter_ts = time()
 					step(f"[{unicc:>4}][lvl:{lvl}] off: {offset} §")						
 					with open('7.Ω.u.done.txt', 'a', encoding="utf8") as log:
-						log.write(f"{u_index:>4} off:{offset} unicc:{unicc:<4} lvl:{lvl} {curr_path} bounds:{U1}/{U2}/{U3} counts:{'/'.join([str(x) for x in u_counts])}" + "\n")
+						log.write(f"{u_index:>4}  {tstr(time() - step_enter_ts):>12}  off:{offset}  counts:{'/'.join([str(x) for x in u_counts])}  bounds:{U1}/{U2}/{U3}  unicc:{unicc:<4}  lvl:{lvl}  {curr_path}" + "\n")
 						input2(f"#{u_index} [{unicc}][lvl:{lvl}] off: {offset} » done: {''.join([str(x) for x,_ in path])}")
 												
 				else: # is seen
