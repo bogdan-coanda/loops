@@ -265,8 +265,8 @@ if __name__ == "__main__":
 	u4 = 0
 	
 	U1 = 7  # from [lvl:5][off:-1]
-	U2 = 19 # from [lvl:17][off:-2]
-	U3 = 33 # from [lvl:29][off:-3]
+	U2 = 20 # from [lvl:17][off:-2]
+	U3 = 36 # from [lvl:29][off:-3]
 	UCC = { -3: 0, -4: 0 } # 3: 34
 	
 	def uni(lvl=0, offset=0, path=[('K', f'|{KP}»')]):
@@ -361,15 +361,15 @@ if __name__ == "__main__":
 				if not is_seen:
 					with open('7.Ω.u.seen.txt', 'a', encoding="utf8") as log:
 						log.write(f"{u_index:>4}  {tstr(time()-startTime):>12}  off:{offset}  counts:{'/'.join([str(x) for x in u_counts])}  bounds:{U1}/{U2}/{U3}  unicc:{unicc:<4}  lvl:{lvl}  {curr_path}" + "\n")
-						show(diagram)
+						#show(diagram)
 						print(f"#{u_index} [{unicc:>4}][lvl:{lvl}] off: {offset} § {''.join([str(x) for x,p in path])}")
-						input2(f"| [off:{offset}] § counts:{'/'.join([str(x) for x in u_counts])}")
+						#input2(f"| [off:{offset}] § counts:{'/'.join([str(x) for x in u_counts])}")
 						
 					step_enter_ts = time()
 					step(f"[{unicc:>4}][lvl:{lvl}] off: {offset} §")						
 					with open('7.Ω.u.done.txt', 'a', encoding="utf8") as log:
 						log.write(f"{u_index:>4}  {tstr(time() - step_enter_ts):>12}  off:{offset}  counts:{'/'.join([str(x) for x in u_counts])}  bounds:{U1}/{U2}/{U3}  unicc:{unicc:<4}  lvl:{lvl}  {curr_path}" + "\n")
-						input2(f"#{u_index} [{unicc}][lvl:{lvl}] off: {offset} » done: {''.join([str(x) for x,_ in path])}")
+						print(f"#{u_index} [{unicc}][lvl:{lvl}] off: {offset} » done: {''.join([str(x) for x,_ in path])}")
 												
 				else: # is seen
 					print(f"[{unicc:>4}][lvl:{lvl}] off: {offset} § already seen: {''.join([str(x) for x,p in path])}")
@@ -377,10 +377,10 @@ if __name__ == "__main__":
 			else: # is done
 				print(f"[{unicc}][lvl:{lvl}] off: {offset} § already done: {''.join([str(x) for x,p in path])}")			
 									
-		if offset <= -4:
+		if offset < -4:
 			show(diagram)
 			print(f"[{unicc}][lvl:{lvl}] off: {offset} § {''.join([str(x) for x,p in path])}")
-			input2(f"| [off:{offset}] § u3: {u3} | u4: {u4} | u?: !")
+			input2(f"| [off:{offset}] § u?: !")
 						
 		#if diagram.openChain.tailNode.address.endswith('456'):
 		#	show(diagram)
