@@ -287,7 +287,7 @@ if __name__ == "__main__":
 			return 
 						
 		# path = [(function index, function path), … ]
-		if unicc % 1 == 0:
+		if unicc % 1000 == 0:
 			print(f"[{unicc:>4}][lvl:{lvl}] off: {offset:>2} § {''.join([str(x) for x,p in path])}")
 			# print(''.join([p for x,p in path]))
 			# diagram.point(); show(diagram)
@@ -362,14 +362,14 @@ if __name__ == "__main__":
 					with open('7.Ω.u.seen.txt', 'a', encoding="utf8") as log:
 						log.write(f"{u_index:>4}  {tstr(time()-startTime):>12}  off:{offset}  counts:{'/'.join([str(x) for x in u_counts])}  bounds:{U1}/{U2}/{U3}  unicc:{unicc:<4}  lvl:{lvl}  {curr_path}" + "\n")
 						#show(diagram)
-						print(f"#{u_index} [{unicc:>4}][lvl:{lvl}] off: {offset} § {''.join([str(x) for x,p in path])}")
+						#print(f"#{u_index} [{unicc:>4}][lvl:{lvl}] off: {offset} § {''.join([str(x) for x,p in path])}")
 						#input2(f"| [off:{offset}] § counts:{'/'.join([str(x) for x in u_counts])}")
 						
 					step_enter_ts = time()
 					step(f"[{unicc:>4}][lvl:{lvl}] off: {offset} §")						
 					with open('7.Ω.u.done.txt', 'a', encoding="utf8") as log:
 						log.write(f"{u_index:>4}  {tstr(time() - step_enter_ts):>12}  off:{offset}  counts:{'/'.join([str(x) for x in u_counts])}  bounds:{U1}/{U2}/{U3}  unicc:{unicc:<4}  lvl:{lvl}  {curr_path}" + "\n")
-						print(f"#{u_index} [{unicc}][lvl:{lvl}] off: {offset} » done: {''.join([str(x) for x,_ in path])}")
+						#input2(f"#{u_index} [{unicc}][lvl:{lvl}] off: {offset} » done: {''.join([str(x) for x,_ in path])}")
 												
 				else: # is seen
 					print(f"[{unicc:>4}][lvl:{lvl}] off: {offset} § already seen: {''.join([str(x) for x,p in path])}")
