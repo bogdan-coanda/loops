@@ -1,5 +1,5 @@
 from diagram import *
-from uicanvas import *
+from universe import *
 from mx import *
 from time import time
 from collections import defaultdict
@@ -264,9 +264,9 @@ if __name__ == "__main__":
 	u3 = 0
 	u4 = 0
 	
-	U1 = 7  # from [lvl:5][off:-1]
-	U2 = 20 # from [lvl:17][off:-2]
-	U3 = 36 # from [lvl:29][off:-3]
+	U1 = 9  # from [lvl:5][off:-1]
+	U2 = 21 # from [lvl:17][off:-2]
+	U3 = 39 # from [lvl:29][off:-3]
 	UCC = { -3: 0, -4: 0 } # 3: 34
 	
 	def uni(lvl=0, offset=0, path=[('K', f'|{KP}»')]):
