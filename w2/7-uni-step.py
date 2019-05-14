@@ -27,6 +27,8 @@ def step(pre_key, step_lvl=0, step_path=[]):
 			
 	if step_id % 1000 == 0:
 		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}")
+		# if time() - startTime > 120:
+		# 	input2(f"{tstr(time() - startTime):>11}")
 	
 	if len(diagram.chains) == 1:
 		
@@ -153,7 +155,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 			max_has_singles = None	
 			max_sum_singles = None
 			min_loops = None
-			
+			# min_chain = None	
 			# print(f"{key()} singling & averaging")
 			
 			for ic, ch in enumerate(diagram.chains):
@@ -180,7 +182,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 															
 				avg_has_singles = sum([len(singles_per_loop[l]) > 0 for l in chavloops]) / ch.avcount
 					
-				avg_sum_singles = sum([len(singles_per_loop[l]) for l in chavloops]) / ch.avcount
+				avg_sum_singles = sum([len(singles_per_loop[l]) for l in chavloops]) # / ch.avcount
 					
 				# print(f"#{ic} ⇒ common singles: {len(common_singles)} | avg kills: {avg_killed:.2} | has singles: {avg_has_singles:.2} | sum singles: {avg_sum_singles}")
 				if max_killed == None or (
@@ -189,12 +191,54 @@ def step(pre_key, step_lvl=0, step_path=[]):
 					ch.avcount == min_chain.avcount and (avg_sum_singles > max_sum_singles or (
 					avg_sum_singles == max_sum_singles and (avg_killed > max_killed or (
 					avg_killed == max_killed and ch.id < min_chain.id)))))))):					
-																						
+					'''
+				if (min_chain == None or (avg_killed > max_killed or ( #2
+					avg_killed == max_killed and (avg_has_singles > max_has_singles or ( #4
+					avg_has_singles == max_has_singles and #(len(ch.cycles) < len(min_chain.cycles) or ( #1
+					#len(ch.cycles) == len(min_chain.cycles) and #(ch.avcount < min_chain.avcount or ( #0
+					#ch.avcount == min_chain.avcount and #(avg_sum_singles > max_sum_singles or ( #3
+					#avg_sum_singles == max_sum_singles and 
+					ch.id < min_chain.id))))):					
+					'''																	
 					# print(f"new max_hax_singles: {avg_has_singles} >=  prev max_has_singles: {max_has_singles} | (ch:{ch})")
 					max_killed = avg_killed
 					max_has_singles = avg_has_singles
 					max_sum_singles = avg_sum_singles
 					min_chain = ch
+				
+				'''
+				
+# avg_killed / ch.avcount ⁑
+[  34][lvl:29] off: -3 §[ 0»80000][  2m00s.055][lvl:33][ch:406|av:289] 0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0⁷.0⁶.0¹.0⁷.0¹.0⁴.0¹.0⁴.0¹.0¹.2⁵.0¹.1⁴.4⁵.0².0¹.0¹.2⁴.0¹.0¹.2⁸.0¹.0¹	
+
+# len(cycles) ⁑
+[  34][lvl:29] off: -3 §[ 0»40000][  2m03s.452][lvl:51][ch:316|av:233] 0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0⁵.0¹.0³.0⁴.0¹.0³.0¹.0³.0³.0¹.0⁴.0¹.0¹.0³.0¹.0³.0¹.0³.0¹.0¹.0¹.0³.1².0².1².2³.1³.0³.1³.3⁴.0¹.0¹.0¹.0².0¹.0¹.0¹.0¹.0¹.0¹.0¹		
+
+# len(cycles) » avg_killed / ch.avcount ⁑
+[  34][lvl:29] off: -3 §[ 0»65000][  2m01s.680][lvl:47][ch:336|av:217] 0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0⁷.0⁶.0¹.0⁷.0¹.0⁴.0¹.0⁴.0¹.0¹.2⁵.0¹.2⁴.3⁵.0¹.1⁵.0¹.0¹.3⁵.0¹.5⁶.0¹.0¹.0¹.0¹.0¹.1².0¹.3⁴.0².0¹.0¹.0¹.0¹.0¹.0¹.0¹
+
+# len(cycles) » avg_killed ⁑
+[  34][lvl:29] off: -3 §[ 0»90000][  2m00s.213][lvl:47][ch:336|av:224] 0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0⁷.0⁷.0¹.0⁶.0¹.0⁷.0¹.0⁷.0¹.0⁷.0¹.0¹.0¹.0¹.1⁶.0¹.0¹.5⁶.6⁷.3⁶.3⁷.0¹.0¹.3⁷.0¹.5⁶.0¹.4⁵.0¹.1⁶.0¹.0¹.0¹.0¹.0¹.0¹.0¹
+
+-------------------
+
+# has_singles ⁑
+[  34][lvl:29] off: -3 §[ 0»345000][  2m00s.031][lvl:45][ch:346|av:246] 0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹³⁶.0¹.0¹.0¹⁴⁰.0¹.0¹.0¹⁴².0¹.0¹.0¹.1¹³⁷.0¹.0¹.0¹.4¹³⁷.0¹.0¹.0¹.22¹²⁴.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.27¹¹³.0¹.0¹.0¹.0¹.0¹
+
+# has_singles / ch.avcount ⁑
+[  34][lvl:29] off: -3 §[ 0»43000][  2m00s.108][lvl:46][ch:341|av:247] 0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0⁶.0¹.0¹.0⁵.0¹.0¹.0⁶.0¹.0¹.0⁵.0¹.2³.0¹.0⁶.0¹.0¹.1³.0¹.0⁴.0¹.0¹.1⁵.0¹.2⁵.0¹.2³.0¹.2³.0¹.2³.0¹.1⁴.0¹.0¹.0¹.0¹
+
+# ch.avcount » has_singles
+[  34][lvl:29] off: -3 §[ 0»26000][  2m02s.469][lvl:46][ch:341|av:279] 0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0².0².0².0².0².0².0².0².0².0².0².0².0¹.0².0¹.1².1².0².0².0¹.0².0¹.0².0².0¹.0¹.1².0².0¹.1².0¹.1².1².1².0¹.1²
+
+# ch.avcount » has_singles / ch.avcount ⁑
+[  34][lvl:29] off: -3 §[ 0»26000][  2m04s.554][lvl:46][ch:341|av:279] 0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0².0².0².0².0².0².0².0².0².0².0².0².0¹.0².0¹.1².1².0².0².0¹.0².0¹.0².0².0¹.0¹.1².0².0¹.1².0¹.1².1².1².0¹.1²
+
+# avg_killed / ch.avcount » has_singles ⁑
+[  34][lvl:29] off: -3 §[ 0»84000][  2m00s.756][lvl:44][ch:351|av:242] {0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0⁷.0¹.0⁴.0¹.0⁴.0¹.0⁴.0¹.0⁶.0¹.1¹⁴.0¹.0¹.0¹.1⁴.0¹.3⁴.5⁶.4⁵.0¹.4⁵.1¹⁶.0¹.0¹.0¹.1⁴.0¹.0¹.0¹.4⁸.0¹.0¹.0¹.0¹
+
+
+				'''
 				
 			'''
 			for ch in [min_chain]:
