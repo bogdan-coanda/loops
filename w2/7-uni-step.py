@@ -1,5 +1,5 @@
 from diagram import *
-from universe import *
+from uicanvas import *
 from mx import *
 from time import time
 from collections import defaultdict
@@ -12,12 +12,16 @@ import pathlib
 
 step_cc = -1
 step_id = -1
-min_step_chains_reached = 106
+min_step_chains_reached = 76
 sols_cc = 0
+
+in_history = True
+history_step_lvl_index = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 0, 3, 3, 2, 2, 3, 0, 6, 3, 3, 0, 0, 1, 0, 2, 0, 2, 0, 3, 0, 1, 0, 2, 0, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+history_step_lvl_count = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 1, 1, 5, 1, 6, 1, 4, 4, 3, 3, 4, 1, 7, 4, 5, 2, 1, 3, 1, 6, 1, 5, 1, 4, 1, 2, 1, 3, 1, 3, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1]
 
 
 def step(pre_key, step_lvl=0, step_path=[]):
-	global step_cc, step_id, min_step_chains_reached, sols_cc
+	global step_cc, step_id, min_step_chains_reached, sols_cc, startTime, in_history
 	if step_lvl == 0:
 		step_cc += 1
 	step_id += 1
@@ -27,6 +31,9 @@ def step(pre_key, step_lvl=0, step_path=[]):
 			
 	if step_id % 1000 == 0:
 		print(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}")
+		if step_id % 100000 == 0:
+			with open('7.Ω.u.step-log.txt', 'a', encoding="utf8") as log:
+				log.write(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}" + "\n")		
 		# if time() - startTime > 120:
 		# 	input2(f"{tstr(time() - startTime):>11}")
 	
@@ -256,9 +263,20 @@ def step(pre_key, step_lvl=0, step_path=[]):
 		min_loops = min_chain.avloops()
 		
 	# print(f"⇒ chosen min loops: {len(min_loops)} | min chain: {min_chain}")
-			
+	if in_history and step_lvl >= len(history_step_lvl_index):
+		in_history = False
+						
 	for i,loop in enumerate(min_loops):
 		# input2(f"{key()}[{i}/{min_chain.avcount}] extending {loop}")
+		
+		if in_history:
+			assert len(min_loops) == history_step_lvl_count[step_lvl]
+			if i < history_step_lvl_index[step_lvl]:
+				seen.append(loop)
+				diagram.setLoopUnavailable(loop)				
+				continue
+			if i > history_step_lvl_index[step_lvl]:
+				in_history = False
 		
 		assert diagram.extendLoop(loop)	
 		step(pre_key, step_lvl+1, step_path+[(i, len(min_loops), loop.firstAddress())])
@@ -308,9 +326,9 @@ if __name__ == "__main__":
 	u3 = 0
 	u4 = 0
 	
-	U1 = 9  # from [lvl:5][off:-1]
-	U2 = 21 # from [lvl:17][off:-2]
-	U3 = 39 # from [lvl:29][off:-3]
+	U1 = 7  # from [lvl:5][off:-1]
+	U2 = 19 # from [lvl:17][off:-2]
+	U3 = 29 # from [lvl:29][off:-3]
 	UCC = { -3: 0, -4: 0 } # 3: 34
 	
 	def uni(lvl=0, offset=0, path=[('K', f'|{KP}»')]):
