@@ -34,8 +34,8 @@ def step(pre_key, step_lvl=0, step_path=[]):
 		if step_id % 100000 == 0:
 			with open('7.Ω.u.step-log.txt', 'a', encoding="utf8") as log:
 				log.write(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}" + "\n")		
-		# if time() - startTime > 120:
-		# 	input2(f"{tstr(time() - startTime):>11}")
+		if time() - startTime > 120:
+			input2(f"{tstr(time() - startTime):>11}")
 	
 	if len(diagram.chains) == 1:
 		
@@ -192,21 +192,22 @@ def step(pre_key, step_lvl=0, step_path=[]):
 				avg_sum_singles = sum([len(singles_per_loop[l]) for l in chavloops]) # / ch.avcount
 					
 				# print(f"#{ic} ⇒ common singles: {len(common_singles)} | avg kills: {avg_killed:.2} | has singles: {avg_has_singles:.2} | sum singles: {avg_sum_singles}")
-				if max_killed == None or (
+				if (
+				in_history and (
+					max_killed == None or (
 					len(ch.cycles) <= len(min_chain.cycles) and avg_has_singles > max_has_singles or (
 					avg_has_singles == max_has_singles and (ch.avcount < min_chain.avcount or (
 					ch.avcount == min_chain.avcount and (avg_sum_singles > max_sum_singles or (
 					avg_sum_singles == max_sum_singles and (avg_killed > max_killed or (
-					avg_killed == max_killed and ch.id < min_chain.id)))))))):					
-					'''
-				if (min_chain == None or (avg_killed > max_killed or ( #2
-					avg_killed == max_killed and (avg_has_singles > max_has_singles or ( #4
-					avg_has_singles == max_has_singles and #(len(ch.cycles) < len(min_chain.cycles) or ( #1
-					#len(ch.cycles) == len(min_chain.cycles) and #(ch.avcount < min_chain.avcount or ( #0
-					#ch.avcount == min_chain.avcount and #(avg_sum_singles > max_sum_singles or ( #3
-					#avg_sum_singles == max_sum_singles and 
-					ch.id < min_chain.id))))):					
-					'''																	
+					avg_killed == max_killed and ch.id < min_chain.id)))))))))) or (					
+				in_history == False and (
+					max_killed == None or (avg_has_singles > max_has_singles or ( #4
+					avg_has_singles == max_has_singles and (avg_sum_singles > max_sum_singles or ( #3
+					avg_sum_singles == max_sum_singles and (avg_killed > max_killed or ( #2
+					avg_killed == max_killed and (len(ch.cycles) < len(min_chain.cycles) or ( #1
+					len(ch.cycles) == len(min_chain.cycles) and (ch.avcount < min_chain.avcount or ( #0
+					ch.avcount == min_chain.avcount and ch.id < min_chain.id)))))))))))):					
+						
 					# print(f"new max_hax_singles: {avg_has_singles} >=  prev max_has_singles: {max_has_singles} | (ch:{ch})")
 					max_killed = avg_killed
 					max_has_singles = avg_has_singles
