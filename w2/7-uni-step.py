@@ -16,7 +16,7 @@ min_step_chains_reached = 76
 sols_cc = 0
 xc = 0
 
-in_history = True
+in_history = False
 history_step_lvl_index = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 0, 3, 3, 2, 2, 3, 0, 6, 3, 3, 0, 0, 1, 0, 2, 0, 2, 0, 3, 0, 1, 0, 2, 0, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
 history_step_lvl_count = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 1, 1, 5, 1, 6, 1, 4, 4, 3, 3, 4, 1, 7, 4, 5, 2, 1, 3, 1, 6, 1, 5, 1, 4, 1, 2, 1, 3, 1, 3, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1]
 
@@ -35,8 +35,8 @@ def step(pre_key, step_lvl=0, step_path=[]):
 		if step_id % 100000 == 0:
 			with open('7.Ω.u.step-log.txt', 'a', encoding="utf8") as log:
 				log.write(f"{key()}[ch:{len(diagram.chains)}|av:{len([l for l in diagram.loops if l.available])}] {'.'.join([(str(x)+upper(t)) for x,t,_ in step_path])}" + "\n")		
-		if time() - startTime > 240:
-			input2(f"{tstr(time() - startTime):>11}")
+		# if time() - startTime > 720:
+		# 	input2(f"{tstr(time() - startTime):>11}")
 	
 	if len(diagram.chains) == 1:
 		
@@ -159,6 +159,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 			if len(seen) > 0:
 				km = diagram.buildKillingMap()
 
+			
 			max_killed = None
 			max_has_singles = None	
 			max_sum_singles = None
@@ -180,8 +181,8 @@ def step(pre_key, step_lvl=0, step_path=[]):
 							break				
 				if len(common_singles) > 0:
 					# print(f"{key()}[singles] found {ch} with {len(common_singles)} common singles")
-					with open('7.Ω.u.if-ex-cs-chain.txt', 'a', encoding="utf8") as log:
-						log.write(f"{xc} [cs] {step_lvl} {ic} {ch} {common_singles}" + "\n")
+					# with open('7.Ω.u.if-ex-cs-chain.txt', 'a', encoding="utf8") as log:
+					# 	log.write(f"{xc} [cs] {step_lvl} {ic} {ch} {common_singles}" + "\n")
 					min_loops = list(common_singles) if len(common_singles) == 1 else [sorted(common_singles, key = lambda loop: (-len(singles_per_loop[loop]), -len(km[loop]), loop.firstAddress()))[0]]
 					singled = True
 					break
@@ -189,25 +190,28 @@ def step(pre_key, step_lvl=0, step_path=[]):
 				
 				
 				
-				if in_history:
-														
-					chavloops = ch.avloops()				
-					avg_killed = sum([len(km[l]) for l in chavloops]) / ch.avcount															
-					avg_has_singles = sum([len(singles_per_loop[l]) > 0 for l in chavloops]) / ch.avcount					
-					avg_sum_singles = sum([len(singles_per_loop[l]) for l in chavloops]) # / ch.avcount
+				if step_lvl < 0:
 					
-					# print(f"#{ic} ⇒ common singles: {len(common_singles)} | avg kills: {avg_killed:.2} | has singles: {avg_has_singles:.2} | sum singles: {avg_sum_singles}")
-					if max_killed == None or (
-						len(ch.cycles) <= len(min_chain.cycles) and avg_has_singles > max_has_singles or (
-						avg_has_singles == max_has_singles and (ch.avcount < min_chain.avcount or (
-						ch.avcount == min_chain.avcount and (avg_sum_singles > max_sum_singles or (
-						avg_sum_singles == max_sum_singles and (avg_killed > max_killed or (
-						avg_killed == max_killed and ch.id < min_chain.id)))))))):
+					if max_killed == None or len(ch.cycles) <= len(min_chain.cycles):
+						
+						chavloops = ch.avloops()				
+						avg_killed = sum([len(km[l]) for l in chavloops]) / ch.avcount															
+						avg_has_singles = sum([len(singles_per_loop[l]) > 0 for l in chavloops]) # / ch.avcount					
+						avg_sum_singles = sum([len(singles_per_loop[l]) for l in chavloops]) # / ch.avcount
+					
+						# print(f"#{ic} ⇒ common singles: {len(common_singles)} | avg kills: {avg_killed:.2} | has singles: {avg_has_singles:.2} | sum singles: {avg_sum_singles}")
+						
+						if max_killed == None or (len(ch.cycles) < len(min_chain.cycles) or ( #1
+							len(ch.cycles) == len(min_chain.cycles) and avg_has_singles > max_has_singles or ( #4
+						avg_has_singles == max_has_singles and (ch.avcount < min_chain.avcount or ( #0
+						ch.avcount == min_chain.avcount and (avg_sum_singles > max_sum_singles or ( #3
+						avg_sum_singles == max_sum_singles and (avg_killed > max_killed or ( #2
+						avg_killed == max_killed and ch.id < min_chain.id))))))))):
 	
-						max_killed = avg_killed
-						max_has_singles = avg_has_singles
-						max_sum_singles = avg_sum_singles
-						min_chain = ch
+							max_killed = avg_killed
+							max_has_singles = avg_has_singles
+							max_sum_singles = avg_sum_singles
+							min_chain = ch
 			
 				else:
 					
@@ -215,8 +219,8 @@ def step(pre_key, step_lvl=0, step_path=[]):
 						
 						chavloops = ch.avloops()				
 						avg_killed = sum([len(km[l]) for l in chavloops]) / ch.avcount #2				
-						avg_has_singles = sum([len(singles_per_loop[l]) > 0 for l in chavloops]) # / ch.avcount	#4	
-						avg_sum_singles = sum([len(singles_per_loop[l]) for l in chavloops]) # / ch.avcount	#3					
+						avg_has_singles = sum([len(singles_per_loop[l]) > 0 for l in chavloops]) # / ch.avcount	#4/d
+						avg_sum_singles = sum([len(singles_per_loop[l]) for l in chavloops]) # / ch.avcount	#3/b
 					
 						if max_killed == None or (ch.avcount < min_chain.avcount or ( #0
 							ch.avcount == min_chain.avcount and (avg_has_singles > max_has_singles or ( #4
@@ -231,9 +235,9 @@ def step(pre_key, step_lvl=0, step_path=[]):
 							max_sum_singles = avg_sum_singles
 							min_chain = ch
 							
-							with open('7.Ω.u.if-ex-cs-chain.txt', 'a', encoding="utf8") as log:
-								log.write(f"{xc} [if] {step_lvl} {min_chain} {max_has_singles} {max_sum_singles} {max_killed}" + "\n")
-								xc += 1
+							# with open('7.Ω.u.if-ex-cs-chain.txt', 'a', encoding="utf8") as log:
+							# 	log.write(f"{xc} [if] {step_lvl} {min_chain} {max_has_singles} {max_sum_singles} {max_killed}" + "\n")
+							# 	xc += 1
 																
 							# print(f"new max_hax_singles: {avg_has_singles} >=  prev max_has_singles: {max_has_singles} | (ch:{ch})")
 				
@@ -302,8 +306,8 @@ def step(pre_key, step_lvl=0, step_path=[]):
 			if i > history_step_lvl_index[step_lvl]:
 				in_history = False
 		
-		with open('7.Ω.u.if-ex-cs-chain.txt', 'a', encoding="utf8") as log:
-			log.write(f"{xc} [ex] {step_lvl} {min_loops} {i} {loop}" + "\n")
+		# with open('7.Ω.u.if-ex-cs-chain.txt', 'a', encoding="utf8") as log:
+		# 	log.write(f"{xc} [ex] {step_lvl} {min_loops} {i} {loop}" + "\n")
 		
 		assert diagram.extendLoop(loop)	
 		step(pre_key, step_lvl+1, step_path+[(i, len(min_loops), loop.firstAddress())])
