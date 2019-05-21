@@ -1,5 +1,5 @@
 from diagram import *
-from uicanvas import *
+from universe import *
 from mx import *
 from time import time
 from collections import defaultdict
@@ -16,10 +16,12 @@ min_step_chains_reached = 76
 sols_cc = 0
 xc = 0
 
-in_history = False
-history_step_lvl_index = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 0, 3, 3, 2, 2, 3, 0, 6, 3, 3, 0, 0, 1, 0, 2, 0, 2, 0, 3, 0, 1, 0, 2, 0, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
-history_step_lvl_count = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 1, 1, 5, 1, 6, 1, 4, 4, 3, 3, 4, 1, 7, 4, 5, 2, 1, 3, 1, 6, 1, 5, 1, 4, 1, 2, 1, 3, 1, 3, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1]
-
+in_history = True
+#[  34][lvl:29] off: -3 §[ 0»58200000][2946m52s.193][lvl:73][ch:206|av:137] 0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0².0².0².1².0².1².0².0².1².0².1².1².1².1².1².1².1².0².1².0².0¹.1².1².1².1².0².0².0¹.1².1².1².0¹.0¹.0².0¹.0¹.0¹.0¹.1².0¹.0¹.1².0¹.1².1².0¹.1².0¹.0¹.0¹.1².0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹
+history_step_lvl_index = [0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1,0,1,1,1,1,1,1,1,0,1,0,0,1,1,1,1,0,0,0,1,1,1,0,0,0,0,0,0,0,1,0,0,1,0,1,1,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
+history_step_lvl_count = [1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,1,2,2,2,1,1,2,1,1,1,1,2,1,1,2,1,2,2,1,2,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1]
+history_step_id = 58200000
+history_startTime = 2946*60+52.193
 
 def step(pre_key, step_lvl=0, step_path=[]):
 	global step_cc, step_id, min_step_chains_reached, sols_cc, startTime, in_history, xc
@@ -38,6 +40,13 @@ def step(pre_key, step_lvl=0, step_path=[]):
 		# if time() - startTime > 720:
 		# 	input2(f"{tstr(time() - startTime):>11}")
 	
+	if in_history and step_lvl == len(history_step_lvl_index):
+		in_history = False
+		step_id = history_step_id
+		startTime = history_startTime
+		
+
+
 	if len(diagram.chains) == 1:
 		
 		with open('7.Ω.sols.txt', 'a', encoding="utf8") as log:
@@ -291,8 +300,6 @@ def step(pre_key, step_lvl=0, step_path=[]):
 		min_loops = min_chain.avloops()
 		
 	# print(f"⇒ chosen min loops: {len(min_loops)} | min chain: {min_chain}")
-	if in_history and step_lvl >= len(history_step_lvl_index):
-		in_history = False
 						
 	for i,loop in enumerate(min_loops):
 		# input2(f"{key()}[{i}/{min_chain.avcount}] extending {loop}")
@@ -303,8 +310,6 @@ def step(pre_key, step_lvl=0, step_path=[]):
 				seen.append(loop)
 				diagram.setLoopUnavailable(loop)				
 				continue
-			if i > history_step_lvl_index[step_lvl]:
-				in_history = False
 		
 		# with open('7.Ω.u.if-ex-cs-chain.txt', 'a', encoding="utf8") as log:
 		# 	log.write(f"{xc} [ex] {step_lvl} {min_loops} {i} {loop}" + "\n")
