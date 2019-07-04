@@ -17,12 +17,12 @@ sols_cc = 0
 xc = 0
 
 in_history = True
-#[  34][lvl:29] off: -3 §[ 0»654500000][26001956m04s.656][lvl:61][ch:266|av:200] 
-#0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0¹.0².0².1².1².0².0².0².0¹.1².1².1².0².0¹.1².1².0².0².0².1².1².0².1².0².1².0².0².1².1².1².0².0².0².0¹.1².1².0².0².1².1².1².0¹.1².1².1².1².0¹.1².0¹.0².0¹.0¹
-history_step_lvl_index = [ 0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,1,1,0,0,1,1,0,0,0,1,1,0,1,0,1,0,0,1,1,1,0,0,0,0,1,1,0,0,1,1,1,0,1,1,1,1,0,1,0,0,0,0]
-history_step_lvl_count = [ 1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,1,2,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,2,1,2,1,2,1,1]
-history_step_id = 654500000
-history_startTime = 26001956*60+04.656
+#[  34][lvl:29] off: -3 §[ 0»666000000][5313m55s.704][lvl:47][ch:336|av:279] 
+#  0¹.0¹.0¹.0¹.0¹ . 0¹.0¹.0¹.0¹.0¹ . 0².0².1².1².0² . 0².1².0².1².1² . 0².1².0².1².1² . 0².0².0².0².0¹ . 0².0².1².1².0² . 0¹.0².1².1².0² . 0².1².1².0².1² . 0².0²
+history_step_lvl_index = [  0,0,0,0,0 , 0,0,0,0,0 , 0,0,1,1,0 , 0,1,0,1,1 , 0,1,0,1,1 , 0,0,0,0,0 , 0,0,1,1,0 , 0,0,1,1,0 , 0,1,1,0,1 , 0,0]
+history_step_lvl_count = [  1,1,1,1,1 , 1,1,1,1,1 , 2,2,2,2,2 , 2,2,2,2,2 , 2,2,2,2,2 , 2,2,2,2,1 , 2,2,2,2,2 , 1,2,2,2,2 , 2,2,2,2,2 , 2,2]
+history_step_id = 666000000
+history_startTime = 5313*60+55.704
 
 def step(pre_key, step_lvl=0, step_path=[]):
 	global step_cc, step_id, min_step_chains_reached, sols_cc, startTime, in_history, xc
@@ -306,7 +306,7 @@ def step(pre_key, step_lvl=0, step_path=[]):
 		# input2(f"{key()}[{i}/{min_chain.avcount}] extending {loop}")
 		
 		if in_history:
-			assert len(min_loops) == history_step_lvl_count[step_lvl]
+			assert len(min_loops) == history_step_lvl_count[step_lvl], f"lvl:{step_lvl}|{len(min_loops)!=history_step_lvl_count[step_lvl]}"
 			if i < history_step_lvl_index[step_lvl]:
 				seen.append(loop)
 				diagram.setLoopUnavailable(loop)				
